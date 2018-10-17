@@ -1,0 +1,57 @@
+<?php
+
+namespace Lubart\Just\Structure\Panel\Block;
+
+use Lubart\Form\FormElement;
+use Lubart\Just\Tools\Useful;
+use Lubart\Just\Requests\TextChangeRequest;
+
+class Text extends AbstractBlock
+{
+    
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'text',
+    ];
+    
+    protected $table = 'texts';
+    
+    protected $settingsTitle = 'Plain Text';
+    
+    public function form() {
+        if(!is_null($this->id)){
+            $this->form->open();
+        }
+        
+        $this->includeAddons();
+        
+        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>'Text', 'value'=>@$this->text]));
+        $this->form->add(FormElement::submit(['value'=>'Save']));
+        
+        $this->form->useJSLogic();
+        
+        return $this->form;
+    }
+    
+    public function handleForm(TextChangeRequest $request) {
+        if(is_null($request->request->get('id'))){
+            $text = new Text;
+            $text->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->request->get('block_id')]);
+            $text->setBlock($request->get('block_id'));
+        }
+        else{
+            $text = Text::findOrNew($request->request->get('id'));
+        }
+        
+        $text->text = $request->request->get('text');
+        $text->save();
+        
+        $this->handleAddons($request, $text);
+        
+        return $text;
+    }
+}

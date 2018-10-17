@@ -1,0 +1,114 @@
+<?php
+
+namespace Lubart\Just\Structure\Panel\Block;
+
+use Illuminate\Http\Request;
+use Intervention\Image\ImageManagerStatic as Image;
+use Lubart\Just\Tools\Useful;
+use Lubart\Form\Form;
+use Lubart\Form\FormElement;
+
+class Gallery extends AbstractBlock
+{
+    
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'caption', 'description', 'image', 'block_id'
+    ];
+    
+    protected $table = 'photos';
+    
+    protected $settingsTitle = 'Image';
+    
+    protected $neededParameters = [];
+    
+    public function form() {
+        if(!is_null($this->id)){
+            $this->form->open();
+        }
+        
+        $this->includeAddons();
+        
+        $this->form->add(FormElement::html(['value'=>'<div id="imageUploader"></div>', 'name'=>"imageUploader"]));
+        
+        if(!is_null($this->id)){
+            $this->form->add(FormElement::text(['name'=>'caption', 'value'=>$this->caption]));
+            $this->form->add(FormElement::textarea(['name'=>'description', 'value'=>$this->description]));
+            $this->form->add(FormElement::submit(['value'=>'Update image', 'name'=>'startUpload']));
+        }
+        else{
+            $this->form->add(FormElement::button(['value'=>'Upload images', 'name'=>'startUpload']));
+        }
+        
+        $this->form->setType('settings');
+        $this->form->useJSLogic();
+        
+        return $this->form;
+    }
+    
+    public function addSetupFormElements(Form &$form) {
+        $parameters = json_decode($this->block()->parameters);
+        
+        $form->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>'Crop photo', 'value'=>1, 'check'=>(@$parameters->cropPhoto==1)]));
+        $form->add(FormElement::text(['name'=>'cropDimentions', 'label'=>'Crop image with dimentions (W:H)', 'value'=>isset($parameters->cropDimentions)?$parameters->cropDimentions:'4:3']));
+        
+        $form->useJSLogic();
+        
+        return $form;
+    }
+    
+    public function handleForm(Request $request) {
+        $parameters = json_decode($this->block()->parameters);
+        $photo = null;
+        
+        if(!file_exists(public_path('storage/'.$this->table))){
+            mkdir(public_path('storage/'.$this->table), 0775);
+        }
+        
+        if (isset($request->currentFile) and is_file(public_path('storage/'.$this->table . '/' . $request->currentFile))) {
+            $image = Image::make(public_path('storage/'.$this->table ."/" . $request->currentFile));
+            
+            if (is_null($request->get('id'))) {
+                $photo = new Gallery;
+                $photo->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->get('block_id')]);
+                $photo->setBlock($request->get('block_id'));
+                $photo->image = uniqid();
+            } else {
+                $photo = Gallery::findOrNew($request->get('id'));
+            }
+            
+            $photo->caption = empty($request->caption)?'':$request->caption;
+            $photo->description = empty($request->description)?'':$request->description;
+            
+            unlink((public_path('storage/'.$this->table . '/' . $request->currentFile)));
+            $image->encode('png')->save(public_path('storage/'. $this->table .'/' . $photo->image . ".png"));
+            
+            $photo->save();
+            
+            if (isset($parameters->cropPhoto) and $parameters->cropPhoto) {
+                $photo->shouldBeCropped = true;
+            }
+            else{
+                $this->multiplicateImage($photo->image);
+            }
+            
+            Useful::normalizeOrder($this->table);
+        }
+        elseif(!isset($request->currentFile) and !is_null($request->get('id'))){
+            $photo = Gallery::findOrNew($request->get('id'));
+                
+            $photo->caption = empty($request->caption)?'':$request->caption;
+            $photo->description = empty($request->description)?'':$request->description;
+            
+            $photo->save();
+        }
+        
+        $this->handleAddons($request, $photo);
+
+        return $photo;
+    }
+}

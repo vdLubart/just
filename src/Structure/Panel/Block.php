@@ -1,0 +1,484 @@
+<?php
+
+namespace Lubart\Just\Structure\Panel;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Lubart\Form\FormElement;
+use Lubart\Just\Structure\Panel;
+use Lubart\Just\Structure\Page;
+use Lubart\Just\Models\Route;
+use Lubart\Just\Structure\Layout;
+use Lubart\Just\Structure\Panel\Block\Addon;
+use Lubart\Form\Form;
+use Illuminate\Support\Facades\DB;
+use Lubart\Just\Tools\Useful;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Artisan;
+
+class Block extends Model
+{   
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'panelLoation', 'page_id', 'title', 'description', 'width', 'cssClass', 'orderNo', 'isActive', 'parameters', 'parent'
+    ];
+    
+    protected $table = 'blocks';
+    
+    protected $model;
+    
+    protected $submodel;
+    
+    /**
+     * Access parent block from the related block
+     * 
+     * @var Block $parentBlock
+     */
+    protected $parentBlock = null;
+    
+    protected $currentCategory = null;
+    
+    protected $categories = null;
+    
+    protected $strings = null;
+    
+    protected $images = null;
+    
+    protected $addons = null;
+    
+    public function specify($id = null, $subid = null) {
+        $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->name);
+        
+        if(!class_exists($name)){
+            $name = "\\App\\Just\\Panel\\Block\\". ucfirst($this->name);
+            if(!class_exists($name)){
+                throw new \Exception("Block class \"".ucfirst($this->name)."\" not found");
+            }
+        }
+        
+        if($id > 0){
+            $this->model = $name::findOrNew($id);
+        }
+        else{
+            $this->model = new $name;
+        }
+        $this->model->setParameters($this->parameters);
+        $this->model->setBlock($this->id);
+        $this->model->setup();
+        
+        if(!is_null($subid)){
+            $this->submodel = $this->model->submodel($subid);
+        }
+        /*
+        foreach($this->model->getFillable() as $attr){
+            $this->{$attr} = $this->model->{$attr};
+        }
+        */
+        return $this;
+    }
+    
+    public function form() {
+        $form = empty($this->submodel)? $this->model->form() : $this->submodel->form();
+        if(is_null($form->getElement('block_id'))){
+            $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->id]));
+            $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->model->id]));
+            if(!empty($this->submodel)){
+                $form->add(FormElement::hidden(['name'=>'subid', 'value'=>!is_null($this->submodel->id)?$this->submodel->id:0]));
+            }
+        }
+        
+        return $form;
+    }
+    
+    public function relationsForm($relBlock) {
+        $form = empty($this->submodel)? $this->model->relationsForm($relBlock) : $this->submodel->relationsForm($relBlock);
+        
+        return $form;
+    }
+    
+    public function blockForm() {
+        $form = new Form('/admin/settings/panel/setup');
+        
+        if(!is_null($this->id)){
+            $form->open();
+        }
+        
+        if(empty($form->getElements())){
+            $form->add(FormElement::hidden(['name'=>'panel_id', 'value'=>$this->panel_id]));
+            $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>@$this->id]));
+            $form->add(FormElement::hidden(['name'=>'page_id', 'value'=>$this->page_id]));
+            $form->add(FormElement::select(['name'=>'name', 'label'=>'Type', 'value'=>@$this->name, 'options'=>$this->allBlocksSelect()]));
+            if(!is_null($this->id)){
+                $form->getElement("name")->setParameters("disabled", "disabled");
+            }
+            $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>@$this->title]));
+            $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>@$this->description]));
+            $form->add(FormElement::select(['name'=>'width', 'label'=>'Width', 'value'=>@$this->width, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
+            if(\Auth::user()->role == "master"){
+                $form->add(FormElement::text(['name'=>'layoutClass', 'label'=>'Layout Class', 'value'=>$this->layoutClass ?? 'primary']));
+                $form->add(FormElement::text(['name'=>'cssClass', 'label'=>'Additional CSS Class', 'value'=>@$this->cssClass]));
+            }
+            $form->add(FormElement::submit(['value'=>'Save']));
+        }
+        
+        return $form;
+    }
+    
+    public function allBlocksSelect() {
+        $blocks = DB::table('blockList')
+                ->select('block', 'title')
+                ->get()->toArray();
+        
+        $select = [];
+        foreach($blocks as $block){
+            $select[$block->block] = $block->title;
+        }
+        
+        return $select;
+    }
+    
+    public function content() {
+        return $this->model()->content();
+    }
+    
+    /**
+     * Return first item from content
+     * 
+     * @return mixed
+     */
+    public function firstItem(){
+        return $this->content()->first();
+    }
+    
+    /**
+     * Return specyfic related block
+     * 
+     * @param string $name type of related block
+     * @param string $title title of related block
+     * @param int $id id of related block
+     * @return Block|null
+     */
+    public function relatedBlock($name, $title = null, $id = null) {
+        return $this->model()->relatedBlock($name, $title, $id);
+    }
+    
+    public function relatedBlocks() {
+        return $this->model()->relatedBlocks;
+    }
+    
+    public function handleForm(Request $request, $isPublic = false) {
+        $method = !$isPublic ? 'handleForm' : 'handlePublicForm';
+        $model = isset($this->submodel)?$this->submodel:$this->model;
+        $reflection = new \ReflectionMethod($model, $method);
+        $validatorClass = $reflection->getParameters()[0]->getClass()->name;
+        
+        $validatedRequest = new $validatorClass;
+        if($validatorClass != 'Illuminate\Http\Request' and $validatedRequest->authorize()){
+            $addonValidators = [];
+            foreach ($this->addons() as $addon){
+                $addonValidators += $addon->validationRules();
+            }
+            
+            $validator = \Validator::make($request->all(),
+                    $validatedRequest->rules()+$addonValidators+['block_id' => "required|integer|min:1"],
+                    $validatedRequest->messages());
+            
+            if($validator->fails()){
+                $validator->validate();
+            }
+            
+            foreach($request->all() as $name=>$param){
+                if($param instanceof UploadedFile){
+                    $validatedRequest->files->set($name, $param);
+                }
+                else{
+                    $validatedRequest->request->set($name, $param);
+                }
+            }
+        }
+        elseif($validatorClass == 'Illuminate\Http\Request'){
+            $validatedRequest = $request;
+        }
+        
+        return $model->{$method}($validatedRequest);
+    }
+    
+    public function handlePanelForm(Request $request) {
+        if(is_null($this->id)){
+            $this->name = $request->name;
+        }
+        $panel = Panel::find($request->panel_id);
+        $this->panelLocation = $panel->location;
+        $this->page_id = $request->page_id;
+        $this->title = $request->title?$request->title:"";
+        $this->description = $request->description?$request->description:"";
+        $this->width = $request->width;
+        $this->layoutClass = \Auth::user()->role == "master" ? $request->layoutClass : "";
+        $this->cssClass = \Auth::user()->role == "master" ?  $request->cssClass : "";
+        $this->orderNo = $this->orderNo?$this->orderNo : Useful::getMaxNo($this->table, ['panelLocation' => $panel->location, "page_id"=>$request->page_id]);
+        
+        $this->save();
+        
+        return $this;
+    }
+    
+    public function handleCrop(Request $request) {
+        $model = isset($this->submodel)?$this->submodel:$this->model;
+        $reflection = new \ReflectionMethod($model, 'handleCrop');
+        $validatorClass = $reflection->getParameters()[0]->getClass()->name;
+        
+        $validatedRequest = new $validatorClass;
+        if($validatedRequest->authorize()){
+            $validData = $request->validate($validatedRequest->rules()+['block_id' => "required|integer|min:1"], $validatedRequest->messages());
+            foreach($validData as $name=>$param){
+                $validatedRequest->request->set($name, $param);
+            }
+        }
+        
+        return $model->handleCrop($validatedRequest);
+    }
+    
+    public function deleteModel() {
+        if(is_null($this->model->id)){
+            $this->deleteImage($this->model);
+            $this->delete();
+        }
+        
+        if(!is_null($this->submodel)){
+            $this->deleteImage($this->submodel);
+            $this->submodel->delete();
+        }
+        else{
+            $this->deleteImage($this->model);
+            $this->model->delete();
+        }
+    }
+    
+    protected function deleteImage($model) {
+        if(isset($model->getAttributes()['image'])){
+            foreach (glob(public_path('storage/'.$model->getTable().'/*').$model->image."*") as $img){
+                unlink($img);
+            }
+        }
+    }
+    
+    public static function findModel($blockId, $id, $subid = null) {
+        $block = self::find($blockId);
+        
+        if(!$block){
+            throw new \Exception("Block not found");
+        }
+        
+        $block->specify($id, $subid);
+        
+        return $block;
+    }
+    
+    public function model() {
+        return $this->model;
+    }
+    
+    public function models() {
+        $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->name);
+        return $this->hasMany($name);
+    }
+    
+    public function submodel() {
+        return $this->submodel;
+    }
+    
+    public function move($dir) {
+        if(is_null($this->model->id)){
+            $where = [
+                    'panelLocation' => $this->panelLocation,
+                    'page_id' => $this->page_id
+                ];
+            
+            return Useful::moveModel($this, $dir, $where);
+        }
+        else{
+            $model = !is_null($this->submodel)? $this->submodel : $this->model;
+
+            $model->move($dir);
+        }
+    }
+    
+    public function moveTo($newPosition) {
+        if(is_null($this->model->id)){
+            $where = [
+                    'panelLocation' => $this->panelLocation,
+                    'page_id' => $this->page_id
+                ];
+            
+            return Useful::moveModelTo($this, $newPosition, $where);
+        }
+        else{
+            $model = !is_null($this->submodel)? $this->submodel : $this->model;
+
+            $model->moveTo($newPosition);
+        }
+    }
+    
+    public function visabiliy($visabiliy) {
+        if(is_null($this->model->id)){
+            $model = $this;
+        }
+        else{
+            $model = !is_null($this->submodel)? $this->submodel : $this->model;
+        }
+
+        $model->isActive = $visabiliy;
+        $model->save();
+
+        return $model;
+    }
+    
+    public function isSetted() {
+        $model = !is_null($this->submodel)? $this->submodel : $this->model;
+        $parameters = json_decode($this->parameters);
+        
+        $isSetted = true;
+        foreach($model->neededParameters() as $param=>$label){
+            if(!isset($parameters->{$param})){
+                $isSetted = false;
+                break;
+            }
+        }
+        
+        return $isSetted;
+    }
+    
+    public function setupForm() {
+        $model = !is_null($this->submodel)? $this->submodel : $this->model;
+        
+        return $model->setupForm($this);
+    }
+    
+    public function parameters() {
+        return json_decode($this->parameters);
+    }
+    
+    /**
+     * Return route where current block is located
+     * 
+     * @return Route
+     */
+    public function route() {
+        return $this->belongsTo(Panel::class, 'panel_id')->first()
+                ->belongsTo(Page::class, 'page_id')->first()
+                ->belongsTo(Route::class, 'route', 'route');
+    }
+    
+    /**
+     * Return current layout
+     * 
+     * @return Layout
+     */
+    public function layout() {
+        return $this->hasManyThrough(Layout::class, Panel::class, 'location', 'id', 'panelLocation', 'layout_id')->first(['layouts.*', 'panels.*']);
+    }
+    
+    /**
+     * Return addons related to the current model
+     * 
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function addons() {
+        if(is_null($this->addons)){
+            $this->addons = $this->hasMany(Addon::class)->get();
+        }
+        
+        return $this->addons;
+    }
+    
+    public function addon($addonId) {
+        return Addon::find($addonId)->addon();
+    }
+    
+    /**
+     * Return panel where block is located
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function panel() {
+        return $this->belongsTo(Panel::class);
+    }
+    
+    /**
+     * Specify block panel
+     * 
+     * @param Panel $panel
+     * @return Block
+     */
+    public function setPanel(Panel $panel) {
+        $this->panel_id = $panel->id;
+        $this->page_id = is_null($panel->page())?null:$panel->page()->id;
+        
+        return $this;
+    }
+    
+    public function categories() {
+        if(is_null($this->categories)){
+            $this->categories = $this->addons()->where('name', 'categories');
+        }
+        
+        return $this->categories;
+    }
+    
+    public function strings() {
+        if(is_null($this->strings)){
+            $this->strings = $this->addons()->where('name', 'strings');
+        }
+        
+        return $this->strings;
+    }
+    
+    public function images() {
+        if(is_null($this->images)){
+            $this->images = $this->addons()->where('name', 'images');
+        }
+        
+        return $this->strings;
+    }
+    
+    public function currentCategory() {
+        if(is_null($this->currentCategory)){
+            $this->currentCategory = Addon\Categories::where('value', request('category'))->first();
+        }
+        
+        return $this->currentCategory;
+    }
+    
+    /**
+     * Page belongs to the current block
+     * 
+     * @return type
+     */
+    public function page() {
+        return $this->belongsTo(Page::class);
+    }
+    
+    /**
+     * Create migration for relationship between model and block
+     * 
+     * @param type $modelTable
+     */
+    public static function createPivotTable($modelTable) {
+        if(!Schema::hasTable($modelTable."_blocks")){
+            Artisan::call("make:relatedBlockMigration", ["name" => "create_".$modelTable."_blocks_table"]);
+            
+            Artisan::call("migrate", ["--step" => true]);
+        }
+    }
+    
+    public function details(){
+        return $this->join('blockList', $this->table.'.name', '=', 'blockList.block')
+                ->where($this->table.'.id', $this->id)
+                ->first();
+    }
+}
