@@ -27,7 +27,7 @@ $form = $block->relationsForm(@$relBlock);
                 });
             }
             else{
-                openSettings({{ $block->id }}, {{ !is_null($block->submodel())? $block->model()->id : 0 }});
+                openSettings({{ $block->id }}, 0);
             }
         },
         error: function(data){

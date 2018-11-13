@@ -33,7 +33,7 @@ class Link extends AbstractBlock
             $blocks[$block->id] = $block->title . "(".$block->name.") at ".(is_null($block->page)?$block->panelLocation:$block->page->title ." page");
         }
         
-        $this->form->add(FormElement::select(['name'=>'linkedBlock_id', 'label'=>'Linked Block', 'value'=>@$this->block_id, 'options'=>$blocks]));
+        $this->form->add(FormElement::select(['name'=>'linkedBlock_id', 'label'=>'Linked Block', 'value'=>@$this->linkedBlock_id, 'options'=>$blocks]));
         $this->form->add(FormElement::submit(['value'=>'Save']));
             
         $this->form->useJSLogic();

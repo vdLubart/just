@@ -8,6 +8,6 @@ $form = $block->setupForm();
 
 <script>
     $("#{{ $block->name }}_setupForm form").ajaxForm(function(data){
-        openSettings({{ $block->id }}, {{ !is_null($block->submodel())? $block->model()->id : 0 }});
+        openSettings({{ $block->id }}, 0);
     });
 </script>

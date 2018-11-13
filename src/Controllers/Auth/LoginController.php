@@ -4,6 +4,7 @@ namespace Lubart\Just\Controllers\Auth;
 
 use Lubart\Just\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Lubart\Just\Models\Theme;
 
 class LoginController extends Controller
 {
@@ -46,6 +47,6 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        return view(env('APP_THEME', 'Just').'.system.auth.login');
+        return view(Theme::active()->name.'.system.auth.login');
     }
 }

@@ -10,13 +10,7 @@
         
         @foreach($panel->blocks() as $block)
             <div id="{{ $block->name }}_{{ $block->id }}" class="block col-md-{{ $block->width }} @if($block->isActive ==0) inactive @endif  {{ @$block->cssClass }}" >
-                @if($layout->class != "primary" and file_exists(resource_path('views/'.$layout->name.'/blocks/'.$block->name.'_'.$layout->class.'.blade.php')))
-                    @include($layout->name.'.blocks.'. $block->name . '_' . $layout->class)
-                @elseif($block->layoutClass != "primary" and file_exists(resource_path('views/'.$layout->name.'/blocks/'.$block->name.'_'.$block->layoutClass.'.blade.php')))
-                    @include($layout->name.'.blocks.'. $block->name . '_' . $block->layoutClass)
-                @else
-                    @include($layout->name.'.blocks.'. $block->name)
-                @endif
+                @include(viewPath($layout, $block))
             </div>
         @endforeach
     </div>

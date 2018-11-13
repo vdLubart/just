@@ -52,6 +52,7 @@ class Features extends AbstractBlock
         if(!is_null($this->id)){
             $this->form->open();
         }
+        
         $currentIcon = Icon::find($this->icon_id);
         $this->form->add(FormElement::html(['name'=>'currentIcon', 'value'=>'<div id="currentIcon">'.(!empty($currentIcon)? '<'.$currentIcon->iconSet->tag.' class="'.$currentIcon->iconSet->class.' '.$currentIcon->class.'"></'.$currentIcon->iconSet->tag.'>' : '').'</div>', 'label'=>'Current icon']));
         $this->form->add(FormElement::select(['name'=>'iconSet', 'label'=>'Choose icon set', 'options'=> IconSet::getList(), 'value'=>isset($this->icon)?$this->icon->set_id:null]));
@@ -60,6 +61,9 @@ class Features extends AbstractBlock
         $this->form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>$this->title]));
         $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>$this->description]));
         $this->form->add(FormElement::text(['name'=>'link', 'label'=>'Feature Link', 'value'=>$this->link]));
+        
+        $this->includeAddons();
+        
         $this->form->add(FormElement::submit(['value'=>'Save']));
         
         $this->form->useJSLogic();

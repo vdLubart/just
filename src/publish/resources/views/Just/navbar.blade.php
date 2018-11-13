@@ -31,7 +31,7 @@
                 @if(\Auth::user()->role == "master")
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                        <i class="fa fa-table"></i>
+                        <i class="fa fa-paint-brush"></i>
                         Layouts <span class="caret"></span>
                     </a>
                     
@@ -39,7 +39,7 @@
                         <li>
                             <a href="/admin/layout/create"
                                onclick="event.preventDefault();
-                                                    openLayoutSettings(0);">
+                                                    openSettings('layout', 0);">
                                 <i class="fa fa-plus"></i>
                                 Create layout
                             </a>
@@ -47,7 +47,7 @@
                         <li>
                             <a href="/admin/layout/list"
                                onclick="event.preventDefault();
-                                                    openLayoutList();">
+                                                    openList('layout');">
                                 <i class="fa fa-list"></i>
                                 Layout list
                             </a>
@@ -55,7 +55,7 @@
                         <li>
                             <a href="/admin/layout/settings"
                                onclick="event.preventDefault();
-                                                    openLayoutSettings({{ $layout->id }});">
+                                                    openSettings('layout', {{ $layout->id }});">
                                 <i class="fa fa-cogs"></i>
                                 Layout settings
                             </a>
@@ -73,7 +73,7 @@
                         <li>
                             <a href="/admin/page/create"
                                onclick="event.preventDefault();
-                                                    openPageSettings(0);">
+                                                    openSettings('page', 0);">
                                 <i class="fa fa-plus"></i>
                                 Create page
                             </a>
@@ -81,7 +81,7 @@
                         <li>
                             <a href="/admin/page/list"
                                onclick="event.preventDefault();
-                                                    openPageList();">
+                                                    openList('page');">
                                 <i class="fa fa-list"></i>
                                 Page list
                             </a>
@@ -89,9 +89,34 @@
                         <li>
                             <a href="/admin/page/settings"
                                onclick="event.preventDefault();
-                                                    openPageSettings({{ $page->id }});">
+                                                    openSettings('page', {{ $page->id }});">
                                 <i class="fa fa-cogs"></i>
                                 Page settings
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                        <i class="fa fa-th-list"></i>
+                        Categories <span class="caret"></span>
+                    </a>
+                    
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a href="/admin/category/create"
+                               onclick="event.preventDefault();
+                                                    openSettings('category', 0);">
+                                <i class="fa fa-plus"></i>
+                                Create category
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin/category/list"
+                               onclick="event.preventDefault();
+                                                    openList('category');">
+                                <i class="fa fa-list"></i>
+                                Category list
                             </a>
                         </li>
                     </ul>
@@ -107,7 +132,7 @@
                         <li>
                             <a href="#"
                                onclick="event.preventDefault();
-                                                    openAddonSettings(0);">
+                                                    openSettings('addon', 0);">
                                 <i class="fa fa-plus"></i>
                                 Add addon
                             </a>
@@ -115,7 +140,7 @@
                         <li>
                             <a href="#"
                                onclick="event.preventDefault();
-                                                    openAddonList();">
+                                                    openList('addon');">
                                 <i class="fa fa-list"></i>
                                 Addon list
                             </a>

@@ -12,13 +12,13 @@
     <ul>
         @foreach($addons as $addon)
         <li>
-            <a href="javascript: deleteAddon({{ $addon->id }})" title="Delete">
+            <a href="javascript: deleteItem('addon', {{ $addon->id }})" title="Delete">
                 <i class="fa fa-trash-o"></i>
             </a>
-            <a href="javascript: openAddonSettings({{ $addon->id }})" title="Edit">
+            <a href="javascript: openSettings('addon', {{ $addon->id }})" title="Edit">
                 <i class="fa fa-pencil"></i>
             </a>
-            <a href="javascript: openAddonSettings({{ $addon->id }})">{{ $addon->title }}</a>  in {{ $addon->block->title }} ({{ $addon->block->name }}) block at 
+            <a href="javascript: openSettings('addon', {{ $addon->id }})">{{ $addon->title }} ({{ $addon->name }})</a>  in {{ $addon->block->title }} ({{ $addon->block->name }}) block at 
             <a href="/admin/{{ (is_null($addon->block->page)?"":$addon->block->page->route) }}">{{ (is_null($addon->block->page)?$addon->block->panelLocation:$addon->block->page->title." page") }}</a>
         </li>
         @endforeach

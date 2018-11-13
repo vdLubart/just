@@ -1,7 +1,7 @@
 <div class='col-md-12'>
     <div class='col-md-11'>
         <h4>
-            Settings :: Addon
+            Settings :: Category
         </h4>
     </div>
     <div class='col-md-1 text-right'>
@@ -9,12 +9,7 @@
     </div>
 </div>
 
-<?php
-$form = $addon->settingsForm();
-?>
-<div id="page_{{ $addon->id }}_settingsForm">
-    @include('Just.form')
-</div>
+{!! $category->settingsForm()->render() !!}
 
 <script>
     CKEDITOR.replace('description');

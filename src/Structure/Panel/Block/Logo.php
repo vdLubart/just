@@ -47,23 +47,11 @@ class Logo extends AbstractBlock
         return $this->form;
     }
     
-    public function setupForm(Block $block) {
-        $parameters = json_decode($block->parameters);
-        
-        $form = new Form('/admin/settings/setup');
-        
-        $form->setType('setup');
-        
-        $form->add(FormElement::hidden(['name'=>'id', 'value'=>$block->id]));
+    public function addSetupFormElements(Form &$form) {
+        $parameters = json_decode($this->block()->parameters);
         
         $form->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>'Crop photo', 'value'=>1, 'check'=>(@$parameters->cropPhoto==1)]));
         $form->add(FormElement::text(['name'=>'cropDimentions', 'label'=>'Crop image with dimentions (W:H)', 'value'=>isset($parameters->cropDimentions)?$parameters->cropDimentions:'4:3']));
-        
-        foreach($this->customAttributes() as $attr){
-            $form->add(FormElement::text(['name'=>$attr->name, 'label'=>$attr->label, 'value'=>isset($parameters->{$attr->name})?$parameters->{$attr->name}:$attr->defaultValue]));
-        }
-        
-        $form->add(FormElement::submit(['value'=>'Save']));
         
         $form->useJSLogic();
         

@@ -12,10 +12,10 @@
     <ul>
         @foreach($pages as $page)
         <li>
-            <a href="javascript: deletePage({{ $page->id }})" title="Delete">
+            <a href="javascript: deleteItem('page', {{ $page->id }})" title="Delete">
                 <i class="fa fa-trash-o"></i>
             </a>
-            <a href="javascript: openPageSettings({{ $page->id }})" title="Edit">
+            <a href="javascript: openSettings('page', {{ $page->id }})" title="Edit">
                 <i class="fa fa-pencil"></i>
             </a>
             <a href="{{ "admin/".$page->route }}">{{ $page->title }}</a>  - {{ substr(strip_tags($page->description), 0, 100) }}

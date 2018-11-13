@@ -1,29 +1,43 @@
-function openSettings(blockId, modelId, submodelId){
+/*
+ * Open settings for blocks, pages, layouts and addons
+ * 
+ * @param number|string blockId block id for numbers and object name for strings
+ * @param number modelId id for block, page, layout or addon
+ * @returns {undefined}
+ */
+function openSettings(blockId, modelId){
     $("#settings").css("display", "block");
 
     $.ajax({
-        url: "/admin/settings/" + blockId + '/' + modelId + '/' + (submodelId!==undefined?submodelId:''),
+        url: "/admin/settings/" + blockId + '/' + modelId,
         success: function(data){
             $("#settings").html(data);
         },
         error: function(data){
             console.log("Cannot get settings data.");
             console.log(data);
-            $("#settings").html('<div class="error alert alert-danger"></div>');
-            if(data.responseJSON !== undefined){
-                $("#settings .error").append('<h2>'+data.responseJSON.exception+'</h2>');
-                $("#settings .error").append('<h5>'+data.responseJSON.file+' line '+data.responseJSON.line+'</h5>');
-                $("#settings .error").append('<h4>'+data.responseJSON.message+'</h4>');
-                $("#settings .error").append('<ul></ul>');
-                $.each(data.responseJSON.trace, function(i, item) {
-                    $("#settings .error ul").append('<li>'+item.file+' line '+item.line+'; '+item.function+'()</li>');
-                });
-            }
-            else{
-                $("#settings .error").append(data.responseText);
-            }
+            showErrors(data);
         }
     });
+}
+
+function showErrors(data){
+    $("#settings").html('<div class="error alert alert-danger"></div>');
+    if(data.responseJSON !== undefined){
+        $("#settings .error").append('<h2>'+data.responseJSON.exception+'</h2>');
+        $("#settings .error").append('<h5>'+data.responseJSON.file+' line '+data.responseJSON.line+'</h5>');
+        $("#settings .error").append('<h4>'+data.responseJSON.message+'</h4>');
+        $("#settings .error").append('<ul></ul>');
+        $.each(data.responseJSON.trace, function(i, item) {
+            $("#settings .error ul").append('<li>'+item.file+' line '+item.line+'; '+item.function+'()</li>');
+        });
+    }
+    if(data.responseText !== undefined){
+        $("#settings .error").append(data.responseText);
+    }
+    else{
+        $("#settings .error").append(data.responseText);
+    }
 }
 
 function openPanelSettings(pageId, panelLocation, blockId){
@@ -37,96 +51,23 @@ function openPanelSettings(pageId, panelLocation, blockId){
         error: function(data){
             console.log("Cannot get settings data.");
             console.log(data);
+            showErrors(data);
         }
     });
 }
 
-function openPageSettings(pageId){
+function openList(item){
     $("#settings").css("display", "block");
 
     $.ajax({
-        url: "/admin/settings/page/" + pageId,
+        url: "/admin/settings/"+item+"/list",
         success: function(data){
             $("#settings").html(data);
         },
         error: function(data){
             console.log("Cannot get settings data.");
             console.log(data);
-        }
-    });
-}
-
-function openPageList(){
-    $("#settings").css("display", "block");
-
-    $.ajax({
-        url: "/admin/settings/page/list",
-        success: function(data){
-            $("#settings").html(data);
-        },
-        error: function(data){
-            console.log("Cannot get settings data.");
-            console.log(data);
-        }
-    });
-}
-
-function openLayoutSettings(layoutId){
-    $("#settings").css("display", "block");
-
-    $.ajax({
-        url: "/admin/settings/layout/" + layoutId,
-        success: function(data){
-            $("#settings").html(data);
-        },
-        error: function(data){
-            console.log("Cannot get settings data.");
-            console.log(data);
-        }
-    });
-}
-
-function openLayoutList(){
-    $("#settings").css("display", "block");
-
-    $.ajax({
-        url: "/admin/settings/layout/list",
-        success: function(data){
-            $("#settings").html(data);
-        },
-        error: function(data){
-            console.log("Cannot get settings data.");
-            console.log(data);
-        }
-    });
-}
-
-function openAddonList(){
-    $("#settings").css("display", "block");
-
-    $.ajax({
-        url: "/admin/settings/addon/list",
-        success: function(data){
-            $("#settings").html(data);
-        },
-        error: function(data){
-            console.log("Cannot get settings data.");
-            console.log(data);
-        }
-    });
-}
-
-function openAddonSettings(pageId){
-    $("#settings").css("display", "block");
-
-    $.ajax({
-        url: "/admin/settings/addon/" + pageId,
-        success: function(data){
-            $("#settings").html(data);
-        },
-        error: function(data){
-            console.log("Cannot get settings data.");
-            console.log(data);
+            showErrors(data);
         }
     });
 }
@@ -140,6 +81,7 @@ function openCropping(blockId, modelId){
         error: function(data){
             console.log("Cannot get cropping data.");
             console.log(data);
+            showErrors(data);
         }
     });
 }
@@ -156,21 +98,13 @@ function normalizeContent(blockId){
         error: function(data){
             console.log("Cannot normalize content.");
             console.log(data);
+            showErrors(data);
         }
     });
 }
 
 function openSetup(blockId){
-    $.ajax({
-        url: "/admin/settings/setup/" + blockId,
-        success: function(data){
-            $("#settings").html(data);
-        },
-        error: function(data){
-            console.log("Cannot get setup data.");
-            console.log(data);
-        }
-    });
+    return openSettings('setup', blockId);
 }
 
 function closeSettings(){
@@ -178,7 +112,7 @@ function closeSettings(){
     location.reload();
 }
 
-function deleteModel(blockId, modelId, submodelId){
+function deleteModel(blockId, modelId){
     var cnf = confirm('Do you want to delete this item?');
 
     if(cnf){
@@ -188,14 +122,13 @@ function deleteModel(blockId, modelId, submodelId){
             data: {
                 block_id: blockId,
                 id: modelId,
-                subid: submodelId,
                 _token: $("meta[name=csrf-token]").attr('content')
             },
             dataType: "html",
             success: function(data){
                 if(modelId != 0){
                     normalizeContent(blockId);
-                    openSettings(blockId, submodelId!==undefined?modelId:0);
+                    openSettings(blockId, modelId);
                 }
                 else{
                     openPanelSettings(JSON.parse(data).page_id, JSON.parse(data).panelLocation);
@@ -204,55 +137,40 @@ function deleteModel(blockId, modelId, submodelId){
             error: function(data){
                 console.log("Cannot delete block");
                 console.log(data);
+                showErrors(data);
             }
         }); 
     }
 }
 
-function deletePage(pageId){
-    var cnf = confirm('Do you want to delete this page? All data related to it will be lost!');
+/**
+ * Delete item. Works for page, addon, category
+ * 
+ * @param string item page, addon or category
+ * @param number id
+ * @returns {undefined}
+ */
+function deleteItem(item, id){
+    var cnf = confirm('Do you want to delete this '+item+'? All data related to it will be lost!');
 
     if(cnf){
         $.ajax({
-            url: "/admin/page/delete",
+            url: "/admin/"+item+"/delete",
             method: "POST",
             data: {
-                page_id: pageId,
+                id: id,
                 _token: $("meta[name=csrf-token]").attr('content')
             },
             dataType: "html",
             success: function(data){
-                openPageList();
+                openList(item);
             },
             error: function(data){
-                console.log("Cannot delete page");
+                console.log("Cannot delete "+item);
                 console.log(data);
+                showErrors(data);
             }
         }); 
-    }
-}
-
-function deleteAddon(addonId){
-    var cnf = confirm('Do you want to delete this addon? All data related to it will be lost!');
-
-    if(cnf){
-        $.ajax({
-            url: "/admin/addon/delete",
-            method: "POST",
-            data: {
-                addon_id: addonId,
-                _token: $("meta[name=csrf-token]").attr('content')
-            },
-            dataType: "html",
-            success: function(data){
-                console.log(data);
-                openAddonList();
-            },
-            error: function(data){
-                console.log("Cannot delete addon");
-                console.log(data);
-            }
-        });
     }
 }
 
@@ -275,18 +193,19 @@ function deleteLayout(layoutId){
                     $(".errors ul").append('<li>'+data.error+'</li>');
                 }
                 else{
-                    openLayoutList();
+                    openList('layout');
                 }
             },
             error: function(data){
                 console.log("Cannot delete layout");
                 console.log(data);
+                showErrors(data);
             }
         }); 
     }
 }
 
-function move(dir, blockId, modelId, submodelId){
+function move(dir, blockId, modelId){
     if(dir !== 'up'){
         dir = 'down';
     }
@@ -296,7 +215,6 @@ function move(dir, blockId, modelId, submodelId){
             data: {
                 block_id: blockId,
                 id: modelId,
-                subid: submodelId,
                 _token: $("meta[name=csrf-token]").attr('content')
             },
             dataType: 'html',
@@ -305,17 +223,18 @@ function move(dir, blockId, modelId, submodelId){
                     openPanelSettings(JSON.parse(data).page_id, JSON.parse(data).panelLocation);
                 }
                 else{
-                    openSettings(blockId, submodelId!==undefined?modelId:0);
+                    openSettings(blockId, modelId);
                 }
             },
             error: function(data){
                 console.log("Cannot move block "+dir);
                 console.log(data);
+                showErrors(data);
             }
         }); 
 }
 
-function moveTo(newPosition, blockId, modelId, submodelId){
+function moveTo(newPosition, blockId, modelId){
     $.ajax({
         url: "/admin/moveto",
         method: "POST",
@@ -323,7 +242,6 @@ function moveTo(newPosition, blockId, modelId, submodelId){
             newPosition: newPosition,
             block_id: blockId,
             id: modelId,
-            subid: submodelId,
             _token: $("meta[name=csrf-token]").attr('content')
         },
         dataType: 'html',
@@ -356,11 +274,12 @@ function moveTo(newPosition, blockId, modelId, submodelId){
         error: function(data){
             console.log("Cannot move block "+dir);
             console.log(data);
+            showErrors(data);
         }
     });
 }
 
-function activate(newState, blockId, modelId, submodelId){
+function activate(newState, blockId, modelId){
     if(newState !== 1){
         newState = 0;
     }
@@ -370,7 +289,6 @@ function activate(newState, blockId, modelId, submodelId){
         data: {
             block_id: blockId,
             id: modelId,
-            subid: submodelId,
             _token: $("meta[name=csrf-token]").attr('content')
         },
         dataType: 'html',
@@ -379,12 +297,13 @@ function activate(newState, blockId, modelId, submodelId){
                 openPanelSettings(JSON.parse(data).page_id, JSON.parse(data).panelLocation);
             }
             else{
-                openSettings(blockId, submodelId!==undefined?modelId:0);
+                openSettings(blockId, modelId);
             }
         },
         error: function(data){
             console.log("Cannot change block visability");
             console.log(data);
+            showErrors(data);
         }
     }); 
 }
@@ -413,6 +332,7 @@ function openChangePassword(){
         error: function(data){
             console.log("Cannot get settings data.");
             console.log(data);
+            showErrors(data);
         }
     });
 }

@@ -17,6 +17,7 @@ class JustServiceProvider extends ServiceProvider
     {
         include __DIR__.'/publish/routes/web.php';
         include __DIR__.'/publish/routes/console.php';
+        include __DIR__.'/Tools/helpers.php';
         
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
         

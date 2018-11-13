@@ -73,6 +73,7 @@
         <script src="/js/jquery.form.js"></script>
         <script src="/js/settings.js"></script>
         <script src="/js/dragula.min.js"></script>
+        <link href="/css/dragula.css" rel="stylesheet">
         @endif
     </head>
     <body>
@@ -82,11 +83,7 @@
             @endif
 
             @foreach($panels as $panel)
-                @if($layout->class != "primary" and file_exists(resource_path('views/'.$layout->name.'/panels/'.$panel->location.'_'.$layout->class.'.blade.php')))
-                    @include($layout->name.'.panels.'. $panel->location . '_' . $layout->class)
-                @else
-                    @include($layout->name.'.panels.'. $panel->location)
-                @endif
+                @include(viewPath($layout, $panel))
             @endforeach
         </div>
         @if(\Config::get('isAdmin'))

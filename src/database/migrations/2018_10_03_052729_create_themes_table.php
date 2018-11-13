@@ -14,11 +14,12 @@ class CreateThemesTable extends Migration
     public function up()
     {
         Schema::create('themes', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
+            $table->string('name')->unique();
             $table->boolean('isActive')->default(0);
             $table->timestamps();
         });
+        
+        Schema::table('layouts')->foreign('name')->references('name')->on('themes')->onUpdate('cascade')->onDelete('cascade');
     }
 
     /**

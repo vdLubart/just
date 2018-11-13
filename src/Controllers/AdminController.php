@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\DB;
 use Lubart\Just\Requests\UploadImageRequest;
 use Lubart\Just\Models\User;
 use Lubart\Just\Requests\ChangePasswordRequest;
+use Lubart\Just\Validators\ValidatorExtended;
+use Lubart\Just\Structure\Panel\Block\Addon\Categories;
+use Lubart\Just\Models\Theme;
 
 class AdminController extends Controller
 {
@@ -43,7 +46,7 @@ class AdminController extends Controller
             $block = $block->setPanel($panel);
         }
         
-        return view('Just.settings')->with(['block'=>$block, 'parentBlock'=>$parentBlock, 'panel'=>$panel]);
+        return view(viewPath(Theme::active()->layout, 'settings'))->with(['block'=>$block, 'parentBlock'=>$parentBlock, 'panel'=>$panel]);
     }
     
     public function panelSettingsForm($pageId, $panelLocation, $blockId = null) {
@@ -58,64 +61,64 @@ class AdminController extends Controller
             $block = $block->setPanel($panel);
         }
         
-        return view('Just.panelSettings')->with(['panel'=>$panel, 'block'=>$block]);
+        return view(viewPath(Theme::active()->layout, 'panelSettings'))->with(['panel'=>$panel, 'block'=>$block]);
     }
     
     public function pageSettingsForm($pageId) {
         $page = Page::findOrNew($pageId);
         
-        return view('Just.pageSettings')->with(['page'=>$page]);
+        return view(viewPath(Theme::active()->layout, 'pageSettings'))->with(['page'=>$page]);
     }
     
     public function pageList() {
         $pages = Page::all();
         
-        return view('Just.pageList')->with(['pages'=>$pages]);
+        return view(viewPath(Theme::active()->layout, 'pageList'))->with(['pages'=>$pages]);
     }
     
     public function layoutSettingsForm($layoutId) {
         if(\Auth::user()->role != "master"){
-            return view('Just.noAccess');
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
         }
         
         $layout = Layout::findOrNew($layoutId);
         
-        return view('Just.layoutSettings')->with(['layout'=>$layout]);
+        return view(viewPath(Theme::active()->layout, 'layoutSettings'))->with(['layout'=>$layout]);
     }
     
     public function layoutList() {
         if(\Auth::user()->role != "master"){
-            return view('Just.noAccess');
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
         }
         
         $layouts = Layout::all();
         
-        return view('Just.layoutList')->with(['layouts'=>$layouts]);
+        return view(viewPath(Theme::active()->layout, 'layoutList'))->with(['layouts'=>$layouts]);
     }
     
     public function addonList() {
         if(\Auth::user()->role != "master"){
-            return view('Just.noAccess');
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
         }
         
         $addons = Addon::all();
         
-        return view('Just.addonList')->with(['addons'=>$addons]);
+        return view(viewPath(Theme::active()->layout, 'addonList'))->with(['addons'=>$addons]);
     }
     
     public function addonSettingsForm($addonId) {
         if(\Auth::user()->role != "master"){
-            return view('Just.noAccess');
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
         }
         
         $addon = Addon::findOrNew($addonId);
         
-        return view('Just.addonSettings')->with(['addon'=>$addon]);
+        return view(viewPath(Theme::active()->layout, 'addonSettings'))->with(['addon'=>$addon]);
     }
     
     public function handleAddonForm(Request $request) {
         if(\Auth::user()->role != "master"){
-            return view('Just.noAccess');
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
         }
         
         $addon = Addon::findOrNew($request->addon_id);
@@ -125,10 +128,34 @@ class AdminController extends Controller
         return redirect()->back();
     }
     
+    public function categoryList() {
+        $categories = Categories::join("addons", "categories.addon_id", "=", "addons.id")
+                ->join("blocks", "addons.block_id", "=", "blocks.id")
+                ->select(['categories.*', DB::raw("addons.title as addonTitle"), DB::raw("blocks.name as blockName"), DB::raw("blocks.title as blockTitle")])
+                ->orderBy("addons.id", "desc")
+                ->get();
+        
+        return view(viewPath(Theme::active()->layout, 'categoryList'))->with(['categories'=>$categories, 'currentId' => 0]);
+    }
+    
+    public function categorySettingsForm($categoryId) {
+        $category = Categories::findOrNew($categoryId);
+        
+        return view(viewPath(Theme::active()->layout, 'categorySettings'))->with(['category'=>$category]);
+    }
+    
+    public function handleCategoryForm(Request $request) {
+        $category = Categories::findOrNew($request->category_id);
+        
+        $category->handleSettingsForm($request);
+        
+        return redirect()->back();
+    }
+    
     public function cropForm($blockId, $id) {
         $block = Block::findModel($blockId, $id);
         
-        return view('Just.settings')->with(['block'=>$block, 'crop'=>true, 'image'=>$block->model()->image]);
+        return view(viewPath(Theme::active()->layout, 'settings'))->with(['block'=>$block, 'crop'=>true, 'image'=>$block->model()->image]);
     }
     
     public function normalizeContent($blockId) {
@@ -140,14 +167,18 @@ class AdminController extends Controller
     public function setupForm($blockId) {
         $block = Block::findModel($blockId, 0);
         
-        return view('Just.settings')->with(['block'=>$block, 'setup'=>true]);
+        return view(viewPath(Theme::active()->layout, 'settings'))->with(['block'=>$block, 'setup'=>true]);
     }
     
-    public function processForm(Request $request) {
+    public function handleForm(Request $request) {
         $block = $this->specifyBlock($request);
         
         if(!empty($block)){
             $model = $block->handleForm($request);
+            if($model instanceof ValidatorExtended){
+                $model->validate();
+                return;
+            }
         }
         else{
             $model = null;
@@ -174,7 +205,7 @@ class AdminController extends Controller
     
     public function handleLayoutForm(ChangeLayoutRequest $request) {
         if(\Auth::user()->role != "master"){
-            return view('Just.noAccess');
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
         }
         
         $layout = Layout::findOrNew($request->layout_id);
@@ -219,7 +250,7 @@ class AdminController extends Controller
     }
     
     public function deletePage(Request $request) {
-        $page = Page::find($request->page_id);
+        $page = Page::find($request->id);
         $route = \Lubart\Just\Models\Route::where('route', $page->route)->first();
         
         if(!empty($page)){
@@ -231,10 +262,20 @@ class AdminController extends Controller
     }
     
     public function deleteAddon(Request $request) {
-        $addon = Addon::find($request->addon_id);
+        $addon = Addon::find($request->id);
         
         if(!empty($addon)){
             $addon->delete();
+        }
+        
+        return ;
+    }
+    
+    public function deleteCategory(Request $request) {
+        $category = Categories::find($request->id);
+        
+        if(!empty($category)){
+            $category->delete();
         }
         
         return ;
@@ -333,7 +374,7 @@ class AdminController extends Controller
         $this->data['files'] = Useful::browseImages("images/library");
         $this->data['action'] = '/admin/uploadimage';
         
-        return view(env('APP_THEME', 'Just') . '.system.ckeditor.browseimages')->with($this->data);
+        return view(viewPath(Theme::active()->layout, 'system.ckeditor.browseimages'))->with($this->data);
     }
     
     /**

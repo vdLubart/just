@@ -5,6 +5,7 @@ namespace Lubart\Just\Controllers\Auth;
 use Illuminate\Http\Request;
 use Lubart\Just\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Lubart\Just\Models\Theme;
 
 class ResetPasswordController extends Controller
 {
@@ -50,7 +51,7 @@ class ResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
-        return view(env('APP_THEME', 'Just').'.system.auth.passwords.reset')->with(
+        return view(Theme::active()->name.'.system.auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email]
         );
     }

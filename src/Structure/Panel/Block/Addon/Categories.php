@@ -54,4 +54,32 @@ class Categories extends AbstractAddon
             $addon->name => "required|integer|min:1",
         ];
     }
+    
+    /**
+     * Get page settings form
+     * 
+     * @return Form
+     */
+    public function settingsForm() {
+        $form = new Form('admin/settings/category/setup');
+        
+        $addons = Addon::where('name', 'categories')->pluck('title', 'id');
+        
+        $form->add(FormElement::hidden(['name'=>'category_id', 'value'=>@$this->id]));
+        $form->add(FormElement::select(['name'=>'addon_id', 'label'=>'Addon', 'value'=>@$this->addon_id, 'options'=>$addons]));
+        $form->add(FormElement::text(['name'=>'name', 'label'=>'Name', 'value'=>@$this->name]));
+        $form->add(FormElement::text(['name'=>'value', 'label'=>'Value', 'value'=>@$this->value]));
+        
+        $form->add(FormElement::submit(['value'=>'Save']));
+        
+        return $form;
+    }
+    
+    public function handleSettingsForm(Request $request) {
+        $this->addon_id = $request->addon_id;
+        $this->name = $request->name;
+        $this->value = $request->value;
+        
+        $this->save();
+    }
 }

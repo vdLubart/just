@@ -100,14 +100,6 @@ abstract class AbstractBlock extends Model
         }
     }
     
-    public function submodel($id) {
-        return null;
-    }
-    
-    public function submodels() {
-        return null;
-    }
-    
     public function settingsTitle() {
         return $this->settingsTitle;
     }
@@ -279,7 +271,7 @@ abstract class AbstractBlock extends Model
                 '67'=>'67% - 6 items in row',
                 '80'=>'80% - 5 items in row',
                 '100'=>'100% - 4 items in row',
-                '150'=>'150% - 3 items in row',
+                '133'=>'133% - 3 items in row',
                 '200'=>'200% - 2 items in row',
                 '400'=>'400% - 1 item in row']]));
      
@@ -380,6 +372,10 @@ abstract class AbstractBlock extends Model
     
     public function images() {
         return $this->belongsToMany(Addon\Images::class, $this->getTable().'_images', 'modelItem_id', 'addonItem_id');
+    }
+    
+    public function paragraphs() {
+        return $this->belongsToMany(Addon\Paragraphs::class, $this->getTable().'_paragraphs', 'modelItem_id', 'addonItem_id');
     }
     
     public function relationsForm($relBlock) {

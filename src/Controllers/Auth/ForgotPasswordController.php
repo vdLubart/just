@@ -4,6 +4,7 @@ namespace Lubart\Just\Controllers\Auth;
 
 use Lubart\Just\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Lubart\Just\Models\Theme;
 
 class ForgotPasswordController extends Controller
 {
@@ -38,6 +39,6 @@ class ForgotPasswordController extends Controller
      */
     public function showLinkRequestForm()
     {
-        return view(env('APP_THEME', 'Just').'.system.auth.passwords.email');
+        return view(Theme::active()->name.'.system.auth.passwords.email');
     }
 }

@@ -49,7 +49,13 @@
 
 {!! Form::close() !!}
 
-@if($form->js() && !empty($block))
+@if(!is_null($form->js()))
+<script>
+    {!! $form->js() !!}
+</script>
+@endif
+
+@if($form->isJS() && !empty($block))
 <script src="/js/blocks/{{$block->name}}/{{$form->type()}}Form.js" />
 @elseif($form->type() === 'layoutSettings')
 <script src="/js/layouts/{{$form->type()}}Form.js" />

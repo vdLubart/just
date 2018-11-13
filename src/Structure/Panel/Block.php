@@ -32,8 +32,6 @@ class Block extends Model
     
     protected $model;
     
-    protected $submodel;
-    
     /**
      * Access parent block from the related block
      * 
@@ -49,9 +47,11 @@ class Block extends Model
     
     protected $images = null;
     
+    protected $paragraphs = null;
+    
     protected $addons = null;
     
-    public function specify($id = null, $subid = null) {
+    public function specify($id = null) {
         $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->name);
         
         if(!class_exists($name)){
@@ -71,32 +71,21 @@ class Block extends Model
         $this->model->setBlock($this->id);
         $this->model->setup();
         
-        if(!is_null($subid)){
-            $this->submodel = $this->model->submodel($subid);
-        }
-        /*
-        foreach($this->model->getFillable() as $attr){
-            $this->{$attr} = $this->model->{$attr};
-        }
-        */
         return $this;
     }
     
     public function form() {
-        $form = empty($this->submodel)? $this->model->form() : $this->submodel->form();
+        $form = $this->model->form();
         if(is_null($form->getElement('block_id'))){
             $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->id]));
             $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->model->id]));
-            if(!empty($this->submodel)){
-                $form->add(FormElement::hidden(['name'=>'subid', 'value'=>!is_null($this->submodel->id)?$this->submodel->id:0]));
-            }
         }
         
         return $form;
     }
     
     public function relationsForm($relBlock) {
-        $form = empty($this->submodel)? $this->model->relationsForm($relBlock) : $this->submodel->relationsForm($relBlock);
+        $form = $this->model->relationsForm($relBlock);
         
         return $form;
     }
@@ -173,8 +162,7 @@ class Block extends Model
     
     public function handleForm(Request $request, $isPublic = false) {
         $method = !$isPublic ? 'handleForm' : 'handlePublicForm';
-        $model = isset($this->submodel)?$this->submodel:$this->model;
-        $reflection = new \ReflectionMethod($model, $method);
+        $reflection = new \ReflectionMethod($this->model, $method);
         $validatorClass = $reflection->getParameters()[0]->getClass()->name;
         
         $validatedRequest = new $validatorClass;
@@ -189,7 +177,7 @@ class Block extends Model
                     $validatedRequest->messages());
             
             if($validator->fails()){
-                $validator->validate();
+                return $validator;
             }
             
             foreach($request->all() as $name=>$param){
@@ -205,7 +193,7 @@ class Block extends Model
             $validatedRequest = $request;
         }
         
-        return $model->{$method}($validatedRequest);
+        return $this->model->{$method}($validatedRequest);
     }
     
     public function handlePanelForm(Request $request) {
@@ -228,8 +216,7 @@ class Block extends Model
     }
     
     public function handleCrop(Request $request) {
-        $model = isset($this->submodel)?$this->submodel:$this->model;
-        $reflection = new \ReflectionMethod($model, 'handleCrop');
+        $reflection = new \ReflectionMethod($this->model, 'handleCrop');
         $validatorClass = $reflection->getParameters()[0]->getClass()->name;
         
         $validatedRequest = new $validatorClass;
@@ -240,19 +227,16 @@ class Block extends Model
             }
         }
         
-        return $model->handleCrop($validatedRequest);
+        return $this->model->handleCrop($validatedRequest);
     }
     
     public function deleteModel() {
+        //Delete whole block
         if(is_null($this->model->id)){
             $this->deleteImage($this->model);
             $this->delete();
         }
-        
-        if(!is_null($this->submodel)){
-            $this->deleteImage($this->submodel);
-            $this->submodel->delete();
-        }
+        // Delete model item in the block
         else{
             $this->deleteImage($this->model);
             $this->model->delete();
@@ -288,11 +272,8 @@ class Block extends Model
         return $this->hasMany($name);
     }
     
-    public function submodel() {
-        return $this->submodel;
-    }
-    
     public function move($dir) {
+        // Move whole block
         if(is_null($this->model->id)){
             $where = [
                     'panelLocation' => $this->panelLocation,
@@ -301,14 +282,14 @@ class Block extends Model
             
             return Useful::moveModel($this, $dir, $where);
         }
+        // Move model item in the block
         else{
-            $model = !is_null($this->submodel)? $this->submodel : $this->model;
-
-            $model->move($dir);
+            return $this->model->move($dir);
         }
     }
     
     public function moveTo($newPosition) {
+        // Move whole block
         if(is_null($this->model->id)){
             $where = [
                     'panelLocation' => $this->panelLocation,
@@ -317,10 +298,9 @@ class Block extends Model
             
             return Useful::moveModelTo($this, $newPosition, $where);
         }
+        // Move model item in the block
         else{
-            $model = !is_null($this->submodel)? $this->submodel : $this->model;
-
-            $model->moveTo($newPosition);
+            $this->model->moveTo($newPosition);
         }
     }
     
@@ -329,7 +309,7 @@ class Block extends Model
             $model = $this;
         }
         else{
-            $model = !is_null($this->submodel)? $this->submodel : $this->model;
+            $model = $this->model;
         }
 
         $model->isActive = $visabiliy;
@@ -339,11 +319,10 @@ class Block extends Model
     }
     
     public function isSetted() {
-        $model = !is_null($this->submodel)? $this->submodel : $this->model;
         $parameters = json_decode($this->parameters);
         
         $isSetted = true;
-        foreach($model->neededParameters() as $param=>$label){
+        foreach($this->model->neededParameters() as $param=>$label){
             if(!isset($parameters->{$param})){
                 $isSetted = false;
                 break;
@@ -354,9 +333,7 @@ class Block extends Model
     }
     
     public function setupForm() {
-        $model = !is_null($this->submodel)? $this->submodel : $this->model;
-        
-        return $model->setupForm($this);
+        return $this->model->setupForm($this);
     }
     
     public function parameters() {
@@ -444,6 +421,14 @@ class Block extends Model
         }
         
         return $this->strings;
+    }
+    
+    public function paragraphs() {
+        if(is_null($this->paragraphs)){
+            $this->paragraphs = $this->addons()->where('name', 'paragraphs');
+        }
+        
+        return $this->paragraphs;
     }
     
     public function currentCategory() {

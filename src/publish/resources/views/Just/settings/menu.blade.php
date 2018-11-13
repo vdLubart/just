@@ -1,4 +1,5 @@
-<div class="col-md-{{ $block->width }}">
+<div class="dragula-list-container-{{ (isset($block->parameters()->settingsScale)?$block->parameters()->settingsScale:"100") }}">
+
     <?php
     $menuView = function($menu) use ($block, &$menuView){
         
@@ -36,9 +37,3 @@
     
     {!! $menuView($block->content()) !!}
 </div>
-
-<script>
-    
-    dragItems('dragula-container', {{$block->id}});
-    
-</script>

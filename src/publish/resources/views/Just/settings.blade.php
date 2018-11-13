@@ -39,7 +39,37 @@
         <div class="tab-content clearfix">
             @if(empty($block->model()->id))
             <div class="tab-pane active" id="{{ $block->name }}_content">
-                @include('Just.settings.'.$block->name)
+                @if(!file_exists(resource_path('views/Just/settings/'.$block->name.'.blade.php')))
+                    <?php
+                    $zoom = 100;
+                    if(isset($block->parameters()->itemsInRow)){
+                        $zoom = (int)round(@$block->parameters()->itemsInRow / 3 * 100);
+                    }
+                    else{
+                        $zoom = (isset($block->parameters()->settingsScale)?$block->parameters()->settingsScale:"100");
+                    }
+                    ?>
+
+                    @if(is_null($block->model()->id))
+                        @include('Just.categoryFilter')
+                    @endif
+
+                    <div id="dragula-container" class="dragula-list-container-{{ $zoom }}">
+                        @foreach($block->content() as $item)
+                        <div class="dragula-list-item  {{ ($block->categories()->first()?@$item->categories->first()->value:"") }}" data-no="{{$item->orderNo}}" data-id="{{$item->id}}">
+                            @include('Just.settings.list')
+                        </div>
+                        @endforeach
+                    </div>
+                @else
+                    @include('Just.settings.'.$block->name)
+                @endif
+                
+                <script>
+                $(document).ready(function(){
+                    dragItems('dragula-container', {{$block->id}});
+                });
+                </script>
             </div>
             <div class="tab-pane" id="{{ $block->name }}_blockData">
                 @include('Just.blockForm')

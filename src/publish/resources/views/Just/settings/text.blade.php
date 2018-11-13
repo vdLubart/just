@@ -1,1 +1,0 @@
-@include('Just.settings.list')

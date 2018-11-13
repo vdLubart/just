@@ -1,5 +1,3 @@
-<div id="articles_{{ $block->id }}" class="row">
-
 @if(is_null($block->model()->id))
     @foreach($block->content() as $article)
     <div class="col-md-12">
@@ -60,4 +58,3 @@
         @endif
     </div>
 @endif
-</div>
