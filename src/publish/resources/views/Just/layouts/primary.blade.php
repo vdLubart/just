@@ -79,7 +79,7 @@
     <body>
         <div id="app">
             @if(\Config::get('isAdmin'))
-                @include($layout->name.'.navbar')
+                @include(viewPath($layout, 'navbar'))
             @endif
 
             @foreach($panels as $panel)

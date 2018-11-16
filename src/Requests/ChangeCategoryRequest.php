@@ -3,8 +3,9 @@
 namespace Lubart\Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class ChangePageRequest extends FormRequest
+class ChangeCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,12 +25,10 @@ class ChangePageRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'layout_id' => 'required|integer|min:1'
+            'addon_id' => "required|integer",
+            "name" => "required",
+            'value' => "required"
         ];
-        
-        if(empty($this->page_id)){
-            $rules['route'] = 'required|unique:routes,route';
-        }
         
         return $rules;
     }

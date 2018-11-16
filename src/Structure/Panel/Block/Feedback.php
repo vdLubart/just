@@ -59,15 +59,16 @@ class Feedback extends AbstractBlock
             $this->form->open();
         }
         
-        if(empty($this->form->getElements())){
-            $this->form->add(FormElement::text(['name'=>'username', 'label'=>'Name', 'value'=>$this->username]));
-            $this->form->add(FormElement::email(['name'=>'email', 'label'=>'Email', 'value'=>$this->email]));
-            if($this->id){
-               $this->form->add(FormElement::date(['name'=>'created', 'label'=>'Date', 'value'=>$this->created_at])); 
-            }
-            $this->form->add(FormElement::textarea(['name'=>'message', 'label'=>'Message', 'value'=>$this->message]));
-            $this->form->add(FormElement::submit(['value'=>'Submit']));
+        $this->form->add(FormElement::text(['name'=>'username', 'label'=>'Name', 'value'=>$this->username]));
+        $this->form->add(FormElement::email(['name'=>'email', 'label'=>'Email', 'value'=>$this->email]));
+        if($this->id){
+           $this->form->add(FormElement::date(['name'=>'created', 'label'=>'Date', 'value'=>$this->created_at])); 
         }
+        $this->form->add(FormElement::textarea(['name'=>'message', 'label'=>'Message', 'value'=>$this->message]));
+        
+        $this->includeAddons();
+        
+        $this->form->add(FormElement::submit(['value'=>'Submit']));
         
         return $this->form;
     }
@@ -116,6 +117,8 @@ class Feedback extends AbstractBlock
         $feedback->message = $request->get('message');
         
         $feedback->save();
+        
+        $this->handleAddons($request, $feedback);
         
         return $feedback;
     }

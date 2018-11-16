@@ -16,10 +16,8 @@
         </ul>
     </div>
     @endif
-    <?php
-    $form = $block->content()->form;
-    ?>
-    @include($layout->name.'.form')
+    
+    {!! $block->content()->form->render() !!}
     
     @foreach($block->content()->messages as $comment)
     <div class="col-md-6">

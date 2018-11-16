@@ -1,8 +1,5 @@
-<?php
-$form = $block->setupForm();
-?>
 <div id="{{ $block->name }}_setupForm">
-    @include('Just.form')
+    {!! $block->setupForm()->render() !!}
 </div>
 <br/><br/>
 

@@ -9,11 +9,8 @@
     </div>
 </div>
 
-<?php
-$form = $page->settingsForm();
-?>
 <div class='col-md-12' id="page_{{ $page->id }}_settingsForm">
-    @include('Just.form')
+    {!! $page->settingsForm()->render() !!}
 </div>
 
 <script>
@@ -31,18 +28,7 @@ $form = $page->settingsForm();
         },
         error: function(data){
             console.log(data);
-            $(".errors").removeClass('hide');
-            $(".errors").append('<ul></ul>');
-            $.each(data.responseJSON.errors, function(i, item) {
-                $(".errors ul").append('<li>'+item+'</li>');
-            });
-            $(".errors ul").append('<li>'+data.responseJSON.message+'</li>');
-            
-            $.ajax({
-                url: '/admin/settings/page/setup',
-                method: "POST",
-                data: currentData
-            });
+            showErrors(data);
         }
     });
     

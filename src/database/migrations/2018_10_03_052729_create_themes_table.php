@@ -19,7 +19,9 @@ class CreateThemesTable extends Migration
             $table->timestamps();
         });
         
-        Schema::table('layouts')->foreign('name')->references('name')->on('themes')->onUpdate('cascade')->onDelete('cascade');
+        Schema::table('layouts', function(Blueprint $table){
+            $table->foreign('name')->references('name')->on('themes')->onUpdate('cascade')->onDelete('cascade');
+        });
     }
 
     /**

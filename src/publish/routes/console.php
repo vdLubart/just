@@ -215,10 +215,26 @@ Artisan::command('just:makeBlock {className}', function () {
 Artisan::command('just:createTheme {themeName}', function () {
     $theme = ucfirst($this->argument("themeName"));
     
+    $isExists = !! \Lubart\Just\Models\Theme::where('name', $theme)->first();
+    
+    if($isExists){
+        $error = 'Theme "'.$theme.'" already exists! Create layout for it with master user.';
+        $emptyLine = "    ";
+        for($i=0; $i<strlen($error); $i++){
+            $emptyLine .= " ";
+        }
+        $this->error("");
+        $this->error($emptyLine);
+        $this->error('  '.$error.'  ');
+        $this->error($emptyLine);
+        $this->error("");
+        return;
+    }
+    
     \Lubart\Just\Models\Theme::create([
         'name' => $theme
     ]);
-    
+     
     mkdir(public_path('css/'.$theme), 775);
     mkdir(public_path('js/'.$theme), 775);
     mkdir(base_path('resources/views/'.$theme), 775);
@@ -226,6 +242,10 @@ Artisan::command('just:createTheme {themeName}', function () {
     mkdir(base_path('resources/assets/sass/'.$theme), 775);
     
     $this->info('Theme was created successfully!');
+    $this->comment("");
+    $this->comment('In order to use this theme related layout should be created!');
+    $this->comment('To create new layout do as master user Layout > Create Layout');
+    $this->comment("");
     
 })->describe('Create custom theme');
 

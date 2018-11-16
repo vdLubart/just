@@ -39,14 +39,15 @@ class Menu extends AbstractBlock
             $this->form->open();
         }
         
-        if(empty($this->form->getElements())){
-            $this->form->add(FormElement::text(['name'=>'item', 'label'=>'Item', 'value'=>$this->item]));
-            $this->form->add(FormElement::select(['name'=>'parent', 'label'=>'Parent Item', 'options'=>$this->itemList($this->content()), 'value'=>$this->parent]));
-            $route = \Lubart\Just\Models\Route::findByUrl($this->route);
-            $this->form->add(FormElement::select(['name'=>'route', 'label'=>'Route', 'options'=>$this->routes(), 'value'=>$route->id]));
-            $this->form->add(FormElement::text(['name'=>'url', 'label'=>'URL', 'value'=>$this->url]));
-            $this->form->add(FormElement::submit(['value'=>'Submit']));
-        }
+        $this->form->add(FormElement::text(['name'=>'item', 'label'=>'Item', 'value'=>$this->item]));
+        $this->form->add(FormElement::select(['name'=>'parent', 'label'=>'Parent Item', 'options'=>$this->itemList($this->content()), 'value'=>$this->parent]));
+        $route = \Lubart\Just\Models\Route::findByUrl($this->route);
+        $this->form->add(FormElement::select(['name'=>'route', 'label'=>'Route', 'options'=>$this->routes(), 'value'=>$route->id]));
+        $this->form->add(FormElement::text(['name'=>'url', 'label'=>'URL', 'value'=>$this->url]));
+        
+        $this->includeAddons();
+        
+        $this->form->add(FormElement::submit(['value'=>'Submit']));
         
         return $this->form;
     }
@@ -74,6 +75,8 @@ class Menu extends AbstractBlock
         $item->url = $request->get('url');
         
         $item->save();
+        
+        $this->handleAddons($request, $item);
         
         return $item;
     }

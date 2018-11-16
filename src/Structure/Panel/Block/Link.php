@@ -26,18 +26,17 @@ class Link extends AbstractBlock
             $this->form->open();
         }
         
-        $this->includeAddons();
-        
         $blocks = [];
         foreach(Block::where('name', '<>', 'link')->get() as $block){
             $blocks[$block->id] = $block->title . "(".$block->name.") at ".(is_null($block->page)?$block->panelLocation:$block->page->title ." page");
         }
         
         $this->form->add(FormElement::select(['name'=>'linkedBlock_id', 'label'=>'Linked Block', 'value'=>@$this->linkedBlock_id, 'options'=>$blocks]));
+        
+        $this->includeAddons();
+        
         $this->form->add(FormElement::submit(['value'=>'Save']));
             
-        $this->form->useJSLogic();
-        
         return $this->form;
     }
     

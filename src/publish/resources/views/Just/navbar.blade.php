@@ -45,6 +45,14 @@
                             </a>
                         </li>
                         <li>
+                            <a href="/admin/layout/default"
+                               onclick="event.preventDefault();
+                                                    setDefaultLayout();">
+                                <i class="fa fa-check"></i>
+                                Default layout
+                            </a>
+                        </li>
+                        <li>
                             <a href="/admin/layout/list"
                                onclick="event.preventDefault();
                                                     openList('layout');">

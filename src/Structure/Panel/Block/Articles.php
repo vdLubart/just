@@ -81,19 +81,25 @@ class Articles extends AbstractBlock
             $this->form->open();
         }
         
-        if(empty($this->form->getElements())){
-            $this->form->add(FormElement::file(['name'=>'image', 'label'=>'Upload Image']));
-            if(!is_null($this->id)){
-                $this->form->add(FormElement::button(['name'=>'recrop', 'value'=>'Recrop Image']));
-                $this->form->getElement("recrop")->setParameters('javasript:openCropping('.$this->block_id.', '.$this->id.')', 'onclick');
-            }
-            $this->form->add(FormElement::text(['name'=>'subject', 'label'=>'Subject', 'value'=>$this->subject]));
-            $this->form->add(FormElement::textarea(['name'=>'summary', 'label'=>'Summary', 'value'=>$this->summary]));
-            $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>'Article Text', 'value'=>$this->text]));
-            $this->form->add(FormElement::submit(['value'=>'Save']));
+        $this->form->add(FormElement::file(['name'=>'image', 'label'=>'Upload Image']));
+        if(!is_null($this->id)){
+            $this->form->add(FormElement::button(['name'=>'recrop', 'value'=>'Recrop Image']));
+            $this->form->getElement("recrop")->setParameters('javasript:openCropping('.$this->block_id.', '.$this->id.')', 'onclick');
         }
+        $this->form->add(FormElement::text(['name'=>'subject', 'label'=>'Subject', 'value'=>$this->subject]));
+        $this->form->add(FormElement::textarea(['name'=>'summary', 'label'=>'Summary', 'value'=>$this->summary]));
+        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>'Article Text', 'value'=>$this->text]));
         
-        $this->form->useJSLogic();
+        $this->includeAddons();
+        
+        $this->form->add(FormElement::submit(['value'=>'Save']));
+        /*
+        $this->form->applyJS("
+$(document).ready(function(){
+    CKEDITOR.replace('summary');
+    CKEDITOR.replace('text');
+});");*/
+        $this->form->useJSFile('/js/blocks/'.$this->block()->name.'/settingsForm.js');
         
         return $this->form;
     }
@@ -122,6 +128,8 @@ class Articles extends AbstractBlock
         $article->summary = $request->get('summary');
         $article->text = $request->get('text');
         $article->save();
+        
+        $this->handleAddons($request, $article);
         
         if(!is_null($request->file('image'))){
             $image->encode('png')->save(public_path('storage/'.$this->table.'/'.$article->image.".png"));

@@ -76,4 +76,8 @@ class Page extends Model
         
         return $layouts;
     }
+    
+    public static function setLayoutToAllPages($layout){
+        Page::where('id', '>', 0)->update(['layout_id'=>$layout->id]);
+    }
 }

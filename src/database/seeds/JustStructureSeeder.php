@@ -28,7 +28,6 @@ class JustStructureSeeder extends Seeder
             'class' => 'primary',
             'type' => 'float',
             'width' => 1170, // 1920 for fully responsive design
-            'isActive' => true
         ]);
         
         $justSpecificLayout = Structure\Layout::create([
@@ -36,7 +35,6 @@ class JustStructureSeeder extends Seeder
             'class' => 'specific',
             'type' => 'float',
             'width' => 1170, // 1920 for fully responsive design
-            'isActive' => true
         ]);
         
         // Panel Locations

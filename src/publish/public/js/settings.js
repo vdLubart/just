@@ -22,20 +22,27 @@ function openSettings(blockId, modelId){
 }
 
 function showErrors(data){
-    $("#settings").html('<div class="error alert alert-danger"></div>');
     if(data.responseJSON !== undefined){
-        $("#settings .error").append('<h2>'+data.responseJSON.exception+'</h2>');
-        $("#settings .error").append('<h5>'+data.responseJSON.file+' line '+data.responseJSON.line+'</h5>');
-        $("#settings .error").append('<h4>'+data.responseJSON.message+'</h4>');
-        $("#settings .error").append('<ul></ul>');
-        $.each(data.responseJSON.trace, function(i, item) {
-            $("#settings .error ul").append('<li>'+item.file+' line '+item.line+'; '+item.function+'()</li>');
-        });
+        if(data.responseJSON.errors !== undefined){
+            $("#settings form").prepend('<div class="error alert alert-danger"></div>');
+            $(".error").append('<ul></ul>');
+            $.each(data.responseJSON.errors, function(i, item) {
+                $(".error ul").append('<li>'+item+'</li>');
+            });
+        }
+        else{
+            $("#settings").html('<div class="error alert alert-danger"></div>');
+            $("#settings .error").append('<h2>'+data.responseJSON.exception+'</h2>');
+            $("#settings .error").append('<h5>'+data.responseJSON.file+' line '+data.responseJSON.line+'</h5>');
+            $("#settings .error").append('<h4>'+data.responseJSON.message+'</h4>');
+            $("#settings .error").append('<ul></ul>');
+            $.each(data.responseJSON.trace, function(i, item) {
+                $("#settings .error ul").append('<li>'+item.file+' line '+item.line+'; '+item.function+'()</li>');
+            });
+        }
     }
-    if(data.responseText !== undefined){
-        $("#settings .error").append(data.responseText);
-    }
-    else{
+    else if(data.responseText !== undefined){
+        $("#settings").html('<div class="error alert alert-danger"></div>');
         $("#settings .error").append(data.responseText);
     }
 }
@@ -187,7 +194,7 @@ function deleteLayout(layoutId){
             },
             dataType: "html",
             success: function(data){
-                if(data.error.length){
+                if(data.error !== undefined){
                     $(".errors").removeClass('hide');
                     $(".errors").append('<ul></ul>');
                     $(".errors ul").append('<li>'+data.error+'</li>');
@@ -335,4 +342,38 @@ function openChangePassword(){
             showErrors(data);
         }
     });
+}
+
+/*
+ * Open settings for blocks, pages, layouts and addons
+ * 
+ * @param number|string blockId block id for numbers and object name for strings
+ * @param number modelId id for block, page, layout or addon
+ * @returns {undefined}
+ */
+function setDefaultLayout(){
+    $("#settings").css("display", "block");
+
+    $.ajax({
+        url: "/admin/settings/layout/default",
+        success: function(data){
+            $("#settings").html(data);
+        },
+        error: function(data){
+            console.log("Cannot get settings data.");
+            console.log(data);
+            showErrors(data);
+        }
+    });
+}
+
+/**
+ * Replace defined by CSS query textarea by CKEDITOR instance
+ * 
+ * @param string cssQuery query to defind element
+ * @returns void
+ */
+function applyCKEditor(cssQuery){
+    var featureDescription = document.querySelector(cssQuery);
+    CKEDITOR.replace(featureDescription);
 }

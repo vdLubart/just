@@ -9,7 +9,7 @@
     </div>
 </div>
 <div id="changePassordForm" class='col-md-12'>
-    @include('Just.form')
+    {!! $form->render() !!}
 </div>
 
 
@@ -26,12 +26,7 @@
         },
         error: function(data){
             console.log(data);
-            $(".errors").removeClass('hide');
-            $(".errors ul").remove();
-            $(".errors").append('<ul></ul>');
-            $.each(data.responseJSON.errors, function(i, item) {
-                $(".errors ul").append('<li>'+item+'</li>');
-            });
+            showErrors(data);
         }
     });
 </script>

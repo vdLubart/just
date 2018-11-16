@@ -42,7 +42,7 @@ class Logo extends AbstractBlock
         }
         
         $this->form->setType('settings');
-        $this->form->useJSLogic();
+        $this->form->useJSFile('/js/blocks/logo/settingsForm.js');
         
         return $this->form;
     }
@@ -53,7 +53,7 @@ class Logo extends AbstractBlock
         $form->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>'Crop photo', 'value'=>1, 'check'=>(@$parameters->cropPhoto==1)]));
         $form->add(FormElement::text(['name'=>'cropDimentions', 'label'=>'Crop image with dimentions (W:H)', 'value'=>isset($parameters->cropDimentions)?$parameters->cropDimentions:'4:3']));
         
-        $form->useJSLogic();
+        $form->useJSFile('/js/blocks/logo/setupForm.js');
         
         return $form;
     }

@@ -6,8 +6,7 @@ $(document).ready(function(){
         getIconList();
     });
     
-    var featureDescription = document.querySelector('#features_settingsForm #description');
-    CKEDITOR.replace(featureDescription);
+    applyCKEditor('#features_settingsForm #description');
 });
 
 function getIconList(page){

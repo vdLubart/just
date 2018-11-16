@@ -1,7 +1,4 @@
-<?php
-$form = $block->form();
-?>
-@include('Just.form')
+{!! $block->form()->render() !!}
 
 <script>
     $("#{{ $block->name }}_settingsForm form").ajaxForm({
@@ -30,11 +27,7 @@ $form = $block->form();
         },
         error: function(data){
             console.log(data);
-            $(".errors").removeClass('hide');
-            $(".errors").append('<ul></ul>');
-            $.each(data.responseJSON.errors, function(i, item) {
-                $(".errors ul").append('<li>'+item+'</li>');
-            });
+            showErrors(data);
         }
     });
 </script>

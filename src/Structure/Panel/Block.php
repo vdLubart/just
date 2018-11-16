@@ -106,7 +106,8 @@ class Block extends Model
                 $form->getElement("name")->setParameters("disabled", "disabled");
             }
             $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>@$this->title]));
-            $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>@$this->description]));
+            $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>@$this->description, "class"=>"ckeditor"]));
+            //$form->applyJS("CKEDITOR.replace('description')");
             $form->add(FormElement::select(['name'=>'width', 'label'=>'Width', 'value'=>@$this->width, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
             if(\Auth::user()->role == "master"){
                 $form->add(FormElement::text(['name'=>'layoutClass', 'label'=>'Layout Class', 'value'=>$this->layoutClass ?? 'primary']));

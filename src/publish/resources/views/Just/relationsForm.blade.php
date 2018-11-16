@@ -1,9 +1,4 @@
-<?php
-
-$form = $block->relationsForm(@$relBlock);
-
-?>
-@include('Just.form')
+{!! $block->relationsForm(@$relBlock)->render() !!}
 
 <script>
     $("#{{ $block->name }}_relationsForm form").ajaxForm({
@@ -32,15 +27,7 @@ $form = $block->relationsForm(@$relBlock);
         },
         error: function(data){
             console.log(data);
-            $(".errors").removeClass('hide');
-            $(".errors").append('<ul></ul>');
-            $.each(data.responseJSON.errors, function(i, item) {
-                $(".errors ul").append('<li>'+item+'</li>');
-            });
+            showErrors(data);
         }
     });
-</script>
-
-<script>
-    CKEDITOR.replace('description');
 </script>

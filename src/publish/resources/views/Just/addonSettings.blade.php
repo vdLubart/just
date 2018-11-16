@@ -9,11 +9,8 @@
     </div>
 </div>
 
-<?php
-$form = $addon->settingsForm();
-?>
 <div id="page_{{ $addon->id }}_settingsForm">
-    @include('Just.form')
+    {!! $addon->settingsForm()->render() !!}
 </div>
 
 <script>

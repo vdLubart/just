@@ -1,8 +1,4 @@
-<?php
-$form = $block->blockForm();
-?>
-
-@include('Just.form')
+{!! $block->blockForm()->render() !!}
 
 <script>
     $("#{{ $block->name }}_blockData form").ajaxForm({

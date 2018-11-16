@@ -15,9 +15,10 @@
         
     <ul>
         @foreach($categories as $category)
-            @if($currentId != $category->id)
+            @if($currentId != $category->addon_id)
             </ul>
             <h5>{{ $category->addonTitle . ' on ' . $category->blockTitle . ' ('.$category->blockName.')' }}</h5>
+            <?php $currentId = $category->addon_id; ?>
             <ul>
             @endif
             <li>

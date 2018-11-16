@@ -321,7 +321,7 @@ class AjaxUploader {
         ob_start();
         $request = request();
         $request->currentFile = $this->file_name;
-        $model = app('Lubart\Just\Controllers\AdminController')->processForm($request);
+        $model = app('Lubart\Just\Controllers\AdminController')->handleForm($request);
         
         $this->imageCode = $model->image;
         $this->shouldBeCropped = $model->shouldBeCropped;

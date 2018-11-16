@@ -391,7 +391,7 @@ abstract class AbstractBlock extends Model
         }
         $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=> (!is_null($relBlock) ? $relBlock->title : "")]));
         $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>(!is_null($relBlock) ? $relBlock->description : "")]));
-        
+        $form->applyJS("applyCKEditor('#".$this->block()->name."_relationsForm #description')");
         $form->add(FormElement::submit(['value'=>'Save']));
         
         return $form;

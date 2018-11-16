@@ -79,3 +79,5 @@ Route::post("admin/uploadimage", "\Lubart\Just\Controllers\AdminController@uploa
 Route::post("admin/settings/relations/create", "\Lubart\Just\Controllers\AdminController@createRelation")->middleware(['web','auth']);
 Route::get("admin/settings/password", "\Lubart\Just\Controllers\AdminController@changePasswordForm")->middleware(['web','auth']);
 Route::post("admin/settings/password/update", "\Lubart\Just\Controllers\AdminController@changePassword")->middleware(['web','auth']);
+Route::get("admin/settings/layout/default", "\Lubart\Just\Controllers\AdminController@defaultLayout")->middleware(['web','auth']);
+Route::post("admin/settings/layout/default/set", "\Lubart\Just\Controllers\AdminController@setDefaultLayout")->middleware(['web','auth']);

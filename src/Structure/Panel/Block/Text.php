@@ -27,12 +27,13 @@ class Text extends AbstractBlock
             $this->form->open();
         }
         
+        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>'Text', 'value'=>@$this->text]));
+        
         $this->includeAddons();
         
-        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>'Text', 'value'=>@$this->text]));
         $this->form->add(FormElement::submit(['value'=>'Save']));
         
-        $this->form->useJSLogic();
+        $this->form->useJSFile('/js/blocks/text/settingsForm.js');
         
         return $this->form;
     }

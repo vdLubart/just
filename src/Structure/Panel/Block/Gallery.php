@@ -43,8 +43,8 @@ class Gallery extends AbstractBlock
                 $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
             }
         
-            $this->form->add(FormElement::text(['name'=>'caption', 'value'=>$this->caption]));
-            $this->form->add(FormElement::textarea(['name'=>'description', 'value'=>$this->description]));
+            $this->form->add(FormElement::text(['name'=>'caption', 'label'=>'Caption', 'value'=>$this->caption]));
+            $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description',  'value'=>$this->description]));
             $this->form->add(FormElement::submit(['value'=>'Update image', 'name'=>'startUpload']));
         }
         else{
@@ -52,7 +52,7 @@ class Gallery extends AbstractBlock
         }
         
         $this->form->setType('settings');
-        $this->form->useJSLogic();
+        $this->form->useJSFile('/js/blocks/gallery/settingsForm.js');
         
         return $this->form;
     }
@@ -63,7 +63,7 @@ class Gallery extends AbstractBlock
         $form->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>'Crop photo', 'value'=>1, 'check'=>(@$parameters->cropPhoto==1)]));
         $form->add(FormElement::text(['name'=>'cropDimentions', 'label'=>'Crop image with dimentions (W:H)', 'value'=>isset($parameters->cropDimentions)?$parameters->cropDimentions:'4:3']));
         
-        $form->useJSLogic();
+        $form->useJSFile('/js/blocks/gallery/setupForm.js');
         
         return $form;
     }

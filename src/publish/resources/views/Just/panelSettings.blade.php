@@ -10,11 +10,8 @@
 </div>
 
 <a href="javascript:" id="addBlockForm" data-toggle="collapse" data-target="#{{ $panel->location }}_settingsForm"><i class="fa fa-plus"></i> Add new block</a>
-<?php
-$form = $block->blockForm();
-?>
-<div class="@if(!$form->isOpen()) collapse @endif" id="{{ $panel->location }}_settingsForm">
-    @include('Just.form')
+<div class="@if(!$block->blockForm()->isOpen()) collapse @endif" id="{{ $panel->location }}_settingsForm">
+    {!! $block->blockForm()->render() !!}
 </div>
 <br/><br/>
 
@@ -45,7 +42,3 @@ $form = $block->blockForm();
     </div>
 </div>
 @endforeach
-
-<script>
-    CKEDITOR.replace('description');
-</script>

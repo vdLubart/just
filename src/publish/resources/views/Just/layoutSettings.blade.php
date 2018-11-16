@@ -9,11 +9,8 @@
     </div>
 </div>
 
-<?php
-$form = $layout->settingsForm();
-?>
 <div id="layout_{{ $layout->id }}_settingsForm" class="col-md-12">
-    @include('Just.form')
+    {!! $layout->settingsForm()->render() !!}
 </div>
 
 <script>
@@ -23,11 +20,7 @@ $form = $layout->settingsForm();
         },
         error: function(data){
             console.log(data);
-            $(".errors").removeClass('hide');
-            $(".errors").append('<ul></ul>');
-            $.each(data.responseJSON.errors, function(i, item) {
-                $(".errors ul").append('<li>'+item+'</li>');
-            });
+            showErrors(data);
         }
     });
 </script>

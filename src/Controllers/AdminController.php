@@ -20,6 +20,7 @@ use Lubart\Just\Requests\ChangePasswordRequest;
 use Lubart\Just\Validators\ValidatorExtended;
 use Lubart\Just\Structure\Panel\Block\Addon\Categories;
 use Lubart\Just\Models\Theme;
+use Lubart\Just\Requests\ChangeCategoryRequest;
 
 class AdminController extends Controller
 {
@@ -144,7 +145,7 @@ class AdminController extends Controller
         return view(viewPath(Theme::active()->layout, 'categorySettings'))->with(['category'=>$category]);
     }
     
-    public function handleCategoryForm(Request $request) {
+    public function handleCategoryForm(ChangeCategoryRequest $request) {
         $category = Categories::findOrNew($request->category_id);
         
         $category->handleSettingsForm($request);
@@ -285,7 +286,7 @@ class AdminController extends Controller
         $layout = Layout::find($request->layout_id);
         
         if(!empty($layout)){
-            $pages = Page::where('layout_id', $request->layout_id)->get();
+            $pages = Page::where('layout_id', $request->layout_id)->first();
             if(!empty($pages)){
                 return json_encode(['error'=>'Layout cannot be deleted because page "'.$pages->first()->title.'" is using it']);
             }
@@ -415,7 +416,7 @@ class AdminController extends Controller
     }
     
     public function changePasswordForm() {
-        return view('Just.changePassword')->with(['form'=>User::changePasswordForm()]);
+        return view(viewPath(Theme::active()->layout, 'changePassword'))->with(['form'=>User::changePasswordForm()]);
     }
     
     public function changePassword(ChangePasswordRequest $request) {
@@ -423,6 +424,27 @@ class AdminController extends Controller
         
         $user->password = bcrypt($request->new_password);
         $user->save();
+        
+        return;
+    }
+    
+    public function defaultLayout(){
+        return view(viewPath(Theme::active()->layout, 'defaultLayout'))->with(['form'=>Layout::setDefaultForm()]);
+    }
+    
+    public function setDefaultLayout(Request $request){
+        $validator = \Validator::make($request->all(),
+                    [
+                        'layout' => "required|string",
+                        'change_all' => "nullable"
+                    ]);
+        $validator->validate();
+        
+        Theme::setActive($request->layout);
+        
+        if(isset($request->change_all)){
+            Page::setLayoutToAllPages(Theme::where('name', $request->layout)->first()->layout);
+        }
         
         return;
     }

@@ -17,7 +17,7 @@
     @elseif(isset($item->text))
     {!! $item->text !!}
     @elseif(isset($item->linkedBlock_id))
-    <h4>{!! $item->linkedBlock()->title. '('.$item->linkedBlock()->name.') at '.$item->linkedBlock()->page->title !!} </h4>
+    <h4>{!! $item->linkedBlock()->title. '('.$item->linkedBlock()->name.') at '.@$item->linkedBlock()->page->title !!} </h4>
     @endif
     <div class="caption">
         <a href="javascript: openSettings({{ $block->id }}, {{ $item->id }})">

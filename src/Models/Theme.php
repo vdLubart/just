@@ -21,4 +21,10 @@ class Theme extends Model
         return $this->belongsTo(Layout::class, 'name', 'name')
                 ->where('class', 'primary');
     }
+    
+    public static function setActive($layout){
+        Theme::where('isActive', '=', 1)->update(['isActive' => 0]);
+        
+        Theme::where('name', $layout)->update(['isActive' => 1]);
+    }
 }

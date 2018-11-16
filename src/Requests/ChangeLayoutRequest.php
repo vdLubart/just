@@ -3,6 +3,7 @@
 namespace Lubart\Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ChangeLayoutRequest extends FormRequest
 {
@@ -23,10 +24,27 @@ class ChangeLayoutRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'name' => "required",
             "class" => "required",
             'width' => "required|integer|min:980|max:1920"
         ];
+        
+        if(empty($this->layout_id)){
+            $rules['class'] = [
+                "required",
+                Rule::unique('layouts')->where(function($query){
+                    return $query->where('name', $this->name)
+                            ->where('class', $this->class);
+                })
+            ];
+        }
+        
+        return $rules;
+    }
+    
+    public function messages() {
+        return parent::messages() + 
+                ['class.unique' => 'Class "'.$this->class .'" already used in "'.$this->name .'" layout.'];
     }
 }

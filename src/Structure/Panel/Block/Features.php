@@ -66,7 +66,7 @@ class Features extends AbstractBlock
         
         $this->form->add(FormElement::submit(['value'=>'Save']));
         
-        $this->form->useJSLogic();
+        $this->form->useJSFile('/js/blocks/features/settingsForm.js');
         
         return $this->form;
     }
@@ -102,6 +102,8 @@ class Features extends AbstractBlock
         $feature->description = $request->get('description');
         $feature->link = $request->get('link');
         $feature->save();
+        
+        $this->handleAddons($request, $feature);
         
         return $feature;
     }

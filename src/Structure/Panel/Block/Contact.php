@@ -3,10 +3,7 @@
 namespace Lubart\Just\Structure\Panel\Block;
 
 use Illuminate\Http\Request;
-use Intervention\Image\ImageManagerStatic as Image;
 use Lubart\Just\Tools\Useful;
-use Lubart\Just\Structure\Panel\Block;
-use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 
 class Contact extends AbstractBlock
@@ -82,31 +79,15 @@ class Contact extends AbstractBlock
             $this->form->add(FormElement::text(['name'=>$field, 'label'=>$attr[0], 'value'=>@$this->{$field}]));
         }
         
+        $this->includeAddons();
+        
         $this->form->add(FormElement::submit(['value'=>'Save']));
         
         $this->form->setType('settings');
         
         return $this->form;
     }
-    /*
-    public function setupForm(Block $block) {
-        $parameters = json_decode($block->parameters);
-        
-        $form = new Form('/admin/settings/setup');
-        
-        $form->setType('setup');
-        
-        $form->add(FormElement::hidden(['name'=>'id', 'value'=>$block->id]));
-        
-        $form->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>'Crop photo', 'value'=>1, 'check'=>(@$parameters->cropPhoto==1)]));
-        $form->add(FormElement::text(['name'=>'cropDimentions', 'label'=>'Crop image with dimentions (W:H)', 'value'=>isset($parameters->cropDimentions)?$parameters->cropDimentions:'4:3']));
-        $form->add(FormElement::submit(['value'=>'Save']));
-        
-        $form->useJSLogic();
-        
-        return $form;
-    }
-    */
+    
     public function handleForm(Request $request) {
         if (is_null($request->get('id'))) {
             $contact = new Contact;
@@ -124,6 +105,8 @@ class Contact extends AbstractBlock
         }
         
         $contact->save();
+        
+        $this->handleAddons($request, $contact);
 
         return $contact;
     }

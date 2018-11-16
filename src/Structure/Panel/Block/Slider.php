@@ -5,9 +5,6 @@ namespace Lubart\Just\Structure\Panel\Block;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 
-/**
- * @method Lubart\Form\Form form() Settings form is described in Gallery
- */
 class Slider extends Gallery
 {
     
@@ -29,6 +26,14 @@ class Slider extends Gallery
     ];
     
     protected $imageSizes = [];
+    
+    public function form() {
+        $this->form = parent::form();
+        
+        $this->form->useJSFile('/js/blocks/slider/settingsForm.js');
+        
+        return $this->form;
+    }
     
     public function addSetupFormElements(Form &$form) {
         $form->add(FormElement::hidden(['name'=>'cropPhoto', 'value'=>1]));

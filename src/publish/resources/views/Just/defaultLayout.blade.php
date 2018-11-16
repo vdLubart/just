@@ -1,20 +1,20 @@
 <div class='col-md-12'>
-    <div class='col-md-11'>
+    <div class='col-md-10'>
         <h4>
-            Settings :: Category
+            Settings :: Layout :: Set Default
         </h4>
     </div>
     <div class='col-md-1 text-right'>
         <a href="javascript:closeSettings()" title='Close settings'><i class="fa fa-close"></i></a>
     </div>
 </div>
-
-<div id="categoryForm" class='col-md-12'>
-{!! $category->settingsForm()->render() !!}
+<div id="setDefaultLayoutForm" class='col-md-12'>
+    {!! $form->render() !!}
 </div>
 
+
 <script>
-    $("#categoryForm form").ajaxForm({
+    $("#setDefaultLayoutForm form").ajaxForm({
         beforeSerialize: function(form, options) {
             for (instance in CKEDITOR.instances){
                 CKEDITOR.instances[instance].updateElement();
