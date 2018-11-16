@@ -31,6 +31,10 @@ class CreateThemesTable extends Migration
      */
     public function down()
     {
+        Schema::table('layouts', function(Blueprint $table){
+            $table->dropForeign('layouts_name_foreign');
+        });
+        
         Schema::dropIfExists('themes');
     }
 }
