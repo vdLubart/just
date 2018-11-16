@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+use Lubart\Just\Requests\ChangeLayoutRequest;
 use Lubart\Just\Models\Theme;
 
 class Layout extends Model
@@ -34,6 +34,10 @@ class Layout extends Model
         $form->add(FormElement::hidden(['name'=>'layout_id', 'value'=>$this->id]));
         $form->add(FormElement::select(['name'=>'name', 'label'=>'Theme Title', 'value'=>$this->name ?? 'Just', 'options'=>Theme::all()->pluck('name', 'name')]));
         $form->add(FormElement::text(['name'=>'class', 'label'=>'Theme Class', 'value'=>$this->class ?? 'primary']));
+        if($this->id == 1){
+            $form->getElement("name")->setParameters("disabled", "disabled");
+            $form->getElement("class")->setParameters("disabled", "disabled");
+        }
         $form->add(FormElement::number(['name'=>'width', 'label'=>'Layout Width', 'value'=>$this->width ?: '1920']));
         
         $form->add(FormElement::select(['name'=>'panel', 'label'=>'Panel', 'value'=>null, 'options'=>$this->panelLocations()]));
@@ -48,7 +52,7 @@ class Layout extends Model
         return $form;
     }
     
-    public function handleSettingsForm(Request $request) {
+    public function handleSettingsForm(ChangeLayoutRequest $request) {
         $this->name = $request->name;
         $this->class = $request->class;
         $this->width = $request->width;
@@ -79,6 +83,19 @@ class Layout extends Model
                 $panel->orderNo = $orderNo++;
                 
                 $panel->save();
+                
+                if(!file_exists(resource_path('views/'.$request->name.'/panels/'.$location.'.blade.php'))){
+                    if(!file_exists(resource_path('views/'.$request->name.'/panels/'))){
+                        mkdir(resource_path('views/'.$request->name.'/panels/'), 0775);
+                    }
+                    
+                    if($type == 'static'){
+                        copy(resource_path('views/Just/panels/header.blade.php'), resource_path('views/'.$request->name.'/panels/'.$location.'.blade.php'));
+                    }
+                    else{
+                        copy(resource_path('views/Just/panels/content.blade.php'), resource_path('views/'.$request->name.'/panels/'.$location.'.blade.php'));
+                    }
+                }
             }
         }
     }

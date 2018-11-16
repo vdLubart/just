@@ -25,6 +25,7 @@ class ChangeLayoutRequest extends FormRequest
     public function rules()
     {
         $rules = [
+            'layout_id' => 'required|integer|min:2',
             'name' => "required",
             "class" => "required",
             'width' => "required|integer|min:980|max:1920"
@@ -45,6 +46,9 @@ class ChangeLayoutRequest extends FormRequest
     
     public function messages() {
         return parent::messages() + 
-                ['class.unique' => 'Class "'.$this->class .'" already used in "'.$this->name .'" layout.'];
+                [
+                    'class.unique' => 'Class "'.$this->class .'" already used in "'.$this->name .'" layout.',
+                    'layout_id.min' => 'This layout is default and cannot be changed'
+                ];
     }
 }
