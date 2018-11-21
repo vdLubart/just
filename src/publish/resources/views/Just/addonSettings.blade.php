@@ -9,10 +9,23 @@
     </div>
 </div>
 
-<div id="page_{{ $addon->id }}_settingsForm">
+<div id="addonSettingsForm"  class='col-md-12'>
     {!! $addon->settingsForm()->render() !!}
 </div>
 
 <script>
-    CKEDITOR.replace('description');
+    $("#addonSettingsForm form").ajaxForm({
+        beforeSerialize: function(form, options) {
+            for (instance in CKEDITOR.instances){
+                CKEDITOR.instances[instance].updateElement();
+            }
+        },
+        success: function(data){
+            openList('addon');
+        },
+        error: function(data){
+            console.log(data);
+            showErrors(data);
+        }
+    });
 </script>

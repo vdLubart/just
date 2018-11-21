@@ -21,6 +21,7 @@ use Lubart\Just\Validators\ValidatorExtended;
 use Lubart\Just\Structure\Panel\Block\Addon\Categories;
 use Lubart\Just\Models\Theme;
 use Lubart\Just\Requests\ChangeCategoryRequest;
+use Lubart\Just\Requests\AddonChangeRequest;
 
 class AdminController extends Controller
 {
@@ -117,7 +118,7 @@ class AdminController extends Controller
         return view(viewPath(Theme::active()->layout, 'addonSettings'))->with(['addon'=>$addon]);
     }
     
-    public function handleAddonForm(Request $request) {
+    public function handleAddonForm(AddonChangeRequest $request) {
         if(\Auth::user()->role != "master"){
             return view(viewPath(Theme::active()->layout, 'noAccess'));
         }

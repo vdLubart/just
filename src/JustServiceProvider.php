@@ -43,7 +43,7 @@ class JustServiceProvider extends ServiceProvider
         
         Validator::extend(
             'recaptcha',
-            'Validators\\Recaptcha@validate'
+            'Lubart\\Just\\Validators\\Recaptcha@validate'
         );
         
         $this->app->validator->resolver(function($translator, $data, $rules, $messages){

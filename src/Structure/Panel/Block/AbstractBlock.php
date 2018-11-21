@@ -68,13 +68,27 @@ abstract class AbstractBlock extends Model
             
             $with = [];
             foreach($this->addons() as $addon){
-                $with[] = $addon->name;
+                $with[] = $addon->type;
             }
             
-            return $content->with($with)->get();
+            $collection = $content->with($with)->get();
+
+            foreach($collection as $item){
+                foreach($item->addons as $addon){
+                    $item->{$addon->name} = $item->{$addon->type}->where('addon_id', $addon->id)->first();
+                }
+            }
+            
+            return $collection;
         }
         else{
-            return $this->find($id);
+            $item = $this->find($id);
+            
+            foreach($item->addons as $addon){
+                $item->{$addon->name} = $item->{$addon->type}->where('addon_id', $addon->id)->first();
+            }
+            
+            return $item;
         }
     }
     
@@ -344,8 +358,8 @@ abstract class AbstractBlock extends Model
     public function addonValues($addonId) {
         $addon = Addon::find($addonId)->addon();
         $addonClass = new $addon;
-
-        return $this->belongsToMany($addon, $this->getTable().'_'.$addonClass->getTable(), 'modelItem_id', 'addonItem_id')->get();
+        
+        return $this->belongsToMany($addon, $this->getTable().'_'.$addonClass->getTable(), 'modelItem_id', 'addonItem_id')->where('addon_id', $addonId)->get();
     }
     
     /**

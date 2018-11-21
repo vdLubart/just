@@ -5,40 +5,24 @@
         {{var_dump($block->getAttributes())}}
     </div>
 </div>
-<div class="col-md-12 margin-bottom-20"><strong><a href="javascript:" data-toggle="collapse" data-target="#gallery_params_{{ $block->id }}_attributes">$block->parameters()</a>:</strong> Click to show attributes
+<div class="col-md-12 margin-bottom-20"><strong><a href="javascript:" data-toggle="collapse" data-target="#gallery_params_{{ $block->id }}_attributes">$block->parameters()</a>:</strong> Click to show parameters
     <div id="gallery_params_{{ $block->id }}_attributes" class="collapse">
         {{var_dump($block->parameters())}}
     </div>
 </div>
-<div class="col-md-12"><strong>{{"@"}}foreach($block->categories() as $category)</strong>
-    @if($block->categories()->first())
-        @foreach($block->categories() as $category)
-            <div class="col-md-12 margin-bottom-20"><strong><a href="javascript:" data-toggle="collapse" data-target="#cat_{{ $category->id }}_attributes">$category</a>:</strong> Click to show attributes
-                <div id="cat_{{ $category->id }}_attributes" class="collapse">
-                    {{var_dump($category->getAttributes())}}
-                </div>
+
+<!-- Addon List -->
+<div class="col-md-12"><strong>{{"@"}}foreach($block->addons as $addon)</strong>
+    @foreach($block->addons as $addon)
+        <div class="col-md-12 margin-bottom-20"><strong><a href="javascript:" data-toggle="collapse" data-target="#cat_{{ $addon->id }}_attributes">$addon</a>:</strong> Click to show attributes
+            <div id="cat_{{ $addon->id }}_attributes" class="collapse">
+                {{var_dump($addon->getAttributes())}}
             </div>
-            <div class="col-md-12"><strong>{{"@"}}foreach($category->values()->get() as $cat)</strong></div>
-            <div class="col-md-12">
-                @foreach($category->values()->get() as $cat)
-                    <div class="col-md-4">
-                        <div class="thumbnail">
-                            <div><strong>$cat->name:</strong> {{$cat->name}}</div>
-                            <div>
-                                <strong><a href="javascript:" data-toggle="collapse" data-target="#catVal_{{ $cat->id }}_attributes">$cat</a>:</strong> Click to show attributes
-                                <div id="catVal_{{ $cat->id }}_attributes" class="collapse">
-                                    {{var_dump($cat->getAttributes())}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-            <div class="col-md-12 margin-bottom-20"><strong>{{"@"}}endforeach</strong></div>
-        @endforeach
-    @endif
+        </div>
+    @endforeach
 </div>
 <div class="col-md-12 margin-bottom-20"><strong>{{"@"}}endforeach</strong></div>
+<!-- End Addon List -->
 
 <div class="col-md-12 margin-bottom-20"><strong><a href="javascript:" data-toggle="collapse" data-target="#current_category_{{ $block->id }}_attributes">$block->currentCategory()</a>:</strong> Click to show attributes
     <div id="current_category_{{ $block->id }}_attributes" class="collapse">
@@ -66,32 +50,13 @@
                         {{var_dump($photo->getAttributes())}}
                     </div>
                 </div>
+            </div>
+            <div class="caption">
                 <div>
-                    <strong>{{"@"}}foreach($block->addons() as $addon)</strong>
-                </div>
-                @foreach($block->addons() as $addon)
-                <div class="col-md-12 margin-bottom-20"><strong><a href="javascript:" data-toggle="collapse" data-target="#addon_{{ $addon->id }}_attributes">$addon</a>:</strong> Click to show attributes
-                    <div id="addon_{{ $addon->id }}_attributes" class="collapse">
-                        {{var_dump($addon->getAttributes())}}
+                    <strong><a href="javascript:" data-toggle="collapse" data-target="#photo_{{ $photo->id }}_category">$photo->category</a>:</strong> Click to show addon content
+                    <div id="photo_{{ $photo->id }}_category" class="collapse">
+                        {{var_dump($photo->category)}}
                     </div>
-                </div>
-                <div>
-                    <div class="col-md-12">
-                        <div><strong>{{"@"}}foreach($photo->{{$addon->name}} as $val)</strong></div>
-                        <div class="col-md-12">
-                            <strong><a href="javascript:" data-toggle="collapse" data-target="#photo_{{$addon->name}}_{{ $photo->id }}_attributes">Addons values</a>:</strong> Click to show values
-                            <div id="photo_{{$addon->name}}_{{ $photo->id }}_attributes" class="collapse">
-                                @foreach($photo->{$addon->name} as $val)
-                                    {{ var_dump($val->getAttributes()) }}
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12"><strong>{{"@"}}endforeach</strong></div>
-                </div>
-                @endforeach
-                <div>
-                    <strong>{{"@"}}endforeach</strong>
                 </div>
             </div>
         </div>

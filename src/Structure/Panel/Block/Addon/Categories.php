@@ -27,13 +27,13 @@ class Categories extends AbstractAddon
     }
     
     public static function handleForm(Addon $addon, Request $request, $item) {
-        DB::table($item->getTable()."_".$addon->name)
+        DB::table($item->getTable()."_".$addon->type)
                 ->where('modelItem_id', $item->id)
                 ->delete();
         
-        if(is_array($request->get('categories'))){
-            foreach($request->get('categories') as $cat){
-                DB::table($item->getTable() . "_" . $addon->name)
+        if(is_array($request->get($addon->name))){
+            foreach($request->get($addon->name) as $cat){
+                DB::table($item->getTable() . "_" . $addon->type)
                         ->insert([
                             'modelItem_id' => $item->id,
                             'addonItem_id' => $cat
@@ -41,10 +41,10 @@ class Categories extends AbstractAddon
             }
         }
         else{
-            DB::table($item->getTable()."_".$addon->name)
+            DB::table($item->getTable()."_".$addon->type)
                     ->insert([
                         'modelItem_id' => $item->id,
-                        'addonItem_id' => $request->get('categories')
+                        'addonItem_id' => $request->get($addon->name)
                     ]);
         }
     }
@@ -63,7 +63,7 @@ class Categories extends AbstractAddon
     public function settingsForm() {
         $form = new Form('admin/settings/category/setup');
         
-        $addons = Addon::where('name', 'categories')->pluck('title', 'id');
+        $addons = Addon::where('type', 'categories')->pluck('title', 'id');
         
         $form->add(FormElement::hidden(['name'=>'category_id', 'value'=>@$this->id]));
         $form->add(FormElement::select(['name'=>'addon_id', 'label'=>'Addon', 'value'=>@$this->addon_id, 'options'=>$addons]));

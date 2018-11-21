@@ -71,6 +71,10 @@ class Block extends Model
         $this->model->setBlock($this->id);
         $this->model->setup();
         
+        foreach($this->addons() as $addon){
+            $this->{$addon->name} = Addon::find($addon->id);
+        }
+        
         return $this;
     }
     
@@ -368,7 +372,7 @@ class Block extends Model
      */
     public function addons() {
         if(is_null($this->addons)){
-            $this->addons = $this->hasMany(Addon::class)->get();
+            $this->addons = $this->hasMany(Addon::class);
         }
         
         return $this->addons;
@@ -402,7 +406,7 @@ class Block extends Model
     
     public function categories() {
         if(is_null($this->categories)){
-            $this->categories = $this->addons()->where('name', 'categories');
+            $this->categories = $this->addons()->where('type', 'categories');
         }
         
         return $this->categories;
@@ -410,7 +414,7 @@ class Block extends Model
     
     public function strings() {
         if(is_null($this->strings)){
-            $this->strings = $this->addons()->where('name', 'strings');
+            $this->strings = $this->addons()->where('type', 'strings');
         }
         
         return $this->strings;
@@ -418,7 +422,7 @@ class Block extends Model
     
     public function images() {
         if(is_null($this->images)){
-            $this->images = $this->addons()->where('name', 'images');
+            $this->images = $this->addons()->where('type', 'images');
         }
         
         return $this->strings;
@@ -426,7 +430,7 @@ class Block extends Model
     
     public function paragraphs() {
         if(is_null($this->paragraphs)){
-            $this->paragraphs = $this->addons()->where('name', 'paragraphs');
+            $this->paragraphs = $this->addons()->where('type', 'paragraphs');
         }
         
         return $this->paragraphs;

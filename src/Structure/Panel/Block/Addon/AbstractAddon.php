@@ -32,8 +32,8 @@ abstract class AbstractAddon extends Model
     }
     
     protected static function handleData($value, $addon, $item){
-        $oldData = DB::table($item->getTable()."_".$addon->name)
-                        ->join($addon->name, 'addonItem_id', '=', $addon->name.'.id')
+        $oldData = DB::table($item->getTable()."_".$addon->type)
+                        ->join($addon->type, 'addonItem_id', '=', $addon->type.'.id')
                         ->where('modelItem_id', $item->id)
                         ->where('addon_id', $addon->id)
                         ->first();
@@ -41,7 +41,7 @@ abstract class AbstractAddon extends Model
         if(empty($oldData)){
             $addonData = self::create(['addon_id'=>$addon->id, 'value'=>$value]);
         
-            DB::table($item->getTable()."_".$addon->name)
+            DB::table($item->getTable()."_".$addon->type)
                 ->insert([
                     'modelItem_id' => $item->id,
                     'addonItem_id' => $addonData->id

@@ -11,12 +11,13 @@ use Illuminate\Support\Facades\DB;
 use Lubart\Form\FormElement;
 use Lubart\Just\Tools\Useful;
 use Illuminate\Support\Facades\Artisan;
+use Lubart\Just\Requests\AddonChangeRequest;
 
 class Addon extends Model
 {   
     protected $table = 'addons';
     
-    protected $fillable = ['block_id', 'name', 'title', 'description', 'orderNo', 'isActive', 'parameters'];
+    protected $fillable = ['block_id', 'type', 'name', 'title', 'description', 'orderNo', 'isActive', 'parameters'];
     
     /**
      * Class name of the current addon
@@ -24,10 +25,10 @@ class Addon extends Model
      * @return string $addon
      */
     public function addon(){
-        $class = "\\Lubart\\Just\\Structure\\Panel\\Block\\Addon\\".ucfirst($this->name);
+        $class = "\\Lubart\\Just\\Structure\\Panel\\Block\\Addon\\".ucfirst($this->type);
         
         if(!class_exists($class)){
-            $class = "\\App\\Just\\Panel\\Block\\Addon\\". ucfirst($this->name);
+            $class = "\\App\\Just\\Panel\\Block\\Addon\\". ucfirst($this->type);
             if(!class_exists($class)){
                 throw new \Exception("Addon class not found");
             }
@@ -109,30 +110,33 @@ class Addon extends Model
         }
         
         $form->add(FormElement::hidden(['name'=>'addon_id', 'value'=>@$this->id]));
-        $form->add(FormElement::select(['name'=>'name', 'label'=>'Addon', 'value'=>@$this->name, 'options'=>$addons]));
+        $form->add(FormElement::select(['name'=>'type', 'label'=>'Addon', 'value'=>@$this->type, 'options'=>$addons]));
+        $form->add(FormElement::text(['name'=>'name', 'label'=>'Name', 'value'=>@$this->name]));
         $form->add(FormElement::select(['name'=>'block_id', 'label'=>'Block', 'value'=>@$this->block_id, 'options'=>$blocks]));
         if(!is_null($this->id)){
-            $form->getElement("name")->setParameters("disabled", "disabled");
+            $form->getElement("type")->setParameters("disabled", "disabled");
             $form->getElement("block_id")->setParameters("disabled", "disabled");
         }
         $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>@$this->title]));
         $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>@$this->description]));
+        $form->applyJS("CKEDITOR.replace('description');");
         $form->add(FormElement::submit(['value'=>'Save']));
         
         return $form;
     }
     
-    public function handleSettingsForm(Request $request) {
+    public function handleSettingsForm(AddonChangeRequest $request) {
         $this->title = $request->title;
         $this->description = $request->description;
+        $this->name = $request->name;
         
         if(is_null($this->id)){
             $this->block_id = $request->block_id;
-            $this->name = $request->name;
+            $this->type = $request->type;
             $this->orderNo = Useful::getMaxNo('addons', ['block_id'=>$request->block_id]);
             
             $modelTable = Block::find($request->block_id)->specify()->model()->getTable();
-            $addonTable = DB::table('addonList')->where('addon', $request->name)->first()->table;
+            $addonTable = DB::table('addonList')->where('addon', $request->type)->first()->table;
             
             $this->createPivotTable($modelTable, $addonTable);
         }
@@ -141,7 +145,7 @@ class Addon extends Model
     }
     
     public function delete() {
-        if(in_array($this->name, ['images'])){
+        if(in_array($this->type, ['images'])){
             $image = Addon\Images::where('addon_id', $this->id)->first();
             $this->block()->first()->specify()->model()->deleteImage($image->value);
         }
