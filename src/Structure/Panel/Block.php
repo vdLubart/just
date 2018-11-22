@@ -41,16 +41,6 @@ class Block extends Model
     
     protected $currentCategory = null;
     
-    protected $categories = null;
-    
-    protected $strings = null;
-    
-    protected $images = null;
-    
-    protected $paragraphs = null;
-    
-    protected $addons = null;
-    
     public function specify($id = null) {
         $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->name);
         
@@ -71,7 +61,7 @@ class Block extends Model
         $this->model->setBlock($this->id);
         $this->model->setup();
         
-        foreach($this->addons() as $addon){
+        foreach($this->addons as $addon){
             $this->{$addon->name} = Addon::find($addon->id);
         }
         
@@ -371,11 +361,7 @@ class Block extends Model
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function addons() {
-        if(is_null($this->addons)){
-            $this->addons = $this->hasMany(Addon::class);
-        }
-        
-        return $this->addons;
+        return $this->hasMany(Addon::class);
     }
     
     public function addon($addonId) {
@@ -405,35 +391,19 @@ class Block extends Model
     }
     
     public function categories() {
-        if(is_null($this->categories)){
-            $this->categories = $this->addons()->where('type', 'categories');
-        }
-        
-        return $this->categories;
+        return $this->addons()->where('type', 'categories');
     }
     
     public function strings() {
-        if(is_null($this->strings)){
-            $this->strings = $this->addons()->where('type', 'strings');
-        }
-        
-        return $this->strings;
+        return $this->addons()->where('type', 'strings');
     }
     
     public function images() {
-        if(is_null($this->images)){
-            $this->images = $this->addons()->where('type', 'images');
-        }
-        
-        return $this->strings;
+        return $this->addons()->where('type', 'images');
     }
     
     public function paragraphs() {
-        if(is_null($this->paragraphs)){
-            $this->paragraphs = $this->addons()->where('type', 'paragraphs');
-        }
-        
-        return $this->paragraphs;
+        return $this->addons()->where('type', 'paragraphs');
     }
     
     public function currentCategory() {

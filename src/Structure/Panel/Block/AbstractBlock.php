@@ -91,7 +91,12 @@ abstract class AbstractBlock extends Model
             $item = $this->find($id);
             
             foreach($item->addons as $addon){
-                $item->{$addon->name} = $item->{$addon->type}->where('addon_id', $addon->id)->first();
+                $addonItem = $item->{$addon->type}->where('addon_id', $addon->id)->first();
+                if ($addon->type != "categories") {
+                    $item->{$addon->name} = $addonItem->value;
+                } else {
+                    $item->{$addon->name} = [$addonItem->value => $addonItem->name];
+                }
             }
             
             return $item;
