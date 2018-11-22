@@ -36,6 +36,7 @@ class AddonChangeRequest extends FormRequest
         }
         else{
             $block = Addon::find($this->addon_id)->block->specify();
+            $rules = [];
         }
         
         $addonNames = $block->addons()->where('id', '<>', $this->addon_id ?? 0)->pluck('name')->toArray();
