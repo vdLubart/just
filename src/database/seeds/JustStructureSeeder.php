@@ -224,6 +224,13 @@ class JustStructureSeeder extends Seeder
             'table' => 'images'
         ]);
         
+        DB::table('addonList')->insert([
+            'addon' => 'paragraphs',
+            'title' => 'Related Text',
+            'description' => 'Add an article to the item',
+            'table' => 'paragraphs'
+        ]);
+        
         // Routes
         $homeRoute = Models\Route::create([
             'route' => ''

@@ -52,6 +52,17 @@ Artisan::command('just:update', function () {
     $this->info('Database structure was updated!');
 })->describe('Update Just! CRM');
 
+Artisan::command('just:seed', function () {
+    // Seed Just! data
+    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustStructureSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustDataSeeder"]);
+    
+    // Seed project data
+    Artisan::call("db:seed");
+    
+    $this->info('Data were seeded!');
+})->describe('Seed data related to Just! and current project');
+
 
 function updateMixManifest(){
     $justManifest = json_decode(file_get_contents(__DIR__.'/../public/mix-manifest.json'));
