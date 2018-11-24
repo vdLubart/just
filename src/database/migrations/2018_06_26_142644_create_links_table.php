@@ -14,6 +14,8 @@ class CreateLinksTable extends Migration
     public function up()
     {
         Schema::create('links', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+            
             $table->increments('id');
             $table->integer('block_id')->unsigned();
             $table->integer('linkedBlock_id')->unsigned();

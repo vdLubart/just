@@ -101,6 +101,8 @@ Artisan::command('make:addonMigration {name}', function () {
     $lines[] = "    public function up()";
     $lines[] = "    {";
     $lines[] = "        Schema::create('".$tableName."', function (Blueprint \$table) {";
+    $lines[] = "            \$table->engine = 'InnoDB';";
+    $lines[] = "";
     $lines[] = "            \$table->increments('id');";
     $lines[] = "            \$table->integer('modelItem_id')->unsigned();";
     $lines[] = "            \$table->integer('addonItem_id')->unsigned();";
@@ -146,6 +148,8 @@ Artisan::command('make:relatedBlockMigration {name}', function () {
     $lines[] = "    public function up()";
     $lines[] = "    {";
     $lines[] = "        Schema::create('" . $tableName . "', function (Blueprint \$table) {";
+    $lines[] = "            \$table->engine = 'InnoDB';";
+    $lines[] = "";
     $lines[] = "            \$table->increments('id');";
     $lines[] = "            \$table->integer('modelItem_id')->unsigned();";
     $lines[] = "            \$table->integer('block_id')->unsigned();";

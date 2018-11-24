@@ -14,6 +14,8 @@ class CreateIconsetsTable extends Migration
     public function up()
     {
         Schema::create('iconsets', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+            
             $table->increments('id');
             $table->string('title');
             $table->string('tag');

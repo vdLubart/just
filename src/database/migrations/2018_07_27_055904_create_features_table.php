@@ -14,6 +14,8 @@ class CreateFeaturesTable extends Migration
     public function up()
     {
         Schema::create('features', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+            
             $table->increments('id');
             $table->integer('block_id')->unsigned();
             $table->integer('icon_id')->unsigned();
