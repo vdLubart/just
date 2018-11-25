@@ -9,6 +9,7 @@ use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Just\Requests\AddFeedbackRequest;
 use Lubart\Just\Requests\FeedbackChangeRequest;
 use Lubart\Just\Models\User;
+use Lubart\Just\Structure\Page;
 
 class Feedback extends AbstractBlock
 {
@@ -155,8 +156,17 @@ class Feedback extends AbstractBlock
         
         if(isset($parameters->notify)){
             $admins = User::where('role', 'admin')->get();
+            $block = $this->block;
+            $page = $this->block->page;
+            if(is_null($page) and is_null($this->block->location)){
+                $block = $this->block->parentBlock(true);
+                $page = $block->page;
+            }
+            elseif(!is_null($this->block->location)){
+                $page = Page::first();
+            }
             foreach ($admins as $admin){
-                $admin->sendFeedbackNotifiaction($request->get('username'), $request->get('message'), $this->block->title, $this->block->page->route);
+                $admin->sendFeedbackNotifiaction($request->get('username'), $request->get('message'), $block->title, $page->route);
             }
         }
         

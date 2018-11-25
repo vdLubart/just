@@ -155,6 +155,27 @@ class Block extends Model
         return $this->model()->relatedBlocks;
     }
     
+    /**
+     * Return parent block
+     * @param boolean $highestLevel is parent of top level should be returned
+     * @return  Block return parent block or itself if block does not have parent.
+     */
+    public function parentBlock($highestLevel = false){
+        if(!is_null($this->parent)){
+            $parentBlock = Block::find($this->parent);
+            
+            if(!$highestLevel){
+                return $parentBlock;
+            }
+            else{
+                return $parentBlock->parentBlock(true);
+            }
+        }
+        else{
+            return $this;
+        }
+    }
+    
     public function handleForm(Request $request, $isPublic = false) {
         $method = !$isPublic ? 'handleForm' : 'handlePublicForm';
         $reflection = new \ReflectionMethod($this->model, $method);
