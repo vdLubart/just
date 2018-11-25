@@ -387,6 +387,19 @@ abstract class AbstractBlock extends Model
                 ->where('block', $this->block()->name)->get();
     }
     
+    /**
+     * Get related addon item
+     * 
+     * @param string $name addon name
+     * @return addon item
+     */
+    public function addon($name){
+        $addon = Addon::where('name', $name)->first();
+        
+        return $this->belongsToMany('Lubart\\Just\\Structure\\Panel\\Block\\Addon\\'.ucfirst($addon->type), $this->getTable().'_'.$addon->type, 'modelItem_id', 'addonItem_id')->first();
+    }
+
+
     public function categories() {
         return $this->belongsToMany(Addon\Categories::class, $this->getTable().'_categories', 'modelItem_id', 'addonItem_id');
     }
