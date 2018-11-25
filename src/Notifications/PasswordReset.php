@@ -5,6 +5,7 @@ namespace Lubart\Just\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Lubart\Just\Models\Theme;
 
 class PasswordReset extends Notification
 {
@@ -50,7 +51,7 @@ class PasswordReset extends Notification
         return (new MailMessage)
                     ->from('info@'.\Request::server ("SERVER_NAME"), env('APP_NAME'))
                     ->subject('Password Reset')
-                    ->markdown(env('APP_THEME').'.emails.email')
+                    ->markdown(Theme::active()->name.'.emails.email')
                     ->greeting('Hello!')
                     ->line('You are receiving this email because we received a password reset request for your account.')
                     ->action('Reset Password', url(config('app.url').route('password.reset', $this->token, false)))

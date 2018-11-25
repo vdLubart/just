@@ -5,6 +5,7 @@ namespace Lubart\Just\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Lubart\Just\Models\Theme;
 
 class NewFeedback extends Notification
 {
@@ -73,7 +74,7 @@ class NewFeedback extends Notification
         return (new MailMessage)
                     ->from('info@'.\Request::server ("SERVER_NAME"), env('APP_NAME'))
                     ->subject('New Feedback on '.env('APP_NAME'))
-                    ->markdown(env('APP_THEME').'.emails.email')
+                    ->markdown(Theme::active()->name.'.emails.email')
                     ->greeting('Hello!')
                     ->line('User '. $this->username .' left a following notification on the "'.$this->blockTitle.'" page:')
                     ->line("&nbsp;")

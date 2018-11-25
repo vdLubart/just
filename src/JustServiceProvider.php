@@ -49,6 +49,8 @@ class JustServiceProvider extends ServiceProvider
         $this->app->validator->resolver(function($translator, $data, $rules, $messages){
             return new ValidatorExtended($translator, $data, $rules, $messages);
         });
+        
+        \Config::set('mail.markdown.paths', [resource_path('views/'.Models\Theme::active()->name.'/emails/mail')]);
     }
 
     /**
