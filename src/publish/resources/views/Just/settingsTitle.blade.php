@@ -1,7 +1,7 @@
 <div class='col-md-12'>
     <div class='col-md-11'>
         <h4>
-            Settings :: 
+            <a href="javascript: openPanelSettings({{ (int)$block->page_id }}, '{{ $block->panelLocation }}')">Settings</a> :: 
             @if(isset($parentBlock) and !is_null($parentBlock)) <a href="javascript: openSettings({{ $parentBlock->id }}, 0)">{{ $parentBlock->title }} </a> :. <a href="javascript: openSettings({{ $parentBlock->id }}, {{ $parentBlock->model()->id }})">{{ $parentBlock->model()->settingsTitle() }}</a> :. @endif
             @if(!is_null($block->model()->id)) <a href="javascript: openSettings({{ $block->id }}, 0)">{{ $block->title }}</a> :. {{ $block->model()->settingsTitle() }} @else {{ $block->title }} @endif
         </h4>
