@@ -34,9 +34,7 @@ $(document).ready(function(){
     
     clickButton();
     
-    if($("textarea#description").length){
-        CKEDITOR.replace('description');
-    }
+    applyCKEditor('#logo_settingsForm #description');
     
     /**
      * Return all form data included _token

@@ -67,7 +67,7 @@ abstract class AbstractBlock extends Model
             }
             
             $with = [];
-            foreach($this->addons() as $addon){
+            foreach($this->addons as $addon){
                 $with[] = $addon->type;
             }
             
@@ -366,7 +366,7 @@ abstract class AbstractBlock extends Model
      * @param mixed $item Model item
      */
     public function handleAddons(Request $request, $item) {
-        foreach ($this->block()->addons() as $addon) {
+        foreach ($this->block()->addons as $addon) {
             $addon->handleForm($request, $item);
         }
     }

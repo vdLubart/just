@@ -389,6 +389,10 @@ class Block extends Model
         return Addon::find($addonId)->addon();
     }
     
+    public static function getAddonByName($name) {
+        return Addon::where('name', $name)->first();
+    }
+    
     /**
      * Return panel where block is located
      * 
