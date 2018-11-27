@@ -93,13 +93,12 @@ class Articles extends AbstractBlock
         $this->includeAddons();
         
         $this->form->add(FormElement::submit(['value'=>'Save']));
-        /*
+        
         $this->form->applyJS("
 $(document).ready(function(){
     CKEDITOR.replace('summary');
     CKEDITOR.replace('text');
-});");*/
-        $this->form->useJSFile('/js/blocks/'.$this->block()->name.'/settingsForm.js');
+});");
         
         return $this->form;
     }

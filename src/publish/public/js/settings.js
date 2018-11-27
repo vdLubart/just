@@ -230,7 +230,7 @@ function move(dir, blockId, modelId){
                     openPanelSettings(JSON.parse(data).page_id, JSON.parse(data).panelLocation);
                 }
                 else{
-                    openSettings(blockId, modelId);
+                    openSettings(blockId, 0);
                 }
             },
             error: function(data){
@@ -304,7 +304,7 @@ function activate(newState, blockId, modelId){
                 openPanelSettings(JSON.parse(data).page_id, JSON.parse(data).panelLocation);
             }
             else{
-                openSettings(blockId, modelId);
+                openSettings(blockId, 0);
             }
         },
         error: function(data){

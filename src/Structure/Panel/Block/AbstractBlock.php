@@ -304,7 +304,7 @@ abstract class AbstractBlock extends Model
                 '133'=>'133% - 3 items in row',
                 '200'=>'200% - 2 items in row',
                 '400'=>'400% - 1 item in row']]));
-     
+        
         $form->add(FormElement::submit(['value'=>'Save']));
         
         return $form;

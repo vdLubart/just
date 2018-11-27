@@ -27,7 +27,7 @@ class FeatureChangeRequest extends FormRequest
             "id" => "integer|min:1|nullable",
             "icon" => "required|integer|min:1",
             "title" => "required",
-            "description" => "",
+            "description" => "nullable",
             "link" => "nullable"
         ];
     }
