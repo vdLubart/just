@@ -28,6 +28,8 @@ class Logo extends AbstractBlock
             $this->form->open();
         }
         
+        $this->includeAddons();
+        
         $this->form->add(FormElement::html(['value'=>'<div id="imageUploader"></div>', 'name'=>"imageUploader"]));
         
         if(!is_null($this->id)){
@@ -36,7 +38,6 @@ class Logo extends AbstractBlock
                 $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
             }
             
-            $this->includeAddons();
             $this->form->add(FormElement::text(['name'=>'caption', 'label'=>'Caption', 'value'=>$this->caption]));
             $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>$this->description]));
             $this->form->add(FormElement::submit(['value'=>'Update image', 'name'=>'startUpload']));

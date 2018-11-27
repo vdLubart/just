@@ -28,6 +28,8 @@ class Categories extends AbstractAddon
     
     public static function handleForm(Addon $addon, Request $request, $item) {
         DB::table($item->getTable()."_".$addon->type)
+                ->join($addon->type, $item->getTable()."_".$addon->type.".addonItem_id", "=", $addon->type.".id")
+                ->where('addon_id', $addon->id)
                 ->where('modelItem_id', $item->id)
                 ->delete();
         
