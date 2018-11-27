@@ -76,11 +76,16 @@ abstract class AbstractBlock extends Model
             foreach($collection as $item){
                 foreach($item->addons as $addon){
                     $addonItem = $item->{$addon->type}->where('addon_id', $addon->id)->first();
-                    if($addon->type != "categories"){
-                        $item->{$addon->name} = $addonItem->value;
+                    if(!empty($addonItem)){
+                        if($addon->type != "categories"){
+                            $item->{$addon->name} = $addonItem->value;
+                        }
+                        else{
+                            $item->{$addon->name} = [$addonItem->value => $addonItem->name];
+                        }
                     }
                     else{
-                        $item->{$addon->name} = [$addonItem->value => $addonItem->name];
+                        $item->{$addon->name} = null;
                     }
                 }
             }
@@ -349,7 +354,7 @@ abstract class AbstractBlock extends Model
      * Include new addon elements related to the addon
      */
     public function includeAddons() {
-        foreach ($this->block()->addons() as $addon) {
+        foreach ($this->block()->addons as $addon) {
             $addon->updateForm($this->form, $this->addonValues($addon->id));
         }
     }
