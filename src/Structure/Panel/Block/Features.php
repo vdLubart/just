@@ -4,6 +4,7 @@ namespace Lubart\Just\Structure\Panel\Block;
 
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
+use Lubart\Form\FormGroup;
 use Lubart\Just\Tools\Useful;
 use Lubart\Just\Models\Icon;
 use Lubart\Just\Models\IconSet;

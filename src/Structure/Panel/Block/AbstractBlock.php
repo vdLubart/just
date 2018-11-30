@@ -192,10 +192,13 @@ abstract class AbstractBlock extends Model
      * @return type
      */
     public function multiplicateImage($imageCode) {
+        $imageSizes = $this->imageSizes;
+        if($this->parameter('customSizes')){
+            $imageSizes = $this->parameter('photoSizes');
+        }
         
-        
-        if(!empty($this->imageSizes)){
-            foreach($this->imageSizes as $size){
+        if(!empty($imageSizes)){
+            foreach($imageSizes as $size){
                 $image = Image::make($this->image($imageCode));
                 $image->resize($this->block()->layout()->width*$size/12, null, function ($constraint) {
                     $constraint->aspectRatio();
@@ -515,6 +518,7 @@ abstract class AbstractBlock extends Model
     
     protected function addResizePhotoSetupGroup(&$form){
         $photoSizesGroup = new FormGroup('sizeGroup', 'Resize images', ['class'=>'col-md-6']);
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'customSizes', 'label'=>'Choose custom size set', 'value'=>1, 'check'=>$this->parameter('customSizes') ]));
         $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 100% layout width (12 cols)', 'value'=>12, 'check'=>(in_array(12, $this->parameter('photoSizes')??[]))]));
         $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 75% layout width (9 cols)', 'value'=>9, 'check'=>(in_array(9, $this->parameter('photoSizes')??[]))]));
         $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 67% layout width (8 cols)', 'value'=>8, 'check'=>(in_array(8, $this->parameter('photoSizes')??[]))]));

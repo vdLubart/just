@@ -63,7 +63,7 @@ class Logo extends AbstractBlock
         
         $this->addResizePhotoSetupGroup($form);
         
-        $form->useJSFile('/js/blocks/logo/setupForm.js');
+        $form->useJSFile('/js/blocks/setupForm.js');
         
         return $form;
     }

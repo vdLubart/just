@@ -40,6 +40,8 @@ class Slider extends Gallery
         
         $this->addResizePhotoSetupGroup($form);
         
+        $form->useJSFile('/js/blocks/setupForm.js');
+        
         return $form;
     }
 }

@@ -10,4 +10,16 @@ $(document).ready(function(){
     $('input[name=cropPhoto]').change(function(){
         $cropDimentions.toggle();
     });
+    
+    var $photoSizes = $('input[name^=photoSizes]').parent().parent();
+    
+    $photoSizes.toggle();
+    
+    if($('input[name=customSizes]').is(':checked')){
+        $photoSizes.toggle();
+    }
+    
+    $('input[name=customSizes]').change(function(){
+        $photoSizes.toggle();
+    });
 });

@@ -69,7 +69,7 @@ class Gallery extends AbstractBlock
         
         $this->addResizePhotoSetupGroup($form);
                 
-        $form->useJSFile('/js/blocks/gallery/setupForm.js');
+        $form->useJSFile('/js/blocks/setupForm.js');
         
         return $form;
     }
