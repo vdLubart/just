@@ -60,7 +60,9 @@ class Features extends AbstractBlock
         $this->form->add(FormElement::html(['name'=>'divicon', 'value'=>'<div id="icons"></div>', 'label'=>'Choose icon']));
         $this->form->add(FormElement::hidden(['name'=>'icon', 'value'=>$this->icon_id]));
         $this->form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>$this->title]));
-        $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>$this->description]));
+        if(empty($this->parameter('ignoreDescription'))){
+            $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>$this->description]));
+        }
         $this->form->add(FormElement::text(['name'=>'link', 'label'=>'Feature Link', 'value'=>$this->link]));
         
         $this->includeAddons();

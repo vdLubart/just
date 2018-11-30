@@ -15,7 +15,7 @@
         ?>
     </h1>
     @elseif(isset($item->text))
-    {!! $item->text !!}
+    {!! substr($item->text, 0, 200) !!}
     @elseif(isset($item->linkedBlock_id))
     <h4>{!! $item->linkedBlock()->title. '('.$item->linkedBlock()->name.') at '.@$item->linkedBlock()->page->title !!} </h4>
     @endif
