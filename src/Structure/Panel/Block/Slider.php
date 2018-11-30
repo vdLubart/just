@@ -21,9 +21,7 @@ class Slider extends Gallery
     
     protected $settingsTitle = 'Slide';
     
-    protected $neededParameters = [
-        'cropDimentions'     => 'Crop slide to side (W:H)'
-    ];
+    protected $neededParameters = [];
     
     protected $imageSizes = [];
     
@@ -36,9 +34,11 @@ class Slider extends Gallery
     }
     
     public function addSetupFormElements(Form &$form) {
-        $form->add(FormElement::hidden(['name'=>'cropPhoto', 'value'=>1]));
-        $form->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => 'Ignore item caption', 'value'=>1, 'check'=>$this->parameter('ignoreCaption')]));
-        $form->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => 'Ignore item description', 'value'=>1, 'check'=>$this->parameter('ignoreDescription')]));
+        $this->addCropSetupGroup($form);
+        
+        $this->addIgnoretCaptionSetupGroup($form);
+        
+        $this->addResizePhotoSetupGroup($form);
         
         return $form;
     }

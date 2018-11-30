@@ -7,6 +7,7 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Lubart\Just\Tools\Useful;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
+use Lubart\Form\FormGroup;
 
 class Gallery extends AbstractBlock
 {
@@ -43,8 +44,12 @@ class Gallery extends AbstractBlock
                 $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
             }
             
-            $this->form->add(FormElement::text(['name'=>'caption', 'label'=>'Caption', 'value'=>$this->caption]));
-            $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description',  'value'=>$this->description]));
+            if(empty($this->parameter('ignoreCaption'))){
+                $this->form->add(FormElement::text(['name'=>'caption', 'label'=>'Caption', 'value'=>$this->caption]));
+            }
+            if(empty($this->parameter('ignoreDescription'))){
+                $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>$this->description]));
+            }
             $this->form->add(FormElement::submit(['value'=>'Update image', 'name'=>'startUpload']));
         }
         else{
@@ -58,13 +63,12 @@ class Gallery extends AbstractBlock
     }
     
     public function addSetupFormElements(Form &$form) {
-        $parameters = json_decode($this->block()->parameters);
+        $this->addCropSetupGroup($form);
         
-        $form->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>'Crop photo', 'value'=>1, 'check'=>(@$parameters->cropPhoto==1)]));
-        $form->add(FormElement::text(['name'=>'cropDimentions', 'label'=>'Crop image with dimentions (W:H)', 'value'=>isset($parameters->cropDimentions)?$parameters->cropDimentions:'4:3']));
-        $form->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => 'Ignore item caption', 'value'=>1, 'check'=>$this->parameter('ignoreCaption')]));
-        $form->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => 'Ignore item description', 'value'=>1, 'check'=>$this->parameter('ignoreDescription')]));
+        $this->addIgnoretCaptionSetupGroup($form);
         
+        $this->addResizePhotoSetupGroup($form);
+                
         $form->useJSFile('/js/blocks/gallery/setupForm.js');
         
         return $form;
@@ -95,6 +99,7 @@ class Gallery extends AbstractBlock
             
             unlink((public_path('storage/'.$this->table . '/' . $request->currentFile)));
             $image->encode('png')->save(public_path('storage/'. $this->table .'/' . $photo->image . ".png"));
+            $image->destroy();
             
             $photo->save();
             

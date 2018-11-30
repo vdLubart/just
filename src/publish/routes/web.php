@@ -50,10 +50,13 @@ Route::get("admin/settings/layout/{layoutId}", "\Lubart\Just\Controllers\AdminCo
 Route::get("admin/settings/layout/list", "\Lubart\Just\Controllers\AdminController@layoutList")->middleware(['web','auth']);
 Route::get("admin/settings/addon/list", "\Lubart\Just\Controllers\AdminController@addonList")->middleware(['web','auth']);
 Route::get("admin/settings/addon/{addonId}", "\Lubart\Just\Controllers\AdminController@addonSettingsForm")->where(['addonId'=>'\d+'])->middleware(['web','auth']);
+Route::get("admin/settings/user/list", "\Lubart\Just\Controllers\AdminController@userList")->middleware(['web','auth']);
+Route::get("admin/settings/user/{userId}", "\Lubart\Just\Controllers\AdminController@userSettingsForm")->where(['userId'=>'\d+'])->middleware(['web','auth']);
 Route::get("admin/settings/category/list", "\Lubart\Just\Controllers\AdminController@categoryList")->middleware(['web','auth']);
 Route::get("admin/settings/category/{categoryId}", "\Lubart\Just\Controllers\AdminController@categorySettingsForm")->where(['categoryId'=>'\d+'])->middleware(['web','auth']);
 Route::post("admin/page/delete", "\Lubart\Just\Controllers\AdminController@deletePage")->middleware(['web','auth']);
 Route::post("admin/addon/delete", "\Lubart\Just\Controllers\AdminController@deleteAddon")->middleware(['web','auth']);
+Route::post("admin/user/delete", "\Lubart\Just\Controllers\AdminController@deleteUser")->middleware(['web','auth']);
 Route::post("admin/category/delete", "\Lubart\Just\Controllers\AdminController@deleteCategory")->middleware(['web','auth']);
 Route::post("admin/layout/delete", "\Lubart\Just\Controllers\AdminController@deleteLayout")->middleware(['web','auth']);
 Route::get("admin/settings/crop/{blockId}/{id}", "\Lubart\Just\Controllers\AdminController@cropForm")->where(['blockId'=>'\d+', 'id'=>'\d+'])->middleware(['web','auth']);
@@ -73,6 +76,7 @@ Route::post("admin/settings/panel/setup", "\Lubart\Just\Controllers\AdminControl
 Route::post("admin/settings/page/setup", "\Lubart\Just\Controllers\AdminController@handlePageForm")->middleware(['web','auth']);
 Route::post("admin/settings/layout/setup", "\Lubart\Just\Controllers\AdminController@handleLayoutForm")->middleware(['web','auth']);
 Route::post("admin/settings/addon/setup", "\Lubart\Just\Controllers\AdminController@handleAddonForm")->middleware(['web','auth']);
+Route::post("admin/settings/user/setup", "\Lubart\Just\Controllers\AdminController@handleUserForm")->middleware(['web','auth']);
 Route::post("admin/settings/category/setup", "\Lubart\Just\Controllers\AdminController@handleCategoryForm")->middleware(['web','auth']);
 Route::get("admin/browseimages", "\Lubart\Just\Controllers\AdminController@browseImages")->middleware(['web','auth']);
 Route::post("admin/uploadimage", "\Lubart\Just\Controllers\AdminController@uploadImage")->middleware(['web','auth']);

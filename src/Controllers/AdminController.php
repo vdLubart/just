@@ -22,6 +22,7 @@ use Lubart\Just\Structure\Panel\Block\Addon\Categories;
 use Lubart\Just\Models\Theme;
 use Lubart\Just\Requests\ChangeCategoryRequest;
 use Lubart\Just\Requests\AddonChangeRequest;
+use Lubart\Just\Requests\UserChangeRequest;
 
 class AdminController extends Controller
 {
@@ -126,6 +127,38 @@ class AdminController extends Controller
         $addon = Addon::findOrNew($request->addon_id);
         
         $addon->handleSettingsForm($request);
+        
+        return redirect()->back();
+    }
+    
+    public function userList() {
+        if(\Auth::user()->role != "master"){
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
+        }
+        
+        $users = User::all();
+        
+        return view(viewPath(Theme::active()->layout, 'userList'))->with(['users'=>$users]);
+    }
+    
+    public function userSettingsForm($userId) {
+        if(\Auth::user()->role != "master"){
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
+        }
+        
+        $user = User::findOrNew($userId);
+        
+        return view(viewPath(Theme::active()->layout, 'userSettings'))->with(['user'=>$user]);
+    }
+    
+    public function handleUserForm(UserChangeRequest $request) {
+        if(\Auth::user()->role != "master"){
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
+        }
+        
+        $user = User::findOrNew($request->user_id);
+        
+        $user->handleSettingsForm($request);
         
         return redirect()->back();
     }
@@ -268,6 +301,16 @@ class AdminController extends Controller
         
         if(!empty($addon)){
             $addon->delete();
+        }
+        
+        return ;
+    }
+    
+    public function deleteUser(Request $request) {
+        $user = User::find($request->id);
+        
+        if(!empty($user) and \Auth::user()->id != $user->id){
+            $user->delete();
         }
         
         return ;

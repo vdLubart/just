@@ -4,6 +4,7 @@ namespace Lubart\Just\Structure\Panel\Block;
 
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
+use Lubart\Form\FormGroup;
 use Lubart\Just\Tools\Useful;
 use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Just\Requests\AddFeedbackRequest;
@@ -85,12 +86,12 @@ class Feedback extends AbstractBlock
     }
     
     public function addSetupFormElements(Form &$form) {
-        $parameters = json_decode($this->block()->parameters);
-        
-        $form->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>'Feedback is visible just after publishing', 'value'=>1, 'check'=>(@$parameters->defaultActivation==1)]));
-        $form->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>'Admin must confirm feedback publishing', 'value'=>0, 'check'=>(@$parameters->defaultActivation==0)]));
-        $form->add(FormElement::text(['name'=>'successText', 'label'=>'Message after successful publishing feedback', 'value'=>@$parameters->successText]));
-        $form->add(FormElement::checkbox(['name'=>'notify', 'label'=>'Notify me by email about a new feedback', 'value'=>1, 'check'=>(@$parameters->notify==1)]));
+        $feedbackGroup = new FormGroup('feedbackGroup', 'Feedback Settings', ['class'=>'col-nd-6']);
+        $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>'Feedback is visible just after publishing', 'value'=>1, 'check'=>(@$this->parameter('defaultActivation')==1)]));
+        $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>'Admin must confirm feedback publishing', 'value'=>0, 'check'=>(@$this->parameter('defaultActivation')==0)]));
+        $feedbackGroup->add(FormElement::text(['name'=>'successText', 'label'=>'Message after successful publishing feedback', 'value'=>@$this->parameter('successText')]));
+        $feedbackGroup->add(FormElement::checkbox(['name'=>'notify', 'label'=>'Notify me by email about a new feedback', 'value'=>1, 'check'=>(@$this->parameter('notify')==1)]));
+        $form->addGroup($feedbackGroup);
         
         return $form;
     }

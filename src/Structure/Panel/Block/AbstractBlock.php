@@ -5,6 +5,7 @@ namespace Lubart\Just\Structure\Panel\Block;
 use Illuminate\Database\Eloquent\Model;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
+use Lubart\Form\FormGroup;
 use Lubart\Just\Requests\CropRequest;
 use Intervention\Image\ImageManagerStatic as Image;
 use Lubart\Just\Structure\Panel\Block;
@@ -191,14 +192,16 @@ abstract class AbstractBlock extends Model
      * @return type
      */
     public function multiplicateImage($imageCode) {
-        $image = Image::make($this->image($imageCode));
+        
         
         if(!empty($this->imageSizes)){
             foreach($this->imageSizes as $size){
+                $image = Image::make($this->image($imageCode));
                 $image->resize($this->block()->layout()->width*$size/12, null, function ($constraint) {
                     $constraint->aspectRatio();
                 });
                 $image->save(public_path('storage/'.$this->table.'/'. $imageCode."_".$size.".png"));
+                $image->destroy();
             }
         }
         else{
@@ -290,7 +293,8 @@ abstract class AbstractBlock extends Model
         
         $this->addSetupFormElements($form);
         
-        $form->add(FormElement::select([
+        $settingsViewGroup = new FormGroup('settingsView', 'Settings View', ['class'=>'col-md-6']);
+        $settingsViewGroup->add(FormElement::select([
             'name'=>'settingsScale',
             'label'=>'Settings View Scale',
             'value'=>isset($parameters->settingsScale)?$parameters->settingsScale:100,
@@ -304,8 +308,11 @@ abstract class AbstractBlock extends Model
                 '133'=>'133% - 3 items in row',
                 '200'=>'200% - 2 items in row',
                 '400'=>'400% - 1 item in row']]));
+        $form->addGroup($settingsViewGroup);
         
-        $form->add(FormElement::submit(['value'=>'Save']));
+        $submitGroup = new FormGroup('submitSetup', '', ['class'=>'col-md-12 clear']);
+        $submitGroup->add(FormElement::submit(['value'=>'Save']));
+        $form->addGroup($submitGroup);
         
         return $form;
     }
@@ -490,5 +497,30 @@ abstract class AbstractBlock extends Model
      */
     public function firstItem(){
         return $this->content()->first();
+    }
+    
+    protected function addCropSetupGroup(&$form){
+        $photoCropGroup = new FormGroup('cropGroup', 'Image cropping', ['class'=>'col-md-6']);
+        $photoCropGroup->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>'Crop photo', 'value'=>1, 'check'=>(@$this->parameter('cropPhoto')==1)]));
+        $photoCropGroup->add(FormElement::text(['name'=>'cropDimentions', 'label'=>'Crop image with dimentions (W:H)', 'value'=> $this->parameter('cropDimentions') ?? '4:3']));
+        $form->addGroup($photoCropGroup);
+    }
+    
+    protected function addIgnoretCaptionSetupGroup(&$form){
+        $photoFieldsGroup = new FormGroup('fieldsGroup', 'Image fields', ['class'=>'col-md-6']);
+        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => 'Ignore item caption', 'value'=>1, 'check'=>$this->parameter('ignoreCaption')]));
+        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => 'Ignore item description', 'value'=>1, 'check'=>$this->parameter('ignoreDescription')]));
+        $form->addGroup($photoFieldsGroup);
+    }
+    
+    protected function addResizePhotoSetupGroup(&$form){
+        $photoSizesGroup = new FormGroup('sizeGroup', 'Resize images', ['class'=>'col-md-6']);
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 100% layout width (12 cols)', 'value'=>12, 'check'=>(in_array(12, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 75% layout width (9 cols)', 'value'=>9, 'check'=>(in_array(9, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 67% layout width (8 cols)', 'value'=>8, 'check'=>(in_array(8, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 50% layout width (6 cols)', 'value'=>6, 'check'=>(in_array(6, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 33% layout width (4 cols)', 'value'=>4, 'check'=>(in_array(4, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 25% layout width (3 cols)', 'value'=>3, 'check'=>(in_array(3, $this->parameter('photoSizes')??[]))]));
+        $form->addGroup($photoSizesGroup);
     }
 }

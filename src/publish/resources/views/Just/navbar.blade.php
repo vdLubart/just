@@ -155,6 +155,31 @@
                         </li>
                     </ul>
                 </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                        <i class="fa fa-users"></i>
+                        Users <span class="caret"></span>
+                    </a>
+                    
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a href="#"
+                               onclick="event.preventDefault();
+                                                    openSettings('user', 0);">
+                                <i class="fa fa-plus"></i>
+                                Add user
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                               onclick="event.preventDefault();
+                                                    openList('user');">
+                                <i class="fa fa-list"></i>
+                                User list
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 @endif
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">

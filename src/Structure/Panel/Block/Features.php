@@ -80,9 +80,15 @@ class Features extends AbstractBlock
         
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$block->id]));
         
-        $form->add(FormElement::select(['name'=>'itemsInRow', 'label'=>'Items amount in single row', 'value'=>@$parameters->itemsInRow, 'options'=>[3=>'4 in row', 4=>'3 in row', 6=>'2 in row', 12=>'1 in row']]));
+        $settingsViewGroup = new FormGroup('settingsView', 'Settings View', ['class'=>'col-md-6']);
+        $settingsViewGroup->add(FormElement::select(['name'=>'itemsInRow', 'label'=>'Items amount in single row', 'value'=>@$parameters->itemsInRow, 'options'=>[3=>'4 in row', 4=>'3 in row', 6=>'2 in row', 12=>'1 in row']]));
+        $form->addGroup($settingsViewGroup);
         
-        $form->add(FormElement::submit(['value'=>'Save']));
+        $this->addIgnoretCaptionSetupGroup($form);
+        
+        $submitGroup = new FormGroup('submitSetup', '', ['class'=>'col-md-12 clear']);
+        $submitGroup->add(FormElement::submit(['value'=>'Save']));
+        $form->addGroup($submitGroup);
         
         return $form;
     }

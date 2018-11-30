@@ -57,12 +57,11 @@ class Logo extends AbstractBlock
     }
     
     public function addSetupFormElements(Form &$form) {
-        $parameters = json_decode($this->block()->parameters);
+        $this->addCropSetupGroup($form);
         
-        $form->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>'Crop photo', 'value'=>1, 'check'=>(@$parameters->cropPhoto==1)]));
-        $form->add(FormElement::text(['name'=>'cropDimentions', 'label'=>'Crop image with dimentions (W:H)', 'value'=>isset($parameters->cropDimentions)?$parameters->cropDimentions:'4:3']));
-        $form->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => 'Ignore item caption', 'value'=>1, 'check'=>$this->parameter('ignoreCaption')]));
-        $form->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => 'Ignore item description', 'value'=>1, 'check'=>$this->parameter('ignoreDescription')]));
+        $this->addIgnoretCaptionSetupGroup($form);
+        
+        $this->addResizePhotoSetupGroup($form);
         
         $form->useJSFile('/js/blocks/logo/setupForm.js');
         
