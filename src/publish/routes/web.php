@@ -17,10 +17,10 @@ Route::get('login', '\Lubart\Just\Controllers\Auth\LoginController@showLoginForm
 Route::post('login', '\Lubart\Just\Controllers\Auth\LoginController@login')->middleware('web');
 Route::post('logout', '\Lubart\Just\Controllers\Auth\LoginController@logout')->name('logout')->middleware(['web','auth']);
 
-Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request')->middleware('web');
-Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email')->middleware('web');
-Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset')->middleware('web');
-Route::post('password/reset', 'Auth\ResetPasswordController@reset')->middleware('web');
+Route::get('password/reset', '\Lubart\Just\Controllers\Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request')->middleware('web');
+Route::post('password/email', '\Lubart\Just\Controllers\Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email')->middleware('web');
+Route::get('password/reset/{token}', '\Lubart\Just\Controllers\Auth\ResetPasswordController@showResetForm')->name('password.reset')->middleware('web');
+Route::post('password/reset', '\Lubart\Just\Controllers\Auth\ResetPasswordController@reset')->middleware('web');
 
 if (Schema::hasTable('routes')){
     $routes = \Lubart\Just\Models\Route::all();
