@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Lubart\Just\Models\Theme;
+use Lubart\Just\Structure\Layout;
 
 class CreateThemesTable extends Migration
 {
@@ -20,6 +22,12 @@ class CreateThemesTable extends Migration
             $table->boolean('isActive')->default(0);
             $table->timestamps();
         });
+        
+        $layoutNames = Layout::distinct()->groupBy('name')->get(['name']);
+        
+        foreach($layoutNames as $layout){
+            Theme::create(['name'=>$layout->name]);
+        }
         
         Schema::table('layouts', function(Blueprint $table){
             $table->foreign('name')->references('name')->on('themes')->onUpdate('cascade')->onDelete('cascade');

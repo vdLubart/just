@@ -5,6 +5,7 @@ namespace Lubart\Just;
 use Illuminate\Support\ServiceProvider;
 use Lubart\Just\Validators\ValidatorExtended;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Schema;
 
 class JustServiceProvider extends ServiceProvider
 {
@@ -50,7 +51,9 @@ class JustServiceProvider extends ServiceProvider
             return new ValidatorExtended($translator, $data, $rules, $messages);
         });
         
-        \Config::set('mail.markdown.paths', [resource_path('views/'.(@Models\Theme::active()->name ?? 'Just').'/emails/mail')]);
+        if (Schema::hasTable('themes')) {
+            \Config::set('mail.markdown.paths', [resource_path('views/'.(@Models\Theme::active()->name ?? 'Just').'/emails/mail')]);
+        }
     }
 
     /**
