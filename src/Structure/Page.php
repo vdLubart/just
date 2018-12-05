@@ -15,7 +15,7 @@ class Page extends Model
      * @var array
      */
     protected $fillable = [
-        'title',  'description', 'route', 'layout_id', 
+        'title',  'description', 'keywords', 'author', 'copyright', 'route', 'layout_id'
     ];
     
     protected $table = 'pages';
@@ -34,7 +34,11 @@ class Page extends Model
         
         $form->add(FormElement::hidden(['name'=>'page_id', 'value'=>$this->id]));
         $form->add(FormElement::text(['name'=>'title', 'label'=>'Page Title', 'value'=>$this->title]));
-        $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Page Description', 'value'=>$this->description]));
+        $form->add(FormElement::text(['name'=>'description', 'label'=>'Meta Description', 'value'=>$this->description, 'style'=>'width:100%']));
+        $form->add(FormElement::text(['name'=>'keywords', 'label'=>'Meta Keywords', 'value'=>$this->keywords, 'style'=>'width:100%']));
+        $form->add(FormElement::text(['name'=>'author', 'label'=>'Meta Author', 'value'=>$this->author]));
+        $form->add(FormElement::text(['name'=>'copyright', 'label'=>'Meta Copyright', 'value'=>$this->copyright]));
+        $form->add(FormElement::checkbox(['name'=>'copyMeta', 'label'=>'Use current meta data everywhere on the website']));
         $form->add(FormElement::text(['name'=>'route', 'label'=>'Route', 'value'=>$this->route]));
         $form->add(FormElement::select(['name'=>'layout_id', 'label'=>'Layout', 'value'=>$this->layout_id, 'options'=>$this->layoutsArray()]));
         $form->add(FormElement::submit(['value'=>'Save']));
@@ -45,6 +49,9 @@ class Page extends Model
     public function handleSettingsForm(Request $request) {
         $this->title = $request->title;
         $this->description = $request->description;
+        $this->keywords = $request->keywords;
+        $this->author = $request->author;
+        $this->copyright = $request->copyright;
         $this->layout_id = $request->layout_id;
         
         $newRoute = is_null($request->route)?"":$request->route;
@@ -65,6 +72,15 @@ class Page extends Model
         }
         
         $this->save();
+        
+        if(isset($request->copyMeta)){
+            Page::query()->update([
+                'description' => $request->description,
+                'keywords' => $request->keywords,
+                'author' => $request->author,
+                'copyright' => $request->copyright,
+            ]);
+        }
     }
     
     private function layoutsArray() {

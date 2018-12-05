@@ -14,11 +14,9 @@
             <li>
                 <a href="#{{ $block->name }}_blockData" data-toggle="tab"><i class="fa fa-cube"></i> Block Data</a>
             </li>
-            @if(\Auth::user()->role == "master")
             <li>
                 <a href="#{{ $block->name }}_blockSetup" data-toggle="tab"><i class="fa fa-cogs"></i> Block Settings</a>
             </li>
-            @endif
             @endif
             <li @if(!empty($block->model()->id) and empty($relBlock)) class="active" @endif>
                 <a href="#{{ $block->name }}_settingsForm" data-toggle="tab">
@@ -76,11 +74,9 @@
             <div class="tab-pane" id="{{ $block->name }}_blockData">
                 @include('Just.blockForm')
             </div>
-            @if(\Auth::user()->role == "master")
             <div class="tab-pane" id="{{ $block->name }}_blockSetup">
                 @include('Just.setupForm')
             </div>
-            @endif
             @endif
             <div class="tab-pane @if(!empty($block->model()->id) and empty($relBlock)) active @endif" id="{{ $block->name }}_settingsForm">
                 @include('Just.settingsForm')

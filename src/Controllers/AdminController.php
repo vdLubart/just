@@ -260,13 +260,18 @@ class AdminController extends Controller
         return $model;
     }
     
-    public function processSetup(Request $request) {
+    public function handleSetup(Request $request) {
         $block = Block::find($request->id);
         
         if(!empty($block)){
-            $parameters = $request->all();
-            unset($parameters['id']);
-            unset($parameters['_token']);
+            $parameters = $block->parameters();
+            $values = $request->all();
+            unset($values['id']);
+            unset($values['_token']);
+            unset($values['submit']);
+            foreach($values as $key=>$value){
+                $parameters->{$key} = $value;
+            }
             $block->parameters = json_encode($parameters);
             $block->save();
         }

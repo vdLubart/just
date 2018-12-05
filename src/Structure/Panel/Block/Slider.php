@@ -3,7 +3,6 @@
 namespace Lubart\Just\Structure\Panel\Block;
 
 use Lubart\Form\Form;
-use Lubart\Form\FormElement;
 
 class Slider extends Gallery
 {
@@ -36,9 +35,11 @@ class Slider extends Gallery
     public function addSetupFormElements(Form &$form) {
         $this->addCropSetupGroup($form);
         
-        $this->addIgnoretCaptionSetupGroup($form);
-        
-        $this->addResizePhotoSetupGroup($form);
+        if(\Auth::user()->role == "master"){
+            $this->addIgnoretCaptionSetupGroup($form);
+
+            $this->addResizePhotoSetupGroup($form);
+        }
         
         $form->useJSFile('/js/blocks/setupForm.js');
         

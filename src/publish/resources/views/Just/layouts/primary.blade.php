@@ -8,7 +8,12 @@
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>Just! use it</title>
+        <title>Just! use it - {{ $page->title }}</title>
+        
+        <meta name="description" content="{{ $page->description }}">
+        <meta name="keywords" content="{{ $page->keywords }}">
+        <meta name="author" content="{{ $page->author }}">
+        <meta name="copyright" content="{{ $page->copyright }}">
 
         <link href="{{ mix('/css/Just/app.css') }}" rel="stylesheet">
         <style>

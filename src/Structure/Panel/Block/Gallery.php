@@ -7,7 +7,6 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Lubart\Just\Tools\Useful;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
-use Lubart\Form\FormGroup;
 
 class Gallery extends AbstractBlock
 {
@@ -65,9 +64,11 @@ class Gallery extends AbstractBlock
     public function addSetupFormElements(Form &$form) {
         $this->addCropSetupGroup($form);
         
-        $this->addIgnoretCaptionSetupGroup($form);
-        
-        $this->addResizePhotoSetupGroup($form);
+        if(\Auth::user()->role == "master"){
+            $this->addIgnoretCaptionSetupGroup($form);
+
+            $this->addResizePhotoSetupGroup($form);
+        }
                 
         $form->useJSFile('/js/blocks/setupForm.js');
         

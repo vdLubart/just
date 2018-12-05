@@ -63,7 +63,7 @@ Route::get("admin/settings/crop/{blockId}/{id}", "\Lubart\Just\Controllers\Admin
 Route::get("admin/settings/normalize/{blockId}", "\Lubart\Just\Controllers\AdminController@normalizeContent")->where(['blockId'=>'\d+'])->middleware(['web','auth']);
 Route::get("admin/settings/setup/{blockId}", "\Lubart\Just\Controllers\AdminController@setupForm")->where(['blockId'=>'\d+'])->middleware(['web','auth']);
 Route::post("admin/settings/crop", "\Lubart\Just\Controllers\AdminController@handleCrop")->middleware(['web','auth']);
-Route::post("admin/settings/setup", "\Lubart\Just\Controllers\AdminController@processSetup")->middleware(['web','auth']);
+Route::post("admin/settings/setup", "\Lubart\Just\Controllers\AdminController@handleSetup")->middleware(['web','auth']);
 Route::post("admin/delete", "\Lubart\Just\Controllers\AdminController@delete")->middleware(['web','auth']);
 Route::post("admin/moveup", "\Lubart\Just\Controllers\AdminController@moveup")->middleware(['web','auth']);
 Route::post("admin/movedown", "\Lubart\Just\Controllers\AdminController@movedown")->middleware(['web','auth']);

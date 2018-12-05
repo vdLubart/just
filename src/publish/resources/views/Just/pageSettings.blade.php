@@ -14,15 +14,9 @@
 </div>
 
 <script>
-    CKEDITOR.replace('description');
     var currentData = formData($("#page_{{ $page->id }}_settingsForm form"));
     
     $("#page_{{ $page->id }}_settingsForm form").ajaxForm({
-        beforeSerialize: function(form, options) {
-            for (instance in CKEDITOR.instances){
-                CKEDITOR.instances[instance].updateElement();
-            }
-        },
         success: function(data){
             closeSettings();
         },
