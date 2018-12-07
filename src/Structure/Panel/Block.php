@@ -222,8 +222,8 @@ class Block extends Model
         $this->title = $request->title?$request->title:"";
         $this->description = $request->blockDescription??"";
         $this->width = $request->width;
-        $this->layoutClass = \Auth::user()->role == "master" ? $request->layoutClass : "";
-        $this->cssClass = \Auth::user()->role == "master" ?  $request->cssClass : "";
+        $this->layoutClass = \Auth::user()->role == "master" ? $request->layoutClass : $this->layoutClass;
+        $this->cssClass = \Auth::user()->role == "master" ?  $request->cssClass : $this->cssClass;
         $this->orderNo = $this->orderNo?$this->orderNo : Useful::getMaxNo($this->table, ['panelLocation' => $panel->location, "page_id"=>$request->page_id]);
         
         $this->save();
