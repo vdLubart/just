@@ -67,6 +67,9 @@ if(!function_exists('viewPath')){
                 break;
         }
     }
+}
+
+if(!function_exists('justLayout')){
     
     /**
      * Return primary Just! layout
@@ -77,5 +80,25 @@ if(!function_exists('viewPath')){
         return \Lubart\Just\Structure\Layout::where('name', 'Just')
                         ->where('class', 'primary')
                         ->first();
+    }
+}
+
+if(!function_exists('justVersion')){
+    
+    /**
+     * Return installed through composer version of Just!
+     * 
+     * @return string
+     */
+    function justVersion(){
+        $packages = json_decode(file_get_contents(base_path('vendor/composer/installed.json')));
+        
+        foreach($packages as $package){
+            if($package->name == "lubart/just"){
+                return $package->version_normalized;
+            }
+        }
+        
+        return;
     }
 }

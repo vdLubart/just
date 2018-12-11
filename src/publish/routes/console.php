@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Artisan;
+use Lubart\Just\Models\Version;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,8 @@ Artisan::command('just:install', function () {
     Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustStructureSeeder"]);
     Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustDataSeeder"]);
     
+    Version::create(['version' => Version::inComposer()]);
+    
     $this->info('Data Just! seeded!');
     
 })->describe('Install Just! CRM');
@@ -50,6 +53,15 @@ Artisan::command('just:update', function () {
     Artisan::call("migrate");
 
     $this->info('Database structure was updated!');
+    
+    if(Version::shouldBeUpdated()){
+        Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustUpdateSeeder"]);
+        
+        $this->info('New data seeded to the database!');
+        
+        Version::create(['version' => Version::inComposer()]);
+    }
+    
 })->describe('Update Just! CRM');
 
 Artisan::command('just:seed', function () {
@@ -77,7 +89,7 @@ function updateMixManifest(){
         $publicManifest->{$file} = $code;
     }
     
-    file_put_contents(public_path('mix-manifest.json'), json_encode($justManifest));
+    file_put_contents(public_path('mix-manifest.json'), json_encode($publicManifest));
 }
 
 Artisan::command('make:addonMigration {name}', function () {

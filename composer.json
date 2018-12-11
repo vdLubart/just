@@ -23,6 +23,9 @@
             "Lubart\\Just\\": "src/"
         }
     },
+    "scripts": {
+        "post-update-cmd": "@php artisan just:update"
+    },
     "extra": {
         "laravel": {
             "providers": [

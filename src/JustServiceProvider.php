@@ -32,7 +32,7 @@ class JustServiceProvider extends ServiceProvider
         ], 'just');
         
         $this->publishes([
-			__DIR__.'/publish/resources/views/Just' => base_path('resources/views/Just'),
+            __DIR__.'/publish/resources/views/Just' => base_path('resources/views/Just'),
             __DIR__.'/publish/public/css' => base_path('public/css'),
             __DIR__.'/publish/public/fonts' => base_path('public/fonts'),
             __DIR__.'/publish/public/js' => base_path('public/js'),
