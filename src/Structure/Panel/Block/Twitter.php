@@ -15,7 +15,7 @@ class Twitter extends AbstractBlock
     protected $settingsTitle = 'Twitter';
     
     public function content($id = null) {
-        return;
+        return [];
     }
     
     public function form() {

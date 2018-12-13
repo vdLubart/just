@@ -1,4 +1,4 @@
-!!!Specific!!!
+<h3>!!! Specific template !!!</h3>
 <div id="gallery_{{ $block->id }}" class="row">
     <div class="col-md-12 margin-bottom-20"><strong>$block->title:</strong> {!!$block->title!!}</div>
     <div class="col-md-12 margin-bottom-20"><strong>$block->description:</strong> {!!$block->description!!}</div>

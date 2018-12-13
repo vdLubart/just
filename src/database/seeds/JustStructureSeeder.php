@@ -202,6 +202,20 @@ class JustStructureSeeder extends Seeder
             'table' => 'features'
         ]);
         
+        DB::table('blockList')->insert([
+            'block' => 'space',
+            'title' => "Empty",
+            'description' => "Adds empty space with fixed height",
+            'table' => ''
+        ]);
+        
+        DB::table('blockList')->insert([
+            'block' => 'html',
+            'title' => "HTML",
+            'description' => "Adds HTML piece of code",
+            'table' => 'texts'
+        ]);
+        
         // Addons
         DB::table('addonList')->insert([
             'addon' => 'categories',
