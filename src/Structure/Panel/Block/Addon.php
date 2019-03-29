@@ -146,8 +146,10 @@ class Addon extends Model
     
     public function delete() {
         if(in_array($this->type, ['images'])){
-            $image = Addon\Images::where('addon_id', $this->id)->first();
-            $this->block()->first()->specify()->model()->deleteImage($image->value);
+            $imagesInBlock = $this->block->specify()->content();
+            foreach ($imagesInBlock as $item){
+                $item->deleteImage($item->{$this->name});
+            }
         }
         
         parent::delete();

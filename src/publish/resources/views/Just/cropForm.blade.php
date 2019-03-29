@@ -20,16 +20,24 @@
 
 <script>
     $("#{{ $block->name }}_cropForm form").ajaxForm({
+        beforeSerialize: function(form, options) {
+            $("input[type=submit]").attr('disabled', 'disabled');
+        },
         success: function(data){
             openSettings({{ $block->id }}, 0);
         },
         error: function(data){
             console.log("error");
+            $("input[type=submit]").removeAttr('disabled');
             console.log(data);
         }
     });
     <?php
     $parameters = json_decode($block->parameters);
+    $dev = explode(":", $parameters->cropDimentions);
+    $cropDimentions = $dev[0]/$dev[1];
+    $cropWidth = $block->layout()->width;
+    $cropHeight = $cropWidth/$cropDimentions;
     ?>
-    runCroper({{ $parameters->imageWidth }}, {{ $parameters->imageHeight }});
+    runCroper({{ $cropWidth }}, {{ $cropHeight }});
 </script>

@@ -5,7 +5,7 @@
 @include font-face("Text", "/fonts/Raleway/Raleway-Light", light, 300, ttf);
 @include font-face("Text", "/fonts/Raleway/Raleway-Regular", regular, 400, ttf);
 @include font-face("Text", "/fonts/Raleway/Raleway-Bold", bold, 600, ttf);
-@import "~font-awesome/scss/font-awesome";
+@import "~@fortawesome/fontawesome-free/css/all";
 
 // Variables
 @import "variables";

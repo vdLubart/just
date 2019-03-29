@@ -30,4 +30,12 @@ class AddFeedbackRequest extends FormRequest
             'g-recaptcha-response'=>'required|recaptcha'
         ];
     }
+    
+    public function messages() {
+        $messages = parent::messages();
+        $messages['g-recaptcha-response.required'] = "reCaptcha is not validated. Please confirm you are not a bot.";
+        $messages['g-recaptcha-response.recaptcha'] = "reCaptcha is not validated. Please confirm you are not a bot.";
+        
+        return $messages;
+    }
 }

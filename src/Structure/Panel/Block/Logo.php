@@ -5,7 +5,6 @@ namespace Lubart\Just\Structure\Panel\Block;
 use Lubart\Form\FormElement;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
-use Lubart\Just\Structure\Panel\Block;
 use Lubart\Form\Form;
 use Lubart\Just\Tools\Useful;
 
@@ -24,8 +23,8 @@ class Logo extends AbstractBlock
     protected $table = 'logos';
     
     public function form() {
-        if(!is_null($this->id)){
-            $this->form->open();
+        if(is_null($this->form)){
+            return;
         }
         
         $this->includeAddons();
@@ -34,8 +33,11 @@ class Logo extends AbstractBlock
         
         if(!is_null($this->id)){
             
-            if(file_exists(public_path("storage/".$this->table."/".$this->image."_3.png"))){
+            if(file_exists(public_path('storage/'.$this->table.'/'.$this->image.'_3.png'))){
                 $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
+            }
+            else{
+                $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
             }
             
             if(empty($this->parameter('ignoreCaption'))){
@@ -59,9 +61,11 @@ class Logo extends AbstractBlock
     public function addSetupFormElements(Form &$form) {
         $this->addCropSetupGroup($form);
         
-        $this->addIgnoretCaptionSetupGroup($form);
-        
-        $this->addResizePhotoSetupGroup($form);
+        if(\Auth::user()->role == "master"){
+            $this->addIgnoretCaptionSetupGroup($form);
+
+            $this->addResizePhotoSetupGroup($form);
+        }
         
         $form->useJSFile('/js/blocks/setupForm.js');
         
@@ -69,12 +73,8 @@ class Logo extends AbstractBlock
     }
     
     public function handleForm(Request $request) {
-        $parameters = json_decode($this->block()->parameters);
+        $parameters = json_decode($this->block->parameters);
         $logo = null;
-        
-        if(!file_exists(public_path('storage/'.$this->table))){
-            mkdir(public_path('storage/'.$this->table), 0775);
-        }
         
         if (isset($request->currentFile) and is_file(public_path('storage/'.$this->table . '/' . $request->currentFile))) {
             $image = Image::make(public_path('storage/'.$this->table ."/" . $request->currentFile));
@@ -83,11 +83,11 @@ class Logo extends AbstractBlock
                 $logo = new Logo;
                 $logo->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->get('block_id')]);
                 $logo->setBlock($request->get('block_id'));
-                $logo->image = uniqid();
             } else {
                 $logo = Logo::findOrNew($request->get('id'));
             }
             
+            $logo->image = uniqid();
             $logo->caption = empty($request->caption)?'':$request->caption;
             $logo->description = empty($request->description)?'':$request->description;
             

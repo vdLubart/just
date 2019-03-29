@@ -46,16 +46,16 @@ if(!function_exists('viewPath')){
                         file_exists(resource_path('views/' . $layout->name . '/blocks/' . $path->name . '_' . $layout->class . '.blade.php'))){
                     return $layout->name.'.blocks.'. $path->name . '_' . $layout->class;
                 }
-                elseif(($path->layoutClass != "primary" or $path->layoutClass != "") and
+                elseif(($path->layoutClass != "primary" and $path->layoutClass != "") and
                         file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->name.'_'.$path->layoutClass.'.blade.php'))){
                     return $layout->name.'.blocks.'. $path->name . '_' . $path->layoutClass;
                 }
-                elseif(($path->layoutClass != "primary" or $path->layoutClass != "") and
+                elseif(($path->layoutClass != "primary" and $path->layoutClass != "") and
                         !file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->name.'_'.$path->layoutClass.'.blade.php'))){
                     return $layout->name.'.blocks.'. $path->name;
                 }
                 elseif( ($path->layoutClass === "primary" or $path->layoutClass === "") and 
-                        !file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->name.'.blade.php')) ){
+                        file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->name.'.blade.php')) ){
                     return $layout->name.'.blocks.'. $path->name;
                 }
                 elseif($layout->name != 'Just'){
@@ -98,7 +98,5 @@ if(!function_exists('justVersion')){
                 return $package->version_normalized;
             }
         }
-        
-        return;
     }
 }

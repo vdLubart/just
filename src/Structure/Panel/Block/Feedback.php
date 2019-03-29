@@ -57,8 +57,8 @@ class Feedback extends AbstractBlock
     }
     
     public function form() {
-        if(!is_null($this->id)){
-            $this->form->open();
+        if(is_null($this->form)){
+            return;
         }
         
         $this->form->add(FormElement::text(['name'=>'username', 'label'=>'Name', 'value'=>$this->username]));
@@ -136,13 +136,13 @@ class Feedback extends AbstractBlock
         $form->add(FormElement::html(['value'=>'<div class="g-recaptcha" data-sitekey="'. env('RE_CAP_SITE') .'"></div>', 'name'=>'recaptcha']));
         $form->add(FormElement::submit(['value'=>'Submit']));
         
-        $form->setErrorBag('errorsFrom'.ucfirst($this->block()->name . $this->block_id));
+        $form->setErrorBag('errorsFrom'.ucfirst($this->block->name . $this->block_id));
         
         return $form;
     }
     
     public function handlePublicForm(AddFeedbackRequest $request) {
-        $parameters = json_decode($this->block()->parameters);
+        $parameters = json_decode($this->block->parameters);
         
         $this->block_id = $this->block_id;
         $this->username = $request->get('username');

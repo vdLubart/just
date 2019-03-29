@@ -14,9 +14,9 @@ class AddMetaFieldToPageTable extends Migration
     public function up()
     {
         Schema::table('pages', function(Blueprint $table){
-            $table->string('keywords', 500)->after('description');
-            $table->string('author', 200)->after('keywords');
-            $table->string('copyright', 200)->after('author');
+            $table->string('keywords', 500)->after('description')->default('');
+            $table->string('author', 200)->after('keywords')->default('');
+            $table->string('copyright', 200)->after('author')->default('');
         });
     }
 

@@ -13,7 +13,7 @@ class Layout extends Model
 {
     protected $table = 'layouts';
     
-    protected $fillable = ['name', 'type', 'width'];
+    protected $fillable = ['name', 'class', 'type', 'width'];
     
     public function panels() {
         return $this->belongsTo(Panel::class, 'id', 'layout_id')
@@ -32,13 +32,15 @@ class Layout extends Model
         $form->setType("layoutSettings");
         
         $form->add(FormElement::hidden(['name'=>'layout_id', 'value'=>$this->id]));
-        $form->add(FormElement::select(['name'=>'name', 'label'=>'Theme Title', 'value'=>$this->name ?? 'Just', 'options'=>Theme::all()->pluck('name', 'name')]));
+        $form->add(FormElement::select(['name'=>'name', 'label'=>'Theme Title', 'value'=>$this->name ?? Theme::where('isActive', 1)->first()->name, 'options'=>Theme::all()->pluck('name', 'name')]));
         $form->add(FormElement::text(['name'=>'class', 'label'=>'Theme Class', 'value'=>$this->class ?? 'primary']));
         if($this->id == 1){
             $form->getElement("name")->setParameters("disabled", "disabled");
             $form->getElement("class")->setParameters("disabled", "disabled");
         }
         $form->add(FormElement::number(['name'=>'width', 'label'=>'Layout Width', 'value'=>$this->width ?: '1920']));
+        
+        $form->add(FormElement::select(['name'=>'type', 'label'=>'Layout Type', 'value'=> $this->type ?? 'float', 'options'=>['float'=>'Float', 'grid'=>'Grid']]));
         
         $form->add(FormElement::select(['name'=>'panel', 'label'=>'Panel', 'value'=>null, 'options'=>$this->panelLocations()]));
         $form->add(FormElement::select(['name'=>'panelType', 'label'=>'Panel Type', 'value'=>null, 'options'=>['static'=>'static', 'dynamic'=>'dynamic']]));
@@ -56,6 +58,7 @@ class Layout extends Model
         $this->name = $request->name;
         $this->class = $request->class;
         $this->width = $request->width;
+        $this->type = $request->type;
         
         $createPanels = false;
         if(empty($this->id)){
@@ -86,7 +89,7 @@ class Layout extends Model
                 
                 if(!file_exists(resource_path('views/'.$request->name.'/panels/'.$location.'.blade.php'))){
                     if(!file_exists(resource_path('views/'.$request->name.'/panels/'))){
-                        mkdir(resource_path('views/'.$request->name.'/panels/'), 0775);
+                        mkdir(resource_path('views/'.$request->name.'/panels/'), 0775, true);
                     }
                     
                     if($type == 'static'){

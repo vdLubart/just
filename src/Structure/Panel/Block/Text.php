@@ -22,9 +22,14 @@ class Text extends AbstractBlock
     
     protected $settingsTitle = 'Plain Text';
     
+    /**
+     * Return item form
+     * 
+     * @return \Lubart\Form\Form
+     */
     public function form() {
-        if(!is_null($this->id)){
-            $this->form->open();
+        if(is_null($this->form)){
+            return;
         }
         
         $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>'Text', 'value'=>@$this->text]));

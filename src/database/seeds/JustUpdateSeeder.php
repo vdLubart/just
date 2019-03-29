@@ -5,6 +5,9 @@ namespace Lubart\Just\Database\Seeds;
 use Illuminate\Database\Seeder;
 use Lubart\Just\Models\Version;
 use Illuminate\Support\Facades\DB;
+use Lubart\Just\Models;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class JustUpdateSeeder extends Seeder
 {
@@ -39,8 +42,15 @@ class JustUpdateSeeder extends Seeder
                     'table' => 'texts'
                 ]);
                 
-            case version_compare(Version::current(), '1.1.1', '<'):
-                // some code applied starting from v.1.0.2
+            case version_compare(Version::current(), '1.2.0', '<'):
+                // some code applied starting from v.1.2.0
+                Models\IconSet::where('title', 'Font Awesome')->delete();
+                
+                Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustIconSeeder"]);
+                
+                Schema::table('themes', function(Blueprint $table){
+                    $table->increments('id');
+                });
         }
     }
 }

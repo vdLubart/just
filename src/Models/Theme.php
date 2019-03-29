@@ -12,7 +12,7 @@ class Theme extends Model
     ];
     
     protected $table = 'themes';
-    
+
     public static function active() {
         return self::where('isActive', 1)->first();
     }

@@ -22,6 +22,8 @@ class JustServiceProvider extends ServiceProvider
         
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
         
+        $this->app->make(\Illuminate\Database\Eloquent\Factory::class)->load(__DIR__ . '/database/factories');
+        
         $this->publishes([
             __DIR__.'/publish/resources/assets' => base_path('resources/assets'),
             __DIR__.'/publish/resources/views/Just' => base_path('resources/views/Just'),

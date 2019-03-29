@@ -5,7 +5,7 @@
         </h4>
     </div>
     <div class='col-md-1 text-right'>
-        <a href="javascript:closeSettings()" title='Close settings'><i class="fa fa-close"></i></a>
+        <a href="javascript:closeSettings()" title='Close settings'><i class="fa fa-times"></i></a>
     </div>
 </div>
 
@@ -17,11 +17,15 @@
     var currentData = formData($("#page_{{ $page->id }}_settingsForm form"));
     
     $("#page_{{ $page->id }}_settingsForm form").ajaxForm({
+        beforeSerialize: function(form, options) {
+            $("input[type=submit]").attr('disabled', 'disabled');
+        },
         success: function(data){
             closeSettings();
         },
         error: function(data){
             console.log(data);
+            $("input[type=submit]").removeAttr('disabled');
             showErrors(data);
         }
     });

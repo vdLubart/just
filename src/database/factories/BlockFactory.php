@@ -13,7 +13,7 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(\App\Structure\Panel\Block::class, function (Faker $faker){
+$factory->define(\Lubart\Just\Structure\Panel\Block::class, function (Faker $faker){
     return [
         'name' => 'text',
         'panelLocation' => 'header',
@@ -21,7 +21,8 @@ $factory->define(\App\Structure\Panel\Block::class, function (Faker $faker){
         'title' => $faker->name,
         'description' => $faker->sentence,
         'width' => 12,
-        'cssClass' => null,
+        'layoutClass' => 'primary',
+        'cssClass' => '',
         'orderNo' => 1,
         'isActive' => 1,
         'parameters' => '{}',

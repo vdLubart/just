@@ -34,6 +34,7 @@ Artisan::command('just:install', function () {
     
     // Seed data
     Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustStructureSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustIconSeeder"]);
     Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustDataSeeder"]);
     
     Version::create(['version' => Version::inComposer()]);
@@ -67,6 +68,7 @@ Artisan::command('just:update', function () {
 Artisan::command('just:seed', function () {
     // Seed Just! data
     Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustStructureSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustIconSeeder"]);
     Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustDataSeeder"]);
     
     // Seed project data
@@ -75,21 +77,24 @@ Artisan::command('just:seed', function () {
     $this->info('Data were seeded!');
 })->describe('Seed data related to Just! and current project');
 
+if(!function_exists('updateMixManifest')){
+    
+    function updateMixManifest(){
+        $justManifest = json_decode(file_get_contents(__DIR__.'/../public/mix-manifest.json'));
+        if(file_exists(public_path('mix-manifest.json'))){
+            $publicManifest = json_decode(file_get_contents(public_path('mix-manifest.json')));
+        }
+        else{
+            $publicManifest = new \stdClass;
+        }
 
-function updateMixManifest(){
-    $justManifest = json_decode(file_get_contents(__DIR__.'/../public/mix-manifest.json'));
-    if(file_exists(public_path('mix-manifest.json'))){
-        $publicManifest = json_decode(file_get_contents(public_path('mix-manifest.json')));
-    }
-    else{
-        $publicManifest = new \stdClass;
+        foreach($justManifest as $file=>$code){
+            $publicManifest->{$file} = $code;
+        }
+
+        file_put_contents(public_path('mix-manifest.json'), json_encode($publicManifest));
     }
     
-    foreach($justManifest as $file=>$code){
-        $publicManifest->{$file} = $code;
-    }
-    
-    file_put_contents(public_path('mix-manifest.json'), json_encode($publicManifest));
 }
 
 Artisan::command('make:addonMigration {name}', function () {

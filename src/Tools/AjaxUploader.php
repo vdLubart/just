@@ -2,6 +2,8 @@
 
 namespace Lubart\Just\Tools;
 
+use Illuminate\Support\Facades\Storage;
+
 /**
  * Class receives data from js-script and upload files
  *
@@ -135,10 +137,10 @@ class AjaxUploader {
     }
 
     private function makeDir($dir) {
-        if (!file_exists($dir) && !empty($dir)) {
-            $done = @mkdir($dir, 0775, true);
+        if (!file_exists(public_path($dir)) && !empty($dir)) {
+            $done = @mkdir(public_path($dir), 0775, true);
             if (!$done) {
-                $this->message(-1, 'Cannot create upload folder');
+                return $this->message(-1, 'Cannot create upload folder');
             }
         }
     }
@@ -270,7 +272,7 @@ class AjaxUploader {
         }
 
         if (!$try) {
-            $this->message(-1, 'Cannot write on file.');
+            return $this->message(-1, 'Cannot write on file.');
         }
 
         //delete the temporany chunk
@@ -280,29 +282,29 @@ class AjaxUploader {
         
         //if it is not the last chunk just return success chunk upload
         if ($isLast != 'true') {
-            $this->message(1, 'Chunk uploaded');
+            return $this->message(1, 'Chunk uploaded');
         } else {
             $this->checkFileExits($this->upload_path);
             $ret = rename($full_path, $this->upload_path . $this->file_name); //move file from temp dir to upload dir TODO this can be slow on big files and diffrent drivers
             if ($ret) {
                 $extra_info = $this->finish();
-                $this->message(1, 'File uploaded', $extra_info);
+                return $this->message(1, 'File uploaded', $extra_info);
             } else {
-                $this->message(1, 'File move error', $extra_info);
+                return $this->message(1, 'File move error', $extra_info);
             }
         }
     }
 
     private function uploadStandard() {
         $this->checkFileExits($this->upload_path);
-        
-        $result = Useful::uploadFile(\Request::file()['ax_file_input'], $this->upload_path, $this->file_name);
+        $dir = str_replace("../storage/app/public/", "", \Request::all()['ax-file-path']);
+        $result = Storage::disk('public')->putFileAs($dir, \Request::file()['ax_file_input'], $this->file_name);
         
         if (!$result) { //if any error return the error
-            $this->message(-1, 'File move error');
+            return $this->message(-1, 'File move error');
         } else {
             $extra_info = $this->finish();
-            $this->message(1, 'File uploaded', $extra_info);
+            return $this->message(1, 'File uploaded', $extra_info);
         }
     }
 
@@ -310,9 +312,9 @@ class AjaxUploader {
         if ($this->checkFile()) {//this checks every chunk FIXME is right?
             $is_ajax = isset($this->request['ax-last-chunk']) && isset($this->request['ax-start-byte']);
             if ($is_ajax) {//Ajax Upload, FormData Upload and FF3.6 php://input upload
-                $this->uploadAjax();
+                return $this->uploadAjax();
             } else { //Normal html and flash upload
-                $this->uploadStandard();
+                return $this->uploadStandard();
             }
         }
     }
@@ -356,44 +358,44 @@ class AjaxUploader {
         //check uploads error
         if (isset(\Request::file()['ax_file_input'])) {
             if (\Request::file()['ax_file_input']->getError() !== UPLOAD_ERR_OK) {
-                $this->message(-1, $this->upload_errors[\Request::file()['ax_file_input']->getError()]);
+                return $this->message(-1, $this->upload_errors[\Request::file()['ax_file_input']->getError()]);
             }
         }
 
         //check ext
         $allow_ext = $this->checkExt();
         if (!$allow_ext) {
-            $this->message(-1, 'File extension is not allowed');
+            return $this->message(-1, 'File extension is not allowed');
         }
 
         //check name
         $fn_ok = $this->checkName();
         if (!$fn_ok) {
-            $this->message(-1, 'File name is not allowed. System reserved.');
+            return $this->message(-1, 'File name is not allowed. System reserved.');
         }
 
         //check size
         if (!$this->checkSize()) {
-            $this->message(-1, 'File size exceeded maximum allowed: ' . $this->max_file_size);
+            return $this->message(-1, 'File size exceeded maximum allowed: ' . $this->max_file_size);
         }
         return true;
     }
 
-    public function header() {
-        header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
-        header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
-        header('X-Content-Type-Options: nosniff');
+    public function header(\Illuminate\Http\Response &$response) {
+        $response->header("Cache-Control", "no-cache, must-revalidate") // HTTP/1.1
+                ->header("Expires", "Sat, 26 Jul 1997 05:00:00 GMT") // Date in the past
+                ->header("X-Content-Type-Options", "nosniff");
+        
         if ($this->cross_origin) {
-            header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Credentials: false');
-            header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, PUT, PATCH, DELETE');
-            header('Access-Control-Allow-Headers: Content-Type, Content-Range, Content-Disposition');
+            $response->header("Access-Control-Allow-Origin", "*")
+                    ->header("Access-Control-Allow-Credentials", "false")
+                    ->header("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST, PUT, PATCH, DELETE")
+                    ->header("Access-Control-Allow-Headers", "Content-Type, Content-Range, Content-Disposition");
         }
     }
 
     private function message($status, $msg, $extra_info = '') {
-        $this->header();
-        echo json_encode(array(
+        $content = json_encode(array(
             'name' => $this->file_name,
             'size' => $this->file_size,
             'status' => $status,
@@ -407,7 +409,12 @@ class AjaxUploader {
             'width' => $this->width,
             'height' => $this->height
         ));
-        die();
+        
+        $response = response($content);
+        
+        $this->header($response);
+        
+        return $response;
     }
 
     public function onFinish($fun) {

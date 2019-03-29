@@ -27,34 +27,5 @@
             </div>
             {!! $block->model()->text !!}
         </div>
-        
-        <?php
-        $author = null;
-        if(!empty($block->relatedBlock('text', 'Author'))){
-            $author = $block->relatedBlock('text', 'Author');
-            if(!empty($author)){
-                $author = $author->firstItem();
-            }
-        }
-        elseif(!empty($block->relatedBlock('link', 'Author'))){
-            
-            $author = $block->relatedBlock('link', 'Author');
-            if(!empty($author)){
-                $author = $author->firstItem();
-            }
-                    
-            if(!empty($author)){
-                $author = $author->linkedBlock()->firstItem();
-            }
-        }
-        ?>
-        @if(!empty($author))
-        <div class="thumbnail">
-            <div class="caption">
-                <h3>Author: {{ $author->strings->first()->value }}</h3>
-            </div>
-            {!! $author->text !!}
-        </div>
-        @endif
     </div>
 @endif

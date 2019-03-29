@@ -2,8 +2,6 @@
 
 namespace Lubart\Just\Structure\Panel\Block;
 
-use Illuminate\Http\Request;
-
 class Twitter extends AbstractBlock
 {
     
@@ -15,14 +13,14 @@ class Twitter extends AbstractBlock
     protected $settingsTitle = 'Twitter';
     
     public function content($id = null) {
-        return [];
+        return;
     }
     
     public function form() {
+        if(is_null($this->form)){
+            return;
+        }
+        
         return $this->form;
-    }
-    
-    public function handleForm(Request $request) {
-        return;
     }
 }

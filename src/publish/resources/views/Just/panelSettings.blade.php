@@ -5,7 +5,7 @@
         </h4>
     </div>
     <div class='col-md-1 text-right'>
-        <a href="javascript:closeSettings()" title='Close settings'><i class="fa fa-close"></i></a>
+        <a href="javascript:closeSettings()" title='Close settings'><i class="fa fa-times"></i></a>
     </div>
 </div>
 
@@ -24,7 +24,7 @@
             </a>
             <br/>
             <a href="javascript: deleteModel({{ $block->id }}, 0)" title="Delete">
-                <i class="fa fa-trash-o"></i>
+                <i class="fa fa-trash-alt"></i>
             </a>
             <a href="javascript: activate({{ $block->isActive?0:1 }}, {{ $block->id }}, 0)" title="{{ $block->isActive?"Deactivate":"Activate" }}">
                 <i class="fa fa-{{ $block->isActive?"eye-slash":"eye" }}"></i>
@@ -36,7 +36,7 @@
                 <i class="fa fa-arrow-down"></i>
             </a>
             <a href="javascript: openSettings({{ $block->id }}, 0)" title="Edit">
-                <i class="fa fa-pencil"></i>
+                <i class="fa fa-pencil-alt"></i>
             </a>
         </div>
     </div>

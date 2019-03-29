@@ -26,7 +26,7 @@ class Images extends AbstractAddon
         $form->add(FormElement::file(['name'=>$addon->name.'_'.$addon->id, 'label'=>$addon->title]));
         if(!is_null($image)){
             $modelTable = $values->first()->getRelations()['pivot']->pivotParent->getTable();
-            $form->add(FormElement::html(['name'=>'imagePreview'.'_'.$addon->id, 'value'=>'<img src="/storage/'.$modelTable.'/'.$image.'_3.png" />']));
+            $form->add(FormElement::html(['name'=>'addonImagePreview'.'_'.$addon->id, 'value'=>'<img src="/storage/'.$modelTable.'/'.$image.'_3.png" />']));
         }
         
         return $form;

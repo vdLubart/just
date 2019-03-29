@@ -73,7 +73,7 @@
                 @endif
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                        <i class="fa fa-file-text"></i>
+                        <i class="fa fa-sitemap"></i>
                         Pages <span class="caret"></span>
                     </a>
                     
@@ -200,7 +200,7 @@
                             <a href="{{ route('logout') }}"
                                onclick="event.preventDefault();
                                                     document.getElementById('logout-form').submit();">
-                                <i class="fa fa-sign-out"></i>
+                                <i class="fa fa-sign-out-alt"></i>
                                 Logout
                             </a>
 

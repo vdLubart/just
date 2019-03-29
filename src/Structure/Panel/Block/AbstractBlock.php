@@ -27,15 +27,6 @@ abstract class AbstractBlock extends Model
     
     protected $parameters = [];
     
-    protected $block_id;
-    
-    /**
-     * Current block
-     * 
-     * @var Block $block
-     */
-    protected $block;
-
     protected $imageSizes = [12, 9, 8, 6, 4, 3];
     
     protected $settingsTitle = 'Model';
@@ -43,7 +34,9 @@ abstract class AbstractBlock extends Model
     public function __construct() {
         parent::__construct();
         
-        $this->form = new Form;
+        if(\Auth::id()){
+            $this->form = new Form;
+        }
     }
     
     /**
@@ -55,16 +48,16 @@ abstract class AbstractBlock extends Model
     public function content($id = null) {
         if(is_null($id)){
             $content = $this->orderBy('orderNo')
-                    ->where('block_id', $this->block_id);
+                    ->where('block_id', $this->block->id);
             if(!\Config::get('isAdmin')){
                 $content = $content->where('isActive', 1);
             }
             
-            $curCategory = $this->block()->currentCategory();
-            if(!is_null($curCategory) and $curCategory->addon->block->id == $this->block_id){
+            $curCategory = $this->block->currentCategory();
+            if(!is_null($curCategory) and $curCategory->addon->block->id == $this->block->id){
                 $content = $content
                         ->join($this->table."_categories", $this->table."_categories.modelItem_id", "=", $this->table.".id")
-                        ->where("addonItem_id", $this->block()->currentCategory()->id);
+                        ->where("addonItem_id", $this->block->currentCategory()->id);
             }
             
             $with = [];
@@ -111,6 +104,7 @@ abstract class AbstractBlock extends Model
     
     /**
      * Return block preview in the settings
+     * @deprecated since version 1.2.0
      */
     public function preview(){
         return '';
@@ -147,7 +141,7 @@ abstract class AbstractBlock extends Model
      */
     public function move($dir, $where = []) {
         if(empty($where)){
-            $where = ['block_id' => $this->block_id];
+            $where = ['block_id' => $this->block->id];
         }
         
         Useful::moveModel($this, $dir, $where);
@@ -161,7 +155,7 @@ abstract class AbstractBlock extends Model
      */
     public function moveTo($newPosition, $where = []) {
         if(empty($where)){
-            $where = ['block_id' => $this->block_id];
+            $where = ['block_id' => $this->block->id];
         }
         
         Useful::moveModelTo($this, $newPosition, $where);
@@ -200,7 +194,7 @@ abstract class AbstractBlock extends Model
         if(!empty($imageSizes)){
             foreach($imageSizes as $size){
                 $image = Image::make($this->image($imageCode));
-                $image->resize($this->block()->layout()->width*$size/12, null, function ($constraint) {
+                $image->resize($this->block->layout()->width*$size/12, null, function ($constraint) {
                     $constraint->aspectRatio();
                 });
                 $image->save(public_path('storage/'.$this->table.'/'. $imageCode."_".$size.".png"));
@@ -208,6 +202,7 @@ abstract class AbstractBlock extends Model
             }
         }
         else{
+            $image = Image::make($this->image($imageCode));
             $image->save(public_path('storage/'.$this->table.'/'. $imageCode.".png"));
         }
         
@@ -229,7 +224,7 @@ abstract class AbstractBlock extends Model
      * @return mixed
      */
     public function parameters() {
-        return json_decode($this->block()->parameters);
+        return json_decode($this->block->parameters);
     }
     
     /**
@@ -239,7 +234,7 @@ abstract class AbstractBlock extends Model
      * @return mixed
      */
     public function parameter($param) {
-        $params = json_decode($this->block()->parameters);
+        $params = json_decode($this->block->parameters);
         
         return isset($params->{$param})?$params->{$param}:null;
     }
@@ -254,7 +249,6 @@ abstract class AbstractBlock extends Model
     }
     
     public function setBlock($block_id) {
-        $this->block_id = $block_id;
         $this->setAttribute('block_id', $block_id);
     }
     
@@ -264,12 +258,7 @@ abstract class AbstractBlock extends Model
      * @return Block
      */
     protected function block() {
-        if(is_null($this->block)){
-            $this->setBlock($this->getAttribute('block_id'));
-            $this->block = Block::find($this->block_id);
-        }
-        
-        return $this->block;
+        return $this->belongsTo(Block::class);
     }
     
     /**
@@ -286,12 +275,15 @@ abstract class AbstractBlock extends Model
         $form->setType('setup');
         
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$block->id]));
+        
+        $paramsGroup = new FormGroup('parameters', 'Block parameters', ['class'=>'col-md-6']);
+        
         foreach($this->neededParameters() as $param=>$label){
-            $form->add(FormElement::text(['name'=>$param, 'label'=>$label, 'value'=>@$parameters->{$param}]));
+            $paramsGroup->add(FormElement::text(['name'=>$param, 'label'=>$label, 'value'=>@$parameters->{$param}]));
         }
         
         foreach($this->customAttributes() as $attr){
-            $form->add(FormElement::text(['name'=>$attr->name, 'label'=>$label, 'value'=>isset($parameters->{$attr->name})?$parameters->{$attr->name}:$attr->defaultValue]));
+            $paramsGroup->add(FormElement::text(['name'=>$attr->name, 'label'=>$label, 'value'=>isset($parameters->{$attr->name})?$parameters->{$attr->name}:$attr->defaultValue]));
         }
         
         $this->addSetupFormElements($form);
@@ -312,6 +304,9 @@ abstract class AbstractBlock extends Model
                 '200'=>'200% - 2 items in row',
                 '400'=>'400% - 1 item in row']]));
         $form->addGroup($settingsViewGroup);
+        if(!empty($paramsGroup->getElements())){
+            $form->addGroup($paramsGroup);
+        }
         
         $submitGroup = new FormGroup('submitSetup', '', ['class'=>'col-md-12 clear']);
         $submitGroup->add(FormElement::submit(['value'=>'Save']));
@@ -351,20 +346,20 @@ abstract class AbstractBlock extends Model
         }
     }
 
-        /**
+    /**
      * Return current layout
      * 
      * @return \Lubart\Just\Structure\Layout;
      */
     public function layout() {
-        return $this->block()->layout();
+        return $this->block->layout();
     }
     
     /**
      * Include new addon elements related to the addon
      */
     public function includeAddons() {
-        foreach ($this->block()->addons as $addon) {
+        foreach ($this->block->addons as $addon) {
             $addon->updateForm($this->form, $this->addonValues($addon->id));
         }
     }
@@ -376,7 +371,7 @@ abstract class AbstractBlock extends Model
      * @param mixed $item Model item
      */
     public function handleAddons(Request $request, $item) {
-        foreach ($this->block()->addons as $addon) {
+        foreach ($this->block->addons as $addon) {
             $addon->handleForm($request, $item);
         }
     }
@@ -394,12 +389,12 @@ abstract class AbstractBlock extends Model
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function addons() {
-        return $this->block()->addons();
+        return $this->block->addons();
     }
     
     public function customAttributes() {
         return DB::table('blockAttributes')
-                ->where('block', $this->block()->name)->get();
+                ->where('block', $this->block->name)->get();
     }
     
     /**
@@ -436,15 +431,15 @@ abstract class AbstractBlock extends Model
         
         $form->setType('relations');
         
-        $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block_id]));
+        $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block->id]));
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->id]));
-        $form->add(FormElement::select(['name'=>'relatedBlockName', 'label'=>'Related Block Type', 'value'=>(!is_null($relBlock) ? $relBlock->name : ""), 'options'=>$this->block()->allBlocksSelect()]));
+        $form->add(FormElement::select(['name'=>'relatedBlockName', 'label'=>'Related Block Type', 'value'=>(!is_null($relBlock) ? $relBlock->name : ""), 'options'=>$this->block->allBlocksSelect()]));
         if(!is_null($relBlock)){
             $form->getElement("relatedBlockName")->setParameters("disabled", "disabled");
         }
         $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=> (!is_null($relBlock) ? $relBlock->title : "")]));
         $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>(!is_null($relBlock) ? $relBlock->description : "")]));
-        $form->applyJS("applyCKEditor('#".$this->block()->name."_relationsForm #description')");
+        $form->applyJS("applyCKEditor('#".$this->block->name."_relationsForm #description')");
         $form->add(FormElement::submit(['value'=>'Save']));
         
         return $form;
@@ -481,8 +476,7 @@ abstract class AbstractBlock extends Model
             $relBlock = $relBlock->first();
             
             if(empty($relBlock)){
-                // return null
-                return $relBlock;
+                return null;
             }
             
             return $relBlock->specify();

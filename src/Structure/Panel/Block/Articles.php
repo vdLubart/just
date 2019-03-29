@@ -6,10 +6,8 @@ use Lubart\Form\FormElement;
 use Lubart\Just\Requests\ArticleChangeRequest;
 use Intervention\Image\ImageManagerStatic as Image;
 use Lubart\Just\Tools\Useful;
-use Illuminate\Http\Request;
 use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Just\Structure\Page;
-use Lubart\Just\Structure\Panel;
 
 class Articles extends AbstractBlock
 {
@@ -20,7 +18,7 @@ class Articles extends AbstractBlock
      * @var array
      */
     protected $fillable = [
-        'subject', 'summary', 'text'
+        'subject', 'summary', 'text', 'image'
     ];
     
     protected $table = 'articles';
@@ -37,27 +35,6 @@ class Articles extends AbstractBlock
         'imageHeight'    => 'Article image height',
     ];
     
-    /**
-     * Return block content
-     * 
-     * @param int $id
-     * @return Article
-     */
-    public function content($id = null) {
-        if(is_null($id)){
-            $content = $this->orderBy('orderNo')
-                    ->where('block_id', $this->block_id);
-            if(!\Config::get('isAdmin')){
-                $content = $content->where('isActive', 1);
-            }
-            
-            return $content->get();
-        }
-        else{
-            return $this->find($id);
-        }
-    }
-    
     public function setup() {
         if(!Useful::isRouteExists("article/{id}")){
             JustRoute::create([
@@ -71,14 +48,14 @@ class Articles extends AbstractBlock
                 'title' => 'Article',
                 'description' => '',
                 'route' => 'article/{id}',
-                'layout_id' => $this->block()->page->layout_id
+                'layout_id' => $this->block->page->layout_id
             ]);
         }
     }
     
     public function form() {
-        if(!is_null($this->id)){
-            $this->form->open();
+        if(is_null($this->form)){
+            return;
         }
         
         $this->form->add(FormElement::file(['name'=>'image', 'label'=>'Upload Image']));
@@ -137,15 +114,5 @@ $(document).ready(function(){
         }
         
         return $article;
-    }
-    
-    /**
-     * Get specific article data
-     * 
-     * @param Request $request
-     * @return Articles
-     */
-    public function article(Request $request) {
-        return $this->content($request->id);
     }
 }

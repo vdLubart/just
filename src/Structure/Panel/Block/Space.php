@@ -17,6 +17,10 @@ class Space extends AbstractBlock
     }
     
     public function form() {
+        if(is_null($this->form)){
+            return;
+        }
+        
         return $this->form;
     }
     

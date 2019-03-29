@@ -35,8 +35,8 @@ class Menu extends AbstractBlock
     }
     
     public function form() {
-        if(!is_null($this->id)){
-            $this->form->open();
+        if(is_null($this->form)){
+            return;
         }
         
         $this->form->add(FormElement::text(['name'=>'item', 'label'=>'Item', 'value'=>$this->item]));

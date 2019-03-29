@@ -93,27 +93,6 @@ function openCropping(blockId, modelId){
     });
 }
 
-/**
- * Normalize content order
- * 
- * @param {int} blockId
- * @returns {void}
- */
-function normalizeContent(blockId){
-    $.ajax({
-        url: "/admin/settings/normalize/" + blockId,
-        error: function(data){
-            console.log("Cannot normalize content.");
-            console.log(data);
-            showErrors(data);
-        }
-    });
-}
-
-function openSetup(blockId){
-    return openSettings('setup', blockId);
-}
-
 function closeSettings(){
     $("#settings").css("display", "none");
     location.reload();
@@ -134,7 +113,6 @@ function deleteModel(blockId, modelId){
             dataType: "html",
             success: function(data){
                 if(modelId != 0){
-                    normalizeContent(blockId);
                     openSettings(blockId, modelId);
                 }
                 else{

@@ -1,15 +1,7 @@
 <script src='https://www.google.com/recaptcha/api.js'></script>
 
 <div id="feedback_{{ $block->id }}" class="row">
-    @if($errors->{'errorsFrom'.ucfirst($block->name . $block->id)}->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach($errors->{'errorsFrom'.ucfirst($block->name . $block->id)}->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @elseif(\Session::has('successMessageFrom' . ucfirst($block->name . $block->id)) and \Session::get('successMessageFrom' . ucfirst($block->name . $block->id)) != '')
+    @if(\Session::has('successMessageFrom' . ucfirst($block->name . $block->id)) and \Session::get('successMessageFrom' . ucfirst($block->name . $block->id)) != '')
     <div class="alert alert-success">
         <ul>
             <li>{!! \Session::get('successMessageFrom' . ucfirst($block->name . $block->id)) !!}</li>

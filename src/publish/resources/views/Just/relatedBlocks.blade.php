@@ -8,7 +8,7 @@
                 </a>
                 <br/>
                 <a href="javascript: deleteModel({{ $relBlock->id }}, 0)" title="Delete">
-                    <i class="fa fa-trash-o"></i>
+                    <i class="fa fa-trash-alt"></i>
                 </a>
                 <a href="javascript: activate({{ $relBlock->isActive?0:1 }}, {{ $relBlock->id }}, 0)" title="{{ $relBlock->isActive?"Deactivate":"Activate" }}">
                     <i class="fa fa-{{ $relBlock->isActive?"eye-slash":"eye" }}"></i>
@@ -20,7 +20,7 @@
                     <i class="fa fa-arrow-down"></i>
                 </a>
                 <a href="javascript: openSettings({{ $relBlock->id }}, 0)" title="Edit">
-                    <i class="fa fa-pencil"></i>
+                    <i class="fa fa-pencil-alt"></i>
                 </a>
             </div>
         </div>

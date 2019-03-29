@@ -23,6 +23,8 @@ use Lubart\Just\Models\Theme;
 use Lubart\Just\Requests\ChangeCategoryRequest;
 use Lubart\Just\Requests\AddonChangeRequest;
 use Lubart\Just\Requests\UserChangeRequest;
+use Lubart\Just\Requests\DeleteUserRequest;
+use Lubart\Just\Requests\DeleteLayoutRequest;
 
 class AdminController extends Controller
 {
@@ -33,25 +35,37 @@ class AdminController extends Controller
     }
     
     public function settingsForm($blockId, $id, $subid = null) {
-        $block = Block::findModel($blockId, $id, $subid);
+        return view(viewPath(Theme::active()->layout, 'settings'))->with($this->detectBlock($blockId, $id));
+    }
+    
+    protected function detectBlock($blockId, $itemId){
+        $block = Block::findModel($blockId, $itemId);
         $parentBlock = Block::find($block->parent);
         if(!empty($parentBlock)){
             $pivot = DB::table($parentBlock->details()->table."_blocks")->where('block_id', $blockId)->first();
             $parentBlock = $parentBlock->specify($pivot->modelItem_id);
         }
         
-        $panel = Panel::where('location', $block->panelLocation)->first();
+        if(!is_null($block->panelLocation)){
+            $panel = Panel::where('location', $block->panelLocation)->first();
+        }
+        else{
+            $panel = Panel::where('location', $parentBlock->panelLocation)->first();
+        }
+        
         if(!empty($panel) and $panel->type == 'dynamic'){
-            $panel->setPage(Page::find($block->page_id));
+            if(!is_null($block->page_id)){
+                $panel->setPage(Page::find($block->page_id));
+            }
+            else{
+                $panel->setPage(Page::find($parentBlock->page_id));
+            }
         }
         
-        if(!empty($panel) and is_null($block->panel)){
-            $block = $block->setPanel($panel);
-        }
-        
-        return view(viewPath(Theme::active()->layout, 'settings'))->with(['block'=>$block, 'parentBlock'=>$parentBlock, 'panel'=>$panel]);
+        return ['block'=>$block, 'parentBlock'=>$parentBlock, 'panel'=>$panel];
     }
-    
+
+
     public function panelSettingsForm($pageId, $panelLocation, $blockId = null) {
         $panel = Panel::where('location', $panelLocation)->first();
         if(!empty($panel) and $panel->type == 'dynamic'){
@@ -120,10 +134,6 @@ class AdminController extends Controller
     }
     
     public function handleAddonForm(AddonChangeRequest $request) {
-        if(\Auth::user()->role != "master"){
-            return view(viewPath(Theme::active()->layout, 'noAccess'));
-        }
-        
         $addon = Addon::findOrNew($request->addon_id);
         
         $addon->handleSettingsForm($request);
@@ -152,10 +162,6 @@ class AdminController extends Controller
     }
     
     public function handleUserForm(UserChangeRequest $request) {
-        if(\Auth::user()->role != "master"){
-            return view(viewPath(Theme::active()->layout, 'noAccess'));
-        }
-        
         $user = User::findOrNew($request->user_id);
         
         $user->handleSettingsForm($request);
@@ -188,21 +194,9 @@ class AdminController extends Controller
     }
     
     public function cropForm($blockId, $id) {
-        $block = Block::findModel($blockId, $id);
+        $blockData = $this->detectBlock($blockId, $id);
         
-        return view(viewPath(Theme::active()->layout, 'settings'))->with(['block'=>$block, 'crop'=>true, 'image'=>$block->model()->image]);
-    }
-    
-    public function normalizeContent($blockId) {
-        $block = Block::findModel($blockId, null);
-        
-        Useful::normalizeOrder($block->model()->getTable());
-    }
-    
-    public function setupForm($blockId) {
-        $block = Block::findModel($blockId, 0);
-        
-        return view(viewPath(Theme::active()->layout, 'settings'))->with(['block'=>$block, 'setup'=>true]);
+        return view(viewPath(Theme::active()->layout, 'settings'))->with($blockData + ['crop'=>true, 'image'=>$blockData['block']->model()->image]);
     }
     
     public function handleForm(Request $request) {
@@ -261,16 +255,19 @@ class AdminController extends Controller
     }
     
     public function handleSetup(Request $request) {
-        $block = Block::find($request->id);
+        $block = Block::find($request->id)->specify();
+        $settingsElements = $block->setupForm()->names();
         
         if(!empty($block)){
-            $parameters = $block->parameters();
+            $parameters = new \stdClass;
             $values = $request->all();
             unset($values['id']);
             unset($values['_token']);
             unset($values['submit']);
             foreach($values as $key=>$value){
-                $parameters->{$key} = $value;
+                if(in_array($key, $settingsElements) or in_array($key."[]", $settingsElements)){
+                    $parameters->{$key} = $value;
+                }
             }
             $block->parameters = json_encode($parameters);
             $block->save();
@@ -284,6 +281,8 @@ class AdminController extends Controller
         
         if(!empty($block)){
             $block->deleteModel();
+            
+            Useful::normalizeOrder($block->model()->getTable());
         }
         
         return ['id'=>$block->id, 'panelLocation'=>$block->panelLocation, 'page_id'=>(is_null($block->page_id)?0:$block->page_id)];
@@ -302,6 +301,10 @@ class AdminController extends Controller
     }
     
     public function deleteAddon(Request $request) {
+        if(\Auth::user()->role != "master"){
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
+        }
+        
         $addon = Addon::find($request->id);
         
         if(!empty($addon)){
@@ -311,10 +314,10 @@ class AdminController extends Controller
         return ;
     }
     
-    public function deleteUser(Request $request) {
+    public function deleteUser(DeleteUserRequest $request) {
         $user = User::find($request->id);
         
-        if(!empty($user) and \Auth::user()->id != $user->id){
+        if(!empty($user) and \Auth::id() != $user->id){
             $user->delete();
         }
         
@@ -331,7 +334,7 @@ class AdminController extends Controller
         return ;
     }
     
-    public function deleteLayout(Request $request) {
+    public function deleteLayout(DeleteLayoutRequest $request) {
         $layout = Layout::find($request->layout_id);
         
         if(!empty($layout)){
@@ -356,7 +359,7 @@ class AdminController extends Controller
         $block = Block::find($request->block_id);
         
         if (!empty($block)) {
-            $block->specify(isset($request->id)? $request->id : null, isset($request->subid) ? $request->subid : null);
+            $block->specify($request->id);
         }
         
         return $block;
@@ -372,6 +375,13 @@ class AdminController extends Controller
         return ['id'=>$block->id, 'panelLocation'=>$block->panelLocation, 'page_id'=>(is_null($block->page_id)?0:$block->page_id)];
     }
     
+    /**
+     * Move item to the specific position in the block. Methos id used for
+     * drag&drop action
+     * 
+     * @param Request $request
+     * @return type
+     */
     public function moveto(Request $request) {
         
         $block = $this->specifyBlock($request);
@@ -383,14 +393,33 @@ class AdminController extends Controller
         return ['id'=>$block->id, 'panelLocation'=>$block->panelLocation, 'page_id'=>(is_null($block->page_id)?0:$block->page_id)];
     }
     
+    /**
+     * Move item to one position up in the block
+     * 
+     * @param Request $request
+     * @return type
+     */
     public function moveup(Request $request) {
         return $this->move($request, 'up');
     }
     
+    /**
+     * Move item to one position down in the block
+     * 
+     * @param Request $request
+     * @return type
+     */
     public function movedown(Request $request) {
         return $this->move($request, 'down');
     }
     
+    /**
+     * Change item visibility
+     * 
+     * @param Request $request
+     * @param type $visability
+     * @return type
+     */
     protected function visabiliy(Request $request, $visability) {
         $block = $this->specifyBlock($request);
         
@@ -401,18 +430,35 @@ class AdminController extends Controller
         return ['id'=>$block->id, 'panelLocation'=>$block->panelLocation, 'page_id'=>(is_null($block->page_id)?0:$block->page_id)];
     }
     
+    /**
+     * Make item visible ob the page
+     * 
+     * @param Request $request
+     * @return type
+     */
     public function activate(Request $request) {
         return $this->visabiliy($request, 1);
     }
     
+    /**
+     * Make item invisible on the page
+     * 
+     * @param Request $request
+     * @return type
+     */
     public function deactivate(Request $request) {
         return $this->visabiliy($request, 0);
     }
     
+    /**
+     * Upload file through AjaxUploader
+     * 
+     * @return type
+     */
     public function ajaxuploader() {
         $uploader = new AjaxUploader;
         
-        $uploader->uploadFile();
+        return $uploader->uploadFile();
     }
     
     /**
@@ -434,7 +480,15 @@ class AdminController extends Controller
      */
     public function uploadImage(UploadImageRequest $request) {
         $image = Image::make($request->file('image'));
-        $image->encode('png')->save(public_path('images/library/'.$image->basename.".png"));
+        $pieces = explode(".", $request->image->name);
+        array_pop($pieces);
+        $basename = implode('.', $pieces);
+        if(!file_exists(public_path('images/library/'.$basename.'.png'))){
+            $image->encode('png')->save(public_path('images/library/'.$basename.".png"));
+        }
+        else{
+            $image->encode('png')->save(public_path('images/library/'.$basename."_".$image->basename.".png"));
+        }
         
         return redirect('admin/browseimages');
     }
@@ -478,10 +532,18 @@ class AdminController extends Controller
     }
     
     public function defaultLayout(){
+        if(\Auth::user()->role != "master"){
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
+        }
+        
         return view(viewPath(Theme::active()->layout, 'defaultLayout'))->with(['form'=>Layout::setDefaultForm()]);
     }
     
     public function setDefaultLayout(Request $request){
+        if(\Auth::user()->role != "master"){
+            return view(viewPath(Theme::active()->layout, 'noAccess'));
+        }
+        
         $validator = \Validator::make($request->all(),
                     [
                         'layout' => "required|string",

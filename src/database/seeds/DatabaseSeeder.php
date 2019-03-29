@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call('JustStructureSeeder');
+        $this->call('JustIconSeeder');
         $this->call('JustDataSeeder');
         
         $this->command->info('Data Just! seeded!');

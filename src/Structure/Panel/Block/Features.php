@@ -50,8 +50,8 @@ class Features extends AbstractBlock
     }
     
     public function form() {
-        if(!is_null($this->id)){
-            $this->form->open();
+        if(is_null($this->form)){
+            return;
         }
         
         $currentIcon = Icon::find($this->icon_id);
@@ -59,7 +59,9 @@ class Features extends AbstractBlock
         $this->form->add(FormElement::select(['name'=>'iconSet', 'label'=>'Choose icon set', 'options'=> IconSet::getList(), 'value'=>isset($this->icon)?$this->icon->set_id:null]));
         $this->form->add(FormElement::html(['name'=>'divicon', 'value'=>'<div id="icons"></div>', 'label'=>'Choose icon']));
         $this->form->add(FormElement::hidden(['name'=>'icon', 'value'=>$this->icon_id]));
-        $this->form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>$this->title]));
+        if(empty($this->parameter('ignoreCaption'))){
+            $this->form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>$this->title]));
+        }
         if(empty($this->parameter('ignoreDescription'))){
             $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>$this->description]));
         }

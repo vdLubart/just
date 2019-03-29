@@ -44,6 +44,7 @@ class Block extends Model
     public function specify($id = null) {
         $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->name);
         
+        // looking for a custom block
         if(!class_exists($name)){
             $name = "\\App\\Just\\Panel\\Block\\". ucfirst($this->name);
             if(!class_exists($name)){
@@ -70,7 +71,7 @@ class Block extends Model
     
     public function form() {
         $form = $this->model->form();
-        if(is_null($form->getElement('block_id'))){
+        if(!is_null($form) and is_null($form->getElement('block_id'))){
             $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->id]));
             $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->model->id]));
         }
@@ -102,7 +103,9 @@ class Block extends Model
             $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>@$this->title]));
             $form->add(FormElement::textarea(['name'=>'blockDescription', 'label'=>'Description', 'value'=>@$this->description, "class"=>"ckeditor"]));
             $form->applyJS("$(document).ready(function(){CKEDITOR.replace('blockDescription') });");
-            $form->add(FormElement::select(['name'=>'width', 'label'=>'Width', 'value'=>@$this->width, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
+            if($this->layout()->type == 'float'){
+                $form->add(FormElement::select(['name'=>'width', 'label'=>'Width', 'value'=>@$this->width, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
+            }
             if(\Auth::user()->role == "master"){
                 $form->add(FormElement::text(['name'=>'layoutClass', 'label'=>'Layout Class', 'value'=>$this->layoutClass ?? 'primary']));
                 $form->add(FormElement::text(['name'=>'cssClass', 'label'=>'Additional CSS Class', 'value'=>@$this->cssClass]));
@@ -136,23 +139,18 @@ class Block extends Model
      * @return mixed
      */
     public function firstItem(){
-        return $this->content()->first();
-    }
-    
-    /**
-     * Return specyfic related block
-     * 
-     * @param string $name type of related block
-     * @param string $title title of related block
-     * @param int $id id of related block
-     * @return Block|null
-     */
-    public function relatedBlock($name, $title = null, $id = null) {
-        return $this->model()->relatedBlock($name, $title, $id);
-    }
-    
-    public function relatedBlocks() {
-        return $this->model()->relatedBlocks;
+        $content = $this->content();
+        
+        if($content instanceof \Illuminate\Database\Eloquent\Collection){
+            return $content->first();
+        }
+        
+        switch (true){
+            case ($this->model() instanceof Block\Feedback) :
+                return $content->messages->first();
+        }
+        
+        return $content;
     }
     
     /**
@@ -184,7 +182,7 @@ class Block extends Model
         $validatedRequest = new $validatorClass;
         if($validatorClass != 'Illuminate\Http\Request' and $validatedRequest->authorize()){
             $addonValidators = [];
-            foreach ($this->addons() as $addon){
+            foreach ($this->addons as $addon){
                 $addonValidators += $addon->validationRules();
             }
             
@@ -221,9 +219,9 @@ class Block extends Model
         $this->page_id = $request->page_id;
         $this->title = $request->title?$request->title:"";
         $this->description = $request->blockDescription??"";
-        $this->width = $request->width;
-        $this->layoutClass = \Auth::user()->role == "master" ? $request->layoutClass : $this->layoutClass;
-        $this->cssClass = \Auth::user()->role == "master" ?  $request->cssClass : $this->cssClass;
+        $this->width = $request->width ?? ( $this->width ?? 12 );
+        $this->layoutClass = (\Auth::user()->role == "master" ? $request->layoutClass : $this->layoutClass) ?? 'primary';
+        $this->cssClass = (\Auth::user()->role == "master" ?  $request->cssClass : $this->cssClass) ?? '';
         $this->orderNo = $this->orderNo?$this->orderNo : Useful::getMaxNo($this->table, ['panelLocation' => $panel->location, "page_id"=>$request->page_id]);
         
         $this->save();
@@ -356,6 +354,10 @@ class Block extends Model
         return json_decode($this->parameters);
     }
     
+    public function parameter($param) {
+        return @json_decode($this->parameters)->{$param};
+    }
+    
     /**
      * Return route where current block is located
      * 
@@ -373,7 +375,7 @@ class Block extends Model
      * @return Layout
      */
     public function layout() {
-        return $this->hasManyThrough(Layout::class, Panel::class, 'location', 'id', 'panelLocation', 'layout_id')->first(['layouts.*', 'panels.*']);
+        return Page::where('route', trim(str_replace(request()->root()."/admin", '', request()->server('HTTP_REFERER')), '/'))->first()->layout;
     }
     
     /**

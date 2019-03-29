@@ -12,7 +12,7 @@ class Categories extends AbstractAddon
 {
     protected $table = 'categories';
     
-    protected $fillable = ['addon_id', 'name'];
+    protected $fillable = ['addon_id', 'name', 'value'];
     
     /**
      * Update existing settings form and add new elements
@@ -21,7 +21,7 @@ class Categories extends AbstractAddon
      * @param Form $form Form object
      */
     public static function updateForm(Addon $addon, Form $form, $values) {
-        $form->add(FormElement::select(['name'=>$addon->name, 'label'=>$addon->title, 'options'=>$addon->valuesSelectArray('name'), 'value'=>$values]));
+        $form->add(FormElement::select(['name'=>$addon->name."_".$addon->id, 'label'=>$addon->title, 'options'=>$addon->valuesSelectArray('name'), 'value'=>$values]));
         
         return $form;
     }
@@ -33,8 +33,8 @@ class Categories extends AbstractAddon
                 ->where('modelItem_id', $item->id)
                 ->delete();
         
-        if(is_array($request->get($addon->name))){
-            foreach($request->get($addon->name) as $cat){
+        if(is_array($request->get($addon->name."_".$addon->id))){
+            foreach($request->get($addon->name."_".$addon->id) as $cat){
                 DB::table($item->getTable() . "_" . $addon->type)
                         ->insert([
                             'modelItem_id' => $item->id,
@@ -46,14 +46,14 @@ class Categories extends AbstractAddon
             DB::table($item->getTable()."_".$addon->type)
                     ->insert([
                         'modelItem_id' => $item->id,
-                        'addonItem_id' => $request->get($addon->name)
+                        'addonItem_id' => $request->get($addon->name."_".$addon->id)
                     ]);
         }
     }
     
     public static function validationRules(Addon $addon) {
         return [
-            $addon->name => "required|integer|min:1",
+            $addon->name."_".$addon->id => "required|integer|min:1",
         ];
     }
     

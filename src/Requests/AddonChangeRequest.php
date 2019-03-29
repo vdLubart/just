@@ -51,6 +51,7 @@ class AddonChangeRequest extends FormRequest
             "name" => [
                 "required",
                 "string",
+                "regex:/[a-z0-9]+/u",
                 Rule::notIn( $usedNames )
                 ],
             "title" => "required|string",

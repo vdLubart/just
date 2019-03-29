@@ -25,7 +25,7 @@ class ChangeLayoutRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'layout_id' => 'required|integer|min:2',
+            'layout_id' => 'nullable|integer|min:2',
             'name' => "required",
             "class" => "required",
             'width' => "required|integer|min:980|max:1920"

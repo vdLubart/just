@@ -3,14 +3,14 @@
 namespace Lubart\Just\Models;
 
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Lubart\Just\Notifications\PasswordReset;
 use Lubart\Just\Notifications\NewFeedback;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Just\Requests\UserChangeRequest;
+use App\User as AppUser;
 
-class User extends Authenticatable
+class User extends AppUser
 {
     use Notifiable;
 
@@ -20,18 +20,9 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'login', 'name', 'email', 'password',
+        'login', 'role', 'name', 'email', 'password',
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
-    
     /**
      * Send the password reset notification.
      *
@@ -82,7 +73,9 @@ class User extends Authenticatable
         $this->name = $request->name;
         $this->email = $request->email;
         $this->role = $request->role;
-        $this->password = bcrypt($request->password);
+        if(isset($request->password)){
+            $this->password = bcrypt($request->password);
+        }
         
         $this->save();
     }

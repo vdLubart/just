@@ -13,7 +13,7 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(\App\Structure\Layout::class, function (Faker $faker) {
+$factory->define(Lubart\Just\Structure\Layout::class, function (Faker $faker) {
     return [
         'name' => $faker->name,
         'class' => $faker->name,

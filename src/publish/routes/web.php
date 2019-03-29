@@ -29,7 +29,7 @@ if (Schema::hasTable('routes')){
         if($route->type == "page"){
             Route::get($route->route, "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
             Route::get("admin/".$route->route, "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-            Route::post ($route->route, "\Lubart\Just\Controllers\AdminController@handleForm")->middleware('web');
+            Route::post ($route->route, "\Lubart\Just\Controllers\AdminController@handleForm")->middleware(['web','auth']);
         }
         
         if($route->type == 'ajax'){
@@ -61,7 +61,6 @@ Route::post("admin/category/delete", "\Lubart\Just\Controllers\AdminController@d
 Route::post("admin/layout/delete", "\Lubart\Just\Controllers\AdminController@deleteLayout")->middleware(['web','auth']);
 Route::get("admin/settings/crop/{blockId}/{id}", "\Lubart\Just\Controllers\AdminController@cropForm")->where(['blockId'=>'\d+', 'id'=>'\d+'])->middleware(['web','auth']);
 Route::get("admin/settings/normalize/{blockId}", "\Lubart\Just\Controllers\AdminController@normalizeContent")->where(['blockId'=>'\d+'])->middleware(['web','auth']);
-Route::get("admin/settings/setup/{blockId}", "\Lubart\Just\Controllers\AdminController@setupForm")->where(['blockId'=>'\d+'])->middleware(['web','auth']);
 Route::post("admin/settings/crop", "\Lubart\Just\Controllers\AdminController@handleCrop")->middleware(['web','auth']);
 Route::post("admin/settings/setup", "\Lubart\Just\Controllers\AdminController@handleSetup")->middleware(['web','auth']);
 Route::post("admin/delete", "\Lubart\Just\Controllers\AdminController@delete")->middleware(['web','auth']);

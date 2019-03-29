@@ -47,6 +47,12 @@ class Useful {
     }
     
     public static function isRouteExists($route) {
+        $routes = \Lubart\Just\Models\Route::where('route', $route)->first();
+        
+        if(!empty($routes)){
+            return true;
+        }
+        
         $routes = \Route::getRoutes()->getRoutes();
         
         foreach ($routes as $r) {

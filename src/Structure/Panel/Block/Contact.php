@@ -54,24 +54,9 @@ class Contact extends AbstractBlock
         'whatsapp'  => ['WhatsApp', 'whatsapp']
     ];
     
-    public function content($id = null) {
-        if(is_null($id)){
-            $content = $this->orderBy('orderNo')
-                    ->where('block_id', $this->block_id);
-            if(!\Config::get('isAdmin')){
-                $content = $content->where('isActive', 1);
-            }
-            
-            return $content->get();
-        }
-        else{
-            return $this->find($id);
-        }
-    }
-    
     public function form() {
-        if(!is_null($this->id)){
-            $this->form->open();
+        if(is_null($this->form)){
+            return;
         }
         
         $this->form->add(FormElement::text(['name'=>'title', 'label'=>'Office Title', 'value'=>@$this->title]));

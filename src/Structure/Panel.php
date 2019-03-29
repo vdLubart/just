@@ -13,7 +13,7 @@ class Panel extends Model
      * @var array
      */
     protected $fillable = [
-        'panel',  'layout_id', 'type', 'orderNo', 
+        'location',  'layout_id', 'type', 'orderNo', 
     ];
     
     protected $table = 'panels';

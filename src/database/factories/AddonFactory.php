@@ -13,10 +13,11 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(App\Structure\Panel\Block\Addon::class, function (Faker $faker){
+$factory->define(\Lubart\Just\Structure\Panel\Block\Addon::class, function (Faker $faker){
     return [
         'block_id' => 1,
-        'name' => 'strings',
+        'type' => 'strings',
+        'name' => 'string',
         'title' => $faker->name,
         'description' => $faker->sentence,
         'orderNo' => 1,

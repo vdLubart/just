@@ -27,8 +27,8 @@ class Gallery extends AbstractBlock
     protected $neededParameters = [];
     
     public function form() {
-        if(!is_null($this->id)){
-            $this->form->open();
+        if(is_null($this->form)){
+            return;
         }
         
         $this->includeAddons();
@@ -76,12 +76,8 @@ class Gallery extends AbstractBlock
     }
     
     public function handleForm(Request $request) {
-        $parameters = json_decode($this->block()->parameters);
+        $parameters = json_decode($this->block->parameters);
         $photo = null;
-        
-        if(!file_exists(public_path('storage/'.$this->table))){
-            mkdir(public_path('storage/'.$this->table), 0775);
-        }
         
         if (isset($request->currentFile) and is_file(public_path('storage/'.$this->table . '/' . $request->currentFile))) {
             $image = Image::make(public_path('storage/'.$this->table ."/" . $request->currentFile));
@@ -90,11 +86,11 @@ class Gallery extends AbstractBlock
                 $photo = new Gallery;
                 $photo->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->get('block_id')]);
                 $photo->setBlock($request->get('block_id'));
-                $photo->image = uniqid();
             } else {
                 $photo = Gallery::findOrNew($request->get('id'));
             }
             
+            $photo->image = uniqid();
             $photo->caption = empty($request->caption)?'':$request->caption;
             $photo->description = empty($request->description)?'':$request->description;
             

@@ -3,6 +3,7 @@
 <script>
     $("#{{ $block->name }}_blockData form").ajaxForm({
         beforeSerialize: function(form, options) {
+            $("input[type=submit]").attr('disabled', 'disabled');
             for (instance in CKEDITOR.instances){
                 CKEDITOR.instances[instance].updateElement();
             }
@@ -27,6 +28,7 @@
         },
         error: function(data){
             console.log(data);
+            $("input[type=submit]").removeAttr('disabled');
             $(".errors").removeClass('hide');
             $(".errors").append('<ul></ul>');
             $.each(data.responseJSON.errors, function(i, item) {
