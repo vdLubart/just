@@ -216,6 +216,22 @@ class AdminController extends Controller
         return $model;
     }
     
+    public function handleBlockForm(Request $request) {
+        $block = Block::find($request->block_id);
+        
+        if(!empty($block)){
+            $block->title = $request->title;
+            $block->description = $request->description;
+            $block->width = $request->width;
+            $block->layoutClass = $request->layoutClass;
+            $block->cssClass = $request->cssClass;
+            
+            $block->save();
+        }
+        
+        return redirect()->back();
+    }
+    
     public function handlePanelForm(Request $request) {
         $block = Block::findOrNew($request->block_id);
         

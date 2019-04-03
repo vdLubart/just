@@ -171,7 +171,7 @@ class JustStructureSeeder extends Seeder
             'block' => 'gallery',
             'title' => "Photo Gallery",
             'description' => "Shows photo gallery on the website",
-            'table' => ''
+            'table' => 'photos'
         ]);
         
         DB::table('blockList')->insert([

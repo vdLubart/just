@@ -71,6 +71,7 @@ Route::post("admin/activate", "\Lubart\Just\Controllers\AdminController@activate
 Route::post("admin/deactivate", "\Lubart\Just\Controllers\AdminController@deactivate")->middleware(['web','auth']);
 Route::post("admin/browseimages", "\Lubart\Just\Controllers\AdminController@browseimages")->middleware(['web','auth']);
 Route::post("admin/ajaxuploader", "\Lubart\Just\Controllers\AdminController@ajaxuploader")->middleware(['web','auth']);
+Route::post("admin/settings/block/setup", "\Lubart\Just\Controllers\AdminController@handleBlockForm")->middleware(['web','auth']);
 Route::post("admin/settings/panel/setup", "\Lubart\Just\Controllers\AdminController@handlePanelForm")->middleware(['web','auth']);
 Route::post("admin/settings/page/setup", "\Lubart\Just\Controllers\AdminController@handlePageForm")->middleware(['web','auth']);
 Route::post("admin/settings/layout/setup", "\Lubart\Just\Controllers\AdminController@handleLayoutForm")->middleware(['web','auth']);

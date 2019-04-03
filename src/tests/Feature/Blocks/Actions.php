@@ -539,4 +539,33 @@ class Actions extends TestCase{
         $this->assertEquals($relatedBlock->parentBlock()->id, $block->id);
         $this->assertEquals($relatedBlock->parentBlock(true)->id, $block->id);
     }
+    
+    public function update_block_data($assertion){
+        $block = factory(Block::class)->create();
+        
+        $this->post('admin/settings/block/setup', [
+            'block_id' => $block->id,
+            'title' => $title = $this->faker->word,
+            'description' => $description = $this->faker->paragraph,
+            'width' => 6,
+            'layoutClass' => 'primary',
+            'cssClass' => $class = $this->faker->word
+        ]);
+        
+        $block = Block::all()->last();
+        
+        if($assertion){
+            $this->assertEquals($title, $block->title);
+            $this->assertEquals($description, $block->description);
+            $this->assertEquals(6, $block->width);
+            $this->assertEquals('primary', $block->layoutClass);
+            $this->assertEquals($class, $block->cssClass);
+        }
+        else{
+            $this->assertNotEquals($title, $block->title);
+            $this->assertNotEquals($description, $block->description);
+            $this->assertNotEquals(6, $block->width);
+            $this->assertNotEquals($class, $block->cssClass);
+        }
+    }
 }

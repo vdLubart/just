@@ -85,7 +85,7 @@ class Block extends Model
         return $form;
     }
     
-    public function blockForm() {
+    public function panelForm() {
         $form = new Form('/admin/settings/panel/setup');
         
         if(!is_null($this->id)){
@@ -112,6 +112,13 @@ class Block extends Model
             }
             $form->add(FormElement::submit(['value'=>'Save']));
         }
+        
+        return $form;
+    }
+    
+    public function blockForm() {
+        $form = $this->panelForm();
+        $form->setAction('/admin/settings/block/setup');
         
         return $form;
     }

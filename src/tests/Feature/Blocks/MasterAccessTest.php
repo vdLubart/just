@@ -73,4 +73,9 @@ class MasterAccessTest extends Actions
     function master_can_access_parent_block_from_the_related_one(){
         $this->access_parent_block_from_the_related_one(true);
     }
+    
+    /** @test */
+    function master_can_update_block_data(){
+        $this->update_block_data(true);
+    }
 }

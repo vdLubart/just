@@ -11,7 +11,7 @@
 
 <a href="javascript:" id="addBlockForm" data-toggle="collapse" data-target="#{{ $panel->location }}_settingsForm"><i class="fa fa-plus"></i> Add new block</a>
 <div class="@if(!$block->blockForm()->isOpen()) collapse @endif" id="{{ $panel->location }}_settingsForm">
-    {!! $block->blockForm()->render() !!}
+    {!! $block->panelForm()->render() !!}
 </div>
 <br/><br/>
 

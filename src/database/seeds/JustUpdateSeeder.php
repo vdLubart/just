@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Lubart\Just\Models;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
 
 class JustUpdateSeeder extends Seeder
 {

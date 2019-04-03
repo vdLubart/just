@@ -78,4 +78,9 @@ class AdminAccessTest extends Actions
     function admin_can_access_parent_block_from_the_related_one(){
         $this->access_parent_block_from_the_related_one(true);
     }
+    
+    /** @test */
+    function admin_can_update_block_data(){
+        $this->update_block_data(true);
+    }
 }
