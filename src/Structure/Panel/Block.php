@@ -181,6 +181,23 @@ class Block extends Model
         }
     }
     
+    /**
+     * Return item to which current block is connected
+     * 
+     * @return mixed
+     */
+    public function parentItem(){
+        $parentBlock = $this->parentBlock()->specify()->model();
+        
+        $itemId = DB::table($parentBlock->getTable()."_blocks")->where("block_id", $this->id)->get(["modelItem_id"]);
+        
+        if(!$itemId->isEmpty()){
+            return $parentBlock::find($itemId->first()->modelItem_id);
+        }
+        
+        return null;
+    }
+    
     public function handleForm(Request $request, $isPublic = false) {
         $method = !$isPublic ? 'handleForm' : 'handlePublicForm';
         $reflection = new \ReflectionMethod($this->model, $method);
@@ -382,7 +399,10 @@ class Block extends Model
      * @return Layout
      */
     public function layout() {
-        return Page::where('route', trim(str_replace(request()->root()."/admin", '', request()->server('HTTP_REFERER')), '/'))->first()->layout;
+        $url = trim(str_replace(request()->root()."/admin", '', request()->server('HTTP_REFERER')), '/');
+        $route = app('router')->getRoutes()->match(app('request')->create($url));
+        
+        return @Page::where('route', trim($route->uri, '/'))->first()->layout;
     }
     
     /**
