@@ -25,7 +25,7 @@ class Block extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'panelLoation', 'page_id', 'title', 'description', 'width', 'cssClass', 'orderNo', 'isActive', 'parameters', 'parent'
+        'type', 'name', 'panelLoation', 'page_id', 'title', 'description', 'width', 'cssClass', 'orderNo', 'isActive', 'parameters', 'parent'
     ];
     
     protected $table = 'blocks';
@@ -41,14 +41,21 @@ class Block extends Model
     
     protected $currentCategory = null;
     
+    /**
+     * Specify model and addons for current block
+     * 
+     * @param int $id
+     * @return $this
+     * @throws \Exception
+     */
     public function specify($id = null) {
-        $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->name);
+        $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
         
         // looking for a custom block
         if(!class_exists($name)){
-            $name = "\\App\\Just\\Panel\\Block\\". ucfirst($this->name);
+            $name = "\\App\\Just\\Panel\\Block\\". ucfirst($this->type);
             if(!class_exists($name)){
-                throw new \Exception("Block class \"".ucfirst($this->name)."\" not found");
+                throw new \Exception("Block class \"".ucfirst($this->type)."\" not found");
             }
         }
         
@@ -64,6 +71,21 @@ class Block extends Model
         
         foreach($this->addons as $addon){
             $this->{$addon->name} = Addon::find($addon->id);
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Unsettle model data
+     * 
+     * @return $this
+     */
+    public function unsettle(){
+        $this->model = null;
+        
+        foreach($this->addons as $addon){
+            unset($this->{$addon->name});
         }
         
         return $this;
@@ -96,15 +118,16 @@ class Block extends Model
             $form->add(FormElement::hidden(['name'=>'panel_id', 'value'=>$this->panel_id]));
             $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>@$this->id]));
             $form->add(FormElement::hidden(['name'=>'page_id', 'value'=>$this->page_id]));
-            $form->add(FormElement::select(['name'=>'name', 'label'=>'Type', 'value'=>@$this->name, 'options'=>$this->allBlocksSelect()]));
+            $form->add(FormElement::select(['name'=>'type', 'label'=>'Type', 'value'=>@$this->type, 'options'=>$this->allBlocksSelect()]));
             if(!is_null($this->id)){
-                $form->getElement("name")->setParameters("disabled", "disabled");
+                $form->getElement("type")->setParameters("disabled", "disabled");
             }
+            $form->add(FormElement::text(['name'=>'name', 'label'=>'Name', 'value'=>@$this->name]));
             $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>@$this->title]));
-            $form->add(FormElement::textarea(['name'=>'blockDescription', 'label'=>'Description', 'value'=>@$this->description, "class"=>"ckeditor"]));
-            $form->applyJS("$(document).ready(function(){CKEDITOR.replace('blockDescription') });");
+            $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>@$this->description, "class"=>"ckeditor"]));
+            $form->applyJS("$(document).ready(function(){CKEDITOR.replace('description') });");
             if($this->layout()->type == 'float'){
-                $form->add(FormElement::select(['name'=>'width', 'label'=>'Width', 'value'=>@$this->width, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
+                $form->add(FormElement::select(['name'=>'width', 'label'=>'Width', 'value'=>$this->width ?? 12, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
             }
             if(\Auth::user()->role == "master"){
                 $form->add(FormElement::text(['name'=>'layoutClass', 'label'=>'Layout Class', 'value'=>$this->layoutClass ?? 'primary']));
@@ -236,13 +259,14 @@ class Block extends Model
     
     public function handlePanelForm(Request $request) {
         if(is_null($this->id)){
-            $this->name = $request->name;
+            $this->type = $request->type;
         }
         $panel = Panel::find($request->panel_id);
         $this->panelLocation = $panel->location;
         $this->page_id = $request->page_id;
-        $this->title = $request->title?$request->title:"";
-        $this->description = $request->blockDescription??"";
+        $this->name = $request->name;
+        $this->title = $request->title ?? "";
+        $this->description = $request->blockDescription ?? "";
         $this->width = $request->width ?? ( $this->width ?? 12 );
         $this->layoutClass = (\Auth::user()->role == "master" ? $request->layoutClass : $this->layoutClass) ?? 'primary';
         $this->cssClass = (\Auth::user()->role == "master" ?  $request->cssClass : $this->cssClass) ?? '';
@@ -289,16 +313,26 @@ class Block extends Model
         }
     }
     
-    public static function findModel($blockId, $id, $subid = null) {
+    public static function findModel($blockId, $id) {
         $block = self::find($blockId);
         
         if(!$block){
             throw new \Exception("Block not found");
         }
         
-        $block->specify($id, $subid);
+        $block->specify($id);
         
         return $block;
+    }
+    
+    public static function findByName($name){
+        $block = self::where('name', $name)->get();
+        
+        if($block->isEmpty()){
+            throw new \Exception("Block not found");
+        }
+        
+        return $block->first(); 
     }
     
     public function model() {
@@ -306,7 +340,7 @@ class Block extends Model
     }
     
     public function models() {
-        $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->name);
+        $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
         return $this->hasMany($name);
     }
     
@@ -318,7 +352,7 @@ class Block extends Model
                     'page_id' => $this->page_id
                 ];
             
-            return Useful::moveModel($this, $dir, $where);
+            return Useful::moveModel($this->unsettle(), $dir, $where);
         }
         // Move model item in the block
         else{
@@ -491,7 +525,7 @@ class Block extends Model
     }
     
     public function details(){
-        return $this->join('blockList', $this->table.'.name', '=', 'blockList.block')
+        return $this->join('blockList', $this->table.'.type', '=', 'blockList.block')
                 ->where($this->table.'.id', $this->id)
                 ->first();
     }

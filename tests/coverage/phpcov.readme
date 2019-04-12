@@ -1,0 +1,1 @@
+phpcov merge --html just/tests/coverage/ just/tests/coverage/cov-php/

@@ -20,7 +20,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Lubart\\Just\\": "src/"
+            "Lubart\\Just\\": "src/",
+            "Lubart\\Just\\Tests\\": "tests/"
         }
     },
     "scripts": {

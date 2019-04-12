@@ -115,6 +115,9 @@ function deleteModel(blockId, modelId){
                 if(modelId != 0){
                     openSettings(blockId, modelId);
                 }
+                else if(JSON.parse(data).page_id == 0){
+                    openSettings(JSON.parse(data).parent, 0);
+                }
                 else{
                     openPanelSettings(JSON.parse(data).page_id, JSON.parse(data).panelLocation);
                 }

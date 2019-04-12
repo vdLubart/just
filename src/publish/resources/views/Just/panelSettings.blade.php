@@ -20,7 +20,7 @@
     <div class="thumbnail">
         <div class="caption">
             <a href="javascript: openSettings({{ $block->id }}, 0)">
-                {{ $block->title }} ({{ $block->name }})
+                {{ $block->title }} ({{ $block->type }})
             </a>
             <br/>
             <a href="javascript: deleteModel({{ $block->id }}, 0)" title="Delete">

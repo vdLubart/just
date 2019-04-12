@@ -1,6 +1,6 @@
-<a href="javascript:" data-toggle="collapse" data-target="#{{ $block->name }}_settingsForm"><i class="fa fa-cog"></i> Setup form</a>
+<a href="javascript:" data-toggle="collapse" data-target="#{{ $block->type }}_settingsForm"><i class="fa fa-cog"></i> Setup form</a>
 
-<div id="{{ $block->name }}_cropForm">
+<div id="{{ $block->type }}_cropForm">
     <img class='cropper' src='{{ '/storage/'.$block->model()->getTable().'/'.$image.'.png' }}' />
     
     {!! Form::open([ 'url' => '/admin/settings/crop', 'method'=>'post']) !!}
@@ -19,7 +19,7 @@
 <br/><br/>
 
 <script>
-    $("#{{ $block->name }}_cropForm form").ajaxForm({
+    $("#{{ $block->type }}_cropForm form").ajaxForm({
         beforeSerialize: function(form, options) {
             $("input[type=submit]").attr('disabled', 'disabled');
         },

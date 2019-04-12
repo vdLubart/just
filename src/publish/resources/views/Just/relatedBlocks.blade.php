@@ -4,7 +4,7 @@
         <div class="thumbnail">
             <div class="caption">
                 <a href="javascript: openSettings({{ $relBlock->id }}, 0)">
-                    {{ $relBlock->title }} ({{ $relBlock->name }})
+                    {{ $relBlock->title }} ({{ $relBlock->type }})
                 </a>
                 <br/>
                 <a href="javascript: deleteModel({{ $relBlock->id }}, 0)" title="Delete">

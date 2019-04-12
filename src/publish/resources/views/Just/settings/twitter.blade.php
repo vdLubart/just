@@ -1,1 +1,1 @@
- @include(justLayout()->name.'.blocks.'. $block->name)
+ @include(justLayout()->name.'.blocks.'. $block->type)

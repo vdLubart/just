@@ -43,26 +43,26 @@ if(!function_exists('viewPath')){
                 break;
             case $path instanceof Lubart\Just\Structure\Panel\Block:
                 if ($layout->class != "primary" and
-                        file_exists(resource_path('views/' . $layout->name . '/blocks/' . $path->name . '_' . $layout->class . '.blade.php'))){
-                    return $layout->name.'.blocks.'. $path->name . '_' . $layout->class;
+                        file_exists(resource_path('views/' . $layout->name . '/blocks/' . $path->type . '_' . $layout->class . '.blade.php'))){
+                    return $layout->name.'.blocks.'. $path->type . '_' . $layout->class;
                 }
                 elseif(($path->layoutClass != "primary" and $path->layoutClass != "") and
-                        file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->name.'_'.$path->layoutClass.'.blade.php'))){
-                    return $layout->name.'.blocks.'. $path->name . '_' . $path->layoutClass;
+                        file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->type.'_'.$path->layoutClass.'.blade.php'))){
+                    return $layout->name.'.blocks.'. $path->type . '_' . $path->layoutClass;
                 }
                 elseif(($path->layoutClass != "primary" and $path->layoutClass != "") and
-                        !file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->name.'_'.$path->layoutClass.'.blade.php'))){
-                    return $layout->name.'.blocks.'. $path->name;
+                        !file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->type.'_'.$path->layoutClass.'.blade.php'))){
+                    return $layout->name.'.blocks.'. $path->type;
                 }
                 elseif( ($path->layoutClass === "primary" or $path->layoutClass === "") and 
-                        file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->name.'.blade.php')) ){
-                    return $layout->name.'.blocks.'. $path->name;
+                        file_exists(resource_path('views/'.$layout->name.'/blocks/'.$path->type.'.blade.php')) ){
+                    return $layout->name.'.blocks.'. $path->type;
                 }
                 elseif($layout->name != 'Just'){
                     return viewPath(justLayout(), $path);
                 }
                 else{
-                    return new \Exception("Resource \"Just.blocks.".$path->name."\" does not exists.");
+                    return new \Exception("Resource \"Just.blocks.".$path->type."\" does not exists.");
                 }
                 break;
         }

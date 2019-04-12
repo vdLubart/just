@@ -394,7 +394,7 @@ abstract class AbstractBlock extends Model
     
     public function customAttributes() {
         return DB::table('blockAttributes')
-                ->where('block', $this->block->name)->get();
+                ->where('block', $this->block->type)->get();
     }
     
     /**
@@ -433,13 +433,13 @@ abstract class AbstractBlock extends Model
         
         $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block->id]));
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->id]));
-        $form->add(FormElement::select(['name'=>'relatedBlockName', 'label'=>'Related Block Type', 'value'=>(!is_null($relBlock) ? $relBlock->name : ""), 'options'=>$this->block->allBlocksSelect()]));
+        $form->add(FormElement::select(['name'=>'relatedBlockName', 'label'=>'Related Block Type', 'value'=>(!is_null($relBlock) ? $relBlock->type : ""), 'options'=>$this->block->allBlocksSelect()]));
         if(!is_null($relBlock)){
             $form->getElement("relatedBlockName")->setParameters("disabled", "disabled");
         }
         $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=> (!is_null($relBlock) ? $relBlock->title : "")]));
         $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>(!is_null($relBlock) ? $relBlock->description : "")]));
-        $form->applyJS("applyCKEditor('#".$this->block->name."_relationsForm #description')");
+        $form->applyJS("applyCKEditor('#".$this->block->type."_relationsForm #description')");
         $form->add(FormElement::submit(['value'=>'Save']));
         
         return $form;
@@ -466,7 +466,7 @@ abstract class AbstractBlock extends Model
     public function relatedBlock($name, $title = null, $id = null) {
         if(Schema::hasTable($this->getTable().'_blocks')){
             $relBlock = $this->belongsToMany(Block::class, $this->getTable().'_blocks', 'modelItem_id', 'block_id')
-                    ->where('name', $name);
+                    ->where('type', $name);
             if(!is_null($title)){
                 $relBlock->where('title', $title);
             }

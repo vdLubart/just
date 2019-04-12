@@ -15,7 +15,7 @@ use Faker\Generator as Faker;
 
 $factory->define(\Lubart\Just\Structure\Panel\Block::class, function (Faker $faker){
     return [
-        'name' => 'text',
+        'type' => 'text',
         'panelLocation' => 'header',
         'page_id' => null,
         'title' => $faker->name,

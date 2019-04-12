@@ -25,6 +25,7 @@ use Lubart\Just\Requests\AddonChangeRequest;
 use Lubart\Just\Requests\UserChangeRequest;
 use Lubart\Just\Requests\DeleteUserRequest;
 use Lubart\Just\Requests\DeleteLayoutRequest;
+use Lubart\Just\Requests\ChangeBlockRequest;
 
 class AdminController extends Controller
 {
@@ -172,7 +173,7 @@ class AdminController extends Controller
     public function categoryList() {
         $categories = Categories::join("addons", "categories.addon_id", "=", "addons.id")
                 ->join("blocks", "addons.block_id", "=", "blocks.id")
-                ->select(['categories.*', DB::raw("addons.title as addonTitle"), DB::raw("blocks.name as blockName"), DB::raw("blocks.title as blockTitle")])
+                ->select(['categories.*', DB::raw("addons.title as addonTitle"), DB::raw("blocks.type as blockType"), DB::raw("blocks.title as blockTitle")])
                 ->orderBy("addons.id", "desc")
                 ->get();
         
@@ -216,14 +217,15 @@ class AdminController extends Controller
         return $model;
     }
     
-    public function handleBlockForm(Request $request) {
+    public function handleBlockForm(ChangeBlockRequest $request) {
         $block = Block::find($request->block_id);
         
         if(!empty($block)){
+            $block->name = $request->name;
             $block->title = $request->title;
             $block->description = $request->description;
             $block->width = $request->width;
-            $block->layoutClass = $request->layoutClass;
+            $block->layoutClass = $request->layoutClass ?? 'primary';
             $block->cssClass = $request->cssClass;
             
             $block->save();
@@ -232,7 +234,7 @@ class AdminController extends Controller
         return redirect()->back();
     }
     
-    public function handlePanelForm(Request $request) {
+    public function handlePanelForm(ChangeBlockRequest $request) {
         $block = Block::findOrNew($request->block_id);
         
         $block->handlePanelForm($request);
@@ -273,6 +275,7 @@ class AdminController extends Controller
     public function handleSetup(Request $request) {
         $block = Block::find($request->id)->specify();
         $settingsElements = $block->setupForm()->names();
+        $block->unsettle();
         
         if(!empty($block)){
             $parameters = new \stdClass;
@@ -301,7 +304,7 @@ class AdminController extends Controller
             Useful::normalizeOrder($block->model()->getTable());
         }
         
-        return ['id'=>$block->id, 'panelLocation'=>$block->panelLocation, 'page_id'=>(is_null($block->page_id)?0:$block->page_id)];
+        return ['id'=>$block->id, 'panelLocation'=>$block->panelLocation, 'page_id'=>(is_null($block->page_id)?0:$block->page_id), 'parent'=>$block->parent];
     }
     
     public function deletePage(Request $request) {
@@ -517,7 +520,7 @@ class AdminController extends Controller
         $model = $parentBlock->specify($request->id)->model();
         
         $relatedBlock = Block::create([
-            'name' => $request->relatedBlockName,
+            'type' => $request->relatedBlockName,
             'title' => $request->title?$request->title:"",
             'description' => $request->description?$request->description:"",
             'orderNo' => 0,

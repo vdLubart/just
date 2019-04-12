@@ -56,7 +56,7 @@ class Controller extends BaseController
             $message = $block->specify()->handleForm($request, true);
             if($message instanceof ValidatorExtended){
                 return redirect()->back()
-                        ->withErrors($message, 'errorsFrom' . ucfirst($block->name . $block->id))
+                        ->withErrors($message, 'errorsFrom' . ucfirst($block->type . $block->id))
                         ->withInput();
             }
         }
@@ -64,6 +64,6 @@ class Controller extends BaseController
             return redirect()->back();
         }
         
-        return redirect()->back()->with('successMessageFrom' . ucfirst($block->name . $block->id), $message);
+        return redirect()->back()->with('successMessageFrom' . ucfirst($block->type . $block->id), $message);
     }
 }

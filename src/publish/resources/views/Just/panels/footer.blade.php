@@ -9,7 +9,7 @@
         @endif
         
         @foreach($panel->blocks() as $block)
-            <div id="{{ $block->name }}_{{ $block->id }}" class="block col-md-{{ $block->width }} @if($block->isActive ==0) inactive @endif  {{ @$block->cssClass }}" >
+            <div id="{{ $block->type }}_{{ $block->id }}" class="block col-md-{{ $block->width }} @if($block->isActive ==0) inactive @endif  {{ @$block->cssClass }}" >
                 @include(viewPath($layout, $block))
             </div>
         @endforeach

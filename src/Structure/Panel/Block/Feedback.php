@@ -136,7 +136,7 @@ class Feedback extends AbstractBlock
         $form->add(FormElement::html(['value'=>'<div class="g-recaptcha" data-sitekey="'. env('RE_CAP_SITE') .'"></div>', 'name'=>'recaptcha']));
         $form->add(FormElement::submit(['value'=>'Submit']));
         
-        $form->setErrorBag('errorsFrom'.ucfirst($this->block->name . $this->block_id));
+        $form->setErrorBag('errorsFrom'.ucfirst($this->block->type . $this->block_id));
         
         return $form;
     }

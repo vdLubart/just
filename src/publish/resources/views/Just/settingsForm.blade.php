@@ -1,7 +1,7 @@
 {!! $block->form()->render() !!}
 
 <script>
-    $("#{{ $block->name }}_settingsForm form").ajaxForm({
+    $("#{{ $block->type }}_settingsForm form").ajaxForm({
         beforeSerialize: function(form, options) {
             $("input[type=submit]").attr('disabled', 'disabled');
             for (instance in CKEDITOR.instances){

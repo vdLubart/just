@@ -9,7 +9,7 @@
         </div>
         @endif
 
-        @include($layout->name.'.blocks.'. $block->name)
+        @include($layout->name.'.blocks.'. $block->type)
     @elseif(\Config::get('isAdmin'))
         <div class="blockTitle">
             <a href="javascript:openPanelSettings({{ $page->id }}, '{{$panel->location}}')" dusk="content-panel-settings">
@@ -19,7 +19,7 @@
     @endif
     
     @foreach($panel->blocks() as $block)
-        <div class="block {{ $block->name }} col-md-{{ $block->width }} @if($block->isActive ==0) inactive @endif {{ $block->cssClass }}">
+        <div class="block {{ $block->type }} col-md-{{ $block->width }} @if($block->isActive ==0) inactive @endif {{ $block->cssClass }}">
             @if(\Config::get('isAdmin'))
             <div class="blockTitle">
                 {{ $block->title }}
@@ -28,7 +28,7 @@
                 </a>
             </div>
             @endif
-            <div id="{{ $block->name."_".$block->id }}">
+            <div id="{{ $block->type."_".$block->id }}">
             @include(viewPath($layout, $block))
             </div>
         </div>

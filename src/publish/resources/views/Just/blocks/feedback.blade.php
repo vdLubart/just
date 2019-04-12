@@ -1,10 +1,10 @@
 <script src='https://www.google.com/recaptcha/api.js'></script>
 
 <div id="feedback_{{ $block->id }}" class="row">
-    @if(\Session::has('successMessageFrom' . ucfirst($block->name . $block->id)) and \Session::get('successMessageFrom' . ucfirst($block->name . $block->id)) != '')
+    @if(\Session::has('successMessageFrom' . ucfirst($block->type . $block->id)) and \Session::get('successMessageFrom' . ucfirst($block->type . $block->id)) != '')
     <div class="alert alert-success">
         <ul>
-            <li>{!! \Session::get('successMessageFrom' . ucfirst($block->name . $block->id)) !!}</li>
+            <li>{!! \Session::get('successMessageFrom' . ucfirst($block->type . $block->id)) !!}</li>
         </ul>
     </div>
     @endif
