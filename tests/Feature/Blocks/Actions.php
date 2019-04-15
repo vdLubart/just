@@ -673,4 +673,29 @@ class Actions extends TestCase{
                     ->assertSee('The name has already been taken');
         }
     }
+    
+    public function update_block_with_keeping_name_value($assertion){
+        $block = factory(Block::class)->create(['name'=>$name = $this->faker->word]);
+        
+        $this->get("admin/settings/".$block->id."/0");
+        
+        $this->post('admin/settings/block/setup', [
+            'block_id' => $block->id,
+            'name' => $name,
+            'title' => $title = $this->faker->word,
+            'description' => $block->description,
+            'width' => 12,
+            'layoutClass' => 'primary',
+            'cssClass' => ''
+        ]);
+        
+        $block = Block::find($block->id);
+        
+        if($assertion){
+            $this->assertEquals($title, $block->title);
+        }
+        else{
+            $this->assertNotEquals($title, $block->title);
+        }
+    }
 }

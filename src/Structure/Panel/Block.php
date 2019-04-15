@@ -227,6 +227,9 @@ class Block extends Model
         $validatorClass = $reflection->getParameters()[0]->getClass()->name;
         
         $validatedRequest = new $validatorClass;
+        foreach($request->all() as $param=>$val){
+            $validatedRequest->{$param} = $val;
+        }
         if($validatorClass != 'Illuminate\Http\Request' and $validatedRequest->authorize()){
             $addonValidators = [];
             foreach ($this->addons as $addon){

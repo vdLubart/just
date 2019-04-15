@@ -98,4 +98,9 @@ class MasterAccessTest extends Actions
     function master_cannot_cannot_update_block_name_if_it_exists(){
         $this->cannot_update_block_name_if_it_exists();
     }
+    
+    /** @test */
+    function master_can_update_block_with_keeping_name_value(){
+        $this->update_block_with_keeping_name_value(true);
+    }
 }

@@ -83,4 +83,9 @@ class GuestAccessTest extends Actions
     function guest_cannot_create_block_with_existing_name(){
         $this->cannot_create_block_with_existing_name();
     }
+    
+    /** @test */
+    function guest_cannot_update_block_with_keeping_name_value(){
+        $this->update_block_with_keeping_name_value(false);
+    }
 }
