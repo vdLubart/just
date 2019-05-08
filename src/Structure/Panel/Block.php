@@ -379,15 +379,15 @@ class Block extends Model
         }
     }
     
-    public function visabiliy($visabiliy) {
+    public function visibility($visibility) {
         if(is_null($this->model->id)){
-            $model = $this;
+            $model = $this->unsettle();
         }
         else{
             $model = $this->model;
         }
 
-        $model->isActive = $visabiliy;
+        $model->isActive = $visibility;
         $model->save();
 
         return $model;

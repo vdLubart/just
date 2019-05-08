@@ -29,5 +29,9 @@ class JustDataSeeder extends Seeder
 		        'password' => bcrypt('master')
 		    ]
 		]);
+        
+        Models\Version::create([
+            'version' => justVersion()
+        ]);
     }
 }

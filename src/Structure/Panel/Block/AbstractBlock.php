@@ -168,7 +168,13 @@ abstract class AbstractBlock extends Model
      * @return Image
      */
     public function handleCrop(CropRequest $request) {
-        $image = Image::make($this->image($request->get('img')));
+        if(file_exists($this->image($request->get('img')."_original"))){
+            $filePath = $this->image($request->get('img')."_original");
+        }
+        else{
+            $filePath = $this->image($request->get('img')); 
+        }
+        $image = Image::make($filePath);
         
         $image->save($this->image($request->get('img')."_original"));
         
@@ -520,5 +526,11 @@ abstract class AbstractBlock extends Model
         $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 33% layout width (4 cols)', 'value'=>4, 'check'=>(in_array(4, $this->parameter('photoSizes')??[]))]));
         $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 25% layout width (3 cols)', 'value'=>3, 'check'=>(in_array(3, $this->parameter('photoSizes')??[]))]));
         $form->addGroup($photoSizesGroup);
+    }
+
+    public function detachAddons(){
+        foreach($this->addons() as $addon){
+            unset($this->{$addon});
+        }
     }
 }

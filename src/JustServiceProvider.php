@@ -27,6 +27,7 @@ class JustServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/publish/resources/assets' => base_path('resources/assets'),
             __DIR__.'/publish/resources/views/Just' => base_path('resources/views/Just'),
+            __DIR__.'/publish/config' => base_path('config'),
             __DIR__.'/publish/webpack.mix.js' => base_path('webpack.mix.js'),
             __DIR__.'/publish/public/css' => base_path('public/css'),
             __DIR__.'/publish/public/fonts' => base_path('public/fonts'),

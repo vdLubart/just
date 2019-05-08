@@ -29,11 +29,7 @@
         error: function(data){
             console.log(data);
             $("input[type=submit]").removeAttr('disabled');
-            $(".errors").removeClass('hide');
-            $(".errors").append('<ul></ul>');
-            $.each(data.responseJSON.errors, function(i, item) {
-                $(".errors ul").append('<li>'+item+'</li>');
-            });
+            showErrors(data);
         }
     });
 </script>

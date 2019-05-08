@@ -38,7 +38,8 @@ class ChangeBlockRequest extends FormRequest
             ],
             'panelLocation' => 'nullable|exists:panels,location',
             'page_id' => 'nullable|exists:pages,id',
-            'width' => 'required|integer|min:0|max:12'
+            // todo: remove nullable after removing layout type
+            'width' => 'nullable|integer|min:0|max:12', // field is nullable bacause it does not used in grid layouts
         ];
     }
 }

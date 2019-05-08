@@ -45,6 +45,8 @@ function showErrors(data){
         $("#settings").html('<div class="error alert alert-danger"></div>');
         $("#settings .error").append(data.responseText);
     }
+    
+    $("#settings").animate({scrollTop: 0}, 'slow');
 }
 
 function openPanelSettings(pageId, panelLocation, blockId){

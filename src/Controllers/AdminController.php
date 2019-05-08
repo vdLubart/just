@@ -224,7 +224,7 @@ class AdminController extends Controller
             $block->name = $request->name;
             $block->title = $request->title;
             $block->description = $request->description;
-            $block->width = $request->width;
+            $block->width = $request->width ?? 12;
             $block->layoutClass = $request->layoutClass ?? 'primary';
             $block->cssClass = $request->cssClass;
             
@@ -436,14 +436,14 @@ class AdminController extends Controller
      * Change item visibility
      * 
      * @param Request $request
-     * @param type $visability
+     * @param type $visibility
      * @return type
      */
-    protected function visabiliy(Request $request, $visability) {
+    protected function visibility(Request $request, $visibility) {
         $block = $this->specifyBlock($request);
         
         if(!empty($block)){
-            $block = $block->visabiliy($visability);
+            $block = $block->visibility($visibility);
         }
         
         return ['id'=>$block->id, 'panelLocation'=>$block->panelLocation, 'page_id'=>(is_null($block->page_id)?0:$block->page_id)];
@@ -456,7 +456,7 @@ class AdminController extends Controller
      * @return type
      */
     public function activate(Request $request) {
-        return $this->visabiliy($request, 1);
+        return $this->visibility($request, 1);
     }
     
     /**
@@ -466,7 +466,7 @@ class AdminController extends Controller
      * @return type
      */
     public function deactivate(Request $request) {
-        return $this->visabiliy($request, 0);
+        return $this->visibility($request, 0);
     }
     
     /**
@@ -499,7 +499,7 @@ class AdminController extends Controller
      */
     public function uploadImage(UploadImageRequest $request) {
         $image = Image::make($request->file('image'));
-        $pieces = explode(".", $request->image->name);
+        $pieces = explode(".", $request->image->getClientOriginalName());
         array_pop($pieces);
         $basename = implode('.', $pieces);
         if(!file_exists(public_path('images/library/'.$basename.'.png'))){

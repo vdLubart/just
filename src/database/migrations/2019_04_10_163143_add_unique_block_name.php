@@ -26,7 +26,7 @@ class AddUniqueBlockName extends Migration
     public function down()
     {
         Schema::table('blocks', function (Blueprint $table) {
-            $table->removeColumn('name');
+            $table->dropColumn('name');
         });
     }
 }
