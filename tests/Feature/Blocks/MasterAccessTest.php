@@ -103,4 +103,14 @@ class MasterAccessTest extends Actions
     function master_can_update_block_with_keeping_name_value(){
         $this->update_block_with_keeping_name_value(true);
     }
+
+    /** @test */
+    function master_can_fetch_items_from_current_category(){
+        $this->get_items_from_the_current_category();
+    }
+
+    /** @test */
+    function master_receive_null_on_empty_string_addon_value(){
+        $this->get_nullable_value_on_empty_addon_string();
+    }
 }

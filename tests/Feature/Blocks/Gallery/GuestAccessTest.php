@@ -29,6 +29,11 @@ class GuestAccessTest extends Actions
     function guest_cannot_crop_photo(){
         $this->crop_photo(false);
     }
+
+    /** @test */
+    function guest_cannot_recrop_photo(){
+        $this->recrop_photo(false);
+    }
     
     /** @test */
     function guest_cannot_edit_block_settings(){

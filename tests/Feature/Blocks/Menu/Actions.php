@@ -390,10 +390,10 @@ class Actions extends TestCase{
             $response->assertStatus(200)
                     ->assertSee('Settings View');
             
-            $this->assertCount(2, $block->setupForm()->groups());
+            $this->assertCount(3, $block->setupForm()->groups());
             
-            $this->assertEquals(['id', 'settingsScale', 'submit'], $block->setupForm()->names());
-            
+            $this->assertEquals(['id', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
+
             $this->post('admin/settings/setup', [
                 "id" => $block->id,
                 "settingsScale" => "100"
@@ -401,7 +401,7 @@ class Actions extends TestCase{
             
             $block = Block::find($block->id);
             
-            $this->assertEquals('{"settingsScale":"100"}', $block->parameters);
+            $this->assertEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
         else{
             $response->assertStatus(302);
@@ -413,7 +413,7 @@ class Actions extends TestCase{
             
             $block = Block::find($block->id);
             
-            $this->assertNotEquals('{"settingsScale":"100"}', $block->parameters);
+            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
     }
 }

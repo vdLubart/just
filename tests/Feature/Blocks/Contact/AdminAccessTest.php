@@ -43,4 +43,9 @@ class AdminAccessTest extends Actions
     function admin_can_edit_block_settings(){
         $this->edit_block_settings(true);
     }
+
+    /** @test */
+    function admin_cannot_add_custom_contact_channel(){
+        $this->add_custom_contact_channel(false);
+    }
 }

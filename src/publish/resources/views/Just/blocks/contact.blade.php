@@ -4,13 +4,11 @@
         @if(!empty($office->title))
         <h2>{{$office->title}}</h2>
         @endif
-        
-        @foreach($office->fields() as $field=>$attr)
-            @if(!empty($office->{$field}))
+
+        @foreach($office->contacts() as $icon=>$contact)
             <div>
-                <label>{{$attr[0]}}</label>: {{ $office->{$field} }}
+                <label>{{ $contact['label']}}</label>: {{ $contact['value'] }}
             </div>
-            @endif
         @endforeach
     </div>
     @endforeach

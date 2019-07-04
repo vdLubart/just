@@ -425,9 +425,9 @@ class Actions extends TestCase{
             "description" => $description = $this->faker->paragraph
         ]);
         
-        $relatedBlock = $block->firstItem()->relatedBlocks->first();
-        
         if($assertion){
+            $relatedBlock = $block->firstItem()->relatedBlocks->first();
+
             $this->assertNotNull($relatedBlock);
             $relatedBlock = $relatedBlock->specify();
             
@@ -435,7 +435,7 @@ class Actions extends TestCase{
             $this->assertEquals($description, $relatedBlock->description);
         }
         else{
-            $this->assertNull($relatedBlock);
+            $this->assertTrue($block->firstItem()->relatedBlocks->isEmpty());
         }
     }
     
@@ -697,5 +697,72 @@ class Actions extends TestCase{
         else{
             $this->assertNotEquals($title, $block->title);
         }
+    }
+
+    public function get_items_from_the_current_category() {
+        $block = factory(Block::class)->create(['name'=>$name = $this->faker->word])->specify();
+
+        $addon = factory(Block\Addon::class)->create(['block_id'=>$block->id, 'type'=>'categories', 'name'=>$name = $this->faker->word]);
+        $addonItem = $addon->addon();
+        $addonTable = (new $addonItem)->getTable();
+
+        $this->createPivotTable($block->model()->getTable(), $addonTable);
+
+        $firstCategory = Block\Addon\Categories::create([
+            'addon_id' => $addon->id,
+            'name' => $this->faker->word,
+            'value' => $this->faker->word
+        ]);
+
+        $secondCategory = Block\Addon\Categories::create([
+            'addon_id' => $addon->id,
+            'name' => $categoryName = $this->faker->word,
+            'value' => $categoryValue = $this->faker->word
+        ]);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'text' => $text1 = $this->faker->paragraph,
+            $name."_".$addon->id => $firstCategory->id
+        ]);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'text' => $text2 = $this->faker->paragraph,
+            $name."_".$addon->id => $secondCategory->id
+        ]);
+
+        $this->get("/?category=".$firstCategory->value)
+            ->assertSee($text1)
+            ->assertDontSee($text2);
+
+        $this->get("/?category=".$secondCategory->value)
+            ->assertSee($text2)
+            ->assertDontSee($text1);
+    }
+
+    public function get_nullable_value_on_empty_addon_string() {
+        $block = factory(Block::class)->create(['name'=>$name = $this->faker->word])->specify();
+
+        $addon = factory(Block\Addon::class)->create(['block_id'=>$block->id, 'type'=>'strings', 'name'=>$name = $this->faker->word]);
+        $addonItem = $addon->addon();
+        $addonTable = (new $addonItem)->getTable();
+
+        $this->createPivotTable($block->model()->getTable(), $addonTable);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'text' => $text1 = $this->faker->paragraph,
+            $name."_".$addon->id => ""
+        ]);
+
+        $item = Block\Text::all()->last();
+
+        $this->assertNull($item->{$addon->name});
+
+
     }
 }

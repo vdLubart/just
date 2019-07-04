@@ -58,17 +58,24 @@ class Block extends Model
                 throw new \Exception("Block class \"".ucfirst($this->type)."\" not found");
             }
         }
-        
-        if($id > 0){
+
+        // make sure if string $id parameter is a number
+        if((int)$id > 0 and (string)(int)$id == $id){
             $this->model = $name::findOrNew($id);
         }
         else{
             $this->model = new $name;
+            $this->model->setBlock($this->id);
+
+            if($this->model->haveSlug() and !is_null($id)){
+                $this->model = $this->model->findBySlug($id) ?? new $name;
+            }
         }
-        $this->model->setParameters($this->parameters);
+
+        $this->model->setParameters($this->parameters());
         $this->model->setBlock($this->id);
         $this->model->setup();
-        
+
         foreach($this->addons as $addon){
             $this->{$addon->name} = Addon::find($addon->id);
         }
@@ -126,9 +133,7 @@ class Block extends Model
             $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>@$this->title]));
             $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>@$this->description, "class"=>"ckeditor"]));
             $form->applyJS("$(document).ready(function(){CKEDITOR.replace('description') });");
-            if($this->layout()->type == 'float'){
-                $form->add(FormElement::select(['name'=>'width', 'label'=>'Width', 'value'=>$this->width ?? 12, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
-            }
+            $form->add(FormElement::select(['name'=>'width', 'label'=>'Width', 'value'=>$this->width ?? 12, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
             if(\Auth::user()->role == "master"){
                 $form->add(FormElement::text(['name'=>'layoutClass', 'label'=>'Layout Class', 'value'=>$this->layoutClass ?? 'primary']));
                 $form->add(FormElement::text(['name'=>'cssClass', 'label'=>'Additional CSS Class', 'value'=>@$this->cssClass]));
@@ -394,16 +399,16 @@ class Block extends Model
     }
     
     public function isSetted() {
-        $parameters = json_decode($this->parameters);
-        
+        $parameters = $this->parameters();
+
         $isSetted = true;
-        foreach($this->model->neededParameters() as $param=>$label){
+        foreach($this->model->neededParameters() as $param){
             if(!isset($parameters->{$param})){
                 $isSetted = false;
                 break;
             }
         }
-        
+
         return $isSetted;
     }
     
@@ -412,11 +417,11 @@ class Block extends Model
     }
     
     public function parameters() {
-        return json_decode($this->parameters);
+        return (object)( (array)json_decode($this->parameters) + (array)json_decode($this->super_parameters));
     }
     
     public function parameter($param) {
-        return @json_decode($this->parameters)->{$param};
+        return @$this->parameters()->{$param};
     }
     
     /**

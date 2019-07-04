@@ -266,17 +266,17 @@ class Actions extends TestCase{
                 $response->assertSee('Image fields')
                         ->assertSee('Resize images');
                 
-                $this->assertCount(5, $block->setupForm()->groups());
+                $this->assertCount(6, $block->setupForm()->groups());
             
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'ignoreCaption', 'ignoreDescription', 'customSizes', 'photoSizes[]', 'settingsScale', 'submit'], $block->setupForm()->names());
+                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'ignoreCaption', 'ignoreDescription', 'customSizes', 'photoSizes[]', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
             }
             else{
                 $response->assertDontSee('Image fields')
                         ->assertDontSee('Resize images');
                 
-                $this->assertCount(3, $block->setupForm()->groups());
+                $this->assertCount(4, $block->setupForm()->groups());
             
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'settingsScale', 'submit'], $block->setupForm()->names());
+                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
             }
             
             $this->post('admin/settings/setup', [
@@ -310,7 +310,7 @@ class Actions extends TestCase{
             
             $form = $item->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimentions":"4:3","ignoreCaption":"on","customSizes":"1","photoSizes":["8","3"],"settingsScale":"100"}', $block->parameters);
+                $this->assertEquals('{"cropDimentions":"4:3","ignoreCaption":"on","customSizes":"1","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -323,7 +323,7 @@ class Actions extends TestCase{
                 $this->assertFileExists(public_path('storage/logos/'.$item->image.'_3.png'));
             }
             else{
-                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', $block->parameters);
+                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -350,12 +350,12 @@ class Actions extends TestCase{
             
             $form = $item->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimentions":"4:3","ignoreDescription":"on","customSizes":"on","photoSizes":["8","3"],"settingsScale":"100"}', $block->parameters);
+                $this->assertEquals('{"cropDimentions":"4:3","ignoreDescription":"on","customSizes":"on","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNull($form->getElement('description'));
             }
             else{
-                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', $block->parameters);
+                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
             }
@@ -370,7 +370,7 @@ class Actions extends TestCase{
             
             $block = Block::find($block->id);
             
-            $this->assertNotEquals('{"settingsScale":"100"}', $block->parameters);
+            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
     }
 }

@@ -13,7 +13,7 @@ class Layout extends Model
 {
     protected $table = 'layouts';
     
-    protected $fillable = ['name', 'class', 'type', 'width'];
+    protected $fillable = ['name', 'class', 'width'];
     
     public function panels() {
         return $this->belongsTo(Panel::class, 'id', 'layout_id')
@@ -40,8 +40,6 @@ class Layout extends Model
         }
         $form->add(FormElement::number(['name'=>'width', 'label'=>'Layout Width', 'value'=>$this->width ?: '1920']));
         
-        $form->add(FormElement::select(['name'=>'type', 'label'=>'Layout Type', 'value'=> $this->type ?? 'float', 'options'=>['float'=>'Float', 'grid'=>'Grid']]));
-        
         $form->add(FormElement::select(['name'=>'panel', 'label'=>'Panel', 'value'=>null, 'options'=>$this->panelLocations()]));
         $form->add(FormElement::select(['name'=>'panelType', 'label'=>'Panel Type', 'value'=>null, 'options'=>['static'=>'static', 'dynamic'=>'dynamic']]));
         
@@ -58,8 +56,7 @@ class Layout extends Model
         $this->name = $request->name;
         $this->class = $request->class;
         $this->width = $request->width;
-        $this->type = $request->type;
-        
+
         $createPanels = false;
         if(empty($this->id)){
             $createPanels = true;

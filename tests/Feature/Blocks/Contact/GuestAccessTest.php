@@ -34,4 +34,9 @@ class GuestAccessTest extends Actions
     function guest_cannot_edit_block_settings(){
         $this->edit_block_settings(false);
     }
+
+    /** @test */
+    function guest_cannot_add_custom_contact_channel(){
+        $this->add_custom_contact_channel(false);
+    }
 }

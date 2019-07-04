@@ -9,7 +9,7 @@
             
             $view .= "<li data-no='".$item['item']->orderNo."' data-id='".$item['item']->id."'>"
                         . '<a href="javascript: deleteModel('. $block->id .', '. $item['item']->id .')" title="Delete">
-                                <i class="fa fa-trash-o"></i>
+                                <i class="fa fa-trash-alt"></i>
                             </a>
                             <a href="javascript: activate('. ($item['item']->isActive?0:1) .', '. $block->id .', '. $item['item']->id .')" title="'. ($item['item']->isActive?"Deactivate":"Activate") .'">
                                 <i class="fa fa-'. ($item['item']->isActive?"eye-slash":"eye") .'"></i>
@@ -21,7 +21,7 @@
                                 <i class="fa fa-arrow-down"></i>
                             </a>
                             <a href="javascript: openSettings('. $block->id .', '. $item['item']->id .')" title="Edit">
-                                <i class="fa fa-pencil"></i>
+                                <i class="fa fa-pencil-alt"></i>
                             </a> '
                         . "<a href=\"javascript: openSettings(". $block->id .", ". $item['item']->id .")\">". $item['item']->item ."</a>";
             if(!empty($item['sub'])){

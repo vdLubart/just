@@ -39,8 +39,8 @@ class Actions extends TestCase{
                 ->assertStatus(200);
         
         $block = Block::find($block->id);
-        $this->{($assertion ? 'assertJsonStringNotEqualsJsonString' : 'assertJsonStringEqualsJsonString')}('{"itemsInRow":"4"}', $block->parameters);
-        
+        $this->{($assertion ? 'assertJsonStringNotEqualsJsonString' : 'assertJsonStringEqualsJsonString')}('{"itemsInRow":"4"}', json_encode($block->parameters()));
+
         $this->{($assertion ? 'assertNotEquals' : 'assertEquals')}(4, $block->parameter('itemsInRow'));
         
     }
@@ -250,12 +250,12 @@ class Actions extends TestCase{
             
             $form = $block->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"itemsInRow":"4","ignoreCaption":"on"}', $block->parameters);
+                $this->assertEquals('{"itemsInRow":"4","ignoreCaption":"on"}', json_encode($block->parameters()));
                 $this->assertNull($form->getElement('title'));
                 $this->assertNotNull($form->getElement('description'));
             }
             else{
-                $this->assertEquals('{"itemsInRow":"4"}', $block->parameters);
+                $this->assertEquals('{"itemsInRow":"4"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('title'));
                 $this->assertNotNull($form->getElement('description'));
             }
@@ -270,12 +270,12 @@ class Actions extends TestCase{
             
             $form = $block->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"itemsInRow":"4","ignoreDescription":"on"}', $block->parameters);
+                $this->assertEquals('{"itemsInRow":"4","ignoreDescription":"on"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('title'));
                 $this->assertNull($form->getElement('description'));
             }
             else{
-                $this->assertEquals('{"itemsInRow":"4"}', $block->parameters);
+                $this->assertEquals('{"itemsInRow":"4"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('title'));
                 $this->assertNotNull($form->getElement('description'));
             }
@@ -290,7 +290,7 @@ class Actions extends TestCase{
             
             $block = Block::find($block->id);
             
-            $this->assertNotEquals('{"settingsScale":"100"}', $block->parameters);
+            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
     }
 }

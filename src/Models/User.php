@@ -3,6 +3,7 @@
 namespace Lubart\Just\Models;
 
 use Illuminate\Notifications\Notifiable;
+use Lubart\Just\Notifications\NewRegistration;
 use Lubart\Just\Notifications\PasswordReset;
 use Lubart\Just\Notifications\NewFeedback;
 use Lubart\Form\Form;
@@ -35,6 +36,10 @@ class User extends AppUser
     
     public function sendFeedbackNotifiaction($username, $message, $blockTitle, $route) {
         $this->notify(new NewFeedback($username, $message, $blockTitle, $route));
+    }
+
+    public function sendRegistrationNotifiaction($username, $event, $comment, $route) {
+        $this->notify(new NewRegistration($username, $event, $comment, $route));
     }
     
     public static function changePasswordForm() {

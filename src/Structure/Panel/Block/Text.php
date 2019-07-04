@@ -57,7 +57,7 @@ class Text extends AbstractBlock
         $text->save();
         
         $this->handleAddons($request, $text);
-        
+
         return $text;
     }
 }

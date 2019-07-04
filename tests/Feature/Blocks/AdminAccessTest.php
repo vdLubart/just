@@ -61,7 +61,7 @@ class AdminAccessTest extends Actions
     
     /** @test */
     function admin_can_add_related_block(){
-        $this->add_related_block_to_the_item(true);
+        $this->add_related_block_to_the_item(false);
     }
     
     /** @test */
@@ -107,5 +107,15 @@ class AdminAccessTest extends Actions
     /** @test */
     function admin_can_update_block_with_keeping_name_value(){
         $this->update_block_with_keeping_name_value(true);
+    }
+
+    /** @test */
+    function admin_can_fetch_items_from_current_category(){
+        $this->get_items_from_the_current_category();
+    }
+
+    /** @test */
+    function admin_receive_null_on_empty_string_addon_value(){
+        $this->get_nullable_value_on_empty_addon_string();
     }
 }

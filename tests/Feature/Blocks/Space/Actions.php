@@ -71,7 +71,7 @@ class Actions extends TestCase{
             
             $block = Block::find($block->id);
             
-            $this->assertEquals('{"height":"100px"}', $block->parameters);
+            $this->assertEquals('{"height":"100px"}', json_encode($block->parameters()));
         }
         else{
             $response->assertStatus(302);
@@ -83,7 +83,7 @@ class Actions extends TestCase{
             
             $block = Block::find($block->id);
             
-            $this->assertNotEquals('{"height":"100px"}', $block->parameters);
+            $this->assertNotEquals('{"height":"100px"}', json_encode($block->parameters()));
         }
     }
 }

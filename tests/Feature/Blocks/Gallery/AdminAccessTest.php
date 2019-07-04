@@ -38,6 +38,11 @@ class AdminAccessTest extends Actions
     function admin_can_crop_photo(){
         $this->crop_photo(true);
     }
+
+    /** @test */
+    function admin_can_recrop_photo(){
+        $this->recrop_photo(true);
+    }
     
     /** @test */
     function admin_can_edit_block_settings(){

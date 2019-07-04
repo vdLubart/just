@@ -3,6 +3,8 @@
 namespace Lubart\Just\Structure\Panel\Block;
 
 use Illuminate\Http\Request;
+use Lubart\Form\Form;
+use Lubart\Form\FormGroup;
 use Lubart\Just\Tools\Useful;
 use Lubart\Form\FormElement;
 
@@ -15,14 +17,15 @@ class Contact extends AbstractBlock
      * @var array
      */
     protected $fillable = [
-        'caption', 'description'
+        'title', 'channels', 'orderNo', 'isActive'
     ];
     
     protected $table = 'contacts';
-    
+
+
     protected $settingsTitle = 'Office';
     
-    protected $neededParameters = [];
+    protected $neededParameters = [ 'channels' ];
     
     /**
      * Available contact fields.
@@ -30,28 +33,28 @@ class Contact extends AbstractBlock
      * 
      * @var array $fields
      */
-    protected $fields = [
-        'address'   => ['Address', 'envelope'],
-        'phone'     => ['Phone', 'phone'],
-        'phone2'    => ['Mobile', 'mobile'],
-        'fax'       => ['Fax', 'fax'],
-        'email'     => ['Email', 'at'],
-        'facebook'  => ['Facebook', 'facebook'],
-        'youtube'   => ['YouTube', 'youtube'],
-        'twitter'   => ['Twitter', 'twitter'],
-        'linkedin'  => ['LinkedIn', 'linkedin'],
-        'github'    => ['GitHub', 'github'],
-        'google-plus' => ['Google Plus', 'google-plus'],
-        'instagram' => ['Instagram', 'instagram'],
-        'pinterest' => ['Pinterest', 'pinterest'],
-        'reddit'    => ['Reddit', 'reddit'],
-        'skype'     => ['Skype', 'skype'],
-        'slack'     => ['Slack', 'slack'],
-        'soundcloud' => ['SoundCloud', 'soundcloud'],
-        'telegram'  => ['Telegram', 'telegram'],
-        'viber'     => ['Viber', 'viber'],
-        'vimeo'     => ['Vimeo', 'vimeo'],
-        'whatsapp'  => ['WhatsApp', 'whatsapp']
+    protected $defaultChannels = [
+        'envelope'  => 'Address',
+        'phone'     => 'Phone',
+        'mobile'    => 'Mobile',
+        'fax'       => 'Fax',
+        'at'        => 'Email',
+        'facebook'  => 'Facebook',
+        'youtube'   => 'YouTube',
+        'twitter'   => 'Twitter',
+        'linkedin'  => 'LinkedIn',
+        'github'    => 'GitHub',
+        'google-plus' => 'Google Plus',
+        'instagram' => 'Instagram',
+        'pinterest' => 'Pinterest',
+        'reddit'    => 'Reddit',
+        'skype'     => 'Skype',
+        'slack'     => 'Slack',
+        'soundcloud' => 'SoundCloud',
+        'telegram'  => 'Telegram',
+        'viber'     => 'Viber',
+        'vimeo'     => 'Vimeo',
+        'whatsapp'  => 'WhatsApp',
     ];
     
     public function form() {
@@ -60,8 +63,11 @@ class Contact extends AbstractBlock
         }
         
         $this->form->add(FormElement::text(['name'=>'title', 'label'=>'Office Title', 'value'=>@$this->title]));
-        foreach($this->fields as $field=>$attr){
-            $this->form->add(FormElement::text(['name'=>$field, 'label'=>$attr[0], 'value'=>@$this->{$field}]));
+
+        $channels = json_decode($this->channels);
+
+        foreach($this->allChannels() as $icon=>$label){
+            $this->form->add(FormElement::text(['name'=>$icon, 'label'=>$label, 'value'=>@$channels->{$icon}]));
         }
         
         $this->includeAddons();
@@ -71,6 +77,24 @@ class Contact extends AbstractBlock
         $this->form->setType('settings');
         
         return $this->form;
+    }
+
+    public function addSetupFormElements(Form &$form){
+
+        $fieldGroup = new FormGroup('fieldGroup', 'Using contacts', ['class'=>'col-md-6']);
+
+        foreach($this->defaultChannels() as $icon=> $label){
+            $fieldGroup->add(FormElement::checkbox(['name'=>'channels[]', 'label'=>$label, 'value'=>$icon, 'check'=>(in_array($icon, $this->parameter('channels')??[]))]));
+        }
+
+        $form->addGroup($fieldGroup);
+
+        if(\Auth::user()->role == 'master') {
+            $additionalFieldGroup = new FormGroup('additionalFieldGroup', 'Additional contact', ['class' => 'col-md-6']);
+            $additionalFieldGroup->add(FormElement::textarea(['name' => 'additionalFields', 'label' => 'Additional contact fileds (format: icon=>label)', 'value' => $this->parameter('additionalFields')]));
+
+            $form->addGroup($additionalFieldGroup);
+        }
     }
     
     public function handleForm(Request $request) {
@@ -82,12 +106,16 @@ class Contact extends AbstractBlock
         else{
             $contact = Contact::findOrNew($request->get('id'));
         }
-        
-        foreach($request->all() as $field=>$val){
-            if(!in_array($field, ['_token', 'submit'])){
-                $contact->{$field} = $val;
+
+        $contact->title = $request->get('title');
+        $channels = new \stdClass();
+        foreach($request->all() as $channel=>$val){
+            if(in_array($channel, array_keys($this->allChannels()))) {
+                $channels->{$channel} = $val;
             }
         }
+
+        $contact->channels = json_encode($channels);
         
         $contact->save();
         
@@ -96,9 +124,52 @@ class Contact extends AbstractBlock
         return $contact;
     }
     
-    public static function fields() {
+    public static function defaultChannels() {
         $instance = new static;
-        
-        return $instance->fields;
+
+        return $instance->defaultChannels;
+    }
+
+    /**
+     * Combine default and additional channel lists
+     *
+     * @return array
+     */
+    public function allChannels() {
+        $contacts = [];
+
+        foreach($this->parameter('channels')??[] as $channel){
+            $contacts[$channel] = $this->defaultChannels[$channel];
+        }
+
+        $additionalChannels = explode('\n', @$this->parameter('additionalFields'));
+
+        if(!empty($additionalChannels[0])) {
+            foreach ($additionalChannels as $channel) {
+                $additional = explode('=>', $channel);
+
+                $contacts[@$additional[0]] = $additional[1];
+            }
+        }
+
+        return $contacts;
+    }
+
+    public function contacts() {
+        $channels = json_decode($this->channels);
+        $contacts = [];
+
+        foreach($this->allChannels() as $icon=>$label){
+            $contacts[$icon] = [
+                'label' => $label,
+                'value' => $channels->{$icon}
+            ];
+        }
+
+        return $contacts;
+    }
+
+    public function contact($channel) {
+        return $this->contacts()[$channel]['value'];
     }
 }

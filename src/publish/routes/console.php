@@ -267,11 +267,11 @@ Artisan::command('just:createTheme {themeName}', function () {
         'name' => $theme
     ]);
      
-    mkdir(public_path('css/'.$theme), 775);
-    mkdir(public_path('js/'.$theme), 775);
-    mkdir(base_path('resources/views/'.$theme), 775);
-    mkdir(base_path('resources/assets/js/'.$theme), 775);
-    mkdir(base_path('resources/assets/sass/'.$theme), 775);
+    mkdir(public_path('css/'.$theme), 0775);
+    mkdir(public_path('js/'.$theme), 0775);
+    mkdir(base_path('resources/views/'.$theme), 0775);
+    mkdir(base_path('resources/assets/js/'.$theme), 0775);
+    mkdir(base_path('resources/assets/sass/'.$theme), 0775);
     
     $this->info('Theme was created successfully!');
     $this->comment("");

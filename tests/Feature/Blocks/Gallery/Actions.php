@@ -19,7 +19,7 @@ class Actions extends TestCase{
         }
         
         if(file_exists(public_path('storage/photos'))){
-            exec('rm -rf ' . public_path('storage/photos'));
+//            exec('rm -rf ' . public_path('storage/photos'));
         }
         
         parent::tearDown();
@@ -213,7 +213,7 @@ class Actions extends TestCase{
             
             $this->assertFileExists(public_path('storage/photos/'.$item->image.".png"));
             
-            $r = $this->get('admin/settings/crop/'.$block->id.'/'.$item->id)
+            $this->get('admin/settings/crop/'.$block->id.'/'.$item->id)
                     ->assertSuccessful();
             
             $image = Image::make(public_path('storage/photos/'.$item->image.".png"));
@@ -242,6 +242,89 @@ class Actions extends TestCase{
             $this->assertEquals("Unauthenticated.", $content->message);
         }
     }
+
+    public function recrop_photo($assertion){
+        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'gallery', 'parameters'=>'{"cropPhoto":"on","cropDimentions":"4:3"}'])->specify();
+
+        $response = $this->post("admin/ajaxuploader", [
+            'block_id' => $block->id,
+            'id' => null,
+            'ax_file_input' => UploadedFile::fake()->image('photo.jpg'),
+            'ax-max-file-size' => '100M',
+            'ax-file-path' => '../storage/app/public/photos',
+            'ax-allow-ext' => 'jpg|png|jpeg',
+            'ax-override' => true,
+            'startUpload' => "Upload images"
+        ],
+            [
+                'HTTP_X-Requested-With' => 'XMLHttpRequest'
+            ]);
+
+        $content = json_decode($response->baseResponse->content());
+
+        if($assertion){
+            $this->assertTrue($content->crop);
+
+            $item = Block\Gallery::all()->last();
+
+            $this->assertFileExists(public_path('storage/photos/'.$item->image.".png"));
+
+            $this->get('admin/settings/crop/'.$block->id.'/'.$item->id)
+                ->assertSuccessful();
+
+            $image = Image::make(public_path('storage/photos/'.$item->image.".png"));
+
+            $this->assertNotEquals(1170, $image->width());
+            $this->assertNotEquals(878, $image->height());
+
+            $this->post("/admin/settings/crop", [
+                'block_id' => $block->id,
+                'id' => $item->id,
+                'img' => $item->image,
+                'x' => 0,
+                'y' => 0,
+                'w' => 1170,
+                'h' => 878,
+            ]);
+
+            $this->assertFileExists(public_path('storage/photos/'.$item->image.".png"));
+            $this->assertFileExists(public_path('storage/photos/'.$item->image."_original.png"));
+
+            $image = Image::make(public_path('storage/photos/'.$item->image.".png"));
+            $originImage = Image::make(public_path('storage/photos/'.$item->image."_original.png"));
+            $originWidth = $originImage->width();
+            $originHeight = $originImage->height();
+            $originImage->destroy();
+
+            $this->assertEquals(1170, $image->width());
+            $this->assertEquals(878, $image->height());
+            $image->destroy();
+
+            $this->post("/admin/settings/crop", [
+                'block_id' => $block->id,
+                'id' => $item->id,
+                'img' => $item->image,
+                'x' => 0,
+                'y' => 0,
+                'w' => 500,
+                'h' => 300,
+            ]);
+
+            $image = Image::make(public_path('storage/photos/'.$item->image.".png"));
+            $originImage = Image::make(public_path('storage/photos/'.$item->image."_original.png"));
+
+            $this->assertEquals($originWidth, $originImage->width());
+            $this->assertEquals($originHeight, $originImage->height());
+
+            $this->assertEquals(500, $image->width());
+            $this->assertEquals(300, $image->height());
+            $image->destroy();
+            $originImage->destroy();
+        }
+        else{
+            $this->assertEquals("Unauthenticated.", $content->message);
+        }
+    }
     
     public function edit_block_settings($assertion){
         $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'gallery'])->specify();
@@ -256,17 +339,17 @@ class Actions extends TestCase{
                 $response->assertSee('Image fields')
                         ->assertSee('Resize images');
                 
-                $this->assertCount(5, $block->setupForm()->groups());
+                $this->assertCount(6, $block->setupForm()->groups());
             
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'ignoreCaption', 'ignoreDescription', 'customSizes', 'photoSizes[]', 'settingsScale', 'submit'], $block->setupForm()->names());
+                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'ignoreCaption', 'ignoreDescription', 'customSizes', 'photoSizes[]', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
             }
             else{
                 $response->assertDontSee('Image fields')
                         ->assertDontSee('Resize images');
                 
-                $this->assertCount(3, $block->setupForm()->groups());
+                $this->assertCount(4, $block->setupForm()->groups());
             
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'settingsScale', 'submit'], $block->setupForm()->names());
+                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
             }
             
             $this->post('admin/settings/setup', [
@@ -297,7 +380,7 @@ class Actions extends TestCase{
             
             $form = $item->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimentions":"4:3","ignoreCaption":"on","customSizes":"1","photoSizes":["8","3"],"settingsScale":"100"}', $block->parameters);
+                $this->assertEquals('{"cropDimentions":"4:3","ignoreCaption":"on","customSizes":"1","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -310,7 +393,7 @@ class Actions extends TestCase{
                 $this->assertFileExists(public_path('storage/photos/'.$item->image.'_3.png'));
             }
             else{
-                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', $block->parameters);
+                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -337,12 +420,12 @@ class Actions extends TestCase{
             
             $form = $item->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimentions":"4:3","ignoreDescription":"on","customSizes":"on","photoSizes":["8","3"],"settingsScale":"100"}', $block->parameters);
+                $this->assertEquals('{"cropDimentions":"4:3","ignoreDescription":"on","customSizes":"on","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNull($form->getElement('description'));
             }
             else{
-                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', $block->parameters);
+                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
             }
@@ -357,7 +440,7 @@ class Actions extends TestCase{
             
             $block = Block::find($block->id);
             
-            $this->assertNotEquals('{"settingsScale":"100"}', $block->parameters);
+            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
     }
 }

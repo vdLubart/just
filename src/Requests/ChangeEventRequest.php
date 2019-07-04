@@ -4,7 +4,7 @@ namespace Lubart\Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ArticleChangeRequest extends FormRequest
+class ChangeEventRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class ArticleChangeRequest extends FormRequest
      */
     public function authorize()
     {
-        return \Auth::user();
+        return \Auth::check();
     }
 
     /**
@@ -27,8 +27,13 @@ class ArticleChangeRequest extends FormRequest
             "id" => "integer|min:1|nullable",
             "image" => "image|nullable",
             "subject" => "required",
-            "summary" => "",
-            "text" => ""
+            "start_date" => "required|date|date_format:Y-m-d",
+            "end_date" => "required|date|date_format:Y-m-d|after_or_equal:start_date",
+            "start_time" => "nullable|regex:/\d{2}\:\d{2}/",
+            "end_time" => "nullable|regex:/\d{2}\:\d{2}/",
+            "location" => "string",
+            "summary" => "string",
+            "text" => "string"
         ];
     }
 }

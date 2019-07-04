@@ -140,9 +140,8 @@ class Actions extends TestCase{
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        //TODO: continue here
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
-        $contactBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact'])->specify();
+        $contactBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}'])->specify();
         $route = \Lubart\Just\Models\Route::create([
             'route' => 'mirror',
             'type' => 'page'
@@ -165,13 +164,15 @@ class Actions extends TestCase{
             'block_id' => $textBlock->id,
             'text' => $text,
         ]);
+
+        $envelope = str_replace("\n", ", ", $this->faker->address);
+        $phone = $this->faker->phoneNumber;
+        $at = $this->faker->email;
         
         Block\Contact::insert([
             'block_id' => $contactBlock->id,
             'title' => $title = $this->faker->sentence,
-            'address' => $address = $this->faker->address,
-            'phone' => $phone = $this->faker->phoneNumber,
-            'email' => $email = $this->faker->email
+            'channels' => '{"envelope":"'.$envelope.'","phone":"'.$phone.'","at":"'.$at.'"}'
         ]);
         
         $this->post("", [
@@ -188,7 +189,7 @@ class Actions extends TestCase{
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($textBlock->id, $block->firstItem()->linkedBlock_id);
             
-            $r = $this->get('admin/mirror')
+            $this->get('admin/mirror')
                     ->assertSee($text)
                     ;
             
@@ -196,29 +197,29 @@ class Actions extends TestCase{
                     ->assertSee($text)
                     ;
             
-            $this->post("", [
+            $r = $this->post("", [
                 'block_id' => $block->id,
                 'id' => $item->id,
                 'linkedBlock_id' => $contactBlock->id
             ]);
-            
+
             $item = Block\Link::all()->last();
-            
-            $this->assertEquals($contactBlock->id, $block->firstItem()->linkedBlock_id);
+
+            $this->assertEquals($contactBlock->id, $item->firstItem()->linkedBlock_id);
             
             $this->get('admin/mirror')
                     ->assertDontSee($text)
                     ->assertSee($title)
-                    ->assertSee($address)
+                    ->assertSee($envelope)
                     ->assertSee($phone)
-                    ->assertSee($email);
+                    ->assertSee($at);
             
             $this->get('mirror')
                     ->assertDontSee($text)
                     ->assertSee($title)
-                    ->assertSee($address)
+                    ->assertSee($envelope)
                     ->assertSee($phone)
-                    ->assertSee($email);
+                    ->assertSee($at);
         }
         else{
             $this->assertNull($item);
@@ -240,9 +241,9 @@ class Actions extends TestCase{
             $response->assertStatus(200)
                     ->assertSee('Settings View');
             
-            $this->assertCount(2, $block->setupForm()->groups());
+            $this->assertCount(3, $block->setupForm()->groups());
             
-            $this->assertEquals(['id', 'settingsScale', 'submit'], $block->setupForm()->names());
+            $this->assertEquals(['id', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
             
             $this->post('admin/settings/setup', [
                 "id" => $block->id,
@@ -251,7 +252,7 @@ class Actions extends TestCase{
             
             $block = Block::find($block->id);
             
-            $this->assertEquals('{"settingsScale":"100"}', $block->parameters);
+            $this->assertEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
         else{
             $response->assertStatus(302);
@@ -263,7 +264,7 @@ class Actions extends TestCase{
             
             $block = Block::find($block->id);
             
-            $this->assertNotEquals('{"settingsScale":"100"}', $block->parameters);
+            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
     }
 }

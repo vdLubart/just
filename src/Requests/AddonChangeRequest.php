@@ -35,13 +35,21 @@ class AddonChangeRequest extends FormRequest
             ];
         }
         else{
-            $block = Addon::find($this->addon_id)->block->specify();
+            $addon = Addon::find($this->addon_id);
+            $block = $addon->block->specify();
             $rules = [];
         }
         
         $addonNames = $block->addons()->where('id', '<>', $this->addon_id ?? 0)->pluck('name')->toArray();
         // cannot just combine arrays because they have the same keys
         $usedNames = array_keys($block->getAttributes());
+
+        if(isset($addon)){
+            if(($key = array_search($addon->name, $usedNames)) !== false) {
+                unset($usedNames[$key]);
+            }
+        }
+
         foreach($addonNames as $name){
             $usedNames[] = $name;
         }

@@ -43,4 +43,9 @@ class MasterAccessTest extends Actions
     function master_can_edit_block_settings(){
         $this->edit_block_settings(true);
     }
+
+    /** @test */
+    function master_can_add_custom_contact_channel(){
+        $this->add_custom_contact_channel(true);
+    }
 }

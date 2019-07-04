@@ -90,7 +90,7 @@ class Feedback extends AbstractBlock
         $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>'Feedback is visible just after publishing', 'value'=>1, 'check'=>(@$this->parameter('defaultActivation')==1)]));
         $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>'Admin must confirm feedback publishing', 'value'=>0, 'check'=>(@$this->parameter('defaultActivation')==0)]));
         $feedbackGroup->add(FormElement::text(['name'=>'successText', 'label'=>'Message after successful publishing feedback', 'value'=>@$this->parameter('successText')]));
-        $feedbackGroup->add(FormElement::checkbox(['name'=>'notify', 'label'=>'Notify me by email about a new feedback', 'value'=>1, 'check'=>(@$this->parameter('notify')==1)]));
+        $feedbackGroup->add(FormElement::checkbox(['name'=>'notify', 'label'=>'Notify me by email about new feedback', 'value'=>1, 'check'=>(@$this->parameter('notify')==1)]));
         $form->addGroup($feedbackGroup);
         
         return $form;

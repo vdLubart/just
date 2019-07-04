@@ -35,7 +35,7 @@ class AdminController extends Controller
         \Config::set('isAdmin', true);
     }
     
-    public function settingsForm($blockId, $id, $subid = null) {
+    public function settingsForm($blockId, $id) {
         return view(viewPath(Theme::active()->layout, 'settings'))->with($this->detectBlock($blockId, $id));
     }
     
@@ -276,7 +276,7 @@ class AdminController extends Controller
         $block = Block::find($request->id)->specify();
         $settingsElements = $block->setupForm()->names();
         $block->unsettle();
-        
+
         if(!empty($block)){
             $parameters = new \stdClass;
             $values = $request->all();
@@ -288,7 +288,20 @@ class AdminController extends Controller
                     $parameters->{$key} = $value;
                 }
             }
-            $block->parameters = json_encode($parameters);
+            if(\Auth::user()->role === "admin") {
+                $block->parameters = json_encode($parameters);
+            }
+            else{
+                $block->super_parameters = json_encode($parameters);
+                $adminParameters = json_decode($block->parameters);
+
+                foreach($parameters as $key=>$value){
+                    if(isset($adminParameters->{$key})){
+                        $adminParameters->{$key} = $value;
+                    }
+                }
+                $block->parameters = json_encode($adminParameters);
+            }
             $block->save();
         }
         
@@ -516,6 +529,10 @@ class AdminController extends Controller
      * [POST] Create block related to the model
      */
     public function createRelation(Request $request) {
+        if(\Auth::user()->role != "master"){
+            return redirect()->back();
+        }
+
         $parentBlock = Block::find($request->block_id);
         $model = $parentBlock->specify($request->id)->model();
         

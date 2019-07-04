@@ -42,6 +42,10 @@ class Gallery extends AbstractBlock
             else{
                 $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
             }
+            if(!empty($this->parameter('cropPhoto'))){
+                $this->form->add(FormElement::button(['name' => 'recrop', 'value' => 'Recrop Image']));
+                $this->form->getElement("recrop")->setParameters('javasript:openCropping(' . $this->block_id . ', ' . $this->id . ')', 'onclick');
+            }
             
             if(empty($this->parameter('ignoreCaption'))){
                 $this->form->add(FormElement::text(['name'=>'caption', 'label'=>'Caption', 'value'=>$this->caption]));

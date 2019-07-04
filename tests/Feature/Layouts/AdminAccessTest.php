@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Just\Layouts;
+namespace Lubart\Just\Tests\Feature\Layouts;
 
 use Lubart\Just\Tests\Feature\Helper;
 

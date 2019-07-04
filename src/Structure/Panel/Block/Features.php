@@ -26,17 +26,8 @@ class Features extends AbstractBlock
     ];
     
     protected $table = 'features';
-    
-    /**
-     * Title for model
-     * 
-     * @var string $settingsTitle
-     */
-    protected $settingsTitle = 'Feature';
-    
-    protected $neededParameters = [
-        'itemsInRow'     => 'Items amount in single row'
-    ];
+
+    protected $neededParameters = [ 'itemsInRow' ];
     
     public function setup() {
         if(!Useful::isRouteExists("iconset/{id}/{page?}")){
@@ -88,7 +79,7 @@ class Features extends AbstractBlock
         $settingsViewGroup = new FormGroup('settingsView', 'Settings View', ['class'=>'col-md-6']);
         $settingsViewGroup->add(FormElement::select(['name'=>'itemsInRow', 'label'=>'Items amount in single row', 'value'=>@$parameters->itemsInRow, 'options'=>[3=>'4 in row', 4=>'3 in row', 6=>'2 in row', 12=>'1 in row']]));
         $form->addGroup($settingsViewGroup);
-        
+
         if(\Auth::user()->role == "master"){
             $this->addIgnoretCaptionSetupGroup($form);
         }

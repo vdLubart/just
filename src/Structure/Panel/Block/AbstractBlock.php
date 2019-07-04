@@ -22,18 +22,32 @@ abstract class AbstractBlock extends Model
      * @var Form $form
      */
     protected $form;
-    
+
+    /**
+     * Parameters which should be set before use block
+     *
+     * @var array $neededParameters
+     */
     protected $neededParameters = [];
     
     protected $parameters = [];
     
     protected $imageSizes = [12, 9, 8, 6, 4, 3];
-    
-    protected $settingsTitle = 'Model';
+
+    /**
+     * Title for the single block item
+     *
+     * @var string $settingsTitle
+     */
+    protected $settingsTitle;
     
     public function __construct() {
         parent::__construct();
-        
+/*
+        if(empty($this->settingsTitle) and $this->block) {
+            $this->settingsTitle = str_singular($this->block->title);
+        }
+  */
         if(\Auth::id()){
             $this->form = new Form;
         }
@@ -42,72 +56,74 @@ abstract class AbstractBlock extends Model
     /**
      * Block content
      * 
-     * @param integer $id
      * @return mixed
      */
-    public function content($id = null) {
-        if(is_null($id)){
-            $content = $this->orderBy('orderNo')
-                    ->where('block_id', $this->block->id);
-            if(!\Config::get('isAdmin')){
-                $content = $content->where('isActive', 1);
-            }
-            
-            $curCategory = $this->block->currentCategory();
-            if(!is_null($curCategory) and $curCategory->addon->block->id == $this->block->id){
-                $content = $content
-                        ->join($this->table."_categories", $this->table."_categories.modelItem_id", "=", $this->table.".id")
-                        ->where("addonItem_id", $this->block->currentCategory()->id);
-            }
-            
-            $with = [];
-            foreach($this->addons as $addon){
-                $with[] = $addon->type;
-            }
-            
-            $collection = $content->with($with)->get();
-
-            foreach($collection as $item){
-                foreach($item->addons as $addon){
-                    $addonItem = $item->{$addon->type}->where('addon_id', $addon->id)->first();
-                    if(!empty($addonItem)){
-                        if($addon->type != "categories"){
-                            $item->{$addon->name} = $addonItem->value;
-                        }
-                        else{
-                            $item->{$addon->name} = [$addonItem->value => $addonItem->name];
-                        }
-                    }
-                    else{
-                        $item->{$addon->name} = null;
-                    }
-                }
-            }
-            
-            return $collection;
+    public function content() {
+        $content = $this->where('block_id', $this->block->id);
+        if(!\Config::get('isAdmin')){
+            $content = $content->where('isActive', 1);
         }
-        else{
-            $item = $this->find($id);
-            
-            foreach($item->addons as $addon){
-                $addonItem = $item->{$addon->type}->where('addon_id', $addon->id)->first();
-                if ($addon->type != "categories") {
-                    $item->{$addon->name} = $addonItem->value;
-                } else {
-                    $item->{$addon->name} = [$addonItem->value => $addonItem->name];
+
+        $curCategory = $this->block->currentCategory();
+        if(!is_null($curCategory) and $curCategory->addon->block->id == $this->block->id){
+            $content = $content
+                    ->join($this->table."_categories", $this->table."_categories.modelItem_id", "=", $this->table.".id")
+                    ->where("addonItem_id", $this->block->currentCategory()->id);
+        }
+
+        $this->limitContent($content);
+        $this->orderContent($content);
+
+        $with = [];
+        foreach($this->addons as $addon){
+            $with[] = $addon->type;
+        }
+
+        $collection = $content->with($with)->get();
+
+        foreach($collection as $item){
+            $item->attachAddons();
+        }
+
+        return $collection;
+    }
+
+    protected function attachAddons() {
+        foreach($this->addons as $addon){
+            $addonItem = $this->{$addon->type}->where('addon_id', $addon->id)->first();
+            if(!empty($addonItem)){
+                if($addon->type != "categories"){
+                    $this->{$addon->name} = $addonItem->value;
+                }
+                else{
+                    $this->{$addon->name} = [$addonItem->value => $addonItem->name];
                 }
             }
-            
-            return $item;
+            else{
+                $this->{$addon->name} = null;
+            }
         }
     }
-    
+
     /**
-     * Return block preview in the settings
-     * @deprecated since version 1.2.0
+     * Order content by specific column
+     *
+     * @param string $column
+     * @return mixed
      */
-    public function preview(){
-        return '';
+    protected function orderContent(&$content, $column = 'orderNo'){
+        return $content->orderBy($column, $this->parameter('orderDirection') ?? 'asc');
+    }
+
+    /**
+     * Limit content by specific condition.
+     * Condition can be added in the model class
+     *
+     * @param $content
+     * @return mixed
+     */
+    protected function limitContent(&$content){
+        return $content;
     }
     
     /**
@@ -116,14 +132,6 @@ abstract class AbstractBlock extends Model
      * @return SettingsForm
      */
     abstract public function form();
-    
-    protected function setValuesFromRequest($request) {
-        foreach($request->attributes() as $attr=>$val){
-            if(in_array($attr, $this->fillable)){
-                $this->{$attr} = $val;
-            }
-        }
-    }
     
     public function settingsTitle() {
         return $this->settingsTitle;
@@ -240,9 +248,7 @@ abstract class AbstractBlock extends Model
      * @return mixed
      */
     public function parameter($param) {
-        $params = json_decode($this->block->parameters);
-        
-        return isset($params->{$param})?$params->{$param}:null;
+        return $this->block->parameter($param);
     }
     
     /**
@@ -277,23 +283,19 @@ abstract class AbstractBlock extends Model
         $parameters = json_decode($block->parameters);
         
         $form = new Form('/admin/settings/setup');
-        
+
         $form->setType('setup');
         
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$block->id]));
         
         $paramsGroup = new FormGroup('parameters', 'Block parameters', ['class'=>'col-md-6']);
-        
-        foreach($this->neededParameters() as $param=>$label){
-            $paramsGroup->add(FormElement::text(['name'=>$param, 'label'=>$label, 'value'=>@$parameters->{$param}]));
-        }
-        
+
         foreach($this->customAttributes() as $attr){
             $paramsGroup->add(FormElement::text(['name'=>$attr->name, 'label'=>$label, 'value'=>isset($parameters->{$attr->name})?$parameters->{$attr->name}:$attr->defaultValue]));
         }
-        
+
         $this->addSetupFormElements($form);
-        
+
         $settingsViewGroup = new FormGroup('settingsView', 'Settings View', ['class'=>'col-md-6']);
         $settingsViewGroup->add(FormElement::select([
             'name'=>'settingsScale',
@@ -308,16 +310,19 @@ abstract class AbstractBlock extends Model
                 '100'=>'100% - 4 items in row',
                 '133'=>'133% - 3 items in row',
                 '200'=>'200% - 2 items in row',
-                '400'=>'400% - 1 item in row']]));
+                '400'=>'400% - 1 item in row'
+            ]]));
         $form->addGroup($settingsViewGroup);
         if(!empty($paramsGroup->getElements())){
             $form->addGroup($paramsGroup);
         }
-        
+
+        $this->addOrderDirection($form);
+
         $submitGroup = new FormGroup('submitSetup', '', ['class'=>'col-md-12 clear']);
         $submitGroup->add(FormElement::submit(['value'=>'Save']));
         $form->addGroup($submitGroup);
-        
+
         return $form;
     }
     
@@ -528,9 +533,32 @@ abstract class AbstractBlock extends Model
         $form->addGroup($photoSizesGroup);
     }
 
+    protected function addItemRouteGroup(&$form){
+        $itemRouteGroup = new FormGroup('itemRoute', 'Item route', ['class'=>'col-md-6']);
+        $itemRouteGroup->add(FormElement::text(['name'=>'itemRouteBase', 'label'=>'Item route base', 'value'=>(str_singular(str_slug($this->block->type)) ?? str_singular($this->block->name) ?? str_singular($this->block->type))]));
+        $form->addGroup($itemRouteGroup);
+    }
+
+    protected function addOrderDirection(&$form){
+        $orderDirectionGroup = new FormGroup('orderDirection', 'Ordering Direction', ['class'=> 'col-md-6']);
+        $orderDirectionGroup->add(FormElement::radio(['name'=>'orderDirection', 'label'=>'New item appears in the end', 'value'=>'asc', 'check'=>$this->parameter('orderDirection') == 'asc']));
+        $orderDirectionGroup->add(FormElement::radio(['name'=>'orderDirection', 'label'=>'New item appears on the top', 'value'=>'desc', 'check'=>$this->parameter('orderDirection') == 'desc']));
+        $form->addGroup($orderDirectionGroup);
+    }
+
     public function detachAddons(){
         foreach($this->addons() as $addon){
             unset($this->{$addon});
         }
+    }
+
+    /**
+     * Default value for using Slug trait.
+     * The value is overwritten in the trait class
+     *
+     * @return bool
+     */
+    public function haveSlug(){
+        return false;
     }
 }

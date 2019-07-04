@@ -16,7 +16,7 @@
         "laravelcollective/html": "^5.2.0",
         "guzzlehttp/guzzle": "^6.3",
         "laravolt/avatar": "^2.0",
-        "lubart/form": "^1.0"
+        "lubart/form": "^1.2.4"
     },
     "autoload": {
         "psr-4": {

@@ -28,9 +28,17 @@
                 </a>
             </li>
             @if(!empty($block->model()->id))
-            <li @if(!empty($relBlock)) class="active" @endif>
-                <a href="#{{ $block->type }}_relationsForm" data-toggle="tab">@if(!empty($relBlock)) <i class="fa fa-pencil"></i><i class="fa fa-link"></i> Edit Related Block @else <i class="fa fa-plus"></i><i class="fa fa-link"></i> Create Related Block @endif </a>
-            </li>
+                @if($block->type === 'events')
+                <li>
+                    <a href="#{{ $block->type }}_registrations" data-toggle="tab"></i><i class="fa fa-list"></i> Registrations</a>
+                </li>
+                @endif
+
+                @if(\Auth::user()->role == "master")
+                <li @if(!empty($relBlock)) class="active" @endif>
+                    <a href="#{{ $block->type }}_relationsForm" data-toggle="tab">@if(!empty($relBlock)) <i class="fa fa-pencil"></i><i class="fa fa-link"></i> Edit Related Block @else <i class="fa fa-plus"></i><i class="fa fa-link"></i> Create Related Block @endif </a>
+                </li>
+                @endif
             <li>
                 <a href="#{{ $block->type }}_relations" data-toggle="tab"></i><i class="fa fa-link"></i> Related Blocks</a>
             </li>
@@ -74,6 +82,7 @@
             <div class="tab-pane" id="{{ $block->type }}_blockData">
                 @include('Just.blockForm')
             </div>
+
             <div class="tab-pane" id="{{ $block->type }}_blockSetup">
                 @include('Just.setupForm')
             </div>
@@ -82,9 +91,17 @@
                 @include('Just.settingsForm')
             </div>
             @if(!empty($block->model()->id))
-            <div class="tab-pane @if(!empty($relBlock)) active @endif" id="{{ $block->type }}_relationsForm">
-                @include('Just.relationsForm')
-            </div>
+                @if($block->type === 'events')
+                <div class="tab-pane" id="{{ $block->type }}_registrations">
+                    @include('Just.settings.eventRegistrations')
+                </div>
+                @endif
+
+                @if(\Auth::user()->role == "master")
+                    <div class="tab-pane @if(!empty($relBlock)) active @endif" id="{{ $block->type }}_relationsForm">
+                        @include('Just.relationsForm')
+                    </div>
+                @endif
             <div class="tab-pane" id="{{ $block->type }}_relations">
                 @include('Just.relatedBlocks')
             </div>

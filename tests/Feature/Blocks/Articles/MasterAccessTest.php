@@ -33,6 +33,11 @@ class MasterAccessTest extends Actions
     function master_can_create_item_in_the_block(){
         $this->create_new_item_in_block(true);
     }
+
+    /** @test */
+    function master_can_create_item_in_the_block_without_cropping(){
+        $this->create_new_item_in_block_without_cropping_image();
+    }
     
     /** @test */
     function master_recieves_an_error_on_sending_incompleate_create_item_form(){

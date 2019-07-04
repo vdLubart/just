@@ -52,6 +52,13 @@ class JustUpdateSeeder extends Seeder
                 Schema::table('themes', function(Blueprint $table){
                     $table->increments('id');
                 });
+            case version_compare(Version::current(), '1.3.0', '<'):
+                DB::table('blockList')->insert([
+                    'block' => 'events',
+                    'title' => "Events",
+                    'description' => "Adds event block",
+                    'table' => 'events'
+                ]);
         }
     }
 }

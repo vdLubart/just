@@ -26,14 +26,12 @@ class JustStructureSeeder extends Seeder
         $justPrimaryLayout = Structure\Layout::create([
             'name' => 'Just',
             'class' => 'primary',
-            'type' => 'float',
             'width' => 1170, // 1920 for fully responsive design
         ]);
         
         $justSpecificLayout = Structure\Layout::create([
             'name' => 'Just',
             'class' => 'specific',
-            'type' => 'float',
             'width' => 1170, // 1920 for fully responsive design
         ]);
         
@@ -214,6 +212,13 @@ class JustStructureSeeder extends Seeder
             'title' => "HTML",
             'description' => "Adds HTML piece of code",
             'table' => 'texts'
+        ]);
+
+        DB::table('blockList')->insert([
+            'block' => 'events',
+            'title' => "Events",
+            'description' => "Adds event block to the page",
+            'table' => 'events'
         ]);
         
         // Addons

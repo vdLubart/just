@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Just\Layouts;
+namespace Lubart\Just\Tests\Feature\Layouts;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -56,7 +56,6 @@ class Actions extends TestCase{
         $response = $this->post("admin/settings/layout/setup", [
             'layout_id' => 1,
             'width'=> $this->faker->numberBetween(),
-            'type' => 'float'
         ]);
         
         $content = $this->followRedirects($response);
@@ -81,13 +80,12 @@ class Actions extends TestCase{
             "name" => $newTheme->name,
             "class" => $class = "primary",
             "width" => $width = $this->faker->numberBetween(980, 1920),
-            "type" => "float",
             "panel_1" => "header",
             "panelType_1" => "static",
             "panel_2" => "content",
             "panelType_2" => "dynamic"
         ]);
-        
+
         $layout = Layout::where('name', $newTheme->name)->first();
         
         if($assertion){
@@ -120,7 +118,6 @@ class Actions extends TestCase{
             "name" => "Just",
             "class" => "specific",
             "width" => $width = $this->faker->numberBetween(980, 1920),
-            "type" => "float",
             "panel_1" => "content",
             "panelType_1" => "dynamic"
         ]);
@@ -146,7 +143,6 @@ class Actions extends TestCase{
             "name" => $newTheme->name,
             "class" => "primary",
             "width" => $width = $this->faker->numberBetween(980, 1920),
-            "type" => "float",
         ]);
         
         $route = Route::create([
@@ -220,7 +216,6 @@ class Actions extends TestCase{
             "name" => $newTheme->name,
             "class" => $class = "primary",
             "width" => $this->faker->numberBetween(980, 1920),
-            "type" => "float"
         ]);
         
         $panel = Panel::create([

@@ -27,9 +27,9 @@
             openSettings({{ $block->id }}, 0);
         },
         error: function(data){
-            console.log("error");
             $("input[type=submit]").removeAttr('disabled');
             console.log(data);
+            showErrors(data);
         }
     });
     <?php
