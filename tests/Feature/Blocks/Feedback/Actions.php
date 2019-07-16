@@ -2,6 +2,7 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Feedback;
 
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
@@ -9,9 +10,11 @@ use Lubart\Just\Models\User;
 use Illuminate\Support\Facades\Notification;
 use Lubart\Just\Notifications\NewFeedback;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $type = 'feedback';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -22,7 +25,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'feedback'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -40,7 +43,7 @@ class Actions extends TestCase{
     }
     
     public function access_edit_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'feedback'])->specify();
+        $block = $this->setupBlock();
         
         Block\Feedback::insert([
             'block_id' => $block->id,
@@ -65,7 +68,7 @@ class Actions extends TestCase{
     }
 
     public function create_new_item_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'feedback'])->specify();
+        $block = $this->setupBlock();
         
         $this->post("", [
             'block_id' => $block->id,
@@ -111,7 +114,7 @@ class Actions extends TestCase{
     }
     
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'feedback'])->specify();
+        $block = $this->setupBlock();
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -141,7 +144,7 @@ class Actions extends TestCase{
     }
     
     public function leave_feedback_from_the_website($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'feedback', 'parameters'=>'{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}']);
         
         $this->app['router']->post('feedback/add', "\Lubart\Just\Controllers\JustController@post")->middleware('web');
         
@@ -198,7 +201,7 @@ class Actions extends TestCase{
     }
     
     public function receive_an_error_on_sending_incompleate_feedback_on_the_website(){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'feedback', 'parameters'=>'{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}']);
         
         $this->app['router']->post('feedback/add', "\Lubart\Just\Controllers\JustController@post")->middleware('web');
         
@@ -225,7 +228,7 @@ class Actions extends TestCase{
     }
     
     public function create_few_items_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'feedback'])->specify();
+        $block = $this->setupBlock();
         
         $this->post("", [
             'block_id' => $block->id,
@@ -276,7 +279,7 @@ class Actions extends TestCase{
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'feedback'])->specify();
+        $block = $this->setupBlock();
         
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
@@ -320,7 +323,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'feedback'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         

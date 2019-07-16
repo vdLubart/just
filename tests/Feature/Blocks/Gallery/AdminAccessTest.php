@@ -48,4 +48,19 @@ class AdminAccessTest extends Actions
     function admin_can_edit_block_settings(){
         $this->edit_block_settings(true);
     }
+
+    /** @test */
+    function admin_can_create_item_with_standard_image_sizes(){
+        $this->create_item_with_standard_image_sizes();
+    }
+
+    /** @test */
+    function admin_can_create_item_with_custom_image_sizes(){
+        $this->create_item_with_custom_image_sizes();
+    }
+
+    /** @test */
+    function admin_can_create_item_with_empty_custom_image_sizes(){
+        $this->create_item_with_empty_custom_image_sizes();
+    }
 }

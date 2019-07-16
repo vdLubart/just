@@ -162,7 +162,7 @@ class Contact extends AbstractBlock
         foreach($this->allChannels() as $icon=>$label){
             $contacts[$icon] = [
                 'label' => $label,
-                'value' => $channels->{$icon}
+                'value' => @$channels->{$icon}
             ];
         }
 

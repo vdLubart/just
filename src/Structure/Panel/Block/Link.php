@@ -28,7 +28,7 @@ class Link extends AbstractBlock
         
         $blocks = [];
         foreach(Block::where('type', '<>', 'link')->get() as $block){
-            $blocks[$block->id] = $block->title . "(".$block->type.") at ".(is_null($block->page)?$block->panelLocation:$block->page->title ." page");
+            $blocks[$block->id] = $block->title . "(".$block->type.") at ".(is_null($block->page())?$block->panelLocation:$block->page()->title ." page");
         }
         
         $this->form->add(FormElement::select(['name'=>'linkedBlock_id', 'label'=>'Linked Block', 'value'=>@$this->linkedBlock_id, 'options'=>$blocks]));

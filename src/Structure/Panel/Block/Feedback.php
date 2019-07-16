@@ -158,14 +158,8 @@ class Feedback extends AbstractBlock
         if(isset($parameters->notify)){
             $admins = User::where('role', 'admin')->get();
             $block = $this->block;
-            $page = $this->block->page;
-            if(is_null($page) and is_null($this->block->location)){
-                $block = $this->block->parentBlock(true);
-                $page = $block->page;
-            }
-            elseif(!is_null($this->block->location)){
-                $page = Page::first();
-            }
+            $page = $this->block->page();
+
             foreach ($admins as $admin){
                 $admin->sendFeedbackNotifiaction($request->get('username'), $request->get('message'), $block->title, $page->route);
             }

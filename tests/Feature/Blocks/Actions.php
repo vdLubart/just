@@ -513,6 +513,7 @@ class Actions extends TestCase{
         
         $this->assertEquals($relText, $item->relatedBlock('text', $title)->firstItem()->text);
         $this->assertEquals($relText, $item->relatedBlock('text', null, $relatedBlock->id)->firstItem()->text);
+        $this->assertNull($item->relatedBlock('text', null, 0));
     }
     
     public function access_parent_block_from_the_related_one(){
@@ -763,6 +764,6 @@ class Actions extends TestCase{
 
         $this->assertNull($item->{$addon->name});
 
-
+        $this->removePivotTable($block->model()->getTable(), $addonTable);
     }
 }

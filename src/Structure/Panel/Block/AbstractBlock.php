@@ -43,11 +43,11 @@ abstract class AbstractBlock extends Model
     
     public function __construct() {
         parent::__construct();
-/*
+
         if(empty($this->settingsTitle) and $this->block) {
             $this->settingsTitle = str_singular($this->block->title);
         }
-  */
+
         if(\Auth::id()){
             $this->form = new Form;
         }
@@ -288,12 +288,6 @@ abstract class AbstractBlock extends Model
         
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$block->id]));
         
-        $paramsGroup = new FormGroup('parameters', 'Block parameters', ['class'=>'col-md-6']);
-
-        foreach($this->customAttributes() as $attr){
-            $paramsGroup->add(FormElement::text(['name'=>$attr->name, 'label'=>$label, 'value'=>isset($parameters->{$attr->name})?$parameters->{$attr->name}:$attr->defaultValue]));
-        }
-
         $this->addSetupFormElements($form);
 
         $settingsViewGroup = new FormGroup('settingsView', 'Settings View', ['class'=>'col-md-6']);
@@ -313,9 +307,6 @@ abstract class AbstractBlock extends Model
                 '400'=>'400% - 1 item in row'
             ]]));
         $form->addGroup($settingsViewGroup);
-        if(!empty($paramsGroup->getElements())){
-            $form->addGroup($paramsGroup);
-        }
 
         $this->addOrderDirection($form);
 
@@ -403,11 +394,6 @@ abstract class AbstractBlock extends Model
         return $this->block->addons();
     }
     
-    public function customAttributes() {
-        return DB::table('blockAttributes')
-                ->where('block', $this->block->type)->get();
-    }
-    
     /**
      * Get related addon item
      * 
@@ -416,7 +402,7 @@ abstract class AbstractBlock extends Model
      */
     public function addon($name){
         $addon = Addon::where('name', $name)->first();
-        
+
         return $this->belongsToMany('Lubart\\Just\\Structure\\Panel\\Block\\Addon\\'.ucfirst($addon->type), $this->getTable().'_'.$addon->type, 'modelItem_id', 'addonItem_id')->first();
     }
 
@@ -439,15 +425,12 @@ abstract class AbstractBlock extends Model
     
     public function relationsForm($relBlock) {
         $form = new Form('/admin/settings/relations/create');
-        
+
         $form->setType('relations');
         
         $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block->id]));
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->id]));
         $form->add(FormElement::select(['name'=>'relatedBlockName', 'label'=>'Related Block Type', 'value'=>(!is_null($relBlock) ? $relBlock->type : ""), 'options'=>$this->block->allBlocksSelect()]));
-        if(!is_null($relBlock)){
-            $form->getElement("relatedBlockName")->setParameters("disabled", "disabled");
-        }
         $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=> (!is_null($relBlock) ? $relBlock->title : "")]));
         $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>(!is_null($relBlock) ? $relBlock->description : "")]));
         $form->applyJS("applyCKEditor('#".$this->block->type."_relationsForm #description')");
@@ -467,7 +450,7 @@ abstract class AbstractBlock extends Model
     }
     
     /**
-     * Return specyfic related block
+     * Return specific related block
      * 
      * @param string $name type of related block
      * @param string $title title of related block
@@ -475,27 +458,21 @@ abstract class AbstractBlock extends Model
      * @return Block|null
      */
     public function relatedBlock($name, $title = null, $id = null) {
-        if(Schema::hasTable($this->getTable().'_blocks')){
-            $relBlock = $this->belongsToMany(Block::class, $this->getTable().'_blocks', 'modelItem_id', 'block_id')
-                    ->where('type', $name);
-            if(!is_null($title)){
-                $relBlock->where('title', $title);
-            }
-            if(!is_null($id)){
-                $relBlock->where('blocks.id', $id);
-            }
-            $relBlock = $relBlock->first();
-            
-            if(empty($relBlock)){
-                return null;
-            }
-            
-            return $relBlock->specify();
+        $relBlock = $this->belongsToMany(Block::class, $this->getTable().'_blocks', 'modelItem_id', 'block_id')
+                ->where('type', $name);
+        if(!is_null($title)){
+            $relBlock->where('title', $title);
         }
-        else{
-            // return null
-            return $this->belongsTo(Block::class);
+        if(!is_null($id)){
+            $relBlock->where('blocks.id', $id);
         }
+        $relBlock = $relBlock->first();
+
+        if(empty($relBlock)){
+            return null;
+        }
+
+        return $relBlock->specify();
     }
     
     /**
@@ -544,12 +521,6 @@ abstract class AbstractBlock extends Model
         $orderDirectionGroup->add(FormElement::radio(['name'=>'orderDirection', 'label'=>'New item appears in the end', 'value'=>'asc', 'check'=>$this->parameter('orderDirection') == 'asc']));
         $orderDirectionGroup->add(FormElement::radio(['name'=>'orderDirection', 'label'=>'New item appears on the top', 'value'=>'desc', 'check'=>$this->parameter('orderDirection') == 'desc']));
         $form->addGroup($orderDirectionGroup);
-    }
-
-    public function detachAddons(){
-        foreach($this->addons() as $addon){
-            unset($this->{$addon});
-        }
     }
 
     /**

@@ -443,4 +443,82 @@ class Actions extends TestCase{
             $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
     }
+
+    public function create_item_with_standard_image_sizes() {
+        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'gallery', 'parameters'=>'{"settingsScale":"100","orderDirection":"desc"}'])->specify();
+
+        $this->post("admin/ajaxuploader", [
+            'block_id' => $block->id,
+            'id' => null,
+            'ax_file_input' => UploadedFile::fake()->image('photo.jpg'),
+            'ax-max-file-size' => '100M',
+            'ax-file-path' => '../storage/app/public/photos',
+            'ax-allow-ext' => 'jpg|png|jpeg',
+            'ax-override' => true,
+            'startUpload' => "Upload images"
+        ],
+            [
+                'HTTP_X-Requested-With' => 'XMLHttpRequest'
+            ]);
+
+        $item = Block\Gallery::all()->last();
+
+        $this->assertFileExists(public_path('storage/photos/'.$item->image.'.png'));
+        foreach ([12, 9, 8, 6, 4, 3] as $size) {
+            $this->assertFileExists(public_path('storage/photos/' . $item->image . '_'.$size.'.png'));
+        }
+    }
+
+    public function create_item_with_custom_image_sizes() {
+        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'gallery', 'parameters'=>'{"customSizes":1,"photoSizes":["6","3"],"settingsScale":"100","orderDirection":"desc"}'])->specify();
+
+        $this->post("admin/ajaxuploader", [
+            'block_id' => $block->id,
+            'id' => null,
+            'ax_file_input' => UploadedFile::fake()->image('photo.jpg'),
+            'ax-max-file-size' => '100M',
+            'ax-file-path' => '../storage/app/public/photos',
+            'ax-allow-ext' => 'jpg|png|jpeg',
+            'ax-override' => true,
+            'startUpload' => "Upload images"
+        ],
+            [
+                'HTTP_X-Requested-With' => 'XMLHttpRequest'
+            ]);
+
+        $item = Block\Gallery::all()->last();
+
+        $this->assertFileExists(public_path('storage/photos/'.$item->image.'.png'));
+        foreach ([6, 3] as $size) {
+            $this->assertFileExists(public_path('storage/photos/' . $item->image . '_'.$size.'.png'));
+        }
+        foreach ([12, 9, 8, 4] as $size) {
+            $this->assertFileNotExists(public_path('storage/photos/' . $item->image . '_'.$size.'.png'));
+        }
+    }
+
+    public function create_item_with_empty_custom_image_sizes() {
+        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'gallery', 'parameters'=>'{"customSizes":1,"settingsScale":"100","orderDirection":"desc"}'])->specify();
+
+        $this->post("admin/ajaxuploader", [
+            'block_id' => $block->id,
+            'id' => null,
+            'ax_file_input' => UploadedFile::fake()->image('photo.jpg'),
+            'ax-max-file-size' => '100M',
+            'ax-file-path' => '../storage/app/public/photos',
+            'ax-allow-ext' => 'jpg|png|jpeg',
+            'ax-override' => true,
+            'startUpload' => "Upload images"
+        ],
+            [
+                'HTTP_X-Requested-With' => 'XMLHttpRequest'
+            ]);
+
+        $item = Block\Gallery::all()->last();
+
+        $this->assertFileExists(public_path('storage/photos/'.$item->image.'.png'));
+        foreach ([12, 9, 8, 6, 4, 3] as $size) {
+            $this->assertFileNotExists(public_path('storage/photos/' . $item->image . '_'.$size.'.png'));
+        }
+    }
 }

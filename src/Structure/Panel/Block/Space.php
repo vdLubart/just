@@ -42,10 +42,6 @@ class Space extends AbstractBlock
             $form->add(FormElement::text(['name'=>$param, 'label'=>$label, 'value'=>@$parameters->{$param}]));
         }
         
-        foreach($this->customAttributes() as $attr){
-            $form->add(FormElement::text(['name'=>$attr->name, 'label'=>$label, 'value'=>isset($parameters->{$attr->name})?$parameters->{$attr->name}:$attr->defaultValue]));
-        }
-        
         $form->add(FormElement::submit(['value'=>'Save']));
         
         return $form;

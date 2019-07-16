@@ -49,11 +49,11 @@ class Block extends Model
      * @throws \Exception
      */
     public function specify($id = null) {
-        $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
-        
+        $name = "\\App\\Just\\Panel\\Block\\". ucfirst($this->type);
+
         // looking for a custom block
         if(!class_exists($name)){
-            $name = "\\App\\Just\\Panel\\Block\\". ucfirst($this->type);
+            $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
             if(!class_exists($name)){
                 throw new \Exception("Block class \"".ucfirst($this->type)."\" not found");
             }
@@ -448,19 +448,21 @@ class Block extends Model
     }
     
     /**
-     * Return addons related to the current model
+     * Return add-ons related to the current block
      * 
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function addons() {
         return $this->hasMany(Addon::class);
     }
-    
-    public function addon($addonId) {
-        return Addon::find($addonId)->addon();
-    }
-    
-    public static function getAddonByName($name) {
+
+    /**
+     * Find related to current block add-on by name
+     *
+     * @param $name add-on name
+     * @return mixed
+     */
+    public static function addon($name) {
         return Addon::where('name', $name)->first();
     }
     
@@ -516,7 +518,18 @@ class Block extends Model
      * @return type
      */
     public function page() {
-        return $this->belongsTo(Page::class);
+        $page = $this->belongsTo(Page::class)->first();
+
+        // event block located in the related block
+        if(is_null($page) and is_null($this->panelLocation)){
+            $page = $this->parentBlock()->page();
+        }
+        // event block located in header or footer
+        elseif(!is_null($this->panelLocation)){
+            $page = Page::first();
+        }
+
+        return $page;
     }
     
     /**

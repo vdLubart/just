@@ -17,9 +17,9 @@ class CreateEventsTable extends Migration
             $table->increments('id');
             $table->integer('block_id')->unsigned();
             $table->string('subject');
-            $table->string('summary');
+            $table->string('summary', 1000);
             $table->string('slug');
-            $table->string('text');
+            $table->text('text');
             $table->string('image');
             $table->dateTime('start_date');
             $table->dateTime('end_date');

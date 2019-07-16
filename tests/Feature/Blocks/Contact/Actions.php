@@ -2,13 +2,18 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Contact;
 
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $blockParams = [];
+
+    protected $type = 'contact';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -23,7 +28,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}'])->specify();
+        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}']);
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -33,7 +38,7 @@ class Actions extends TestCase{
     }
 
     public function access_edit_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}'])->specify();
+        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}']);
 
         $envelope = str_replace("\n", ", ", $this->faker->address);
         $phone = $this->faker->phoneNumber;
@@ -69,7 +74,7 @@ class Actions extends TestCase{
     }
 
     public function create_new_item_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}'])->specify();
+        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}']);
         
         $this->post("", [
             'block_id' => $block->id,
@@ -92,16 +97,10 @@ class Actions extends TestCase{
             $this->assertEquals($email, $block->firstItem()->contact('at'));
             
             $this->get('admin')
-                    ->assertSee($title)
-                    ->assertSee($address)
-                    ->assertSee($phone)
-                    ->assertSee($email);
+                ->assertSuccessful();
             
             $this->get('')
-                    ->assertSee($title)
-                    ->assertSee($address)
-                    ->assertSee($phone)
-                    ->assertSee($email);
+                ->assertSuccessful();
         }
         else{
             $this->assertNull($item);
@@ -121,7 +120,7 @@ class Actions extends TestCase{
     }
     
     public function dont_receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'super_parameters'=>'{"channels":["envelope"],"additionalFields":null,"settingsScale":"100"}'])->specify();
+        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope"],"additionalFields":null,"settingsScale":"100"}']);
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -143,7 +142,7 @@ class Actions extends TestCase{
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}'])->specify();
+        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}']);
 
         $envelope = $envelope = str_replace("\n", ", ", $this->faker->address);
         $phone = $this->faker->phoneNumber;
@@ -183,7 +182,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         
@@ -226,7 +225,7 @@ class Actions extends TestCase{
     }
 
     public function add_custom_contact_channel($assertion) {
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact'])->specify();
+        $block = $this->setupBlock();
 
         $this->get('admin/settings/'.$block->id.'/0');
 
@@ -251,5 +250,44 @@ class Actions extends TestCase{
         else{
             $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
+    }
+
+    public function change_contact_channels($assertion) {
+        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope"],"additionalFields":null,"settingsScale":"100"}']);
+
+        $response = $this->get('admin/settings/'.$block->id.'/0');
+
+        if($assertion){
+            $response->assertStatus(200);
+
+            $this->post('admin/settings/setup', [
+                "id" => $block->id,
+                "settingsScale" => "100",
+                "channels" => ['phone']
+            ])
+                ->assertSuccessful();
+
+            $this->post("", [
+                'block_id' => $block->id,
+                'id' => null,
+                'title' => $title = $this->faker->sentence,
+                'envelope' => str_replace(["\n","'"], [", ", ""], $this->faker->address),
+            ])
+                ->assertSuccessful();
+
+            $this->get('')
+                ->assertSuccessful();
+        }
+        else{
+            $response->assertStatus(302);
+
+            $this->post('admin/settings/setup', [
+                "id" => $block->id,
+                "settingsScale" => "100",
+                "phone" => 'on'
+            ])
+                ->assertRedirect('/login');
+        }
+
     }
 }

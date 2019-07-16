@@ -16,6 +16,7 @@ class UpdateArticlesTable extends Migration
     {
         Schema::table('articles', function (Blueprint $table) {
             $table->string('slug')->after('subject');
+            $table->string('summary', 1000)->change();
         });
 
         DB::table('articles')->update(['slug'=>DB::raw("concat('article-', `id`)")]);
@@ -34,6 +35,7 @@ class UpdateArticlesTable extends Migration
     {
         Schema::table('articles', function (Blueprint $table) {
             $table->dropColumn('slug');
+            $table->string('summary')->change();
         });
     }
 }

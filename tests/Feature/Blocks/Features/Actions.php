@@ -2,14 +2,16 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Features;
 
-use Tests\TestCase;
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Tools\Useful;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $type = 'features';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -24,7 +26,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form_without_initial_data($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'features'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -46,7 +48,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form_when_block_is_setted_up($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'features', 'parameters'=>'{"itemsInRow":"4"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"itemsInRow":"4"}']);
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -55,7 +57,7 @@ class Actions extends TestCase{
     }
 
     public function access_edit_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'features'])->specify();
+        $block = $this->setupBlock();
         
         Block\Features::insert([
             'block_id' => $block->id,
@@ -89,7 +91,7 @@ class Actions extends TestCase{
     }
 
     public function create_new_item_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'features', 'parameters'=>'{"itemsInRow":"4"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"itemsInRow":"4"}']);
         
         $this->post("", [
             'block_id' => $block->id,
@@ -117,44 +119,18 @@ class Actions extends TestCase{
             $this->assertEquals($link, $block->firstItem()->link);
             
             $this->get('admin')
-                    ->assertSee($icon->class)
-                    ->assertSee("<".$icon->iconSet->tag)
-                    ->assertSee('class="'.$icon->iconSet->class)
-                    ->assertSee($title)
-                    ->assertSee($description)
-                    ->assertSee($link);
+                ->assertSuccessful();
             
             $this->get('')
-                    ->assertSee($icon->class)
-                    ->assertSee("<".$icon->iconSet->tag)
-                    ->assertSee('class="'.$icon->iconSet->class)
-                    ->assertSee($title)
-                    ->assertSee($description)
-                    ->assertSee($link);
+                ->assertSuccessful();
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($icon->class)
-                    ->assertDontSee("<".$icon->iconSet->tag)
-                    ->assertDontSee('class="'.$icon->iconSet->class)
-                    ->assertDontSee($title)
-                    ->assertDontSee($description)
-                    ->assertDontSee($link);
-            
-            $this->get('')
-                    ->assertDontSee($icon->class)
-                    ->assertDontSee("<".$icon->iconSet->tag)
-                    ->assertDontSee('class="'.$icon->iconSet->class)
-                    ->assertDontSee($title)
-                    ->assertDontSee($description)
-                    ->assertDontSee($link);
         }
     }
     
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'features', 'parameters'=>'{"itemsInRow":"4"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"itemsInRow":"4"}']);
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -183,7 +159,7 @@ class Actions extends TestCase{
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'features', 'parameters'=>'{"itemsInRow":"4"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"itemsInRow":"4"}']);
         
         Block\Features::insert([
             'block_id' => $block->id,
@@ -218,7 +194,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'features'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         

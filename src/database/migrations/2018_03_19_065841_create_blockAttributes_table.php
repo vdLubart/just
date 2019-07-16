@@ -23,9 +23,9 @@ class CreateBlockAttributesTable extends Migration
             
             $table->increments('id');
             $table->string('label');
-	    $table->string('name');
-	    $table->string('defaultValue');
-	    $table->string('block');
+            $table->string('name');
+            $table->string('defaultValue');
+            $table->string('block');
             $table->timestamps();
             
             $table->foreign("block")->references("block")->on("blockList")->onUpdate('cascade')->onDelete('cascade');

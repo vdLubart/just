@@ -2,15 +2,19 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Articles;
 
+use App\User;
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
-    
+
+    protected $type = 'articles';
+
     public function tearDown(){
         foreach(Block::all() as $block){
             $block->delete();
@@ -22,10 +26,10 @@ class Actions extends TestCase{
         
         parent::tearDown();
     }
-    
+
     public function access_item_form_without_initial_data($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'articles'])->specify();
-        
+        $block = $this->setupBlock();
+
         $response = $this->get("admin/settings/".$block->id."/0");
         
         $response->assertDontSee('input name="subject"');
@@ -52,8 +56,8 @@ class Actions extends TestCase{
     }
     
     public function access_item_form_when_block_is_setted_up($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'articles', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}'])->specify();
-        
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+
         $response = $this->get("admin/settings/".$block->id."/0");
         
         $response->{($assertion ? 'assertSee' : 'assertDontSee')}('input name="image"');
@@ -61,7 +65,7 @@ class Actions extends TestCase{
     }
 
     public function access_edit_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'articles'])->specify();
+        $block = $this->setupBlock();
         
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -71,6 +75,7 @@ class Actions extends TestCase{
         Block\Articles::insert([
             'block_id' => $block->id,
             'subject' => $subject,
+            'slug' => str_slug($subject),
             'summary' => $summary,
             'text' => $text,
             'image' => $image
@@ -106,7 +111,7 @@ class Actions extends TestCase{
     }
 
     public function create_new_item_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'articles', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
         
         $response = $this->post("", [
             'block_id' => $block->id,
@@ -135,30 +140,14 @@ class Actions extends TestCase{
             $this->assertEquals($subject, $block->firstItem()->subject);
             $this->assertEquals($summary, $block->firstItem()->summary);
             $this->assertEquals($text, $block->firstItem()->text);
-            
-            $this->get('admin')
-                    ->assertSee($subject)
-                    ->assertSee($summary);
-            
-            $this->get('')
-                    ->assertSee($subject)
-                    ->assertSee($summary);
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($subject)
-                    ->assertDontSee($summary);
-            
-            $this->get('')
-                    ->assertDontSee($subject)
-                    ->assertDontSee($summary);
         }
     }
 
     public function create_new_item_in_block_without_cropping_image(){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'articles', 'parameters'=>'{"itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
 
         $response = $this->post("", [
             'block_id' => $block->id,
@@ -175,7 +164,7 @@ class Actions extends TestCase{
     }
     
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'articles', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -201,18 +190,27 @@ class Actions extends TestCase{
     }
 
     public function edit_existing_item_in_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'articles', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}'])->specify();
-        
-        Block\Articles::insert([
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+
+        if(!$assertion){
+            $this->actingAs(User::first());
+        }
+
+        $this->post("", [
             'block_id' => $block->id,
+            'id' => null,
             'subject' => $subject = $this->faker->sentence,
             'summary' => $summary = $this->faker->text,
-            'text' => $this->faker->text,
-            'image' => uniqid()
+            'text' => $text = $this->faker->text,
+            'image' => UploadedFile::fake()->image('photo.jpg')
         ]);
+
+        if(!$assertion){
+            \Auth::logout();
+        }
         
         $item = Block\Articles::all()->last();
-        
+
         $text = $this->faker->paragraph;
         
         $this->post("", [
@@ -226,21 +224,28 @@ class Actions extends TestCase{
         $item = Block\Articles::all()->last();
         
         if($assertion){
+            $this->get("admin/settings/".$block->id."/".$item->id)
+                ->assertSee('<img src="/storage/articles/'.$item->image.'_3.png" />');
+
             $this->assertEquals($subject, $item->subject);
             $this->assertEquals($summary, $item->summary);
             $this->assertEquals($text, $item->text);
         }
         else{
+            $this->get("admin/settings/".$block->id."/".$item->id)
+                ->assertRedirect('/login');
+
             $this->assertNotEquals($text, $item->text);
         }
     }
     
     public function access_created_item($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'articles', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
 
         Block\Articles::insert([
             'block_id' => $block->id,
             'subject' => $subject = $this->faker->sentence,
+            'slug' => str_slug($subject),
             'summary' => $summary = $this->faker->text,
             'text' => $text = $this->faker->text,
             'image' => uniqid()
@@ -254,10 +259,7 @@ class Actions extends TestCase{
         if($assertion){
             if(\Auth::id()){
                 $this->get('admin/article/'.$item->id)
-                        ->assertStatus(200)
-                        ->assertSee($subject)
-                        ->assertDontSee($summary)
-                        ->assertSee($text);
+                        ->assertStatus(200);
             }
             else{
                 $this->get('admin/article/'.$item->id)
@@ -265,10 +267,7 @@ class Actions extends TestCase{
             }
 
             $this->get('article/'.$item->id)
-                    ->assertStatus(200)
-                    ->assertSee($subject)
-                    ->assertDontSee($summary)
-                    ->assertSee($text);
+                    ->assertStatus(200);
         }
         else{
             $this->get('article/'.$item->id)
@@ -277,7 +276,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'articles'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         
@@ -341,6 +340,69 @@ class Actions extends TestCase{
             $block = Block::find($block->id);
             
             $this->assertNotEquals('{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
+        }
+    }
+
+    public function create_item_with_standard_image_sizes() {
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'subject' => $subject = $this->faker->sentence,
+            'summary' => $summary = $this->faker->text,
+            'text' => $text = $this->faker->text,
+            'image' => UploadedFile::fake()->image('photo.jpg')
+        ]);
+
+        $item = Block\Articles::all()->last();
+
+        $this->assertFileExists(public_path('storage/articles/'.$item->image.'.png'));
+        foreach ([12, 9, 8, 6, 4, 3] as $size) {
+            $this->assertFileExists(public_path('storage/articles/' . $item->image . '_'.$size.'.png'));
+        }
+    }
+
+    public function create_item_with_custom_image_sizes() {
+        $block = $this->setupBlock(['parameters'=>'{"customSizes":1,"photoSizes":["6","3"],"itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'subject' => $subject = $this->faker->sentence,
+            'summary' => $summary = $this->faker->text,
+            'text' => $text = $this->faker->text,
+            'image' => UploadedFile::fake()->image('photo.jpg')
+        ]);
+
+        $item = Block\Articles::all()->last();
+
+        $this->assertFileExists(public_path('storage/articles/'.$item->image.'.png'));
+        foreach ([6, 3] as $size) {
+            $this->assertFileExists(public_path('storage/articles/' . $item->image . '_'.$size.'.png'));
+        }
+        foreach ([12, 9, 8, 4] as $size) {
+            $this->assertFileNotExists(public_path('storage/articles/' . $item->image . '_'.$size.'.png'));
+        }
+    }
+
+    public function create_item_with_empty_custom_image_sizes() {
+        $block = $this->setupBlock(['parameters'=>'{"customSizes":1,"itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'subject' => $subject = $this->faker->sentence,
+            'summary' => $summary = $this->faker->text,
+            'text' => $text = $this->faker->text,
+            'image' => UploadedFile::fake()->image('photo.jpg')
+        ]);
+
+        $item = Block\Articles::all()->last();
+
+        $this->assertFileExists(public_path('storage/articles/'.$item->image.'.png'));
+        foreach ([12, 9, 8, 6, 4, 3] as $size) {
+            $this->assertFileNotExists(public_path('storage/articles/' . $item->image . '_'.$size.'.png'));
         }
     }
 }

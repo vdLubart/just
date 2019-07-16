@@ -30,4 +30,12 @@ class BlockTest extends TestCase
         
         $this->assertEquals($block->id, $foundedBlock->id);
     }
+
+    /** @test */
+    function get_image_path(){
+        $gallery = new Block\Gallery();
+
+        $this->assertEquals(public_path('storage/photos/imageCode.png'), $gallery->image('imageCode'));
+        $this->assertEquals(public_path('storage/photos/imageCode_6.png'), $gallery->image('imageCode', 6));
+    }
 }

@@ -110,7 +110,7 @@ class Events extends AbstractBlock
                 'title' => 'Event',
                 'description' => '',
                 'route' => $this->block->parameter('itemRouteBase') . '/{id}',
-                'layout_id' => $this->block->page->layout_id
+                'layout_id' => $this->block->page()->layout_id
             ]);
         }
 
@@ -288,13 +288,8 @@ $(document).ready(function(){
 
         if($this->parameter('notify') !== null){
             $admins = User::where('role', 'admin')->get();
-            $page = $this->block->page;
-            if(is_null($page) and is_null($this->block->location)){
-                $page = $this->block->page;
-            }
-            elseif(!is_null($this->block->location)){
-                $page = Page::first();
-            }
+            $page = $this->block->page();
+
             foreach ($admins as $admin){
                 $admin->sendRegistrationNotifiaction($request->get('name') . ' (' . $request->get('email') . ')', $event, $request->get('comment'), $page->route);
             }

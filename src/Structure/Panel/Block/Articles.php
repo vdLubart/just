@@ -37,12 +37,12 @@ class Articles extends AbstractBlock
                 'type' => 'page',
                 'block_id' => $this->block_id
             ]);
-            
+
             Page::create([
                 'title' => str_singular($this->block->title),
                 'description' => '',
                 'route' => $this->block->parameter('itemRouteBase') . '/{id}',
-                'layout_id' => $this->block->page->layout_id
+                'layout_id' => $this->block->page()->layout_id
             ]);
         }
     }

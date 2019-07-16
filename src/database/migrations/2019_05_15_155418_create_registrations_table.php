@@ -20,6 +20,8 @@ class CreateRegistrationsTable extends Migration
             $table->string('email');
             $table->string('comment', 1000)->nullable()->default(null);
             $table->timestamps();
+
+            $table->foreign('event_id')->references('id')->on('events')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

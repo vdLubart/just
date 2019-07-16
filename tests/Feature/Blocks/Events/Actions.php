@@ -3,18 +3,21 @@
 namespace Lubart\Just\Tests\Feature\Blocks\Events;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use Lubart\Just\Models\Route;
+use Illuminate\Support\Facades\Notification;
+use Lubart\Just\Models\User;
+use Lubart\Just\Notifications\NewRegistration;
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Lubart\Just\Tests\Feature\Helper;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
     use Helper;
+
+    protected $type = 'events';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -22,14 +25,14 @@ class Actions extends TestCase{
         }
         
         if(file_exists(public_path('storage/articles'))){
-            exec('rm -rf ' . public_path('storage/articles'));
+            exec('rm -rf ' . public_path('storage/events'));
         }
         
         parent::tearDown();
     }
     
     public function access_item_form_without_initial_data($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -57,7 +60,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form_when_block_is_setted_up($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -66,7 +69,7 @@ class Actions extends TestCase{
     }
 
     public function access_edit_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events'])->specify();
+        $block = $this->setupBlock();
         
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -117,7 +120,7 @@ class Actions extends TestCase{
     }
 
     public function create_new_item_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
 
         $response = $this->post("", [
             'block_id' => $block->id,
@@ -147,24 +150,27 @@ class Actions extends TestCase{
 
         if($assertion){
             $this->assertNotNull($item);
-            
-            $this->assertEquals($block->id, $block->firstItem()->block_id);
-            $this->assertEquals($subject, $block->firstItem()->subject);
-            $this->assertEquals($summary, $block->firstItem()->summary);
-            $this->assertEquals($text, $block->firstItem()->text);
-            $this->assertEquals(Carbon::now()->modify("+2 hours")->format("Y-m-d H:i:00"), $block->firstItem()->start_date);
-            $this->assertEquals(Carbon::now()->modify("+4 hours")->format("Y-m-d H:i:00"), $block->firstItem()->end_date);
-            $this->assertEquals($location, $block->firstItem()->location);
-            
-            $this->get('admin')
+
+            $this->assertEventBlockCreatedSuccessfully($item, $subject, $summary, $text, $location);
+
+            if(!is_null($this->blockParams['panelLocation'])) {
+                $this->get('admin')
                     ->assertSee($subject)
                     ->assertSee($summary)
                     ->assertSee($location);
-            
-            $this->get('')
+
+                $this->get('')
                     ->assertSee($subject)
                     ->assertSee($summary)
                     ->assertSee($location);
+            }
+            else{
+                $this->get('admin')
+                    ->assertSuccessful();
+
+                $this->get('')
+                    ->assertSuccessful();
+            }
         }
         else{
             $this->assertNull($item);
@@ -186,7 +192,7 @@ class Actions extends TestCase{
     }
     
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -212,7 +218,7 @@ class Actions extends TestCase{
     }
 
     public function edit_existing_item_in_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -232,7 +238,7 @@ class Actions extends TestCase{
         ]);
         
         $item = Block\Events::all()->last();
-        
+
         $this->post("", [
             'block_id' => $block->id,
             'id' => $item->id,
@@ -249,12 +255,7 @@ class Actions extends TestCase{
         $item = Block\Events::all()->last();
         
         if($assertion){
-            $this->assertEquals($newSubject, $item->subject);
-            $this->assertEquals($newSummary, $item->summary);
-            $this->assertEquals($newText, $item->text);
-            $this->assertEquals($newLocation, $item->location);
-            $this->assertEquals(Carbon::now()->modify("+4 hours")->format("Y-m-d H:i:00"), $item->start_date);
-            $this->assertEquals(Carbon::now()->modify("+6 hours")->format("Y-m-d H:i:00"), $item->end_date);
+            $this->assertEventBlockCreatedSuccessfully($item, $newSubject, $newSummary, $newText, $newLocation, "+4 hours", "+6 hours");
         }
         else{
             $this->assertNotEquals($newText, $item->text);
@@ -262,7 +263,7 @@ class Actions extends TestCase{
     }
     
     public function access_created_item($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -289,10 +290,7 @@ class Actions extends TestCase{
         if($assertion){
             if(\Auth::id()){
                 $this->get('admin/event/'.$item->id)
-                        ->assertStatus(200)
-                        ->assertSee($subject)
-                        ->assertDontSee($summary)
-                        ->assertSee($text);
+                    ->assertSuccessful();
             }
             else{
                 $this->get('admin/event/'.$item->id)
@@ -300,10 +298,7 @@ class Actions extends TestCase{
             }
 
             $this->get('event/'.$item->id)
-                    ->assertStatus(200)
-                    ->assertSee($subject)
-                    ->assertDontSee($summary)
-                    ->assertSee($text);
+                ->assertSuccessful();
         }
         else{
             $this->get('event/'.$item->id)
@@ -312,7 +307,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         
@@ -380,7 +375,7 @@ class Actions extends TestCase{
     }
 
     public function create_event_with_addon($assertion) {
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
         $addon = factory(Block\Addon::class)->create(['block_id'=>$block->id, 'type'=>'strings', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
         $addonItem = $addon->addon();
         $addonTable = (new $addonItem)->getTable();
@@ -425,7 +420,7 @@ class Actions extends TestCase{
     }
 
     public function get_events_from_the_current_category() {
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'events', 'parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
 
         $addon = factory(Block\Addon::class)->create(['block_id'=>$block->id, 'type'=>'categories', 'name'=>$name = $this->faker->word]);
         $addonItem = $addon->addon();
@@ -484,5 +479,344 @@ class Actions extends TestCase{
             ->assertDontSee($subject1);
 
 
+    }
+
+    public function create_item_with_standard_image_sizes() {
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'subject' => $subject = $this->faker->sentence,
+            'start_date' => Carbon::today()->format("Y-m-d"),
+            'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
+            'end_date' => Carbon::today()->format("Y-m-d"),
+            'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
+            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'summary' => $summary = $this->faker->text,
+            'text' => $text = $this->faker->text,
+            'image' => UploadedFile::fake()->image('photo.jpg')
+        ]);
+
+        $item = Block\Events::all()->last();
+
+        $this->assertEventBlockCreatedSuccessfully($item, $subject, $summary, $text, $location);
+
+        $this->assertFileExists(public_path('storage/events/'.$item->image.'.png'));
+        foreach ([12, 9, 8, 6, 4, 3] as $size) {
+            $this->assertFileExists(public_path('storage/events/' . $item->image . '_'.$size.'.png'));
+        }
+    }
+
+    public function create_item_with_custom_image_sizes() {
+        $block = $this->setupBlock(['parameters'=>'{"customSizes":1,"photoSizes":["6","3"],"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'subject' => $subject = $this->faker->sentence,
+            'start_date' => Carbon::today()->format("Y-m-d"),
+            'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
+            'end_date' => Carbon::today()->format("Y-m-d"),
+            'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
+            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'summary' => $summary = $this->faker->text,
+            'text' => $text = $this->faker->text,
+            'image' => UploadedFile::fake()->image('photo.jpg')
+        ]);
+
+        $item = Block\Events::all()->last();
+
+        $this->assertEventBlockCreatedSuccessfully($item, $subject, $summary, $text, $location);
+
+        $this->assertFileExists(public_path('storage/events/'.$item->image.'.png'));
+        foreach ([6, 3] as $size) {
+            $this->assertFileExists(public_path('storage/events/' . $item->image . '_'.$size.'.png'));
+        }
+        foreach ([12, 9, 8, 4] as $size) {
+            $this->assertFileNotExists(public_path('storageeventss/' . $item->image . '_'.$size.'.png'));
+        }
+    }
+
+    public function create_item_with_empty_custom_image_sizes() {
+        $block = $this->setupBlock(['parameters'=>'{"customSizes":1,"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'subject' => $subject = $this->faker->sentence,
+            'start_date' => Carbon::today()->format("Y-m-d"),
+            'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
+            'end_date' => Carbon::today()->format("Y-m-d"),
+            'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
+            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'summary' => $summary = $this->faker->text,
+            'text' => $text = $this->faker->text,
+            'image' => UploadedFile::fake()->image('photo.jpg')
+        ]);
+
+        $item = Block\Events::all()->last();
+
+        $this->assertEventBlockCreatedSuccessfully($item, $subject, $summary, $text, $location);
+
+        $this->assertFileExists(public_path('storage/events/'.$item->image.'.png'));
+        foreach ([12, 9, 8, 6, 4, 3] as $size) {
+            $this->assertFileNotExists(public_path('storage/events/' . $item->image . '_'.$size.'.png'));
+        }
+    }
+
+    public function register_on_event() {
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+
+        $subject = $this->faker->sentence;
+        $summary = $this->faker->text;
+        $text = $this->faker->text;
+        $address = str_replace("\n", "", $this->faker->address);
+        $image = uniqid();
+
+        Block\Events::insert([
+            'block_id' => $block->id,
+            'subject' => $subject,
+            'summary' => $summary,
+            'slug' => str_slug($subject),
+            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
+            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
+            'location' => $address,
+            'text' => $text,
+            'image' => $image
+        ]);
+
+        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+
+        $item = Block\Events::all()->last();
+
+        $this->get("/event/".str_slug($subject))
+            ->assertSuccessful();
+
+        $this->post('/register-event', [
+            'block_id' => $block->id,
+            'event_id' => $item->id,
+            'name' => $userName = $this->faker->name,
+            'email' => $userEmail = $this->faker->email,
+            'comment' => $userComment = $this->faker->sentence
+        ])
+            ->assertSessionHas('successMessageFromEvents'.$block->id);
+    }
+
+    public function register_on_event_without_comment() {
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+
+        $subject = $this->faker->sentence;
+        $summary = $this->faker->text;
+        $text = $this->faker->text;
+        $address = str_replace("\n", "", $this->faker->address);
+        $image = uniqid();
+
+        Block\Events::insert([
+            'block_id' => $block->id,
+            'subject' => $subject,
+            'summary' => $summary,
+            'slug' => str_slug($subject),
+            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
+            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
+            'location' => $address,
+            'text' => $text,
+            'image' => $image
+        ]);
+
+        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+
+        $item = Block\Events::all()->last();
+
+        $this->get("/event/".str_slug($subject))
+            ->assertSuccessful();
+
+        $this->post('/register-event', [
+            'block_id' => $block->id,
+            'event_id' => $item->id,
+            'name' => $userName = $this->faker->name,
+            'email' => $userEmail = $this->faker->email
+        ])
+            ->assertSessionHas('successMessageFromEvents'.$block->id);
+    }
+
+    public function cannot_register_on_event_without_name() {
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+
+        $subject = $this->faker->sentence;
+        $summary = $this->faker->text;
+        $text = $this->faker->text;
+        $address = str_replace("\n", "", $this->faker->address);
+        $image = uniqid();
+
+        Block\Events::insert([
+            'block_id' => $block->id,
+            'subject' => $subject,
+            'summary' => $summary,
+            'slug' => str_slug($subject),
+            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
+            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
+            'location' => $address,
+            'text' => $text,
+            'image' => $image
+        ]);
+
+        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+
+        $item = Block\Events::all()->last();
+
+        $this->get("/event/".str_slug($subject))
+            ->assertSuccessful();
+
+        $this->post('/register-event', [
+            'block_id' => $block->id,
+            'event_id' => $item->id,
+            'email' => $userEmail = $this->faker->email
+        ])
+            ->assertSessionHasErrors('name', 'messages', 'errorsFromEvents'.$block->id);
+    }
+
+    public function cannot_register_on_event_without_email() {
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+
+        $subject = $this->faker->sentence;
+        $summary = $this->faker->text;
+        $text = $this->faker->text;
+        $address = str_replace("\n", "", $this->faker->address);
+        $image = uniqid();
+
+        Block\Events::insert([
+            'block_id' => $block->id,
+            'subject' => $subject,
+            'summary' => $summary,
+            'slug' => str_slug($subject),
+            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
+            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
+            'location' => $address,
+            'text' => $text,
+            'image' => $image
+        ]);
+
+        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
+        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+
+        $item = Block\Events::all()->last();
+
+        $this->get("/event/".str_slug($subject))
+            ->assertSuccessful();
+
+        $this->post('/register-event', [
+            'block_id' => $block->id,
+            'event_id' => $item->id,
+            'name' => $userName = $this->faker->name,
+        ])
+            ->assertSessionHasErrors('email', 'messages', 'errorsFromEvents'.$block->id);
+    }
+
+    public function cannot_register_on_event_twice() {
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+
+        $subject = $this->faker->sentence;
+        $summary = $this->faker->text;
+        $text = $this->faker->text;
+        $address = str_replace("\n", "", $this->faker->address);
+        $image = uniqid();
+
+        Block\Events::insert([
+            'block_id' => $block->id,
+            'subject' => $subject,
+            'summary' => $summary,
+            'slug' => str_slug($subject),
+            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
+            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
+            'location' => $address,
+            'text' => $text,
+            'image' => $image
+        ]);
+
+        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+
+        $item = Block\Events::all()->last();
+
+        $this->get("/event/".str_slug($subject))
+            ->assertSuccessful();
+
+        $this->post('/register-event', [
+            'block_id' => $block->id,
+            'event_id' => $item->id,
+            'name' => $userName = $this->faker->name,
+            'email' => $userEmail = $this->faker->email
+        ])
+            ->assertSessionHas('successMessageFromEvents'.$block->id);
+
+        $this->post('/register-event', [
+            'block_id' => $block->id,
+            'event_id' => $item->id,
+            'name' => $userName = $this->faker->name,
+            'email' => $userEmail
+        ])
+            ->assertSessionHasErrors('email', 'messages', 'errorsFromEvents'.$block->id);
+    }
+
+    public function admin_is_notified_about_new_registration_on_event() {
+        $block = $this->setupBlock(['parameters'=>'{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = 'Huura'.$this->faker->sentence).'"}']);
+
+        $subject = $this->faker->sentence;
+        $summary = $this->faker->text;
+        $text = $this->faker->text;
+        $address = str_replace("\n", "", $this->faker->address);
+        $image = uniqid();
+
+        Block\Events::insert([
+            'block_id' => $block->id,
+            'subject' => $subject,
+            'summary' => $summary,
+            'slug' => str_slug($subject),
+            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
+            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
+            'location' => $address,
+            'text' => $text,
+            'image' => $image
+        ]);
+
+        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+
+        $item = Block\Events::all()->last();
+
+        $this->get("/event/".str_slug($subject))
+            ->assertSuccessful();
+
+        $note = Notification::fake();
+
+        $this->post('/register-event', [
+            'block_id' => $block->id,
+            'event_id' => $item->id,
+            'name' => $userName = $this->faker->name,
+            'email' => $userEmail = $this->faker->email,
+            'comment' => $userComment = $this->faker->sentence
+        ])
+            ->assertSessionHas('successMessageFromEvents'.$block->id);
+
+        $note->assertSentTo(User::where('role', 'admin')->first(), NewRegistration::class);
+    }
+
+    private function assertEventBlockCreatedSuccessfully($item, $subject, $summary, $text, $location, $startDateModify = "+2 hours", $endDateModify = "+4 hours") {
+        $this->assertEquals($subject, $item->subject);
+        $this->assertEquals($summary, $item->summary);
+        $this->assertEquals($text, $item->text);
+        $this->assertEquals($location, $item->location);
+        $this->assertEquals(Carbon::now()->modify($startDateModify)->format("Y-m-d H:i:00"), $item->start_date);
+        $this->assertEquals(Carbon::now()->modify($endDateModify)->format("Y-m-d H:i:00"), $item->end_date);
     }
 }

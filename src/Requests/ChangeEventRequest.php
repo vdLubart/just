@@ -28,7 +28,7 @@ class ChangeEventRequest extends FormRequest
             "image" => "image|nullable",
             "subject" => "required",
             "start_date" => "required|date|date_format:Y-m-d",
-            "end_date" => "required|date|date_format:Y-m-d|after_or_equal:start_date",
+            "end_date" => "nullable|date|date_format:Y-m-d|after_or_equal:start_date",
             "start_time" => "nullable|regex:/\d{2}\:\d{2}/",
             "end_time" => "nullable|regex:/\d{2}\:\d{2}/",
             "location" => "string",
