@@ -44,10 +44,6 @@ abstract class AbstractBlock extends Model
     public function __construct() {
         parent::__construct();
 
-        if(empty($this->settingsTitle) and $this->block) {
-            $this->settingsTitle = str_singular($this->block->title);
-        }
-
         if(\Auth::id()){
             $this->form = new Form;
         }

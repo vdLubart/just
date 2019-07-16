@@ -27,6 +27,8 @@ class Articles extends AbstractBlock
     protected $table = 'articles';
 
     protected $neededParameters = [ 'itemRouteBase' ];
+
+    protected $settingsTitle = 'Article';
     
     public function setup() {
         if(!empty($this->block->parameter('itemRouteBase')) and !Useful::isRouteExists($this->block->parameter('itemRouteBase') . "/{id}")){
