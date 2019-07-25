@@ -129,7 +129,7 @@ $(document).ready(function(){
         if(!is_null($request->file('image'))){
             $image->encode('png')->save(public_path('storage/'.$this->table.'/'.$article->image.".png"));
 
-            if($this->parameter('shouldBeCropped')) {
+            if($this->parameter('cropPhoto')) {
                 $article->shouldBeCropped = true;
             }
             else{

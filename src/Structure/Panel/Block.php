@@ -174,18 +174,7 @@ class Block extends Model
      * @return mixed
      */
     public function firstItem(){
-        $content = $this->content();
-        
-        if($content instanceof \Illuminate\Database\Eloquent\Collection){
-            return $content->first();
-        }
-        
-        switch (true){
-            case ($this->model() instanceof Block\Feedback) :
-                return $content->messages->first();
-        }
-        
-        return $content;
+        return $this->content()->first();
     }
     
     /**
@@ -325,7 +314,7 @@ class Block extends Model
         $block = self::find($blockId);
         
         if(!$block){
-            throw new \Exception("Block not found");
+            return null;
         }
         
         $block->specify($id);
@@ -337,7 +326,7 @@ class Block extends Model
         $block = self::where('name', $name)->get();
         
         if($block->isEmpty()){
-            throw new \Exception("Block not found");
+            return null;
         }
         
         return $block->first(); 
@@ -422,17 +411,6 @@ class Block extends Model
     
     public function parameter($param) {
         return @$this->parameters()->{$param};
-    }
-    
-    /**
-     * Return route where current block is located
-     * 
-     * @return Route
-     */
-    public function route() {
-        return $this->belongsTo(Panel::class, 'panel_id')->first()
-                ->belongsTo(Page::class, 'page_id')->first()
-                ->belongsTo(Route::class, 'route', 'route');
     }
     
     /**

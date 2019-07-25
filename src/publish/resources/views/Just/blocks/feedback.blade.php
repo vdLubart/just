@@ -9,9 +9,9 @@
     </div>
     @endif
     
-    {!! $block->content()->form->render() !!}
+    {!! $block->model()->feedbackForm()->render() !!}
     
-    @foreach($block->content()->messages as $comment)
+    @foreach($block->content() as $comment)
     <div class="col-md-6">
         <div class="thumbnail">
             <div class="caption">

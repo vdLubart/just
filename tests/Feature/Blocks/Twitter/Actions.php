@@ -2,13 +2,16 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Twitter;
 
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $type = 'twitter';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -21,7 +24,7 @@ class Actions extends TestCase{
     public function access_item_form($assertion){
         $account = $this->faker->word;
         $id = $this->faker->numberBetween();
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'twitter', 'parameters'=>'{"account":"'.$account.'","widgetId":"'.$id.'"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"account":"'.$account.'","widgetId":"'.$id.'"}']);
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -34,11 +37,11 @@ class Actions extends TestCase{
             $this->assertEquals([], array_keys($form->getElements()));
             
             $this->get('admin')
-                    ->assertSee('<div id="twitter_'.$block->id.'">')
+                    ->assertSee('<div id="twitter_'.$block->id.'"')
                     ->assertSee('@'.$account);
             
             $this->get('')
-                    ->assertSee('<div id="twitter_'.$block->id.'">')
+                    ->assertSee('<div id="twitter_'.$block->id.'"')
                     ->assertSee('@'.$account);
         }
         else{
@@ -48,7 +51,7 @@ class Actions extends TestCase{
                     ->assertRedirect('/login');
             
             $this->get('')
-                    ->assertSee('<div id="twitter_'.$block->id.'">')
+                    ->assertSee('<div id="twitter_'.$block->id.'"')
                     ->assertSee('@'.$account);
         }
         
@@ -56,7 +59,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'twitter'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         

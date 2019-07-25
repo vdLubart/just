@@ -2,14 +2,16 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Menu;
 
-use Tests\TestCase;
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Models\Route;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $type = 'menu';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -24,7 +26,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'menu'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -35,7 +37,7 @@ class Actions extends TestCase{
     }
     
     public function access_edit_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'menu'])->specify();
+        $block = $this->setupBlock();
         
         Block\Menu::insert([
             'block_id' => $block->id,
@@ -62,7 +64,7 @@ class Actions extends TestCase{
     }
 
     public function create_new_item_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'menu'])->specify();
+        $block = $this->setupBlock();
         
         $this->post("", [
             'block_id' => $block->id,
@@ -83,54 +85,33 @@ class Actions extends TestCase{
             $this->assertNull($firstItem->parent);
             $this->assertEquals('', $firstItem->route);
             $this->assertNull($firstItem->url);
-            
-            $this->get('admin')
-                    ->assertSee($menuItem);
-            
-            $this->get('')
-                    ->assertSee($menuItem);
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($menuItem);
-            
-            $this->get('')
-                    ->assertDontSee($menuItem);
         }
     }
     
-    public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'menu'])->specify();
+    public function receive_an_error_on_sending_incompleate_create_item_form(){
+        $block = $this->setupBlock();
         
         $this->get("admin/settings/".$block->id."/0");
         
-        $response = $this->post("", [
+        $this->post("", [
             'block_id' => $block->id,
             'id' => null,
             'parent' => 0,
             'route' => 1
-        ]);
+        ])
+            ->assertSessionHasErrors('item')
+            ->assertRedirect();
         
         $item = Block\Menu::all()->last();
         
-        $response->assertRedirect();
-        
         $this->assertNull($item);
-        
-        if($assertion){
-            $this->followRedirects($response)
-                    ->assertSee("The item field is required");
-        }
-        else{
-            $this->followRedirects($response)
-                    ->assertDontSee("The item field is required");
-        }
     }
     
     public function create_new_item_with_link_to_another_page($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'menu'])->specify();
+        $block = $this->setupBlock();
         
         $route = \Lubart\Just\Models\Route::create([
             'route' => $this->faker->word,
@@ -162,30 +143,14 @@ class Actions extends TestCase{
             $this->assertNull($firstItem->parent);
             $this->assertEquals($route->route, $firstItem->route);
             $this->assertNull($firstItem->url);
-            
-            $this->get('admin')
-                    ->assertSee($menuItem)
-                    ->assertSee('<a href="'.env('APP_URL').'/admin/'.$route->route.'"');
-            
-            $this->get('')
-                    ->assertSee($menuItem)
-                    ->assertSee('<a href="'.env('APP_URL').'/'.$route->route.'"');
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($menuItem)
-                    ->assertDontSee('<a href="'.env('APP_URL').'/admin/'.$route->route.'"');
-            
-            $this->get('')
-                    ->assertDontSee($menuItem)
-                    ->assertDontSee('<a href="'.env('APP_URL').'/'.$route->route.'"');
         }
     }
     
     public function create_new_item_with_custom_url($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'menu'])->specify();
+        $block = $this->setupBlock();
         
         $this->post("", [
             'block_id' => $block->id,
@@ -206,70 +171,14 @@ class Actions extends TestCase{
             $this->assertNull($firstItem->parent);
             $this->assertEquals('', $firstItem->route);
             $this->assertEquals($url, $firstItem->url);
-            
-            $this->get('admin')
-                    ->assertSee($menuItem)
-                    ->assertSee('<a href="'.env('APP_URL').'/'.$url.'"');
-            
-            $this->get('')
-                    ->assertSee($menuItem)
-                    ->assertSee('<a href="'.env('APP_URL').'/'.$url.'"');
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($menuItem)
-                    ->assertDontSee('<a href="'.env('APP_URL').'/'.$url.'"');
-            
-            $this->get('')
-                    ->assertDontSee($menuItem)
-                    ->assertDontSee('<a href="'.env('APP_URL').'/'.$url.'"');
-        }
-        
-        $this->post("", [
-            'block_id' => $block->id,
-            'id' => null,
-            'item' => $menuItem = $this->faker->word,
-            'parent' => 0,
-            'route' => 1,
-            'url' => $url = $this->faker->url
-        ]);
-        
-        $item = Block\Menu::all()->last();
-        
-        if($assertion){
-            $this->assertNotNull($item);
-            $firstItem = array_last($block->content())['item'];
-            
-            $this->assertEquals($menuItem, $firstItem->item);
-            $this->assertNull($firstItem->parent);
-            $this->assertEquals('', $firstItem->route);
-            $this->assertEquals($url, $firstItem->url);
-            
-            $this->get('admin')
-                    ->assertSee($menuItem)
-                    ->assertSee('<a href="'.$url.'"');
-            
-            $this->get('')
-                    ->assertSee($menuItem)
-                    ->assertSee('<a href="'.$url.'"');
-        }
-        else{
-            $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($menuItem)
-                    ->assertDontSee('<a href="'.$url.'"');
-            
-            $this->get('')
-                    ->assertDontSee($menuItem)
-                    ->assertDontSee('<a href="'.$url.'"');
         }
     }
     
     public function create_few_items_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'menu'])->specify();
+        $block = $this->setupBlock();
         
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
@@ -350,7 +259,7 @@ class Actions extends TestCase{
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'menu'])->specify();
+        $block = $this->setupBlock();
         
         Block\Menu::insert([
             'block_id' => $block->id,
@@ -382,7 +291,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'menu'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         
@@ -415,5 +324,143 @@ class Actions extends TestCase{
             
             $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
         }
+    }
+
+    public function change_items_order_in_the_block($assertion){
+        $block = $this->setupBlock();
+
+        Block\Menu::insert([
+            'block_id' => $block->id,
+            'item' => $this->faker->word,
+            'parent' => null,
+            'route' => '',
+            'url' => null,
+            'orderNo' => 1
+        ]);
+
+        Block\Menu::insert([
+            'block_id' => $block->id,
+            'item' => $this->faker->word,
+            'parent' => null,
+            'route' => '',
+            'url' => null,
+            'orderNo' => 2
+        ]);
+
+        $items = Block\Menu::where('block_id', $block->id)->get();
+        $firstItem = $items->first();
+        $secondItem = $items->last();
+
+        Block\Menu::insert([
+            'block_id' => $block->id,
+            'item' => $this->faker->word,
+            'parent' => $secondItem->id,
+            'route' => '',
+            'url' => null,
+            'orderNo' => 1
+        ]);
+
+        Block\Menu::insert([
+            'block_id' => $block->id,
+            'item' => $this->faker->word,
+            'parent' => $secondItem->id,
+            'route' => '',
+            'url' => null,
+            'orderNo' => 2
+        ]);
+
+        $secondItems = Block\Menu::where('block_id', $block->id)->where('parent', $secondItem->id)->get();
+        $second_firstItem = $secondItems->first();
+        $second_secondItem = $secondItems->last();
+
+        Block\Menu::insert([
+            'block_id' => $block->id,
+            'item' => $this->faker->word,
+            'parent' => null,
+            'route' => '',
+            'url' => null,
+            'orderNo' => 3
+        ]);
+
+        $items = Block\Menu::where('block_id', $block->id)->get();
+        $thirdItem = $items->last();
+
+        // test moving item up
+        $this->post('admin/moveup', [
+            'block_id' => $block->id,
+            'id' => $thirdItem->id
+        ]);
+
+        $thirdItem = Block\Menu::find($thirdItem->id);
+
+        $this->assertEquals($assertion ? 2 : 3, $thirdItem->orderNo);
+
+        // test minimum order value on moving up
+        $this->post('admin/moveup', [
+            'block_id' => $block->id,
+            'id' => $firstItem->id
+        ]);
+
+        $firstItem = Block\Menu::find($firstItem->id);
+
+        $this->assertEquals(1, $firstItem->orderNo);
+
+        // test moving item down
+        $this->post('admin/movedown', [
+            'block_id' => $block->id,
+            'id' => $thirdItem->id
+        ]);
+
+        $thirdItem = Block\Menu::find($thirdItem->id);
+
+        $this->assertEquals(3, $thirdItem->orderNo);
+
+        // test maximum order value on moving down
+        $this->post('admin/movedown', [
+            'block_id' => $block->id,
+            'id' => $thirdItem->id
+        ]);
+
+        $thirdItem = Block\Menu::find($thirdItem->id);
+
+        $this->assertEquals(3, $thirdItem->orderNo);
+
+        // test moving up in submenu
+        $this->post('admin/moveup', [
+            'block_id' => $block->id,
+            'id' => $second_secondItem->id
+        ]);
+
+        $second_secondItem = Block\Menu::find($second_secondItem->id);
+        $second_firstItem = Block\Menu::find($second_firstItem->id);
+
+        $this->assertEquals(1, $second_secondItem->orderNo);
+        $this->assertEquals(2, $second_firstItem->orderNo);
+
+        // test drop item to some position
+        $this->post('admin/moveto', [
+            'newPosition' => 1,
+            'block_id' => $block->id,
+            'id' => $thirdItem->id
+        ]);
+
+        $thirdItem = Block\Menu::find($thirdItem->id);
+        $firstItem = Block\Menu::find($firstItem->id);
+
+        $this->assertEquals($assertion ? 1 : 3, $thirdItem->orderNo);
+        $this->assertEquals($assertion ? 2 : 1, $firstItem->orderNo);
+
+        // test drop item to some position
+        $this->post('admin/moveto', [
+            'newPosition' => 3,
+            'block_id' => $block->id,
+            'id' => $thirdItem->id
+        ]);
+
+        $thirdItem = Block\Menu::find($thirdItem->id);
+        $firstItem = Block\Menu::find($firstItem->id);
+
+        $this->assertEquals(3, $thirdItem->orderNo);
+        $this->assertEquals(1, $firstItem->orderNo);
     }
 }

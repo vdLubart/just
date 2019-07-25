@@ -43,4 +43,9 @@ class MasterAccessTest extends Actions
     function master_can_delete_layout(){
         $this->delete_layout(true);
     }
+
+    /** @test */
+    function master_can_get_layout_from_the_panel(){
+        $this->get_layout_from_the_panel();
+    }
 }

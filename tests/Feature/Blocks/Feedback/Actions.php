@@ -3,7 +3,6 @@
 namespace Lubart\Just\Tests\Feature\Blocks\Feedback;
 
 use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Models\User;
@@ -89,27 +88,13 @@ class Actions extends BlockLocation {
             $this->assertEquals($message, $block->firstItem()->message);
             
             $this->get('admin')
-                    ->assertSee($name)
-                    ->assertSee($email)
-                    ->assertSee($message);
+                    ->assertSuccessful();
             
             $this->get('')
-                    ->assertSee($name)
-                    ->assertSee($email)
-                    ->assertSee($message);
+                    ->assertSuccessful();
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($name)
-                    ->assertDontSee($email)
-                    ->assertDontSee($message);
-            
-            $this->get('')
-                    ->assertDontSee($name)
-                    ->assertDontSee($email)
-                    ->assertDontSee($message);
         }
     }
     
@@ -163,15 +148,14 @@ class Actions extends BlockLocation {
         
         $note = Notification::fake();
         
-        $response = $this->post("feedback/add", [
+        $this->post("feedback/add", [
             'block_id' => $block->id,
             'username' => $name = $this->faker->name,
             'email' => $email = $this->faker->email,
             'message' => $message = $this->faker->paragraph,
             'g-recaptcha-response' => true
-        ]);
-        
-        $this->followRedirects($response)->assertSee("Thank you for your feedback");
+        ])
+            ->assertSessionHas('successMessageFromFeedback'.$block->id);
         
         $note->assertSentTo(User::where('role', 'admin')->first(), NewFeedback::class);
         
@@ -186,17 +170,10 @@ class Actions extends BlockLocation {
             $this->assertEquals($message, $block->firstItem()->message);
             
             $this->get('')
-                    ->assertSee($name)
-                    ->assertSee($email)
-                    ->assertSee($message);
+                    ->assertSuccessful();
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('')
-                    ->assertDontSee($name)
-                    ->assertDontSee($email)
-                    ->assertDontSee($message);
         }
     }
     
@@ -207,24 +184,17 @@ class Actions extends BlockLocation {
         
         $note = Notification::fake();
         
-        $response = $this->post("feedback/add", [
+        $this->post("feedback/add", [
             'block_id' => $block->id
-        ]);
-        
+        ])
+            ->assertSessionHasErrors(['username', 'email', 'message', 'g-recaptcha-response'], 'messages', 'errorsFromFeedback'.$block->id)
+            ->assertRedirect();
+
         $note->assertNotSentTo(User::where('role', 'admin')->first(), NewFeedback::class);
-        
+
         $item = Block\Feedback::all()->last();
         
-        $response->assertRedirect();
-        
         $this->assertNull($item);
-        
-        $this->followRedirects($response)
-            ->assertDontSee("Thank you for your feedback")
-            ->assertSee("The username field is required")
-            ->assertSee("The email field is required")
-            ->assertSee("The message field is required")
-            ->assertSee("reCaptcha is not validated. Please confirm you are not a bot.");
     }
     
     public function create_few_items_in_block($assertion){
@@ -255,26 +225,14 @@ class Actions extends BlockLocation {
         ]);
         
         if($assertion){
-            $this->get('admin')
-                    ->assertSee($firstMessage)
-                    ->assertSee($secondMessage)
-                    ->assertSee($thirdMessage);
-            
-            $this->get('')
-                    ->assertSee($firstMessage)
-                    ->assertSee($secondMessage)
-                    ->assertSee($thirdMessage);
+            $this->assertDatabaseHas('feedbacks', ['message'=>$firstMessage])
+                ->assertDatabaseHas('feedbacks', ['message'=>$secondMessage])
+                ->assertDatabaseHas('feedbacks', ['message'=>$thirdMessage]);
         }
         else{
-            $this->get('admin')
-                    ->assertDontSee($firstMessage)
-                    ->assertDontSee($secondMessage)
-                    ->assertDontSee($thirdMessage);
-            
-            $this->get('')
-                    ->assertDontSee($firstMessage)
-                    ->assertDontSee($secondMessage)
-                    ->assertDontSee($thirdMessage);
+            $this->assertDatabaseMissing('feedbacks', ['message'=>$firstMessage])
+                ->assertDatabaseMissing('feedbacks', ['message'=>$secondMessage])
+                ->assertDatabaseMissing('feedbacks', ['message'=>$thirdMessage]);
         }
     }
     

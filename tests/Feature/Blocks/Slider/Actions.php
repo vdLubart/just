@@ -2,16 +2,18 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Slider;
 
-use Tests\TestCase;
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
 use Lubart\Just\Models\User;
 use Intervention\Image\ImageManagerStatic as Image;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $type = 'slider';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -26,7 +28,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'slider'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -41,7 +43,7 @@ class Actions extends TestCase{
     }
     
     public function access_edit_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'slider'])->specify();
+        $block = $this->setupBlock();
         
         Block\Slider::insert([
             'block_id' => $block->id,
@@ -62,7 +64,7 @@ class Actions extends TestCase{
     }
 
     public function create_new_item_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'slider'])->specify();
+        $block = $this->setupBlock();
         
         $this->post("admin/ajaxuploader", [
             'block_id' => $block->id,
@@ -86,12 +88,6 @@ class Actions extends TestCase{
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($item->image, $block->firstItem()->image);
             
-            $this->get('admin')
-                    ->assertSee('/storage/photos/'.$item->image.'.png');
-            
-            $this->get('')
-                    ->assertSee('/storage/photos/'.$item->image.'.png');
-            
             $this->assertFileExists(public_path('/storage/photos/'.$item->image.'.png'));
         }
         else{
@@ -100,7 +96,7 @@ class Actions extends TestCase{
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'slider'])->specify();
+        $block = $this->setupBlock();
         
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
@@ -151,7 +147,6 @@ class Actions extends TestCase{
         $updatedItem = Block\Slider::find($item->id);
         
         if($assertion){
-            $this->assertEquals(1, Block\Slider::count());
             $this->assertEquals($item->id, $updatedItem->id);
             $this->assertNotEquals($item->image, $updatedItem->image);
             $this->assertEquals($caption, $updatedItem->caption);
@@ -173,7 +168,6 @@ class Actions extends TestCase{
         $twiceUpdatedItem = Block\Slider::find($item->id);
         
         if($assertion){
-            $this->assertEquals(1, Block\Slider::count());
             $this->assertEquals($updatedItem->id, $twiceUpdatedItem->id);
             $this->assertEquals($updatedItem->image, $twiceUpdatedItem->image);
             $this->assertNotEquals($updatedItem->caption, $twiceUpdatedItem->caption);
@@ -187,7 +181,7 @@ class Actions extends TestCase{
     }
     
     public function crop_photo($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'slider', 'parameters'=>'{"cropPhoto":"on"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"on"}']);
         
         $this->post("/admin/settings/setup", [
             'cropPhoto' => 'on',
@@ -245,7 +239,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'slider'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         

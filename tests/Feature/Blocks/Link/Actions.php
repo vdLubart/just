@@ -2,13 +2,15 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Link;
 
-use Tests\TestCase;
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $type = 'link';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -21,7 +23,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'link'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -30,7 +32,7 @@ class Actions extends TestCase{
     
     public function access_edit_item_form($assertion){
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'link'])->specify();
+        $block = $this->setupBlock();
         
         $text = $this->faker->paragraph;
         
@@ -51,6 +53,7 @@ class Actions extends TestCase{
             $this->assertEquals(2, $form->count());
             $this->assertEquals(['linkedBlock_id', 'submit'], array_keys($form->getElements()));
             $this->assertEquals($textBlock->id, $form->getElement('linkedBlock_id')->value());
+            $this->assertEquals($textBlock->id, $item->linkedBlock()->id);
         }
         else{
             $this->assertNull($item->form());
@@ -60,7 +63,7 @@ class Actions extends TestCase{
     public function create_new_item_in_block($assertion){
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
         $route = \Lubart\Just\Models\Route::create([
-            'route' => 'mirror',
+            'route' => 'mirror-'.$this->faker->word,
             'type' => 'page'
         ]);
         
@@ -73,7 +76,7 @@ class Actions extends TestCase{
         $this->app['router']->get($route->route, "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/'.$route->route, "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>$page->id, 'type'=>'link'])->specify();
+        $block = $this->setupBlock(['page_id'=>$page->id]);
         
         $text = $this->faker->paragraph;
         
@@ -95,26 +98,14 @@ class Actions extends TestCase{
             
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($textBlock->id, $block->firstItem()->linkedBlock_id);
-            
-            $this->get('admin/mirror')
-                    ->assertSee($text);
-            
-            $this->get('mirror')
-                    ->assertSee($text);
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('admin/mirror')
-                    ->assertDontSee($text);
-            
-            $this->get('mirror')
-                    ->assertDontSee($text);
         }
     }
     
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'link'])->specify();
+        $block = $this->setupBlock();
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -143,7 +134,7 @@ class Actions extends TestCase{
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
         $contactBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}'])->specify();
         $route = \Lubart\Just\Models\Route::create([
-            'route' => 'mirror',
+            'route' => $path = 'mirror-'.$this->faker->word,
             'type' => 'page'
         ]);
         
@@ -156,7 +147,7 @@ class Actions extends TestCase{
         $this->app['router']->get($route->route, "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/'.$route->route, "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>$page->id, 'type'=>'link'])->specify();
+        $block = $this->setupBlock(['page_id'=>$page->id]);
         
         $text = $this->faker->paragraph;
         
@@ -189,15 +180,7 @@ class Actions extends TestCase{
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($textBlock->id, $block->firstItem()->linkedBlock_id);
             
-            $this->get('admin/mirror')
-                    ->assertSee($text)
-                    ;
-            
-            $this->get('mirror')
-                    ->assertSee($text)
-                    ;
-            
-            $r = $this->post("", [
+            $this->post("", [
                 'block_id' => $block->id,
                 'id' => $item->id,
                 'linkedBlock_id' => $contactBlock->id
@@ -206,34 +189,20 @@ class Actions extends TestCase{
             $item = Block\Link::all()->last();
 
             $this->assertEquals($contactBlock->id, $item->firstItem()->linkedBlock_id);
-            
-            $this->get('admin/mirror')
-                    ->assertDontSee($text)
-                    ->assertSee($title)
-                    ->assertSee($envelope)
-                    ->assertSee($phone)
-                    ->assertSee($at);
-            
-            $this->get('mirror')
-                    ->assertDontSee($text)
-                    ->assertSee($title)
-                    ->assertSee($envelope)
-                    ->assertSee($phone)
-                    ->assertSee($at);
         }
         else{
             $this->assertNull($item);
             
-            $this->get('admin/mirror')
+            $this->get('admin/' . $path)
                     ->assertDontSee($text);
             
-            $this->get('mirror')
+            $this->get($path)
                     ->assertDontSee($text);
         }
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'link'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         

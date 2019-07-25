@@ -33,4 +33,9 @@ class GuestAccessTest extends Actions
     function guest_cannot_delete_layout(){
         $this->delete_layout(false);
     }
+
+    /** @test */
+    function guest_can_get_layout_from_the_panel(){
+        $this->get_layout_from_the_panel();
+    }
 }

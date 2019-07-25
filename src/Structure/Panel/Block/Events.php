@@ -2,9 +2,10 @@
 
 namespace Lubart\Just\Structure\Panel\Block;
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Lubart\Just\Models\EventRegistration;
 use Lubart\Just\Models\User;
-use Lubart\Just\Requests\RegisterInEventRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Lubart\Form\Form;
@@ -43,6 +44,10 @@ class Events extends AbstractBlock
     protected $registerUrl = 'register-event';
 
     protected $neededParameters = [ 'itemRouteBase' ];
+
+    protected $publicRequestValidationMessages = [
+        'email.unique' => 'This email is already registered in this event'
+    ];
 
     /**
      * Order by `start_date` column
@@ -264,7 +269,7 @@ $(document).ready(function(){
         if(!is_null($request->file('image'))){
             $image->encode('png')->save(public_path('storage/'.$this->table.'/'.$event->image.".png"));
 
-            if($this->parameter('shouldBeCropped')) {
+            if($this->parameter('cropPhoto')) {
                 $event->shouldBeCropped = true;
             }
             else{
@@ -275,7 +280,26 @@ $(document).ready(function(){
         return $event;
     }
 
-    public function handlePublicForm(RegisterInEventRequest $request) {
+    public function handlePublicForm(Request $request) {
+        $rules = [
+            'event_id' => 'required|min:1|exists:events,id',
+            'name' => 'required',
+            'email' => [
+                'required',
+                Rule::unique('registrations')->where(function($query) use($request){
+                    return $query->where('event_id', $request->event_id);
+                })
+            ],
+            'comment' => 'nullable|max:1000'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $this->publicRequestValidationMessages);
+
+        if($validator->fails()){
+            return $validator;
+        }
+
+
         $event = Events::find($request->get('event_id'));
         $registration = new EventRegistration();
 

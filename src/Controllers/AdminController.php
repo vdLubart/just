@@ -202,7 +202,7 @@ class AdminController extends Controller
     
     public function handleForm(Request $request) {
         $block = $this->specifyBlock($request);
-        
+
         if(!empty($block)){
             $model = $block->handleForm($request);
             if($model instanceof ValidatorExtended){
@@ -417,7 +417,7 @@ class AdminController extends Controller
     public function moveto(Request $request) {
         
         $block = $this->specifyBlock($request);
-        
+
         if(!empty($block)){
             $block->moveTo($request->newPosition);
         }

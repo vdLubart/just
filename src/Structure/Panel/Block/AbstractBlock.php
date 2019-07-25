@@ -40,6 +40,22 @@ abstract class AbstractBlock extends Model
      * @var string $settingsTitle
      */
     protected $settingsTitle;
+
+    /**
+     * Validation rules for public request inside a block.
+     * Can be used by blocks with public forms like Feedback, Contacts, Events etc.
+     *
+     * @var array
+     */
+    protected $publicRequestValidationRules = [];
+
+    /**
+     * Validation messages for public request inside a block.
+     * Can be used by blocks with public forms like Feedback, Contacts, Events etc.
+     *
+     * @var array
+     */
+    protected $publicRequestValidationMessages = [];
     
     public function __construct() {
         parent::__construct();

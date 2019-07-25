@@ -43,4 +43,9 @@ class AdminAccessTest extends Actions
     function admin_cannot_delete_layout(){
         $this->delete_layout(false);
     }
+
+    /** @test */
+    function admin_can_get_layout_from_the_panel(){
+        $this->get_layout_from_the_panel();
+    }
 }

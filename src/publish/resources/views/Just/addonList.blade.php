@@ -19,7 +19,7 @@
                 <i class="fa fa-pencil-alt"></i>
             </a>
             <a href="javascript: openSettings('addon', {{ $addon->id }})">{{ $addon->title }} ({{ $addon->name }}, {{ $addon->type }})</a>  in {{ $addon->block->title }} ({{ $addon->block->type }}) block at 
-            <a href="/admin/{{ (is_null($addon->block->page)?"":$addon->block->page->route) }}">{{ (is_null($addon->block->page)?$addon->block->panelLocation:$addon->block->page->title." page") }}</a>
+            <a href="/admin/{{ (is_null($addon->block->page())?"":$addon->block->page()->route) }}">{{ (is_null($addon->block->page())?$addon->block->panelLocation:$addon->block->page()->title." page") }}</a>
         </li>
         @endforeach
     </ul>

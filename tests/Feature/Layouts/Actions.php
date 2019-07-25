@@ -240,4 +240,12 @@ class Actions extends TestCase{
             $this->assertNotNull($panel);
         }
     }
+
+    public function get_layout_from_the_panel() {
+        $panel = Panel::where('location', 'content')->first();
+        $layout = Layout::find($panel->layout_id);
+
+        $this->assertEquals($layout->name, $panel->layout->name);
+        $this->assertEquals($layout->class, $panel->layout->class);
+    }
 }

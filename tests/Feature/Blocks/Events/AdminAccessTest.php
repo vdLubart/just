@@ -147,4 +147,11 @@ class AdminAccessTest extends Actions
 		$this->inHeader()->admin_is_notified_about_new_registration_on_event();
 		$this->relatedBlock()->admin_is_notified_about_new_registration_on_event();
     }
+
+    /** @test */
+    function admin_can_see_list_of_registered_users(){
+        $this->inContent()->user_can_see_list_of_registered_users();
+        $this->inHeader()->user_can_see_list_of_registered_users();
+        $this->relatedBlock()->user_can_see_list_of_registered_users();
+    }
 }

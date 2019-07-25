@@ -2,6 +2,7 @@
 
 namespace Lubart\Just\Structure\Panel\Block;
 
+use Illuminate\Database\Eloquent\Collection;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
@@ -12,8 +13,8 @@ class Space extends AbstractBlock
         'height'    => 'Block height'
     ];
     
-    public function content($id = null) {
-        return [];
+    public function content() {
+        return new Collection();
     }
     
     public function form() {

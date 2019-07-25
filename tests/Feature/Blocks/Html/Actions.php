@@ -2,13 +2,15 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Html;
 
-use Tests\TestCase;
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $type = 'html';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -19,7 +21,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -27,7 +29,7 @@ class Actions extends TestCase{
     }
     
     public function access_edit_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html'])->specify();
+        $block = $this->setupBlock();
         
         $text = $this->faker->paragraph;
         
@@ -50,7 +52,7 @@ class Actions extends TestCase{
     }
 
     public function create_new_item_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html'])->specify();
+        $block = $this->setupBlock();
         
         $text = $this->faker->paragraph;
         
@@ -60,7 +62,7 @@ class Actions extends TestCase{
             'text' => $text
         ]);
         
-        $item = Block\Html::all()->last();
+        $item = Block\Html::where('block_id', $block->id)->first();
         
         if($assertion){
             $this->assertNotNull($item);
@@ -69,50 +71,38 @@ class Actions extends TestCase{
             $this->assertEquals($text, $block->firstItem()->text);
             
             $this->get('admin')
-                    ->assertSee($text);
+                    ->assertSuccessful();
             
             $this->get('')
-                    ->assertSee($text);
+                    ->assertSuccessful();
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($text);
-            
-            $this->get('')
-                    ->assertDontSee($text);
         }
     }
     
-    public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html'])->specify();
-        
+    public function receive_an_error_on_sending_incomplete_create_item_form($assertion){
+        $block = $this->setupBlock();
+
         $this->get("admin/settings/".$block->id."/0");
         
         $response = $this->post("", [
             'block_id' => $block->id,
             'id' => null
-        ]);
-        
-        $item = Block\Html::all()->last();
-        
-        $response->assertRedirect();
-        
-        $this->assertNull($item);
-        
+        ])
+            ->assertRedirect();
+
         if($assertion){
-            $this->followRedirects($response)
-                    ->assertSee("The text field is required");
+            $response->assertSessionHasErrors('text');
         }
-        else{
-            $this->followRedirects($response)
-                    ->assertDontSee("The text field is required");
-        }
+
+        $item = Block\Html::where('block_id', $block->id)->first();
+
+        $this->assertNull($item);
     }
     
     public function create_few_items_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html'])->specify();
+        $block = $this->setupBlock();
         
         $firstText = $this->faker->paragraph;
         $secondText = $this->faker->paragraph;
@@ -123,45 +113,39 @@ class Actions extends TestCase{
             'id' => null,
             'text' => $firstText
         ]);
+
+        $firstItem = Block\Html::all()->last();
         
         $this->post("", [
             'block_id' => $block->id,
             'id' => null,
             'text' => $secondText
         ]);
+
+        $secondItem = Block\Html::all()->last();
         
         $this->post("", [
             'block_id' => $block->id,
             'id' => null,
             'text' => $thirdText
         ]);
+
+        $thirdItem = Block\Html::all()->last();
         
         if($assertion){
-            $this->get('admin')
-                    ->assertSee($firstText)
-                    ->assertSee($secondText)
-                    ->assertSee($thirdText);
-            
-            $this->get('')
-                    ->assertSee($firstText)
-                    ->assertSee($secondText)
-                    ->assertSee($thirdText);
+            $this->assertEquals($firstText, $firstItem->text);
+            $this->assertEquals($secondText, $secondItem->text);
+            $this->assertEquals($thirdText, $thirdItem->text);
         }
         else{
-            $this->get('admin')
-                    ->assertDontSee($firstText)
-                    ->assertDontSee($secondText)
-                    ->assertDontSee($thirdText);
-            
-            $this->get('')
-                    ->assertDontSee($firstText)
-                    ->assertDontSee($secondText)
-                    ->assertDontSee($thirdText);
+            $this->assertNull($firstItem);
+            $this->assertNull($secondItem);
+            $this->assertNull($thirdItem);
         }
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html']);
+        $block = $this->setupBlock();
         
         Block\Html::insert([
             'block_id' => $block->id,
@@ -189,7 +173,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         

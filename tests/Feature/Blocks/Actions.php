@@ -93,34 +93,68 @@ class Actions extends TestCase{
     public function change_blocks_order($assertion){
         $htmlBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html', 'orderNo'=>1]);
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text', 'orderNo'=>2]);
+        $spaceBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'space', 'orderNo'=>3]);
         
         $this->post("/admin/moveup", [
-            "block_id" => $textBlock->id,
+            "block_id" => $spaceBlock->id,
             "id" => 0
         ]);
         
         $htmlBlock = Block::find($htmlBlock->id);
         $textBlock = Block::find($textBlock->id);
+        $spaceBlock = Block::find($spaceBlock->id);
         
         if($assertion){
-            $this->assertEquals(1, $textBlock->orderNo);
-            $this->assertEquals(2, $htmlBlock->orderNo);
+            $this->assertEquals(3, $textBlock->orderNo);
+            $this->assertEquals(1, $htmlBlock->orderNo);
+            $this->assertEquals(2, $spaceBlock->orderNo);
         }
         else{
             $this->assertEquals(2, $textBlock->orderNo);
             $this->assertEquals(1, $htmlBlock->orderNo);
+            $this->assertEquals(3, $spaceBlock->orderNo);
         }
         
         $this->post("/admin/movedown", [
-            "block_id" => $textBlock->id,
+            "block_id" => $htmlBlock->id,
             "id" => 0
         ]);
-        
+
         $htmlBlock = Block::find($htmlBlock->id);
         $textBlock = Block::find($textBlock->id);
-        
-        $this->assertEquals(2, $textBlock->orderNo);
-        $this->assertEquals(1, $htmlBlock->orderNo);
+        $spaceBlock = Block::find($spaceBlock->id);
+
+        if($assertion) {
+            $this->assertEquals(3, $textBlock->orderNo);
+            $this->assertEquals(2, $htmlBlock->orderNo);
+            $this->assertEquals(1, $spaceBlock->orderNo);
+        }
+        else{
+            $this->assertEquals(2, $textBlock->orderNo);
+            $this->assertEquals(1, $htmlBlock->orderNo);
+            $this->assertEquals(3, $spaceBlock->orderNo);
+        }
+
+        $this->post("/admin/moveto", [
+            "block_id" => $spaceBlock->id,
+            "id" => 0,
+            'newPosition' => 3,
+        ]);
+
+        $htmlBlock = Block::find($htmlBlock->id);
+        $textBlock = Block::find($textBlock->id);
+        $spaceBlock = Block::find($spaceBlock->id);
+
+        if($assertion) {
+            $this->assertEquals(2, $textBlock->orderNo);
+            $this->assertEquals(1, $htmlBlock->orderNo);
+            $this->assertEquals(3, $spaceBlock->orderNo);
+        }
+        else{
+            $this->assertEquals(2, $textBlock->orderNo);
+            $this->assertEquals(1, $htmlBlock->orderNo);
+            $this->assertEquals(3, $spaceBlock->orderNo);
+        }
     }
     
     public function deactivate_block($assertion){
@@ -246,7 +280,7 @@ class Actions extends TestCase{
         
         $this->assertEquals($assertion ? 2 : 3, $lastItem->orderNo);
         
-        // test minimux order value on moving up
+        // test minimum order value on moving up
         $this->post('admin/moveup', [
             'block_id' => $block->id,
             'id' => $firstItem->id
@@ -541,6 +575,8 @@ class Actions extends TestCase{
         $this->assertCount(1, $block->firstItem()->relatedBlocks);
         $this->assertEquals($relatedBlock->parentBlock()->id, $block->id);
         $this->assertEquals($relatedBlock->parentBlock(true)->id, $block->id);
+        $this->assertEquals($relatedBlock->parentItem()->id, $item->id);
+        $this->assertNull($block->parentItem());
     }
     
     public function update_block_data($assertion){

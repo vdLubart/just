@@ -45,10 +45,10 @@ class BlockLocation extends TestCase {
 
     protected function setupBlock($blockAttrib = []) {
         if(!is_null($this->blockParams['panelLocation'])) {
-            return factory(Block::class)->create($this->blockParams + $blockAttrib)->specify();
+            return factory(Block::class)->create($blockAttrib + $this->blockParams)->specify();
         }
         else{
-            $relatedBlock = factory(Block::class)->create($this->blockParams + $blockAttrib)->specify();
+            $relatedBlock = factory(Block::class)->create($blockAttrib + $this->blockParams)->specify();
 
             $item = Text::all()->last();
 

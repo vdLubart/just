@@ -2,13 +2,16 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Space;
 
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $type = 'space';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -19,7 +22,9 @@ class Actions extends TestCase{
     }
     
     public function access_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'space', 'parameters'=>'{"height":"200px"}'])->specify();
+        $block = $this->setupBlock(['parameters'=>'{"height":"200px"}']);
+
+        $this->assertEmpty($block->content());
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -32,11 +37,11 @@ class Actions extends TestCase{
             $this->assertEquals([], array_keys($form->getElements()));
             
             $this->get('admin')
-                    ->assertSee('<div id="space_'.$block->id.'">')
+                    ->assertSee('<div id="space_'.$block->id.'"')
                     ->assertSee('<div style="height: 200px"></div>');
             
             $this->get('')
-                    ->assertSee('<div id="space_'.$block->id.'">')
+                    ->assertSee('<div id="space_'.$block->id.'"')
                     ->assertSee('<div style="height: 200px"></div>');
         }
         else{
@@ -46,13 +51,13 @@ class Actions extends TestCase{
                     ->assertRedirect('/login');
             
             $this->get('')
-                    ->assertSee('<div id="space_'.$block->id.'">')
+                    ->assertSee('<div id="space_'.$block->id.'"')
                     ->assertSee('<div style="height: 200px"></div>');
         }
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'space'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         

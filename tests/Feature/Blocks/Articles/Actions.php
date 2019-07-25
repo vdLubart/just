@@ -123,11 +123,17 @@ class Actions extends BlockLocation {
         ]);
 
         $response = json_decode($response->baseResponse->content());
-        if(isset($response->shouldBeCropped) and $response->shouldBeCropped){
+
+        if($assertion) {
+            $this->assertTrue($response->shouldBeCropped);
+
             $this->get('/admin/settings/crop/' . $response->block_id . '/' . $response->id)
                 ->assertSuccessful();
         }
-        
+        else{
+            $this->assertNull($response);
+        }
+
         $articleRoute = \Lubart\Just\Models\Route::where('route', 'article/{id}')->first();
         $this->assertNotNull($articleRoute);
         
@@ -147,7 +153,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_new_item_in_block_without_cropping_image(){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
 
         $response = $this->post("", [
             'block_id' => $block->id,
@@ -160,7 +166,7 @@ class Actions extends BlockLocation {
 
         $response = json_decode($response->baseResponse->content());
 
-        $this->assertEmpty(@$response->shouldBeCropped);
+        $this->assertNull(@$response->shouldBeCropped);
     }
     
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){

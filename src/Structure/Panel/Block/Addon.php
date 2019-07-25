@@ -106,7 +106,7 @@ class Addon extends Model
         }
         $blocks = [];
         foreach(Block::all() as $block){
-            $blocks[$block->id] = $block->title . "(".$block->type.") at ".(is_null($block->page)?$block->panelLocation:$block->page->title ." page");
+            $blocks[$block->id] = $block->title . "(".$block->type.") at ".(is_null($block->page())?$block->panelLocation:$block->page()->title ." page");
         }
         
         $form->add(FormElement::hidden(['name'=>'addon_id', 'value'=>@$this->id]));

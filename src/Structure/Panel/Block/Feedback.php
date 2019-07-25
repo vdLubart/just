@@ -2,15 +2,16 @@
 
 namespace Lubart\Just\Structure\Panel\Block;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
 use Lubart\Just\Tools\Useful;
 use Lubart\Just\Models\Route as JustRoute;
-use Lubart\Just\Requests\AddFeedbackRequest;
 use Lubart\Just\Requests\FeedbackChangeRequest;
 use Lubart\Just\Models\User;
-use Lubart\Just\Structure\Page;
 
 class Feedback extends AbstractBlock
 {
@@ -31,30 +32,18 @@ class Feedback extends AbstractBlock
     protected $neededParameters = [];
     
     private $content;
-    
-    public function content($id = null) {
-        if(!empty($this->content)){
-            return $this->content;
-        }
-        
-        $this->content = new \stdClass();
-        
-        if(is_null($id)){
-            $messages = $this->orderBy('orderNo', 'desc')
-                    ->where('block_id', $this->block_id);
-            if(!\Config::get('isAdmin')){
-                $messages = $messages->where('isActive', 1);
-            }
-            
-            $this->content->messages = $messages->get();
-        }
-        else{
-            $this->content->messages = $messages->find($id);
-        }
-        $this->content->form = $this->feedbackForm();
-        
-        return $this->content;
-    }
+
+    protected $publicRequestValidationRules = [
+        "username" => "required|max:100",
+        "email" => "required|email|max:255",
+        "message" => "required|max:1024",
+        'g-recaptcha-response'=>'required|recaptcha'
+    ];
+
+    protected $publicRequestValidationMessages = [
+        'g-recaptcha-response.required' => "reCaptcha is not validated. Please confirm you are not a bot.",
+        'g-recaptcha-response.recaptcha' => "reCaptcha is not validated. Please confirm you are not a bot."
+    ];
     
     public function form() {
         if(is_null($this->form)){
@@ -125,8 +114,7 @@ class Feedback extends AbstractBlock
         return $feedback;
     }
     
-    private function feedbackForm() {
-        $form = new \stdClass;
+    public function feedbackForm() {
         $form = new Form("/feedback/add");
         
         $form->add(FormElement::hidden(['name'=>"block_id", "value"=>$this->block_id]));
@@ -141,7 +129,13 @@ class Feedback extends AbstractBlock
         return $form;
     }
     
-    public function handlePublicForm(AddFeedbackRequest $request) {
+    public function handlePublicForm(Request $request) {
+        $validator = Validator::make($request->all(), $this->publicRequestValidationRules, $this->publicRequestValidationMessages);
+
+        if($validator->fails()){
+            return $validator;
+        }
+
         $parameters = json_decode($this->block->parameters);
         
         $this->block_id = $this->block_id;

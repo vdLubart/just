@@ -35,7 +35,7 @@
                 @elseif(isset($item->text))
                     {!! substr($item->text, 0, 200) !!}
                 @elseif(isset($item->linkedBlock_id))
-                    <h4>{!! $item->linkedBlock()->title. '('.$item->linkedBlock()->type.') at '.@$item->linkedBlock()->page->title !!} </h4>
+                    <h4>{!! $item->linkedBlock()->title. '('.$item->linkedBlock()->type.') at '.@$item->linkedBlock()->page()->title !!} </h4>
                 @endif
                 <div class="caption">
                     {{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $item->start_date)->format('d.m.Y') }}<br>
@@ -83,7 +83,7 @@
                 @elseif(isset($item->text))
                     {!! substr($item->text, 0, 200) !!}
                 @elseif(isset($item->linkedBlock_id))
-                    <h4>{!! $item->linkedBlock()->title. '('.$item->linkedBlock()->type.') at '.@$item->linkedBlock()->page->title !!} </h4>
+                    <h4>{!! $item->linkedBlock()->title. '('.$item->linkedBlock()->type.') at '.@$item->linkedBlock()->page()->title !!} </h4>
                 @endif
                 <div class="caption">
                     {{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $item->start_date)->format('d.m.Y') }}<br>

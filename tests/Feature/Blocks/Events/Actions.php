@@ -24,7 +24,7 @@ class Actions extends BlockLocation {
             $block->delete();
         }
         
-        if(file_exists(public_path('storage/articles'))){
+        if(file_exists(public_path('storage/events'))){
             exec('rm -rf ' . public_path('storage/events'));
         }
         
@@ -74,7 +74,7 @@ class Actions extends BlockLocation {
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
-        $address = str_replace("\n", "", $this->faker->address);
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
         
         Block\Events::insert([
@@ -120,7 +120,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_new_item_in_block($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
 
         $response = $this->post("", [
             'block_id' => $block->id,
@@ -130,7 +130,7 @@ class Actions extends BlockLocation {
             'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
             'summary' => $summary = $this->faker->text,
             'text' => $text = $this->faker->text,
             'image' => UploadedFile::fake()->image('photo.jpg')
@@ -223,7 +223,7 @@ class Actions extends BlockLocation {
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
-        $address = str_replace("\n", "", $this->faker->address);
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
         
         Block\Events::insert([
@@ -247,7 +247,7 @@ class Actions extends BlockLocation {
             'start_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+6 hours")->format("H:i"),
-            'location' => $newLocation = str_replace("\n", "", $this->faker->address),
+            'location' => $newLocation = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
             'summary' => $newSummary = $this->faker->text,
             'text' => $newText = $this->faker->text,
         ]);
@@ -268,7 +268,7 @@ class Actions extends BlockLocation {
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
-        $address = str_replace("\n", "", $this->faker->address);
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
         Block\Events::insert([
@@ -390,7 +390,7 @@ class Actions extends BlockLocation {
             'start_time' => Carbon::now()->modify("-4 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("-2 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
             'summary' => $summary = $this->faker->text,
             'text' => $text = $this->faker->text,
             'image' => UploadedFile::fake()->image('photo.jpg'),
@@ -448,7 +448,7 @@ class Actions extends BlockLocation {
             'start_time' => Carbon::now()->modify("-4 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("-2 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
             'summary' => $summary = $this->faker->text,
             'text' => $text = $this->faker->text,
             'image' => UploadedFile::fake()->image('photo.jpg'),
@@ -463,7 +463,7 @@ class Actions extends BlockLocation {
             'start_time' => Carbon::now()->modify("-4 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("-2 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
             'summary' => $summary = $this->faker->text,
             'text' => $text = $this->faker->text,
             'image' => UploadedFile::fake()->image('photo.jpg'),
@@ -492,7 +492,7 @@ class Actions extends BlockLocation {
             'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
             'summary' => $summary = $this->faker->text,
             'text' => $text = $this->faker->text,
             'image' => UploadedFile::fake()->image('photo.jpg')
@@ -519,7 +519,7 @@ class Actions extends BlockLocation {
             'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
             'summary' => $summary = $this->faker->text,
             'text' => $text = $this->faker->text,
             'image' => UploadedFile::fake()->image('photo.jpg')
@@ -549,7 +549,7 @@ class Actions extends BlockLocation {
             'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", $this->faker->address),
+            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
             'summary' => $summary = $this->faker->text,
             'text' => $text = $this->faker->text,
             'image' => UploadedFile::fake()->image('photo.jpg')
@@ -571,7 +571,7 @@ class Actions extends BlockLocation {
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
-        $address = str_replace("\n", "", $this->faker->address);
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
         Block\Events::insert([
@@ -611,7 +611,7 @@ class Actions extends BlockLocation {
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
-        $address = str_replace("\n", "", $this->faker->address);
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
         Block\Events::insert([
@@ -650,7 +650,7 @@ class Actions extends BlockLocation {
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
-        $address = str_replace("\n", "", $this->faker->address);
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
         Block\Events::insert([
@@ -688,7 +688,7 @@ class Actions extends BlockLocation {
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
-        $address = str_replace("\n", "", $this->faker->address);
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
         Block\Events::insert([
@@ -726,7 +726,7 @@ class Actions extends BlockLocation {
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
-        $address = str_replace("\n", "", $this->faker->address);
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
         Block\Events::insert([
@@ -768,12 +768,12 @@ class Actions extends BlockLocation {
     }
 
     public function admin_is_notified_about_new_registration_on_event() {
-        $block = $this->setupBlock(['parameters'=>'{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = 'Huura'.$this->faker->sentence).'"}']);
+        $block = $this->setupBlock(['parameters'=>'{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
-        $address = str_replace("\n", "", $this->faker->address);
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
         Block\Events::insert([
@@ -818,5 +818,46 @@ class Actions extends BlockLocation {
         $this->assertEquals($location, $item->location);
         $this->assertEquals(Carbon::now()->modify($startDateModify)->format("Y-m-d H:i:00"), $item->start_date);
         $this->assertEquals(Carbon::now()->modify($endDateModify)->format("Y-m-d H:i:00"), $item->end_date);
+    }
+
+    public function user_can_see_list_of_registered_users() {
+        $block = $this->setupBlock(['parameters'=>'{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+
+        $subject = $this->faker->sentence;
+        $summary = $this->faker->text;
+        $text = $this->faker->text;
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
+        $image = uniqid();
+
+        Block\Events::insert([
+            'block_id' => $block->id,
+            'subject' => $subject,
+            'summary' => $summary,
+            'slug' => str_slug($subject),
+            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
+            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
+            'location' => $address,
+            'text' => $text,
+            'image' => $image
+        ]);
+
+        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+
+        $item = Block\Events::all()->last();
+
+        $this->post('/register-event', [
+            'block_id' => $block->id,
+            'event_id' => $item->id,
+            'name' => $userName = $this->faker->name,
+            'email' => $userEmail = $this->faker->email,
+            'comment' => $userComment = $this->faker->sentence
+        ])
+            ->assertSessionHas('successMessageFromEvents'.$block->id);
+
+        $this->get("admin/settings/".$block->id."/".$item->id)
+            ->assertSee($userName)
+            ->assertSee($userEmail);
     }
 }

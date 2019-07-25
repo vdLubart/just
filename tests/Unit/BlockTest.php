@@ -2,6 +2,7 @@
 
 namespace Lubart\Just\Tests\Unit;
 
+use Lubart\Just\Structure\Panel;
 use Tests\TestCase;
 use Lubart\Just\Structure\Panel\Block;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -29,6 +30,29 @@ class BlockTest extends TestCase
         $foundedBlock = Block::findByName($name);
         
         $this->assertEquals($block->id, $foundedBlock->id);
+        $this->assertNull(Block::findByName('unknown'));
+    }
+
+    /** @test */
+    function cannot_find_model_of_the_unknown_block(){
+        $this->assertNull(Block::findModel(0, 0));
+    }
+
+    /** @test */
+    function get_all_block_models(){
+        $block = factory(Block::class)->create(['name'=>$name = $this->faker->word]);
+
+        Block\Text::insert([
+            'block_id' => $block->id,
+            'text' => $this->faker->paragraph,
+        ]);
+
+        Block\Text::insert([
+            'block_id' => $block->id,
+            'text' => $this->faker->paragraph,
+        ]);
+
+        $this->assertCount(2, $block->models);
     }
 
     /** @test */

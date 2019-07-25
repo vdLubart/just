@@ -77,6 +77,11 @@ Artisan::command('just:seed', function () {
     $this->info('Data were seeded!');
 })->describe('Seed data related to Just! and current project');
 
+Artisan::command('just:version', function () {
+    $this->info('Version of the Just! is '. Version::current());
+
+})->describe('Return version of the Just! CRM');
+
 if(!function_exists('updateMixManifest')){
     
     function updateMixManifest(){

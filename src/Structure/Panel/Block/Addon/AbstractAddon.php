@@ -27,10 +27,6 @@ abstract class AbstractAddon extends Model
         return $this->belongsTo(Addon::class, "addon_id", "id");
     }
     
-    public function model() {
-        return self::belongsToMany();
-    }
-    
     protected static function handleData($value, $addon, $item){
         $oldData = DB::table($item->getTable()."_".$addon->type)
                         ->join($addon->type, 'addonItem_id', '=', $addon->type.'.id')

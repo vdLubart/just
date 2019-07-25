@@ -25,15 +25,36 @@ class Menu extends AbstractBlock
     
     protected $menu = [];
 
-    public function content($id = null) {
-        if(is_null($id)){
-            return $this->menuItems();
+    public function content() {
+        $items = $this->orderBy('parent', 'asc')
+            ->orderBy('orderNo', 'asc')
+            ->where('block_id', $this->block_id);
+        if(!\Config::get('isAdmin')){
+            $items = $items->where('isActive', 1);
         }
-        else{
-            return $this->find($id);
-        }
+
+        $items = $items->get();
+
+        return $this->buildMenuLevels($items);
     }
-    
+
+    private function buildMenuLevels($items, $parent = null) {
+        $level = [];
+
+        if (!empty($items)) {
+            foreach ($items as $item) {
+                if($item->parent == $parent){
+                    $level[$item->id] = [
+                        'item' => $item,
+                        'sub' => $this->buildMenuLevels($items, $item->id)
+                    ];
+                }
+            }
+        }
+
+        return $level;
+    }
+
     public function form() {
         if(is_null($this->form)){
             return;
@@ -79,36 +100,6 @@ class Menu extends AbstractBlock
         $this->handleAddons($request, $item);
         
         return $item;
-    }
-    
-    private function menuItems() {
-        $items = $this->orderBy('parent', 'asc')
-                ->orderBy('orderNo', 'asc')
-                ->where('block_id', $this->block_id);
-        if(!\Config::get('isAdmin')){
-            $items = $items->where('isActive', 1);
-        }
-        
-        $items = $items->get(); 
-        
-        return $this->buildMenuLevels($items);
-    }
-    
-    private function buildMenuLevels($items, $parent = null) {
-        $level = [];
-
-        if (!empty($items)) {
-            foreach ($items as $item) {
-                if($item->parent == $parent){
-                    $level[$item->id] = [
-                        'item' => $item,
-                        'sub' => $this->buildMenuLevels($items, $item->id)
-                    ];
-                }
-            }
-        }
-        
-        return $level;
     }
     
     /**
@@ -169,8 +160,21 @@ class Menu extends AbstractBlock
         
         Useful::moveModel($this, $dir, $where);
     }
-    
-    public function currentUri() {
-        return trim(Route::getFacadeRoot()->current()->uri(), "/");
+
+    /**
+     * Change an order and put model to the specific position
+     *
+     * @param integer $newPosition new element position
+     * @param array $where where statement
+     */
+    public function moveTo($newPosition, $where = []) {
+        if(empty($where)){
+            $where = [
+                'block_id' => $this->block_id,
+                'parent' => $this->parent
+            ];
+        }
+
+        Useful::moveModelTo($this, $newPosition, $where);
     }
 }

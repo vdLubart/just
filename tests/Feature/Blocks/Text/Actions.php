@@ -2,13 +2,16 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Text;
 
+use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends TestCase{
+class Actions extends BlockLocation {
     
     use WithFaker;
+
+    protected $type = 'text';
     
     public function tearDown(){
         foreach(Block::all() as $block){
@@ -19,7 +22,7 @@ class Actions extends TestCase{
     }
     
     public function access_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -27,7 +30,7 @@ class Actions extends TestCase{
     }
     
     public function access_edit_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = $this->setupBlock();
         
         $text = $this->faker->paragraph;
         
@@ -50,7 +53,7 @@ class Actions extends TestCase{
     }
 
     public function create_new_item_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = $this->setupBlock();
         
         $text = $this->faker->paragraph;
         
@@ -59,60 +62,39 @@ class Actions extends TestCase{
             'id' => null,
             'text' => $text
         ]);
-        
-        $item = Block\Text::all()->last();
+
+        $item = Block\Text::where('block_id', $block->id)->get()->last();
         
         if($assertion){
             $this->assertNotNull($item);
             
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($text, $block->firstItem()->text);
-            
-            $this->get('admin')
-                    ->assertSee($text);
-            
-            $this->get('')
-                    ->assertSee($text);
         }
         else{
             $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($text);
-            
-            $this->get('')
-                    ->assertDontSee($text);
         }
     }
     
-    public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+    public function receive_an_error_on_sending_incompleate_create_item_form(){
+        $block = $this->setupBlock();
         
         $this->get("admin/settings/".$block->id."/0");
         
-        $response = $this->post("", [
+        $this->post("", [
             'block_id' => $block->id,
             'id' => null,
-        ]);
+        ])
+            ->assertSessionHasErrors('text')
+            ->assertRedirect();
         
-        $item = Block\Text::all()->last();
-        
-        $response->assertRedirect();
+        $item = Block\Text::where('block_id', $block->id)->get()->last();
         
         $this->assertNull($item);
-        
-        if($assertion){
-            $this->followRedirects($response)
-                    ->assertSee("The text field is required");
-        }
-        else{
-            $this->followRedirects($response)
-                    ->assertDontSee("The text field is required");
-        }
     }
     
     public function create_few_items_in_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = $this->setupBlock();
         
         $firstText = $this->faker->paragraph;
         $secondText = $this->faker->paragraph;
@@ -135,33 +117,21 @@ class Actions extends TestCase{
             'id' => null,
             'text' => $thirdText
         ]);
+
+        $block = Block::find($block->id)->specify();
         
         if($assertion){
-            $this->get('admin')
-                    ->assertSee($firstText)
-                    ->assertSee($secondText)
-                    ->assertSee($thirdText);
-            
-            $this->get('')
-                    ->assertSee($firstText)
-                    ->assertSee($secondText)
-                    ->assertSee($thirdText);
+            $this->assertTrue(in_array($firstText, $block->content()->pluck(['text'])->toArray()));
+            $this->assertTrue(in_array($secondText, $block->content()->pluck(['text'])->toArray()));
+            $this->assertTrue(in_array($thirdText, $block->content()->pluck(['text'])->toArray()));
         }
         else{
-            $this->get('admin')
-                    ->assertDontSee($firstText)
-                    ->assertDontSee($secondText)
-                    ->assertDontSee($thirdText);
-            
-            $this->get('')
-                    ->assertDontSee($firstText)
-                    ->assertDontSee($secondText)
-                    ->assertDontSee($thirdText);
+            $this->assertEmpty($block->content());
         }
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        $block = factory(Block::class)->create();
+        $block = $this->setupBlock();
         
         Block\Text::insert([
             'block_id' => $block->id,
@@ -189,7 +159,7 @@ class Actions extends TestCase{
     }
     
     public function edit_block_settings($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text'])->specify();
+        $block = $this->setupBlock();
         
         $response = $this->get('admin/settings/'.$block->id.'/0');
         
