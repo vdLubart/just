@@ -302,28 +302,28 @@ abstract class AbstractBlock extends Model
         
         $this->addSetupFormElements($form);
 
-        $settingsViewGroup = new FormGroup('settingsView', 'Settings View', ['class'=>'col-md-6']);
+        $settingsViewGroup = new FormGroup('settingsView', __('block.preferences.settingsView.title'), ['class'=>'col-md-6']);
         $settingsViewGroup->add(FormElement::select([
             'name'=>'settingsScale',
-            'label'=>'Settings View Scale',
+            'label'=>__('block.preferences.settingsView.scale'),
             'value'=>isset($parameters->settingsScale)?$parameters->settingsScale:100,
             'options'=>[
-                '33'=>'33% - 12 items in row',
-                '40'=>'40% - 10 items in row',
-                '50'=>'50% - 8 items in row',
-                '67'=>'67% - 6 items in row',
-                '80'=>'80% - 5 items in row',
-                '100'=>'100% - 4 items in row',
-                '133'=>'133% - 3 items in row',
-                '200'=>'200% - 2 items in row',
-                '400'=>'400% - 1 item in row'
+                '33'=>trans_choice('block.preferences.settingsView.scaleOption', 12, ['width'=>'33%', 'items'=>12]),
+                '40'=>trans_choice('block.preferences.settingsView.scaleOption', 10, ['width'=>'40%', 'items'=>10]),
+                '50'=>trans_choice('block.preferences.settingsView.scaleOption', 8, ['width'=>'50%', 'items'=>8]),
+                '67'=>trans_choice('block.preferences.settingsView.scaleOption', 6, ['width'=>'67%', 'items'=>6]),
+                '80'=>trans_choice('block.preferences.settingsView.scaleOption', 5, ['width'=>'80%', 'items'=>5]),
+                '100'=>trans_choice('block.preferences.settingsView.scaleOption', 4, ['width'=>'100%', 'items'=>4]),
+                '133'=>trans_choice('block.preferences.settingsView.scaleOption', 3, ['width'=>'133%', 'items'=>3]),
+                '200'=>trans_choice('block.preferences.settingsView.scaleOption', 2, ['width'=>'200%', 'items'=>2]),
+                '400'=>trans_choice('block.preferences.settingsView.scaleOption', 1, ['width'=>'400%', 'items'=>1])
             ]]));
         $form->addGroup($settingsViewGroup);
 
         $this->addOrderDirection($form);
 
         $submitGroup = new FormGroup('submitSetup', '', ['class'=>'col-md-12 clear']);
-        $submitGroup->add(FormElement::submit(['value'=>'Save']));
+        $submitGroup->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         $form->addGroup($submitGroup);
 
         return $form;
@@ -497,41 +497,41 @@ abstract class AbstractBlock extends Model
     }
     
     protected function addCropSetupGroup(&$form){
-        $photoCropGroup = new FormGroup('cropGroup', 'Image cropping', ['class'=>'col-md-6']);
-        $photoCropGroup->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>'Crop photo', 'value'=>1, 'check'=>(@$this->parameter('cropPhoto')==1)]));
-        $photoCropGroup->add(FormElement::text(['name'=>'cropDimentions', 'label'=>'Crop image with dimentions (W:H)', 'value'=> $this->parameter('cropDimentions') ?? '4:3']));
+        $photoCropGroup = new FormGroup('cropGroup', __('block.preferences.cropGroup.title'), ['class'=>'col-md-6']);
+        $photoCropGroup->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>__('settings.actions.crop'), 'value'=>1, 'check'=>(@$this->parameter('cropPhoto')==1)]));
+        $photoCropGroup->add(FormElement::text(['name'=>'cropDimensions', 'label'=>__('block.preferences.cropGroup.cropDimensions'), 'value'=> $this->parameter('cropDimensions') ?? '4:3']));
         $form->addGroup($photoCropGroup);
     }
     
     protected function addIgnoretCaptionSetupGroup(&$form){
-        $photoFieldsGroup = new FormGroup('fieldsGroup', 'Image fields', ['class'=>'col-md-6']);
-        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => 'Ignore item caption', 'value'=>1, 'check'=>$this->parameter('ignoreCaption')]));
-        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => 'Ignore item description', 'value'=>1, 'check'=>$this->parameter('ignoreDescription')]));
+        $photoFieldsGroup = new FormGroup('fieldsGroup', __('block.preferences.fieldsGroup.title'), ['class'=>'col-md-6']);
+        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => __('block.preferences.fieldsGroup.ignoreCaption'), 'value'=>1, 'check'=>$this->parameter('ignoreCaption')]));
+        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => __('block.preferences.fieldsGroup.ignoreDescription'), 'value'=>1, 'check'=>$this->parameter('ignoreDescription')]));
         $form->addGroup($photoFieldsGroup);
     }
     
     protected function addResizePhotoSetupGroup(&$form){
-        $photoSizesGroup = new FormGroup('sizeGroup', 'Resize images', ['class'=>'col-md-6']);
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'customSizes', 'label'=>'Choose custom size set', 'value'=>1, 'check'=>$this->parameter('customSizes') ]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 100% layout width (12 cols)', 'value'=>12, 'check'=>(in_array(12, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 75% layout width (9 cols)', 'value'=>9, 'check'=>(in_array(9, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 67% layout width (8 cols)', 'value'=>8, 'check'=>(in_array(8, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 50% layout width (6 cols)', 'value'=>6, 'check'=>(in_array(6, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 33% layout width (4 cols)', 'value'=>4, 'check'=>(in_array(4, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>'Resize to 25% layout width (3 cols)', 'value'=>3, 'check'=>(in_array(3, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup = new FormGroup('sizeGroup', __('block.preferences.sizeGroup.title'), ['class'=>'col-md-6']);
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'customSizes', 'label'=> __('block.preferences.sizeGroup.customSizes'), 'value'=>1, 'check'=>$this->parameter('customSizes') ]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'100%', 'cols'=>12]), 'value'=>12, 'check'=>(in_array(12, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'75%', 'cols'=>9]), 'value'=>9, 'check'=>(in_array(9, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'67%', 'cols'=>8]), 'value'=>8, 'check'=>(in_array(8, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'50%', 'cols'=>6]), 'value'=>6, 'check'=>(in_array(6, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'33%', 'cols'=>4]), 'value'=>4, 'check'=>(in_array(4, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'25%', 'cols'=>3]), 'value'=>3, 'check'=>(in_array(3, $this->parameter('photoSizes')??[]))]));
         $form->addGroup($photoSizesGroup);
     }
 
     protected function addItemRouteGroup(&$form){
-        $itemRouteGroup = new FormGroup('itemRoute', 'Item route', ['class'=>'col-md-6']);
-        $itemRouteGroup->add(FormElement::text(['name'=>'itemRouteBase', 'label'=>'Item route base', 'value'=>(str_singular(str_slug($this->block->type)) ?? str_singular($this->block->name) ?? str_singular($this->block->type))]));
+        $itemRouteGroup = new FormGroup('itemRoute', __('block.preferences.itemRoute.title'), ['class'=>'col-md-6']);
+        $itemRouteGroup->add(FormElement::text(['name'=>'itemRouteBase', 'label'=>__('block.preferences.itemRoute.base'), 'value'=>(str_singular(str_slug($this->block->type)) ?? str_singular($this->block->name) ?? str_singular($this->block->type))]));
         $form->addGroup($itemRouteGroup);
     }
 
     protected function addOrderDirection(&$form){
-        $orderDirectionGroup = new FormGroup('orderDirection', 'Ordering Direction', ['class'=> 'col-md-6']);
-        $orderDirectionGroup->add(FormElement::radio(['name'=>'orderDirection', 'label'=>'New item appears in the end', 'value'=>'asc', 'check'=>$this->parameter('orderDirection') == 'asc']));
-        $orderDirectionGroup->add(FormElement::radio(['name'=>'orderDirection', 'label'=>'New item appears on the top', 'value'=>'desc', 'check'=>$this->parameter('orderDirection') == 'desc']));
+        $orderDirectionGroup = new FormGroup('orderDirection', __('block.preferences.orderDirection.title'), ['class'=> 'col-md-6']);
+        $orderDirectionGroup->add(FormElement::radio(['name'=>'orderDirection', 'label'=>__('block.preferences.orderDirection.asc'), 'value'=>'asc', 'check'=>$this->parameter('orderDirection') == 'asc']));
+        $orderDirectionGroup->add(FormElement::radio(['name'=>'orderDirection', 'label'=>__('block.preferences.orderDirection.desc'), 'value'=>'desc', 'check'=>$this->parameter('orderDirection') == 'desc']));
         $form->addGroup($orderDirectionGroup);
     }
 

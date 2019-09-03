@@ -110,17 +110,17 @@ class Addon extends Model
         }
         
         $form->add(FormElement::hidden(['name'=>'addon_id', 'value'=>@$this->id]));
-        $form->add(FormElement::select(['name'=>'type', 'label'=>'Addon', 'value'=>@$this->type, 'options'=>$addons]));
-        $form->add(FormElement::text(['name'=>'name', 'label'=>'Name', 'value'=>@$this->name]));
-        $form->add(FormElement::select(['name'=>'block_id', 'label'=>'Block', 'value'=>@$this->block_id, 'options'=>$blocks]));
+        $form->add(FormElement::select(['name'=>'type', 'label'=>__('addon.addForm.addon'), 'value'=>@$this->type, 'options'=>$addons]));
+        $form->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>@$this->name]));
+        $form->add(FormElement::select(['name'=>'block_id', 'label'=>__('addon.addForm.block'), 'value'=>@$this->block_id, 'options'=>$blocks]));
         if(!is_null($this->id)){
             $form->getElement("type")->setParameters("disabled", "disabled");
             $form->getElement("block_id")->setParameters("disabled", "disabled");
         }
-        $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>@$this->title]));
-        $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>@$this->description]));
+        $form->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>@$this->title]));
+        $form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>@$this->description]));
         $form->applyJS("CKEDITOR.replace('description');");
-        $form->add(FormElement::submit(['value'=>'Save']));
+        $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         return $form;
     }

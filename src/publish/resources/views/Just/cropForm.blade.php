@@ -12,7 +12,7 @@
     {!! Form::hidden('w') !!}
     {!! Form::hidden('h') !!}
     {!! Form::hidden('img', $image) !!}
-    {!! Form::submit('Crop image') !!}
+    {!! Form::submit(__('settings.actions.crop')) !!}
 
     {!! Form::close() !!}
 </div>

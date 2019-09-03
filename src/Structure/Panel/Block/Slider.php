@@ -21,6 +21,12 @@ class Slider extends Gallery
     protected $settingsTitle = 'Slide';
     
     protected $neededParameters = [];
+
+    public function __construct() {
+        parent::__construct();
+
+        $this->settingsTitle = __('slide.title');
+    }
     
     public function form() {
         $this->form = parent::form();

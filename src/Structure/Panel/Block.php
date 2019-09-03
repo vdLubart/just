@@ -125,20 +125,20 @@ class Block extends Model
             $form->add(FormElement::hidden(['name'=>'panel_id', 'value'=>$this->panel_id]));
             $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>@$this->id]));
             $form->add(FormElement::hidden(['name'=>'page_id', 'value'=>$this->page_id]));
-            $form->add(FormElement::select(['name'=>'type', 'label'=>'Type', 'value'=>@$this->type, 'options'=>$this->allBlocksSelect()]));
+            $form->add(FormElement::select(['name'=>'type', 'label'=>__('block.form.type'), 'value'=>@$this->type, 'options'=>$this->allBlocksSelect()]));
             if(!is_null($this->id)){
                 $form->getElement("type")->setParameters("disabled", "disabled");
             }
-            $form->add(FormElement::text(['name'=>'name', 'label'=>'Name', 'value'=>@$this->name]));
-            $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>@$this->title]));
-            $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>@$this->description, "class"=>"ckeditor"]));
+            $form->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>@$this->name]));
+            $form->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>@$this->title]));
+            $form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>@$this->description, "class"=>"ckeditor"]));
             $form->applyJS("$(document).ready(function(){CKEDITOR.replace('description') });");
-            $form->add(FormElement::select(['name'=>'width', 'label'=>'Width', 'value'=>$this->width ?? 12, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
+            $form->add(FormElement::select(['name'=>'width', 'label'=>__('block.form.width'), 'value'=>$this->width ?? 12, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
             if(\Auth::user()->role == "master"){
-                $form->add(FormElement::text(['name'=>'layoutClass', 'label'=>'Layout Class', 'value'=>$this->layoutClass ?? 'primary']));
-                $form->add(FormElement::text(['name'=>'cssClass', 'label'=>'Additional CSS Class', 'value'=>@$this->cssClass]));
+                $form->add(FormElement::text(['name'=>'layoutClass', 'label'=>__('block.form.layoutClass'), 'value'=>$this->layoutClass ?? 'primary']));
+                $form->add(FormElement::text(['name'=>'cssClass', 'label'=>__('block.form.cssClass'), 'value'=>@$this->cssClass]));
             }
-            $form->add(FormElement::submit(['value'=>'Save']));
+            $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         }
         
         return $form;

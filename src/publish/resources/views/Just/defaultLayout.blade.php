@@ -1,11 +1,11 @@
 <div class='col-md-12'>
     <div class='col-md-10'>
         <h4>
-            Settings :: Layout :: Set Default
+            @lang('settings.title') :: @lang('layout.title') :: @lang('layout.setDefaultForm.title')
         </h4>
     </div>
     <div class='col-md-1 text-right'>
-        <a href="javascript:closeSettings()" title='Close settings'><i class="fa fa-times"></i></a>
+        <a href="javascript:closeSettings()" title='@lang('settings.actions.close')'><i class="fa fa-times"></i></a>
     </div>
 </div>
 <div id="setDefaultLayoutForm" class='col-md-12'>

@@ -41,15 +41,15 @@ class Logo extends AbstractBlock
             }
             
             if(empty($this->parameter('ignoreCaption'))){
-                $this->form->add(FormElement::text(['name'=>'caption', 'label'=>'Caption', 'value'=>$this->caption]));
+                $this->form->add(FormElement::text(['name'=>'caption', 'label'=>__('settings.common.caption'), 'value'=>$this->caption]));
             }
             if(empty($this->parameter('ignoreDescription'))){
-                $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>$this->description]));
+                $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>$this->description]));
             }
-            $this->form->add(FormElement::submit(['value'=>'Update image', 'name'=>'startUpload']));
+            $this->form->add(FormElement::submit(['value'=>__('gallery.form.update'), 'name'=>'startUpload']));
         }
         else{
-            $this->form->add(FormElement::button(['value'=>'Upload images', 'name'=>'startUpload']));
+            $this->form->add(FormElement::button(['value'=>__('gallery.form.upload'), 'name'=>'startUpload']));
         }
         
         $this->form->setType('settings');

@@ -17,8 +17,6 @@ $factory->define(Lubart\Just\Structure\Layout::class, function (Faker $faker) {
     return [
         'name' => $faker->name,
         'class' => $faker->name,
-        'type' => 'float',
         'width' => 1920,
-        'isActive' => true
     ];
 });

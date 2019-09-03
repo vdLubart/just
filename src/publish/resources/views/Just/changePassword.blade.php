@@ -1,11 +1,11 @@
 <div class='col-md-12'>
     <div class='col-md-10'>
         <h4>
-            Settings :: User :: Change Password
+            @lang('settings.title') :: @lang('user.title') :: @lang('user.changePasswordForm.title')
         </h4>
     </div>
     <div class='col-md-1 text-right'>
-        <a href="javascript:closeSettings()" title='Close settings'><i class="fa fa-times"></i></a>
+        <a href="javascript:closeSettings()" title='@lang('settings.actions.close')'><i class="fa fa-times"></i></a>
     </div>
 </div>
 <div id="changePassordForm" class='col-md-12'>

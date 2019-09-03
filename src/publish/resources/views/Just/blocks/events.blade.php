@@ -1,9 +1,9 @@
 @if(is_null($block->model()->id))
 
-    <h3>Future events</h3>
+    <h3>@lang('events.futureEvents')</h3>
 
     @if($block->content()->isEmpty())
-        There is no event planned yet
+        @lang('events.noFutureEvents')
     @endif
 
     @foreach($block->content() as $event)
@@ -31,10 +31,10 @@
         </div>
     @endforeach
 
-    <h3>Past events</h3>
+    <h3>@lang('events.pastEvents')</h3>
 
     @if($block->model()->pastEvents()->isEmpty())
-        There is no event held in the past
+        @lang('events.noPastEvents')
     @endif
 
     @foreach($block->model()->pastEvents() as $event)
@@ -100,7 +100,7 @@
                     @endif
                 @endif
 
-                <a href="#registerForm" id="regButton" onclick="openRegisterForm()" class="btn btn-primary">Register</a>
+                <a href="#registerForm" id="regButton" onclick="openRegisterForm()" class="btn btn-primary">@lang('events.registerForm.register')</a>
                 <div id="registerForm" style="display: none">
                     {!!  $block->model()->registerForm() !!}
                 </div>

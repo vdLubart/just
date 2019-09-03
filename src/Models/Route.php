@@ -19,7 +19,7 @@ class Route extends Model
     protected $table = 'routes';
     
     public static function findByUrl($url) {
-        return self::where('route', trim(str_replace('admin', '', $url), '/'))->first();
+        return self::where('route', trim(preg_replace('/^\/?admin/', '', $url), '/'))->first();
     }
     
     public function page() {

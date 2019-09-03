@@ -54,7 +54,7 @@ class Articles extends AbstractBlock
             return;
         }
 
-        $this->form->add(FormElement::file(['name'=>'image', 'label'=>'Upload Image']));
+        $this->form->add(FormElement::file(['name'=>'image', 'label'=>__('settings.actions.upload')]));
         if(!is_null($this->id)){
             if(file_exists(public_path('storage/'.$this->table.'/'.$this->image.'_3.png'))){
                 $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
@@ -64,17 +64,17 @@ class Articles extends AbstractBlock
             }
 
             if(!empty($this->parameter('cropPhoto'))){
-                $this->form->add(FormElement::button(['name' => 'recrop', 'value' => 'Recrop Image']));
+                $this->form->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
                 $this->form->getElement("recrop")->setParameters('javasript:openCropping(' . $this->block_id . ', ' . $this->id . ')', 'onclick');
             }
         }
-        $this->form->add(FormElement::text(['name'=>'subject', 'label'=>'Subject', 'value'=>$this->subject]));
-        $this->form->add(FormElement::textarea(['name'=>'summary', 'label'=>'Summary', 'value'=>$this->summary]));
-        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>'Article Text', 'value'=>$this->text]));
+        $this->form->add(FormElement::text(['name'=>'subject', 'label'=>__('settings.common.subject'), 'value'=>$this->subject]));
+        $this->form->add(FormElement::textarea(['name'=>'summary', 'label'=>__('settings.common.summary'), 'value'=>$this->summary]));
+        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>__('article.text'), 'value'=>$this->text]));
 
         $this->includeAddons();
 
-        $this->form->add(FormElement::submit(['value'=>'Save']));
+        $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
 
         $this->form->applyJS("
 $(document).ready(function(){

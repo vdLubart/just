@@ -9,38 +9,38 @@
         <ul class="nav nav-pills">
             @if(empty($block->model()->id))
             <li class="active">
-                <a href="#{{ $block->type }}_content" data-toggle="tab"><i class="fa fa-list"></i> Content</a>
+                <a href="#{{ $block->type }}_content" data-toggle="tab"><i class="fa fa-list"></i> @lang('block.content')</a>
             </li>
             <li>
-                <a href="#{{ $block->type }}_blockData" data-toggle="tab"><i class="fa fa-cube"></i> Block Data</a>
+                <a href="#{{ $block->type }}_blockData" data-toggle="tab"><i class="fa fa-cube"></i> @lang('block.properties')</a>
             </li>
             <li>
-                <a href="#{{ $block->type }}_blockSetup" data-toggle="tab"><i class="fa fa-cogs"></i> Block Settings</a>
+                <a href="#{{ $block->type }}_blockSetup" data-toggle="tab"><i class="fa fa-cogs"></i> @lang('block.preferences.title')</a>
             </li>
             @endif
             <li @if(!empty($block->model()->id) and empty($relBlock)) class="active" @endif>
                 <a href="#{{ $block->type }}_settingsForm" data-toggle="tab">
                     @if(empty($block->model()->id))
-                        <i class="fa fa-plus"></i> Create New Item
+                        <i class="fa fa-plus"></i> @lang('block.create')
                     @else
-                        <i class="fa fa-pencil"></i> Edit Item
+                        <i class="fa fa-pencil"></i> @lang('block.edit')
                     @endif
                 </a>
             </li>
             @if(!empty($block->model()->id))
                 @if($block->type === 'events')
                 <li>
-                    <a href="#{{ $block->type }}_registrations" data-toggle="tab"></i><i class="fa fa-list"></i> Registrations</a>
+                    <a href="#{{ $block->type }}_registrations" data-toggle="tab"></i><i class="fa fa-list"></i> @lang('block.registrations')</a>
                 </li>
                 @endif
 
                 @if(\Auth::user()->role == "master")
                 <li @if(!empty($relBlock)) class="active" @endif>
-                    <a href="#{{ $block->type }}_relationsForm" data-toggle="tab">@if(!empty($relBlock)) <i class="fa fa-pencil"></i><i class="fa fa-link"></i> Edit Related Block @else <i class="fa fa-plus"></i><i class="fa fa-link"></i> Create Related Block @endif </a>
+                    <a href="#{{ $block->type }}_relationsForm" data-toggle="tab">@if(!empty($relBlock)) <i class="fa fa-pencil"></i><i class="fa fa-link"></i> @lang('block.relatedBlock.edit') @else <i class="fa fa-plus"></i><i class="fa fa-link"></i> @lang('block.relatedBlock.create') @endif </a>
                 </li>
                 @endif
             <li>
-                <a href="#{{ $block->type }}_relations" data-toggle="tab"></i><i class="fa fa-link"></i> Related Blocks</a>
+                <a href="#{{ $block->type }}_relations" data-toggle="tab"></i><i class="fa fa-link"></i> @lang('block.relatedBlock.title')</a>
             </li>
             @endif
         </ul>

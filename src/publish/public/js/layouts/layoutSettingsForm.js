@@ -30,7 +30,7 @@ function addPanel(){
     $("#layoutPanel_"+panelNo).children('div').children('label[for=panelType]').attr('for', 'panelType_'+panelNo);
     $("#layoutPanel_"+panelNo).children('div').children('select#panelType').attr('id', 'panelType_'+panelNo).attr('name', 'panelType_'+panelNo);
     
-    $("#layoutPanel_"+panelNo).append("<a href='javascript:removePanel("+panelNo+")'><i class='fa fa-trash-o'></i> Remove panel</a>");
+    $("#layoutPanel_"+panelNo).append("<a href='javascript:removePanel("+panelNo+")'> " + $("#element-removePanelSpan span").html() + " </a>");
     
     panelNo++;
 }

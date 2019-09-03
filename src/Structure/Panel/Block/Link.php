@@ -28,14 +28,14 @@ class Link extends AbstractBlock
         
         $blocks = [];
         foreach(Block::where('type', '<>', 'link')->get() as $block){
-            $blocks[$block->id] = $block->title . "(".$block->type.") at ".(is_null($block->page())?$block->panelLocation:$block->page()->title ." page");
+            $blocks[$block->id] = __("link.block", ['block'=>$block->title, 'type'=>$block->type, 'page'=>(is_null($block->page())?$block->panelLocation:$block->page()->title)]);
         }
         
-        $this->form->add(FormElement::select(['name'=>'linkedBlock_id', 'label'=>'Linked Block', 'value'=>@$this->linkedBlock_id, 'options'=>$blocks]));
+        $this->form->add(FormElement::select(['name'=>'linkedBlock_id', 'label'=>__('link.linkedBlock'), 'value'=>@$this->linkedBlock_id, 'options'=>$blocks]));
         
         $this->includeAddons();
         
-        $this->form->add(FormElement::submit(['value'=>'Save']));
+        $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
             
         return $this->form;
     }

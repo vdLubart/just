@@ -26,13 +26,13 @@
             <ul class="nav navbar-nav navbar-right">
                 <!-- Authentication Links -->
                 @guest
-                <li><a href="{{ route('login') }}">Login</a></li>
+                <li><a href="{{ route('login') }}">@lang('Login')</a></li>
                 @else
                 @if(\Auth::user()->role == "master")
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         <i class="fa fa-paint-brush"></i>
-                        Layouts <span class="caret"></span>
+                        @lang('navbar.layouts.top') <span class="caret"></span>
                     </a>
                     
                     <ul class="dropdown-menu" role="menu">
@@ -41,7 +41,7 @@
                                onclick="event.preventDefault();
                                                     openSettings('layout', 0);">
                                 <i class="fa fa-plus"></i>
-                                Create layout
+                                @lang('navbar.layouts.create')
                             </a>
                         </li>
                         <li>
@@ -49,7 +49,7 @@
                                onclick="event.preventDefault();
                                                     setDefaultLayout();">
                                 <i class="fa fa-check"></i>
-                                Default layout
+                                @lang('navbar.layouts.default')
                             </a>
                         </li>
                         <li>
@@ -57,7 +57,7 @@
                                onclick="event.preventDefault();
                                                     openList('layout');">
                                 <i class="fa fa-list"></i>
-                                Layout list
+                                @lang('navbar.layouts.list')
                             </a>
                         </li>
                         <li>
@@ -65,7 +65,7 @@
                                onclick="event.preventDefault();
                                                     openSettings('layout', {{ $layout->id }});">
                                 <i class="fa fa-cogs"></i>
-                                Layout settings
+                                @lang('navbar.layouts.settings')
                             </a>
                         </li>
                     </ul>
@@ -74,7 +74,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         <i class="fa fa-sitemap"></i>
-                        Pages <span class="caret"></span>
+                        @lang('navbar.pages.top') <span class="caret"></span>
                     </a>
                     
                     <ul class="dropdown-menu" role="menu">
@@ -83,7 +83,7 @@
                                onclick="event.preventDefault();
                                                     openSettings('page', 0);">
                                 <i class="fa fa-plus"></i>
-                                Create page
+                                @lang('navbar.pages.create')
                             </a>
                         </li>
                         <li>
@@ -91,7 +91,7 @@
                                onclick="event.preventDefault();
                                                     openList('page');">
                                 <i class="fa fa-list"></i>
-                                Page list
+                                @lang('navbar.pages.list')
                             </a>
                         </li>
                         <li>
@@ -99,7 +99,7 @@
                                onclick="event.preventDefault();
                                                     openSettings('page', {{ $page->id }});">
                                 <i class="fa fa-cogs"></i>
-                                Page settings
+                                @lang('navbar.pages.settings')
                             </a>
                         </li>
                     </ul>
@@ -107,7 +107,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         <i class="fa fa-th-list"></i>
-                        Categories <span class="caret"></span>
+                        @lang('navbar.categories.top') <span class="caret"></span>
                     </a>
                     
                     <ul class="dropdown-menu" role="menu">
@@ -116,7 +116,7 @@
                                onclick="event.preventDefault();
                                                     openSettings('category', 0);">
                                 <i class="fa fa-plus"></i>
-                                Create category
+                               @lang('navbar.categories.create')
                             </a>
                         </li>
                         <li>
@@ -124,7 +124,7 @@
                                onclick="event.preventDefault();
                                                     openList('category');">
                                 <i class="fa fa-list"></i>
-                                Category list
+                                @lang('navbar.categories.list')
                             </a>
                         </li>
                     </ul>
@@ -133,7 +133,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         <i class="fa fa-puzzle-piece"></i>
-                        Addons <span class="caret"></span>
+                        @lang('navbar.addons.top') <span class="caret"></span>
                     </a>
                     
                     <ul class="dropdown-menu" role="menu">
@@ -142,7 +142,7 @@
                                onclick="event.preventDefault();
                                                     openSettings('addon', 0);">
                                 <i class="fa fa-plus"></i>
-                                Add addon
+                                @lang('navbar.addons.add')
                             </a>
                         </li>
                         <li>
@@ -150,7 +150,7 @@
                                onclick="event.preventDefault();
                                                     openList('addon');">
                                 <i class="fa fa-list"></i>
-                                Addon list
+                                @lang('navbar.addons.list')
                             </a>
                         </li>
                     </ul>
@@ -158,7 +158,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         <i class="fa fa-users"></i>
-                        Users <span class="caret"></span>
+                        @lang('navbar.users.top') <span class="caret"></span>
                     </a>
                     
                     <ul class="dropdown-menu" role="menu">
@@ -167,7 +167,7 @@
                                onclick="event.preventDefault();
                                                     openSettings('user', 0);">
                                 <i class="fa fa-plus"></i>
-                                Add user
+                                @lang('navbar.users.add')
                             </a>
                         </li>
                         <li>
@@ -175,7 +175,7 @@
                                onclick="event.preventDefault();
                                                     openList('user');">
                                 <i class="fa fa-list"></i>
-                                User list
+                                @lang('navbar.users.list')
                             </a>
                         </li>
                     </ul>
@@ -193,7 +193,7 @@
                                onclick="event.preventDefault();
                                                     openChangePassword();">
                                 <i class="fa fa-lock"></i>
-                                Change Password
+                                @lang('navbar.user.changePassword')
                             </a>
                         </li>
                         <li>
@@ -201,7 +201,7 @@
                                onclick="event.preventDefault();
                                                     document.getElementById('logout-form').submit();">
                                 <i class="fa fa-sign-out-alt"></i>
-                                Logout
+                                @lang('navbar.user.logout')
                             </a>
 
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

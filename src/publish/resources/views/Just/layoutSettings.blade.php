@@ -1,11 +1,11 @@
 <div class='col-md-12'>
     <div class='col-md-11'>
         <h4>
-            Settings :: Layout
+            @lang('settings.title') :: @lang('layout.title') :: @if($layout->id == 0) @lang('layout.createForm.title') @else @lang('layout.editForm.title') @endif
         </h4>
     </div>
     <div class='col-md-1 text-right'>
-        <a href="javascript:closeSettings()" title='Close settings'><i class="fa fa-times"></i></a>
+        <a href="javascript:closeSettings()" title='@lang('settings.actions.close')'><i class="fa fa-times"></i></a>
     </div>
 </div>
 

@@ -31,8 +31,6 @@ class Feedback extends AbstractBlock
     
     protected $neededParameters = [];
     
-    private $content;
-
     protected $publicRequestValidationRules = [
         "username" => "required|max:100",
         "email" => "required|email|max:255",
@@ -44,22 +42,30 @@ class Feedback extends AbstractBlock
         'g-recaptcha-response.required' => "reCaptcha is not validated. Please confirm you are not a bot.",
         'g-recaptcha-response.recaptcha' => "reCaptcha is not validated. Please confirm you are not a bot."
     ];
+
+    public function __construct() {
+        parent::__construct();
+
+        $this->settingsTitle = __('feedback.title');
+        $this->publicRequestValidationMessages['g-recaptcha-response.required'] = __('feedback.validation.recaptchaFailed');
+        $this->publicRequestValidationMessages['g-recaptcha-response.recaptcha'] = __('feedback.validation.recaptchaFailed');
+    }
     
     public function form() {
         if(is_null($this->form)){
             return;
         }
         
-        $this->form->add(FormElement::text(['name'=>'username', 'label'=>'Name', 'value'=>$this->username]));
-        $this->form->add(FormElement::email(['name'=>'email', 'label'=>'Email', 'value'=>$this->email]));
+        $this->form->add(FormElement::text(['name'=>'username', 'label'=>__('settings.common.name'), 'value'=>$this->username]));
+        $this->form->add(FormElement::email(['name'=>'email', 'label'=>__('feedback.form.email'), 'value'=>$this->email]));
         if($this->id){
-           $this->form->add(FormElement::date(['name'=>'created', 'label'=>'Date', 'value'=>$this->created_at])); 
+           $this->form->add(FormElement::date(['name'=>'created', 'label'=>__('feedback.form.date'), 'value'=>$this->created_at]));
         }
-        $this->form->add(FormElement::textarea(['name'=>'message', 'label'=>'Message', 'value'=>$this->message]));
+        $this->form->add(FormElement::textarea(['name'=>'message', 'label'=>__('feedback.form.message'), 'value'=>$this->message]));
         
         $this->includeAddons();
         
-        $this->form->add(FormElement::submit(['value'=>'Submit']));
+        $this->form->add(FormElement::submit(['value'=>__('settings.actions.submit')]));
         
         return $this->form;
     }
@@ -75,11 +81,11 @@ class Feedback extends AbstractBlock
     }
     
     public function addSetupFormElements(Form &$form) {
-        $feedbackGroup = new FormGroup('feedbackGroup', 'Feedback Settings', ['class'=>'col-nd-6']);
-        $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>'Feedback is visible just after publishing', 'value'=>1, 'check'=>(@$this->parameter('defaultActivation')==1)]));
-        $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>'Admin must confirm feedback publishing', 'value'=>0, 'check'=>(@$this->parameter('defaultActivation')==0)]));
-        $feedbackGroup->add(FormElement::text(['name'=>'successText', 'label'=>'Message after successful publishing feedback', 'value'=>@$this->parameter('successText')]));
-        $feedbackGroup->add(FormElement::checkbox(['name'=>'notify', 'label'=>'Notify me by email about new feedback', 'value'=>1, 'check'=>(@$this->parameter('notify')==1)]));
+        $feedbackGroup = new FormGroup('feedbackGroup', __('feedback.preferences.title'), ['class'=>'col-nd-6']);
+        $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>__('feedback.preferences.noModeration'), 'value'=>1, 'check'=>(@$this->parameter('defaultActivation')==1)]));
+        $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>__('feedback.preferences.moderation'), 'value'=>0, 'check'=>(@$this->parameter('defaultActivation')==0)]));
+        $feedbackGroup->add(FormElement::text(['name'=>'successText', 'label'=>__('feedback.preferences.successMessage'), 'value'=>@$this->parameter('successText')]));
+        $feedbackGroup->add(FormElement::checkbox(['name'=>'notify', 'label'=>__('feedback.preferences.notifyMe'), 'value'=>1, 'check'=>(@$this->parameter('notify')==1)]));
         $form->addGroup($feedbackGroup);
         
         return $form;
@@ -118,11 +124,11 @@ class Feedback extends AbstractBlock
         $form = new Form("/feedback/add");
         
         $form->add(FormElement::hidden(['name'=>"block_id", "value"=>$this->block_id]));
-        $form->add(FormElement::text(['name'=>'username', 'label'=>'Name', 'value'=>$this->username]));
-        $form->add(FormElement::email(['name'=>'email', 'label'=>'Email', 'value'=>$this->email]));
-        $form->add(FormElement::textarea(['name'=>'message', 'label'=>'Message', 'value'=>$this->message]));
+        $form->add(FormElement::text(['name'=>'username', 'label'=>__('settings.common.name'), 'value'=>$this->username]));
+        $form->add(FormElement::email(['name'=>'email', 'label'=>__('feedback.form.email'), 'value'=>$this->email]));
+        $form->add(FormElement::textarea(['name'=>'message', 'label'=>__('feedback.form.message'), 'value'=>$this->message]));
         $form->add(FormElement::html(['value'=>'<div class="g-recaptcha" data-sitekey="'. env('RE_CAP_SITE') .'"></div>', 'name'=>'recaptcha']));
-        $form->add(FormElement::submit(['value'=>'Submit']));
+        $form->add(FormElement::submit(['value'=>__('settings.actions.submit')]));
         
         $form->setErrorBag('errorsFrom'.ucfirst($this->block->type . $this->block_id));
         

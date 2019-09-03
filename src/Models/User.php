@@ -45,10 +45,10 @@ class User extends AppUser
     public static function changePasswordForm() {
         $form = new Form('/admin/settings/password/update');
         
-        $form->add(FormElement::password(['name'=>'current_password', 'label'=>'Enter current password']));
-        $form->add(FormElement::password(['name'=>'new_password', 'label'=>'Enter new password']));
-        $form->add(FormElement::password(['name'=>'new_password_confirmation', 'label'=>'Confirm new password']));
-        $form->add(FormElement::submit(['value'=>'Change Password']));
+        $form->add(FormElement::password(['name'=>'current_password', 'label'=>__('user.changePasswordForm.currentPassword')]));
+        $form->add(FormElement::password(['name'=>'new_password', 'label'=>__('user.changePasswordForm.newPassword')]));
+        $form->add(FormElement::password(['name'=>'new_password_confirmation', 'label'=>__('user.changePasswordForm.confirmNewPassword')]));
+        $form->add(FormElement::submit(['value'=>__('user.changePasswordForm.action')]));
         
         return $form;
     }
@@ -62,14 +62,14 @@ class User extends AppUser
         $form = new Form('admin/settings/user/setup');
         
         $form->add(FormElement::hidden(['name'=>'user_id', 'value'=>@$this->id]));
-        $form->add(FormElement::email(['name'=>'email', 'label'=>'Email/Login', 'value'=>@$this->email]));
-        $form->add(FormElement::text(['name'=>'name', 'label'=>'User name', 'value'=>@$this->name]));
-        $form->add(FormElement::select(['name'=>'role', 'label'=>'Role', 'options'=>['master'=>'master', 'admin'=>'admin'], 'value'=>@$this->role]));
+        $form->add(FormElement::email(['name'=>'email', 'label'=>__('user.createForm.login'), 'value'=>@$this->email]));
+        $form->add(FormElement::text(['name'=>'name', 'label'=>__('user.createForm.name'), 'value'=>@$this->name]));
+        $form->add(FormElement::select(['name'=>'role', 'label'=>__('user.createForm.role'), 'options'=>['master'=>'master', 'admin'=>'admin'], 'value'=>@$this->role]));
         if(!$this->id){
-            $form->add(FormElement::password(['name'=>'password', 'label'=>'Password']));
-            $form->add(FormElement::password(['name'=>'password_confirmation', 'label'=>'Confirm password']));
+            $form->add(FormElement::password(['name'=>'password', 'label'=>__('user.createForm.password')]));
+            $form->add(FormElement::password(['name'=>'password_confirmation', 'label'=>__('user.createForm.confirmPassword')]));
         }
-        $form->add(FormElement::submit(['value'=>'Save']));
+        $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         return $form;
     }

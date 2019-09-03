@@ -25,6 +25,12 @@ class Gallery extends AbstractBlock
     protected $settingsTitle = 'Image';
     
     protected $neededParameters = [];
+
+    public function __construct() {
+        parent::__construct();
+
+        $this->settingsTitle = __('gallery.title');
+    }
     
     public function form() {
         if(is_null($this->form)){
@@ -43,20 +49,20 @@ class Gallery extends AbstractBlock
                 $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
             }
             if(!empty($this->parameter('cropPhoto'))){
-                $this->form->add(FormElement::button(['name' => 'recrop', 'value' => 'Recrop Image']));
+                $this->form->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
                 $this->form->getElement("recrop")->setParameters('javasript:openCropping(' . $this->block_id . ', ' . $this->id . ')', 'onclick');
             }
             
             if(empty($this->parameter('ignoreCaption'))){
-                $this->form->add(FormElement::text(['name'=>'caption', 'label'=>'Caption', 'value'=>$this->caption]));
+                $this->form->add(FormElement::text(['name'=>'caption', 'label'=>__('settings.common.caption'), 'value'=>$this->caption]));
             }
             if(empty($this->parameter('ignoreDescription'))){
-                $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>$this->description]));
+                $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>$this->description]));
             }
-            $this->form->add(FormElement::submit(['value'=>'Update image', 'name'=>'startUpload']));
+            $this->form->add(FormElement::submit(['value'=>__('gallery.form.update'), 'name'=>'startUpload']));
         }
         else{
-            $this->form->add(FormElement::button(['value'=>'Upload images', 'name'=>'startUpload']));
+            $this->form->add(FormElement::button(['value'=>__('gallery.form.upload'), 'name'=>'startUpload']));
         }
         
         $this->form->setType('settings');

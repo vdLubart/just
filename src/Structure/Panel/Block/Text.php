@@ -21,6 +21,12 @@ class Text extends AbstractBlock
     protected $table = 'texts';
     
     protected $settingsTitle = 'Plain Text';
+
+    public function __construct() {
+        parent::__construct();
+
+        $this->settingsTitle = __('text.title');
+    }
     
     /**
      * Return item form
@@ -32,11 +38,11 @@ class Text extends AbstractBlock
             return;
         }
         
-        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>'Text', 'value'=>@$this->text]));
+        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>__('text.text'), 'value'=>@$this->text]));
         
         $this->includeAddons();
         
-        $this->form->add(FormElement::submit(['value'=>'Save']));
+        $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         $this->form->useJSFile('/js/blocks/text/settingsForm.js');
         

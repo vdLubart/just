@@ -56,13 +56,23 @@ class Contact extends AbstractBlock
         'vimeo'     => 'Vimeo',
         'whatsapp'  => 'WhatsApp',
     ];
+
+    public function __construct() {
+        parent::__construct();
+
+        $this->settingsTitle = __('contact.title');
+        $this->defaultChannels['envelope'] = __('contact.channel.address');
+        $this->defaultChannels['phone'] = __('contact.channel.phone');
+        $this->defaultChannels['mobile'] = __('contact.channel.mobile');
+        $this->defaultChannels['fax'] = __('contact.channel.fax');
+    }
     
     public function form() {
         if(is_null($this->form)){
             return;
         }
         
-        $this->form->add(FormElement::text(['name'=>'title', 'label'=>'Office Title', 'value'=>@$this->title]));
+        $this->form->add(FormElement::text(['name'=>'title', 'label'=>__('contact.office'), 'value'=>@$this->title]));
 
         $channels = json_decode($this->channels);
 
@@ -72,7 +82,7 @@ class Contact extends AbstractBlock
         
         $this->includeAddons();
         
-        $this->form->add(FormElement::submit(['value'=>'Save']));
+        $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         $this->form->setType('settings');
         
@@ -81,7 +91,7 @@ class Contact extends AbstractBlock
 
     public function addSetupFormElements(Form &$form){
 
-        $fieldGroup = new FormGroup('fieldGroup', 'Using contacts', ['class'=>'col-md-6']);
+        $fieldGroup = new FormGroup('fieldGroup', __('contact.preferences.usingContacts'), ['class'=>'col-md-6']);
 
         foreach($this->defaultChannels() as $icon=> $label){
             $fieldGroup->add(FormElement::checkbox(['name'=>'channels[]', 'label'=>$label, 'value'=>$icon, 'check'=>(in_array($icon, $this->parameter('channels')??[]))]));
@@ -90,8 +100,8 @@ class Contact extends AbstractBlock
         $form->addGroup($fieldGroup);
 
         if(\Auth::user()->role == 'master') {
-            $additionalFieldGroup = new FormGroup('additionalFieldGroup', 'Additional contact', ['class' => 'col-md-6']);
-            $additionalFieldGroup->add(FormElement::textarea(['name' => 'additionalFields', 'label' => 'Additional contact fileds (format: icon=>label)', 'value' => $this->parameter('additionalFields')]));
+            $additionalFieldGroup = new FormGroup('additionalFieldGroup', __('contact.preferences.additionalContact'), ['class' => 'col-md-6']);
+            $additionalFieldGroup->add(FormElement::textarea(['name' => 'additionalFields', 'label' => __('contact.preferences.additionalContactFormat'), 'value' => $this->parameter('additionalFields')]));
 
             $form->addGroup($additionalFieldGroup);
         }

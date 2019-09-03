@@ -51,16 +51,16 @@ class Features extends AbstractBlock
         $this->form->add(FormElement::html(['name'=>'divicon', 'value'=>'<div id="icons"></div>', 'label'=>'Choose icon']));
         $this->form->add(FormElement::hidden(['name'=>'icon', 'value'=>$this->icon_id]));
         if(empty($this->parameter('ignoreCaption'))){
-            $this->form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=>$this->title]));
+            $this->form->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>$this->title]));
         }
         if(empty($this->parameter('ignoreDescription'))){
-            $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>$this->description]));
+            $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>$this->description]));
         }
-        $this->form->add(FormElement::text(['name'=>'link', 'label'=>'Feature Link', 'value'=>$this->link]));
+        $this->form->add(FormElement::text(['name'=>'link', 'label'=>__('feature.link'), 'value'=>$this->link]));
         
         $this->includeAddons();
         
-        $this->form->add(FormElement::submit(['value'=>'Save']));
+        $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         $this->form->useJSFile('/js/blocks/features/settingsForm.js');
         
@@ -76,8 +76,8 @@ class Features extends AbstractBlock
         
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$block->id]));
         
-        $settingsViewGroup = new FormGroup('settingsView', 'Settings View', ['class'=>'col-md-6']);
-        $settingsViewGroup->add(FormElement::select(['name'=>'itemsInRow', 'label'=>'Items amount in single row', 'value'=>@$parameters->itemsInRow, 'options'=>[3=>'4 in row', 4=>'3 in row', 6=>'2 in row', 12=>'1 in row']]));
+        $settingsViewGroup = new FormGroup('settingsView', __('block.preferences.settingsView.title'), ['class'=>'col-md-6']);
+        $settingsViewGroup->add(FormElement::select(['name'=>'itemsInRow', 'label'=>__('feature.preferences.itemScale'), 'value'=>@$parameters->itemsInRow, 'options'=>[3=>trans_choice('feature.preferences.itemScaleValue', 4, ['items'=>4]), 4=>trans_choice('feature.preferences.itemScaleValue', 3, ['items'=>3]), 6=>trans_choice('feature.preferences.itemScaleValue', 2, ['items'=>2]), 12=>trans_choice('feature.preferences.itemScaleValue', 1, ['items'=>1])]]));
         $form->addGroup($settingsViewGroup);
 
         if(\Auth::user()->role == "master"){
@@ -85,7 +85,7 @@ class Features extends AbstractBlock
         }
         
         $submitGroup = new FormGroup('submitSetup', '', ['class'=>'col-md-12 clear']);
-        $submitGroup->add(FormElement::submit(['value'=>'Save']));
+        $submitGroup->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         $form->addGroup($submitGroup);
         
         return $form;

@@ -68,11 +68,11 @@ class Categories extends AbstractAddon
         $addons = Addon::where('type', 'categories')->pluck('title', 'id');
         
         $form->add(FormElement::hidden(['name'=>'category_id', 'value'=>@$this->id]));
-        $form->add(FormElement::select(['name'=>'addon_id', 'label'=>'Addon', 'value'=>@$this->addon_id, 'options'=>$addons]));
-        $form->add(FormElement::text(['name'=>'name', 'label'=>'Name', 'value'=>@$this->name]));
-        $form->add(FormElement::text(['name'=>'value', 'label'=>'Value', 'value'=>@$this->value]));
+        $form->add(FormElement::select(['name'=>'addon_id', 'label'=>__('addon.category.createForm.addon'), 'value'=>@$this->addon_id, 'options'=>$addons]));
+        $form->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>@$this->name]));
+        $form->add(FormElement::text(['name'=>'value', 'label'=>__('addon.category.createForm.value'), 'value'=>@$this->value]));
         
-        $form->add(FormElement::submit(['value'=>'Save']));
+        $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         return $form;
     }

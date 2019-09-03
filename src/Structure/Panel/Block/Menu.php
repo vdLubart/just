@@ -25,6 +25,12 @@ class Menu extends AbstractBlock
     
     protected $menu = [];
 
+    public function __construct() {
+        parent::__construct();
+
+        $this->settingsTitle = __('menu.title');
+    }
+
     public function content() {
         $items = $this->orderBy('parent', 'asc')
             ->orderBy('orderNo', 'asc')
@@ -60,15 +66,15 @@ class Menu extends AbstractBlock
             return;
         }
         
-        $this->form->add(FormElement::text(['name'=>'item', 'label'=>'Item', 'value'=>$this->item]));
-        $this->form->add(FormElement::select(['name'=>'parent', 'label'=>'Parent Item', 'options'=>$this->itemList($this->content()), 'value'=>$this->parent]));
+        $this->form->add(FormElement::text(['name'=>'item', 'label'=>__('menu.form.item'), 'value'=>$this->item]));
+        $this->form->add(FormElement::select(['name'=>'parent', 'label'=>__('menu.form.parentItem'), 'options'=>$this->itemList($this->content()), 'value'=>$this->parent]));
         $route = \Lubart\Just\Models\Route::findByUrl($this->route);
-        $this->form->add(FormElement::select(['name'=>'route', 'label'=>'Route', 'options'=>$this->routes(), 'value'=>$route->id]));
-        $this->form->add(FormElement::text(['name'=>'url', 'label'=>'URL', 'value'=>$this->url]));
+        $this->form->add(FormElement::select(['name'=>'route', 'label'=>__('menu.form.route'), 'options'=>$this->routes(), 'value'=>$route->id]));
+        $this->form->add(FormElement::text(['name'=>'url', 'label'=>__('menu.form.url'), 'value'=>$this->url]));
         
         $this->includeAddons();
         
-        $this->form->add(FormElement::submit(['value'=>'Submit']));
+        $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         return $this->form;
     }

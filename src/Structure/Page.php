@@ -3,6 +3,8 @@
 namespace Lubart\Just\Structure;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Route;
+use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Illuminate\Http\Request;
@@ -33,15 +35,15 @@ class Page extends Model
         $form = new Form('admin/settings/page/setup');
         
         $form->add(FormElement::hidden(['name'=>'page_id', 'value'=>$this->id]));
-        $form->add(FormElement::text(['name'=>'title', 'label'=>'Page Title', 'value'=>$this->title]));
-        $form->add(FormElement::text(['name'=>'description', 'label'=>'Meta Description', 'value'=>$this->description, 'style'=>'width:100%']));
-        $form->add(FormElement::text(['name'=>'keywords', 'label'=>'Meta Keywords', 'value'=>$this->keywords, 'style'=>'width:100%']));
-        $form->add(FormElement::text(['name'=>'author', 'label'=>'Meta Author', 'value'=>$this->author]));
-        $form->add(FormElement::text(['name'=>'copyright', 'label'=>'Meta Copyright', 'value'=>$this->copyright]));
-        $form->add(FormElement::checkbox(['name'=>'copyMeta', 'label'=>'Use current meta data everywhere on the website']));
-        $form->add(FormElement::text(['name'=>'route', 'label'=>'Route', 'value'=>$this->route]));
-        $form->add(FormElement::select(['name'=>'layout_id', 'label'=>'Layout', 'value'=>$this->layout_id, 'options'=>$this->layoutsArray()]));
-        $form->add(FormElement::submit(['value'=>'Save']));
+        $form->add(FormElement::text(['name'=>'title', 'label'=>__('page.createForm.pageTitle'), 'value'=>$this->title]));
+        $form->add(FormElement::text(['name'=>'description', 'label'=>__('page.createForm.metaDescription'), 'value'=>$this->description, 'style'=>'width:100%']));
+        $form->add(FormElement::text(['name'=>'keywords', 'label'=>__('page.createForm.metaKeywords'), 'value'=>$this->keywords, 'style'=>'width:100%']));
+        $form->add(FormElement::text(['name'=>'author', 'label'=>__('page.createForm.metaAuthor'), 'value'=>$this->author]));
+        $form->add(FormElement::text(['name'=>'copyright', 'label'=>__('page.createForm.metaCopyright'), 'value'=>$this->copyright]));
+        $form->add(FormElement::checkbox(['name'=>'copyMeta', 'label'=>__('page.createForm.copyMeta')]));
+        $form->add(FormElement::text(['name'=>'route', 'label'=>__('page.createForm.route'), 'value'=>$this->route]));
+        $form->add(FormElement::select(['name'=>'layout_id', 'label'=>__('page.createForm.layout'), 'value'=>$this->layout_id, 'options'=>$this->layoutsArray()]));
+        $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         return $form;
     }
@@ -95,5 +97,11 @@ class Page extends Model
     
     public static function setLayoutToAllPages($layout){
         Page::where('id', '>', 0)->update(['layout_id'=>$layout->id]);
+    }
+
+    public static function current() {
+        $currentUri = trim(Route::getFacadeRoot()->current()->uri(), "/");
+
+        return JustRoute::findByUrl($currentUri)->page;
     }
 }

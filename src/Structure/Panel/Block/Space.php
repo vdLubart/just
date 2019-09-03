@@ -40,10 +40,10 @@ class Space extends AbstractBlock
         
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$block->id]));
         foreach($this->neededParameters() as $param=>$label){
-            $form->add(FormElement::text(['name'=>$param, 'label'=>$label, 'value'=>@$parameters->{$param}]));
+            $form->add(FormElement::text(['name'=>$param, 'label'=>__('space.'.$param), 'value'=>@$parameters->{$param}]));
         }
         
-        $form->add(FormElement::submit(['value'=>'Save']));
+        $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         return $form;
     }

@@ -49,6 +49,13 @@ class Events extends AbstractBlock
         'email.unique' => 'This email is already registered in this event'
     ];
 
+    public function __construct() {
+        parent::__construct();
+
+        $this->settingsTitle = __('events.title');
+        $this->publicRequestValidationMessages['email.unique'] = __('events.registerExistingEmail');
+    }
+
     /**
      * Order by `start_date` column
      *
@@ -112,7 +119,7 @@ class Events extends AbstractBlock
             ]);
 
             Page::create([
-                'title' => 'Event',
+                'title' => __('event.title'),
                 'description' => '',
                 'route' => $this->block->parameter('itemRouteBase') . '/{id}',
                 'layout_id' => $this->block->page()->layout_id
@@ -142,7 +149,7 @@ class Events extends AbstractBlock
 
         $topGroup = new FormGroup('topGroup');
 
-        $topGroup->add(FormElement::file(['name'=>'image', 'label'=>'Upload Image']));
+        $topGroup->add(FormElement::file(['name'=>'image', 'label'=>__('settings.actions.upload')]));
         if(!is_null($this->id) and !empty($this->image)){
             if(file_exists(public_path('storage/'.$this->table.'/'.$this->image.'_3.png'))){
                 $topGroup->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
@@ -152,47 +159,47 @@ class Events extends AbstractBlock
             }
 
             if(!empty($this->parameter('cropPhoto'))) {
-                $topGroup->add(FormElement::button(['name' => 'recrop', 'value' => 'Recrop Image']));
+                $topGroup->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
                 $topGroup->getElement("recrop")->setParameters('javasript:openCropping(' . $this->block_id . ', ' . $this->id . ')', 'onclick');
             }
         }
-        $topGroup->add(FormElement::text(['name'=>'subject', 'label'=>'Subject', 'value'=>$this->subject]));
+        $topGroup->add(FormElement::text(['name'=>'subject', 'label'=>__('settings.common.subject'), 'value'=>$this->subject]));
 
         $this->form->addGroup($topGroup);
 
         $startDateGroup = new FormGroup('startDate', '', ['class'=>'col-md-6']);
         if(!empty($this->start_date)) {
             $startDate = Carbon::createFromFormat('Y-m-d H:i:s', $this->start_date);
-            $startDateGroup->add(FormElement::date(['name' => 'start_date', 'label' => 'Start Date', 'value' => $startDate->format('Y-m-d')]));
-            $startDateGroup->add(FormElement::time(['name' => 'start_time', 'label' => 'Start Time', 'value' => $startDate->format('H:i')]));
+            $startDateGroup->add(FormElement::date(['name' => 'start_date', 'label' => __('event.form.startDate'), 'value' => $startDate->format('Y-m-d')]));
+            $startDateGroup->add(FormElement::time(['name' => 'start_time', 'label' => __('event.form.startTime'), 'value' => $startDate->format('H:i')]));
         }
         else{
-            $startDateGroup->add(FormElement::date(['name' => 'start_date', 'label' => 'Start Date']));
-            $startDateGroup->add(FormElement::time(['name' => 'start_time', 'label' => 'Start Time']));
+            $startDateGroup->add(FormElement::date(['name' => 'start_date', 'label' => __('event.form.startDate')]));
+            $startDateGroup->add(FormElement::time(['name' => 'start_time', 'label' => __('event.form.startTime')]));
         }
 
         $endDateGroup = new FormGroup('endDate', '', ['class'=>'col-md-6']);
         if(!empty($this->end_date)) {
             $endDate = Carbon::createFromFormat('Y-m-d H:i:s', $this->end_date);
-            $endDateGroup->add(FormElement::date(['name' => 'end_date', 'label' => 'End Date', 'value' => $endDate->format('Y-m-d')]));
-            $endDateGroup->add(FormElement::time(['name' => 'end_time', 'label' => 'End Time', 'value' => $endDate->format('H:i')]));
+            $endDateGroup->add(FormElement::date(['name' => 'end_date', 'label' => __('event.form.endDate'), 'value' => $endDate->format('Y-m-d')]));
+            $endDateGroup->add(FormElement::time(['name' => 'end_time', 'label' => __('event.form.endTime'), 'value' => $endDate->format('H:i')]));
         }
         else{
-            $endDateGroup->add(FormElement::date(['name' => 'end_date', 'label' => 'End Date']));
-            $endDateGroup->add(FormElement::time(['name' => 'end_time', 'label' => 'End Time']));
+            $endDateGroup->add(FormElement::date(['name' => 'end_date', 'label' => __('event.form.endDate')]));
+            $endDateGroup->add(FormElement::time(['name' => 'end_time', 'label' => __('event.form.endTime')]));
         }
 
         $this->form->addGroup($startDateGroup);
         $this->form->addGroup($endDateGroup);
 
-        $this->form->add(FormElement::text(['name'=>'location', 'label'=>'Location', 'value'=>$this->location]));
+        $this->form->add(FormElement::text(['name'=>'location', 'label'=>__('events.form.location'), 'value'=>$this->location]));
 
-        $this->form->add(FormElement::textarea(['name'=>'summary', 'label'=>'Summary', 'value'=>$this->summary]));
-        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>'Event Description', 'value'=>$this->text]));
+        $this->form->add(FormElement::textarea(['name'=>'summary', 'label'=>__('settings.common.summary'), 'value'=>$this->summary]));
+        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>__('events.form.description'), 'value'=>$this->text]));
 
         $this->includeAddons();
         
-        $this->form->add(FormElement::submit(['value'=>'Save']));
+        $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         $this->form->applyJS("
 $(document).ready(function(){
@@ -208,11 +215,11 @@ $(document).ready(function(){
 
         $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block_id]));
         $form->add(FormElement::hidden(['name'=>'event_id', 'value'=>$this->id]));
-        $form->add(FormElement::text(['name'=>'name', 'label'=>'Name', 'value'=>old('name')]));
-        $form->add(FormElement::email(['name'=>'email', 'label'=>'Email', 'value'=>old('email')]));
-        $form->add(FormElement::textarea(['name'=>'comment', 'label'=>'Leave a comment']));
+        $form->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>old('name')]));
+        $form->add(FormElement::email(['name'=>'email', 'label'=>__('events.registrationForm.email'), 'value'=>old('email')]));
+        $form->add(FormElement::textarea(['name'=>'comment', 'label'=>__('events.registrationForm.comment')]));
 
-        $form->add(FormElement::submit(['value'=>'Register']));
+        $form->add(FormElement::submit(['value'=>__('events.registrationForm.register')]));
 
         return $form->render();
     }
@@ -226,9 +233,9 @@ $(document).ready(function(){
 
         $this->addItemRouteGroup($form);
 
-        $registrationGroup = new FormGroup('registrationGroup', 'Registration Settings', ['class'=>'col-md-6']);
-        $registrationGroup->add(FormElement::text(['name'=>'successText', 'label'=>'Message after successful registration', 'value'=>@$this->parameter('successText')]));
-        $registrationGroup->add(FormElement::checkbox(['name'=>'notify', 'label'=>'Notify me by email about new registration', 'value'=>1, 'check'=>(@$this->parameter('notify')==1)]));
+        $registrationGroup = new FormGroup('registrationGroup', __('events.preferences.registration'), ['class'=>'col-md-6']);
+        $registrationGroup->add(FormElement::text(['name'=>'successText', 'label'=>__('events.preferences.successfulMessage'), 'value'=>@$this->parameter('successText')]));
+        $registrationGroup->add(FormElement::checkbox(['name'=>'notify', 'label'=>__('events.preferences.registrationNotification'), 'value'=>1, 'check'=>(@$this->parameter('notify')==1)]));
         $form->addGroup($registrationGroup);
 
         $form->useJSFile('/js/blocks/setupForm.js');

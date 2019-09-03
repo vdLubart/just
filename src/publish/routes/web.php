@@ -43,7 +43,7 @@ if (Schema::hasTable('routes')){
 }
 
 Route::get("admin/settings/{blockId}/{id}/{subid?}", "\Lubart\Just\Controllers\AdminController@settingsForm")->where(['blockId'=>'\d+', 'id'=>'\d+', 'subId'=>'\d+'])->middleware(['web','auth']);
-Route::get("admin/settings/panel/{pageId}/{panelLocation}/{blockId?}", "\Lubart\Just\Controllers\AdminController@panelSettingsForm")->where(['pageId'=>'\d+', 'panelLocation'=>'[a-z]+', 'blockId'=>'\d+'])->middleware(['web','auth']);
+Route::get("admin/settings/panel/{pageId}/{panelLocation}/{blockId?}", "\Lubart\Just\Controllers\AdminController@panelSettingsForm")->where(['pageId'=>'\d+', 'blockId'=>'\d+'])->middleware(['web','auth']);
 Route::get("admin/settings/page/{pageId}", "\Lubart\Just\Controllers\AdminController@pageSettingsForm")->where(['pageId'=>'\d+'])->middleware(['web','auth']);
 Route::get("admin/settings/page/list", "\Lubart\Just\Controllers\AdminController@pageList")->middleware(['web','auth']);
 Route::get("admin/settings/layout/{layoutId}", "\Lubart\Just\Controllers\AdminController@layoutSettingsForm")->where(['layoutId'=>'\d+'])->middleware(['web','auth']);

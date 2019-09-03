@@ -13,7 +13,7 @@
     @elseif(\Config::get('isAdmin'))
         <div class="blockTitle">
             <a href="javascript:openPanelSettings({{ $page->id }}, '{{$panel->location}}')" dusk="content-panel-settings">
-                <i class="fa fa-cogs"></i> Setup panel
+                <i class="fa fa-cogs"></i> @lang('settings.panel.setup')
             </a>
         </div>
     @endif
