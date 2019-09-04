@@ -189,7 +189,7 @@ class Actions extends BlockLocation {
         
         $this->post("/admin/settings/setup", [
             'cropPhoto' => 'on',
-            'cropDimentions' => '4:3'
+            'cropDimensions' => '4:3'
         ]);
         
         $response = $this->post("admin/ajaxuploader", [
@@ -241,7 +241,7 @@ class Actions extends BlockLocation {
             $this->assertEquals(878, $image->height());
         }
         else{
-            $this->assertEquals("Unauthenticated.", $content->message);
+            $response->assertRedirect('login');
         }
     }
     
@@ -253,27 +253,27 @@ class Actions extends BlockLocation {
         if($assertion){
             $response->assertStatus(200)
                     ->assertSee('Settings View')
-                    ->assertSee('Image cropping');
+                    ->assertSee('Image Cropping');
             if(\Auth::user()->role == 'master'){
-                $response->assertSee('Image fields')
-                        ->assertSee('Resize images');
+                $response->assertSee('Item Fields')
+                        ->assertSee('Resize Images');
                 
                 $this->assertCount(6, $block->setupForm()->groups());
             
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'ignoreCaption', 'ignoreDescription', 'customSizes', 'photoSizes[]', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
+                $this->assertEquals(['id', 'cropPhoto', 'cropDimensions', 'ignoreCaption', 'ignoreDescription', 'customSizes', 'photoSizes[]', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
             }
             else{
-                $response->assertDontSee('Image fields')
-                        ->assertDontSee('Resize images');
+                $response->assertDontSee('Item Fields')
+                        ->assertDontSee('Resize Images');
                 
                 $this->assertCount(4, $block->setupForm()->groups());
             
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
+                $this->assertEquals(['id', 'cropPhoto', 'cropDimensions', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
             }
             
             $this->post('admin/settings/setup', [
                 "id" => $block->id,
-                "cropDimentions" => "4:3",
+                "cropDimensions" => "4:3",
                 "ignoreCaption" => "on",
                 "customSizes" => "1",
                 "photoSizes" => ["8","3"],
@@ -302,7 +302,7 @@ class Actions extends BlockLocation {
             
             $form = $item->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimentions":"4:3","ignoreCaption":"on","customSizes":"1","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals('{"cropDimensions":"4:3","ignoreCaption":"on","customSizes":"1","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -315,7 +315,7 @@ class Actions extends BlockLocation {
                 $this->assertFileExists(public_path('storage/logos/'.$item->image.'_3.png'));
             }
             else{
-                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals('{"cropDimensions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -330,7 +330,7 @@ class Actions extends BlockLocation {
             
             $this->post('admin/settings/setup', [
                 "id" => $block->id,
-                "cropDimentions" => "4:3",
+                "cropDimensions" => "4:3",
                 "ignoreDescription" => "on",
                 "customSizes" => "on",
                 "photoSizes" => ["8","3"],
@@ -342,12 +342,12 @@ class Actions extends BlockLocation {
             
             $form = $item->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimentions":"4:3","ignoreDescription":"on","customSizes":"on","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals('{"cropDimensions":"4:3","ignoreDescription":"on","customSizes":"on","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNull($form->getElement('description'));
             }
             else{
-                $this->assertEquals('{"cropDimentions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals('{"cropDimensions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
             }

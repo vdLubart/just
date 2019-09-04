@@ -21,7 +21,7 @@
     @endif
     <div class="caption">
         <a href="javascript: openSettings({{ $block->id }}, {{ $item->id }})">
-            {{ $item->caption ?? $item->subject ?? $item->title ?? @lang('block.untitled') }}
+            {{ $item->caption ?? $item->subject ?? $item->title ?? __('block.untitled') }}
         </a><br/>
         @include('Just.settings.editItem')
     </div>

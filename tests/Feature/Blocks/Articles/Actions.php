@@ -34,13 +34,13 @@ class Actions extends BlockLocation {
         
         $response->assertDontSee('input name="subject"');
         
-        $response->{($assertion?'assertDontSee':'assertSee')}('Item route base');
+        $response->{($assertion?'assertDontSee':'assertSee')}('Item Route');
         $response->{($assertion?'assertDontSee':'assertSee')}('Settings View Scale');
         
         $this->post('admin/settings/setup', [
             "id" => $block->id,
             "cropPhoto" =>	"1",
-            "cropDimentions" => "4:3",
+            "cropDimensions" => "4:3",
             "itemRouteBase" => "article",
             "settingsScale" => "100",
             "orderDirection" =>	"desc"
@@ -48,7 +48,7 @@ class Actions extends BlockLocation {
                 ->assertStatus(200);
         
         $block = Block::find($block->id);
-        $this->{($assertion ? 'assertJsonStringNotEqualsJsonString' : 'assertJsonStringEqualsJsonString')}('{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
+        $this->{($assertion ? 'assertJsonStringNotEqualsJsonString' : 'assertJsonStringEqualsJsonString')}('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
         
         $this->{($assertion ? 'assertNotEquals' : 'assertEquals')}(100, $block->parameter('settingsScale'));
         $this->{($assertion ? 'assertNotEquals' : 'assertEquals')}("article", $block->parameter('itemRouteBase'));
@@ -56,7 +56,7 @@ class Actions extends BlockLocation {
     }
     
     public function access_item_form_when_block_is_setted_up($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
 
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -92,7 +92,7 @@ class Actions extends BlockLocation {
             $this->post('admin/settings/setup', [
                 "id" => $block->id,
                 "cropPhoto" =>	"1",
-                "cropDimentions" => "4:3",
+                "cropDimensions" => "4:3",
                 "itemRouteBase" => "article",
                 "settingsScale" => "100",
                 "orderDirection" =>	"desc"
@@ -111,7 +111,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_new_item_in_block($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
         
         $response = $this->post("", [
             'block_id' => $block->id,
@@ -170,7 +170,7 @@ class Actions extends BlockLocation {
     }
     
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -246,7 +246,7 @@ class Actions extends BlockLocation {
     }
     
     public function access_created_item($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}']);
 
         Block\Articles::insert([
             'block_id' => $block->id,
@@ -289,18 +289,18 @@ class Actions extends BlockLocation {
         if($assertion){
             $response->assertStatus(200)
                     ->assertSee('Settings View')
-                    ->assertSee('Image cropping')
-                    ->assertSee('Ordering Direction');
+                    ->assertSee('Image Cropping')
+                    ->assertSee('Sorting');
 
             if(\Auth::user()->role == 'admin'){
                 $this->assertCount(5, $block->setupForm()->groups());
 
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'itemRouteBase', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
+                $this->assertEquals(['id', 'cropPhoto', 'cropDimensions', 'itemRouteBase', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
 
                 $this->post('admin/settings/setup', [
                     "id" => $block->id,
                     "cropPhoto" => "1",
-                    "cropDimentions" => "4:3",
+                    "cropDimensions" => "4:3",
                     "itemRouteBase" => "article",
                     "settingsScale" => "100",
                     "orderDirection" => "desc"
@@ -308,20 +308,20 @@ class Actions extends BlockLocation {
 
                 $block = Block::find($block->id);
 
-                $this->assertEquals('{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
+                $this->assertEquals('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
             }
             else {
-                $response->assertSee('Resize images')
-                    ->assertSee('Item route');
+                $response->assertSee('Resize Images')
+                    ->assertSee('Item Route');
 
                 $this->assertCount(6, $block->setupForm()->groups());
 
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimentions', 'customSizes', 'photoSizes[]', 'itemRouteBase', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
+                $this->assertEquals(['id', 'cropPhoto', 'cropDimensions', 'customSizes', 'photoSizes[]', 'itemRouteBase', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
 
                 $this->post('admin/settings/setup', [
                     "id" => $block->id,
                     "cropPhoto" => "1",
-                    "cropDimentions" => "4:3",
+                    "cropDimensions" => "4:3",
                     "itemRouteBase" => "article",
                     "settingsScale" => "100",
                     "orderDirection" => "desc"
@@ -329,7 +329,7 @@ class Actions extends BlockLocation {
 
                 $block = Block::find($block->id);
 
-                $this->assertEquals('{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
+                $this->assertEquals('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
             }
         }
         else{
@@ -338,14 +338,14 @@ class Actions extends BlockLocation {
             $this->post('admin/settings/setup', [
                 "id" => $block->id,
                 "cropPhoto" =>	"1",
-                "cropDimentions" => "4:3",
+                "cropDimensions" => "4:3",
                 "settingsScale" => "100",
                 "orderDirection" =>	"desc"
             ]);
             
             $block = Block::find($block->id);
             
-            $this->assertNotEquals('{"cropPhoto":"1","cropDimentions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
+            $this->assertNotEquals('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
         }
     }
 

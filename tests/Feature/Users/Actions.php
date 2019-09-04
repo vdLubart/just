@@ -162,7 +162,7 @@ class Actions extends TestCase{
         
         if($assertion){
             $response->assertSuccessful()
-                    ->assertSee("Settings :: User :: Change Password");
+                    ->assertSee("Settings :: User ".\Auth::user()->name." :: Change Password");
             
             $user = \Auth::user();
             
@@ -190,9 +190,9 @@ class Actions extends TestCase{
     
     public function cannot_change_own_password_without_current_one(){
         $response = $this->get('admin/settings/password');
-        
+
         $response->assertSuccessful()
-                ->assertSee("Settings :: User :: Change Password");
+                ->assertSee("Settings :: User ".\Auth::user()->name." :: Change Password");
 
         $user = \Auth::user();
 

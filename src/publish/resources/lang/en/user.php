@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'title' => 'Users',
+    'title' => '{1} User|[1,*] Users',
     'createForm' => [
         'title' => 'Create New User',
         'login' => 'Email/Login',

@@ -10,6 +10,8 @@ class Html extends Text
     protected $settingsTitle = 'HTML Code';
 
     public function __construct() {
+        parent::__construct();
+
         $this->settingsTitle = __('html.title');
     }
     

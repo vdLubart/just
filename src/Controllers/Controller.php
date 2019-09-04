@@ -17,6 +17,7 @@ class Controller extends BaseController
     
     public function __construct() {
         \Config::set('isAdmin', false);
+        \App::setLocale(env('DEFAULT_LANG', 'en'));
     }
     
     public function buildPage(Request $request) {

@@ -202,14 +202,14 @@ class Actions extends BlockLocation {
             $response->assertStatus(200)
                     ->assertSee('Settings View');
             if(\Auth::user()->role == 'master'){
-                $response->assertSee('Image fields');
+                $response->assertSee('Item Fields');
                 
                 $this->assertCount(3, $block->setupForm()->groups());
             
                 $this->assertEquals(['id', 'itemsInRow', 'ignoreCaption', 'ignoreDescription', 'submit'], $block->setupForm()->names());
             }
             else{
-                $response->assertDontSee('Image fields');
+                $response->assertDontSee('Item Fields');
                 
                 $this->assertCount(2, $block->setupForm()->groups());
             

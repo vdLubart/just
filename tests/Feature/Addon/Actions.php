@@ -34,7 +34,7 @@ class Actions extends TestCase{
         
         if($assertion){
             $response->assertSuccessful()
-                    ->assertSee('Settings :: Addon');
+                    ->assertSee('Settings :: Add-ons :: Add Add-on');
         }
         else{
             if(\Auth::check()){
@@ -92,7 +92,7 @@ class Actions extends TestCase{
         if($assertion){
             $this->get('admin/settings/addon/0')
                     ->assertSuccessful()
-                    ->assertSee('Settings :: Addon');
+                    ->assertSee('Settings :: Add-ons :: Add Add-on');
         }
         else{
             if(\Auth::check()){
@@ -152,7 +152,7 @@ class Actions extends TestCase{
         if($assertion){
             $this->get('admin/settings/addon/0')
                     ->assertSuccessful()
-                    ->assertSee('Settings :: Addon');
+                    ->assertSee('Settings :: Add-ons :: Add Add-on');
         }
         else{
             if(\Auth::check()){
@@ -212,7 +212,7 @@ class Actions extends TestCase{
         if($assertion){
             $this->get('admin/settings/addon/0')
                     ->assertSuccessful()
-                    ->assertSee('Settings :: Addon');
+                    ->assertSee('Settings :: Add-ons :: Add Add-on');
         }
         else{
             if(\Auth::check()){
@@ -279,7 +279,7 @@ class Actions extends TestCase{
             
             $this->get('admin/settings/category/0')
                     ->assertSuccessful()
-                    ->assertSee('Settings :: Category');
+                    ->assertSee('Settings :: Categories :: Create New Category');
             
             $this->post('admin/settings/category/setup', [
                 'category_id' => null,
@@ -363,7 +363,7 @@ class Actions extends TestCase{
         if($assertion){
             $this->get('admin/settings/addon/list')
                     ->assertSuccessful()
-                    ->assertSee('Settings :: Addon')
+                    ->assertSee('Settings :: Add-ons :: Add-on list')
                     ->assertSee($title." (".$name.", strings)")
                     ->assertSee("in ".$blockTitle." (text)");
             
@@ -417,7 +417,7 @@ class Actions extends TestCase{
         if($assertion){
             $this->get('admin/settings/addon/list')
                     ->assertSuccessful()
-                    ->assertSee('Settings :: Addon')
+                    ->assertSee('Settings :: Add-ons :: Add-on list')
                     ->assertSee($title." (".$name.", paragraphs)")
                     ->assertSee("in ".$blockTitle." (text)");
             
@@ -471,7 +471,7 @@ class Actions extends TestCase{
         if($assertion){
             $this->get('admin/settings/addon/list')
                     ->assertSuccessful()
-                    ->assertSee('Settings :: Addon')
+                    ->assertSee('Settings :: Add-ons :: Add-on list')
                     ->assertSee($title." (".$name.", images)")
                     ->assertSee("in ".$blockTitle." (text)");
             
@@ -525,7 +525,7 @@ class Actions extends TestCase{
         if($assertion){
             $this->get('admin/settings/addon/list')
                     ->assertSuccessful()
-                    ->assertSee('Settings :: Addon')
+                    ->assertSee('Settings :: Add-ons :: Add-on list')
                     ->assertSee($title." (".$name.", categories)")
                     ->assertSee("in ".$blockTitle." (text)");
             

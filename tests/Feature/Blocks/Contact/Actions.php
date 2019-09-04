@@ -133,7 +133,7 @@ class Actions extends BlockLocation {
         
         if($assertion){
             $this->assertNotNull($item);
-            $response->assertStatus(200);
+            $response->assertSuccessful();
         }
         else{
             $this->assertNull($item);

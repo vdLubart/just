@@ -1,7 +1,7 @@
 <div class='col-md-12'>
     <div class='col-md-11'>
         <h4>
-            @lang('settings.title') :: @lang('user.title') :: @lang('user.createForm.title')
+            @lang('settings.title') :: {{ trans_choice('user.title', 2) }} :: @lang('user.createForm.title')
         </h4>
     </div>
     <div class='col-md-1 text-right'>

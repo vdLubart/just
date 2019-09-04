@@ -21,7 +21,7 @@ return [
             'cropDimensions' => 'Crop Image With Dimensions (W:H)'
         ],
         'fieldsGroup' => [
-            'title' => 'Item fields',
+            'title' => 'Item Fields',
             'ignoreCaption' => 'Ignore Caption Field',
             'ignoreDescription' => 'Ignore Description Field'
         ],

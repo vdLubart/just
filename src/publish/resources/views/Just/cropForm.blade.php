@@ -34,10 +34,10 @@
     });
     <?php
     $parameters = json_decode($block->parameters);
-    $dev = explode(":", $parameters->cropDimentions);
-    $cropDimentions = $dev[0]/$dev[1];
+    $dev = explode(":", $parameters->cropDimensions);
+    $cropDimensions = $dev[0]/$dev[1];
     $cropWidth = $block->layout()->width;
-    $cropHeight = $cropWidth/$cropDimentions;
+    $cropHeight = $cropWidth/$cropDimensions;
     ?>
     runCroper({{ $cropWidth }}, {{ $cropHeight }});
 </script>
