@@ -15,7 +15,7 @@ class Actions extends BlockLocation {
 
     protected $type = 'feedback';
     
-    public function tearDown(){
+    protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }

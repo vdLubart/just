@@ -13,7 +13,7 @@ class Actions extends BlockLocation {
 
     protected $type = 'menu';
     
-    public function tearDown(){
+    protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }

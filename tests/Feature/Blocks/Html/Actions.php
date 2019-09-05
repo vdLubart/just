@@ -12,7 +12,7 @@ class Actions extends BlockLocation {
 
     protected $type = 'html';
     
-    public function tearDown(){
+    protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }

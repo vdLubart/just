@@ -10,7 +10,7 @@ class Actions extends TestCase{
     
     use WithFaker;
     
-    public function tearDown(){
+    protected function tearDown(): void{
         foreach(User::all() as $user){
             if($user->id > 2){
                 $user->delete();

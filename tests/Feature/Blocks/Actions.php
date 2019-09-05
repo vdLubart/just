@@ -13,7 +13,7 @@ class Actions extends TestCase{
     
     use WithFaker;
     
-    public function tearDown(){
+    protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }

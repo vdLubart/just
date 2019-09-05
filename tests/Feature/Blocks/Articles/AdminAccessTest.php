@@ -9,7 +9,7 @@ class AdminAccessTest extends Actions
 {
     use Helper;
     
-    public function setUp() {
+    protected function setUp(): void {
         parent::setUp();
         
         $this->actingAsAdmin();

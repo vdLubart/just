@@ -14,7 +14,7 @@ class Actions extends TestCase{
     
     use WithFaker;
     
-    public function tearDown(){
+    protected function tearDown(): void{
         foreach(Route::all() as $route){
             if($route->route != ""){
                 $route->delete();

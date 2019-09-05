@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 class AddonTest extends TestCase
 {
 
-    public function tearDown(){
+    protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }
