@@ -1,10 +1,11 @@
 <?php
 
-namespace Lubart\Just\Requests;
+namespace Lubart\Just\Requests\Panel\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
-class TextChangeRequest extends FormRequest
+class ChangeArticleRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +25,10 @@ class TextChangeRequest extends FormRequest
     public function rules()
     {
         return [
-            "text" => "required",
-            "id" => "integer|min:1|nullable"
+            "image" => "image|nullable",
+            "subject" => "required|string|max:255",
+            "summary" => "string|nullable|max:1000",
+            "text" => "required|string"
         ];
     }
 }

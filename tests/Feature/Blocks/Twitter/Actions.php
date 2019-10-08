@@ -24,7 +24,7 @@ class Actions extends BlockLocation {
     public function access_item_form($assertion){
         $account = $this->faker->word;
         $id = $this->faker->numberBetween();
-        $block = $this->setupBlock(['parameters'=>'{"account":"'.$account.'","widgetId":"'.$id.'"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"account":"'.$account.'","widgetId":"'.$id.'"}')]);
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -79,8 +79,10 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertEquals('{"settingsScale":"100","account":"Account","widgetId":123}', json_encode($block->parameters()));
+
+            $this->assertEquals(100, $block->parameters->settingsScale);
+            $this->assertEquals('Account', $block->parameters->account);
+            $this->assertEquals(123, $block->parameters->widgetId);
         }
         else{
             $response->assertStatus(302);
@@ -93,8 +95,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertNotEquals('{"settingsScale":"100","account":"Account","widgetId":123}', json_encode($block->parameters()));
+
+            $this->assertEmpty((array)$block->parameters);
         }
     }
 }

@@ -33,8 +33,7 @@
         }
     });
     <?php
-    $parameters = json_decode($block->parameters);
-    $dev = explode(":", $parameters->cropDimensions);
+    $dev = explode(":", $block->parameters->cropDimensions);
     $cropDimensions = $dev[0]/$dev[1];
     $cropWidth = $block->layout()->width;
     $cropHeight = $cropWidth/$cropDimensions;

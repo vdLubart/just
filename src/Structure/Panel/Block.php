@@ -4,6 +4,7 @@ namespace Lubart\Just\Structure\Panel;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Lubart\Form\FormElement;
 use Lubart\Just\Structure\Panel;
@@ -25,7 +26,11 @@ class Block extends Model
      * @var array
      */
     protected $fillable = [
-        'type', 'name', 'panelLoation', 'page_id', 'title', 'description', 'width', 'cssClass', 'orderNo', 'isActive', 'parameters', 'parent'
+        'type', 'name', 'panelLoation', 'page_id', 'title', 'description', 'width', 'cssClass', 'orderNo', 'isActive', 'parent'
+    ];
+
+    protected $casts = [
+        'parameters' => 'object'
     ];
     
     protected $table = 'blocks';
@@ -72,14 +77,14 @@ class Block extends Model
             }
         }
 
-        $this->model->setParameters($this->parameters());
+        $this->model->setParameters($this->parameters);
         $this->model->setBlock($this->id);
         $this->model->setup();
 
         foreach($this->addons as $addon){
             $this->{$addon->name} = Addon::find($addon->id);
         }
-        
+
         return $this;
     }
     
@@ -91,10 +96,17 @@ class Block extends Model
     public function unsettle(){
         $this->model = null;
         
+        return $this->unsettleAddons();
+    }
+
+    /**
+     * Unsettle all addons from the model
+     */
+    public function unsettleAddons() {
         foreach($this->addons as $addon){
             unset($this->{$addon->name});
         }
-        
+
         return $this;
     }
     
@@ -214,12 +226,38 @@ class Block extends Model
         
         return null;
     }
+
+    public function findValidationRequest($requestType = 'Change') {
+        if($requestType == 'Public'){
+            $publicity = 'Visitor';
+        }
+        else {
+            $publicity = 'Admin';
+        }
+
+        $validatorClass =  "\\App\\Just\\Requests\\Panel\\Block\\" . $publicity . "\\" . $requestType . Str::ucfirst( Str::singular($this->type) ) . 'Request';
+
+        if (!class_exists($validatorClass)) {
+            $validatorClass =  "\\Lubart\\Just\\Requests\\Panel\\Block\\" . $publicity . "\\" . $requestType . Str::ucfirst( Str::singular($this->type) ) . 'Request';
+        }
+
+        return $validatorClass;
+    }
     
     public function handleForm(Request $request, $isPublic = false) {
-        $method = !$isPublic ? 'handleForm' : 'handlePublicForm';
-        $reflection = new \ReflectionMethod($this->model, $method);
-        $validatorClass = $reflection->getParameters()[0]->getClass()->name;
-        
+        if(!$isPublic) {
+            $method = 'handleForm';
+
+            // looking for a custom request validator
+            $validatorClass = $this->findValidationRequest();
+        }
+        else{
+            $method = 'handlePublicForm';
+
+            // looking for a custom request validator
+            $validatorClass = $this->findValidationRequest('Public');
+        }
+
         $validatedRequest = new $validatorClass;
         foreach($request->all() as $param=>$val){
             $validatedRequest->{$param} = $val;
@@ -229,28 +267,32 @@ class Block extends Model
             foreach ($this->addons as $addon){
                 $addonValidators += $addon->validationRules();
             }
-            
+
             $validator = \Validator::make($request->all(),
-                    $validatedRequest->rules()+$addonValidators+['block_id' => "required|integer|min:1"],
+                    $validatedRequest->rules() + $addonValidators + [
+                        "id" => "integer|min:1|nullable",
+                        'block_id' => "required|integer|min:1"
+                    ],
                     $validatedRequest->messages());
-            
+
             if($validator->fails()){
                 return $validator;
             }
-            
+
             foreach($request->all() as $name=>$param){
                 if($param instanceof UploadedFile){
                     $validatedRequest->files->set($name, $param);
                 }
                 else{
                     $validatedRequest->request->set($name, $param);
+                    $validatedRequest->query->set($name, $param);
                 }
             }
         }
         elseif($validatorClass == 'Illuminate\Http\Request'){
             $validatedRequest = $request;
         }
-        
+
         return $this->model->{$method}($validatedRequest);
     }
     
@@ -388,11 +430,9 @@ class Block extends Model
     }
     
     public function isSetted() {
-        $parameters = $this->parameters();
-
         $isSetted = true;
         foreach($this->model->neededParameters() as $param){
-            if(!isset($parameters->{$param})){
+            if(!isset($this->parameters->{$param})){
                 $isSetted = false;
                 break;
             }
@@ -405,12 +445,8 @@ class Block extends Model
         return $this->model->setupForm($this);
     }
     
-    public function parameters() {
-        return (object)( (array)json_decode($this->parameters) + (array)json_decode($this->super_parameters));
-    }
-    
     public function parameter($param) {
-        return @$this->parameters()->{$param};
+        return @$this->parameters->{$param};
     }
     
     /**

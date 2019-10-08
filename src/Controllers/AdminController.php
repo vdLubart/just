@@ -213,7 +213,7 @@ class AdminController extends Controller
         else{
             $model = null;
         }
-        
+
         return $model;
     }
     
@@ -275,36 +275,42 @@ class AdminController extends Controller
     public function handleSetup(Request $request) {
         $block = Block::find($request->id)->specify();
         $settingsElements = $block->setupForm()->names();
-        $block->unsettle();
+
+        $block->unsettleAddons();
 
         if(!empty($block)){
-            $parameters = new \stdClass;
+            $parameters = $block->parameters ?? json_decode('{}');
+
+            foreach($settingsElements as $name){
+                if(!in_array($name, ['id', '_token', 'submit', 'button'])){
+                    if($block->setupForm()->element($name)->type() == 'checkbox') {
+                        $parameters->{$name} = false;
+                    }
+                    else{
+                        $parameters->{$name} = '';
+                    }
+                }
+            }
+
             $values = $request->all();
             unset($values['id']);
             unset($values['_token']);
             unset($values['submit']);
-            foreach($values as $key=>$value){
-                if(in_array($key, $settingsElements) or in_array($key."[]", $settingsElements)){
-                    $parameters->{$key} = $value;
-                }
-            }
-            if(\Auth::user()->role === "admin") {
-                $block->parameters = json_encode($parameters);
-            }
-            else{
-                $block->super_parameters = json_encode($parameters);
-                $adminParameters = json_decode($block->parameters);
 
-                foreach($parameters as $key=>$value){
-                    if(isset($adminParameters->{$key})){
-                        $adminParameters->{$key} = $value;
-                    }
+            foreach($values as $key=>$value){
+                if(is_string($value) and $value === (string)(int)$value){
+                    $value = (int)$value;
                 }
-                $block->parameters = json_encode($adminParameters);
+
+                if(in_array($key, $settingsElements) or in_array($key."[]", $settingsElements)){
+                    $parameters->{trim($key, "[]")} = ($value == 'on' and $block->setupForm()->getElement($key)->type() == 'checkbox') ? true : $value;
+                }
             }
+
+            $block->parameters = $parameters;
             $block->save();
         }
-        
+
         return $block;
     }
     
@@ -489,7 +495,7 @@ class AdminController extends Controller
      */
     public function ajaxuploader() {
         $uploader = new AjaxUploader;
-        
+
         return $uploader->uploadFile();
     }
     

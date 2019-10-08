@@ -1,10 +1,11 @@
 <?php
 
-namespace Lubart\Just\Requests;
+namespace Lubart\Just\Requests\Panel\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
-class FeedbackChangeRequest extends FormRequest
+class ChangeMenuRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,10 +26,10 @@ class FeedbackChangeRequest extends FormRequest
     {
         return [
             "id" => "integer|min:1|nullable",
-            "username" => "required",
-            "email" => "required|email",
-            "message" => "required|max:1024",
-            "created" => "date"
+            "item" => "required",
+            "parent" => "integer|min:0",
+            "route" => "nullable",
+            "url" => "nullable"
         ];
     }
 }

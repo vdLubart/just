@@ -4,8 +4,9 @@ namespace Lubart\Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
-class ChangePasswordRequest extends FormRequest
+class ChangePasswordRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.

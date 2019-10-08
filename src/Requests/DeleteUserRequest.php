@@ -3,8 +3,9 @@
 namespace Lubart\Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
-class DeleteUserRequest extends FormRequest
+class DeleteUserRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.

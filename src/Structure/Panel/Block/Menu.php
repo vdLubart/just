@@ -3,7 +3,8 @@
 namespace Lubart\Just\Structure\Panel\Block;
 
 use Lubart\Form\FormElement;
-use Lubart\Just\Requests\MenuItemChangeRequest;
+use Lubart\Just\Requests\ChangeMenuRequest;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use \Illuminate\Support\Facades\Route;
 
@@ -19,17 +20,9 @@ class Menu extends AbstractBlock
         'item', 'parent', 'route', 'url', 'orderNo', 'isActive'
     ];
     
-    protected $settingsTitle = 'Menu Item';
-    
     protected $table = 'menus';
     
     protected $menu = [];
-
-    public function __construct() {
-        parent::__construct();
-
-        $this->settingsTitle = __('menu.title');
-    }
 
     public function content() {
         $items = $this->orderBy('parent', 'asc')
@@ -82,10 +75,10 @@ class Menu extends AbstractBlock
     /**
      * Handle request from the settings form
      * 
-     * @param MenuItemChangeRequest $request
+     * @param ChangeMenuRequest $request
      * @return Menu
      */
-    public function handleForm(MenuItemChangeRequest $request) {
+    public function handleForm(ValidateRequest $request) {
         if(is_null($request->get('id'))){
             $item = new Menu;
             $item->orderNo = Useful::getMaxNo($this->table, ['block_id'=>$request->get('block_id')]);

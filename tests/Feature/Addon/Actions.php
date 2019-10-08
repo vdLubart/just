@@ -368,7 +368,7 @@ class Actions extends TestCase{
                     ->assertSee("in ".$blockTitle." (text)");
             
             $this->get('admin/settings/addon/'.$addon->id)
-                    ->assertSee('select disabled="disabled" id="type"');
+                    ->assertSee('select disabled="disabled" name="type"');
         }
         else{
             if(\Auth::check()){
@@ -422,7 +422,7 @@ class Actions extends TestCase{
                     ->assertSee("in ".$blockTitle." (text)");
             
             $this->get('admin/settings/addon/'.$addon->id)
-                    ->assertSee('select disabled="disabled" id="type"');
+                    ->assertSee('select disabled="disabled" name="type"');
         }
         else{
             if(\Auth::check()){
@@ -476,7 +476,7 @@ class Actions extends TestCase{
                     ->assertSee("in ".$blockTitle." (text)");
             
             $this->get('admin/settings/addon/'.$addon->id)
-                    ->assertSee('select disabled="disabled" id="type"');
+                    ->assertSee('select disabled="disabled" name="type"');
         }
         else{
             if(\Auth::check()){
@@ -530,7 +530,7 @@ class Actions extends TestCase{
                     ->assertSee("in ".$blockTitle." (text)");
             
             $this->get('admin/settings/addon/'.$addon->id)
-                    ->assertSee('select disabled="disabled" id="type"');
+                    ->assertSee('select disabled="disabled" name="type"');
         }
         else{
             if(\Auth::check()){
@@ -1106,10 +1106,10 @@ class Actions extends TestCase{
                 "id" => $block->id,
                 "settingsScale" => "200"
             ]);
-            
+
             $block = Block::find($block->id)->specify();
-            
-            $this->assertEquals('{"settingsScale":"200"}', json_encode($block->parameters()));
+
+            $this->assertEquals(200, $block->parameters->settingsScale);
         }
         else{
             $response->assertStatus(302);
@@ -1120,8 +1120,8 @@ class Actions extends TestCase{
             ]);
             
             $block = Block::find($block->id)->specify();
-            
-            $this->assertNotEquals('{"settingsScale":"200"}', json_encode($block->parameters()));
+
+            $this->assertEmpty((array)$block->parameters);
         }
         
         $this->removePivotTable($block->model()->getTable(), $addonTable);

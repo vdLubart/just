@@ -55,6 +55,13 @@ class AdminAccessTest extends Actions
 		$this->inHeader()->receive_an_error_on_sending_incompleate_create_item_form(true);
 		$this->relatedBlock()->receive_an_error_on_sending_incompleate_create_item_form(true);
     }
+
+    /** @test */
+    function admin_receive_an_error_on_wrong_date_and_time_format(){
+        $this->inContent()->receive_an_error_on_wrong_date_and_time_format(true);
+        $this->inHeader()->receive_an_error_on_wrong_date_and_time_format(true);
+        $this->relatedBlock()->receive_an_error_on_wrong_date_and_time_format(true);
+    }
     
     /** @test */
     function admin_can_edit_item_in_the_block(){
@@ -132,6 +139,13 @@ class AdminAccessTest extends Actions
         $this->inContent()->cannot_register_on_event_without_email();
 		$this->inHeader()->cannot_register_on_event_without_email();
 		$this->relatedBlock()->cannot_register_on_event_without_email();
+    }
+
+    /** @test */
+    function admin_cannot_register_on_event_without_captcha(){
+        $this->inContent()->cannot_register_on_event_without_captcha();
+        $this->inHeader()->cannot_register_on_event_without_captcha();
+        $this->relatedBlock()->cannot_register_on_event_without_captcha();
     }
 
     /** @test */

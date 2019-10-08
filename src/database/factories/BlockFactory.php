@@ -25,7 +25,7 @@ $factory->define(\Lubart\Just\Structure\Panel\Block::class, function (Faker $fak
         'cssClass' => '',
         'orderNo' => 1,
         'isActive' => 1,
-        'parameters' => '{}',
+        'parameters' => json_decode('{}'),
         'parent' => null
     ];
 });

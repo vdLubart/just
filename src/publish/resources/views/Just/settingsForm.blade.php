@@ -9,7 +9,6 @@
             }
         },
         success: function(data){
-            console.log(data);
             if(data.shouldBeCropped){
                 $.ajax({
                     url: "/admin/settings/crop/" + data.block_id + '/' + data.id,

@@ -2,7 +2,7 @@
 
 namespace Lubart\Just\Structure\Panel\Block;
 
-use Lubart\Just\Requests\ChangeLinkRequest;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Form\FormElement;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Tools\Useful;
@@ -40,7 +40,7 @@ class Link extends AbstractBlock
         return $this->form;
     }
     
-    public function handleForm(ChangeLinkRequest $request) {
+    public function handleForm(ValidateRequest $request) {
         if(is_null($request->request->get('id'))){
             $link = new Link;
             $link->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->get('block_id')]);

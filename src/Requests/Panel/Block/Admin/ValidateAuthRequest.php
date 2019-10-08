@@ -1,10 +1,11 @@
 <?php
 
-namespace Lubart\Just\Requests;
+namespace Lubart\Just\Requests\Panel\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
-class FeatureChangeRequest extends FormRequest
+abstract class ValidateAuthRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +14,7 @@ class FeatureChangeRequest extends FormRequest
      */
     public function authorize()
     {
-        return \Auth::user();
+        return \Auth::check();
     }
 
     /**
@@ -23,12 +24,6 @@ class FeatureChangeRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            "id" => "integer|min:1|nullable",
-            "icon" => "required|integer|min:1",
-            "title" => "required",
-            "description" => "nullable",
-            "link" => "nullable"
-        ];
+        return [];
     }
 }

@@ -80,7 +80,7 @@ class Actions extends BlockLocation {
     public function create_new_item_in_block($assertion){
         $block = $this->setupBlock();
         
-        $this->post("admin/ajaxuploader", [
+        $re = $this->post("admin/ajaxuploader", [
             'block_id' => $block->id,
             'id' => null,
             'ax_file_input' => UploadedFile::fake()->image('photo.jpg'),
@@ -93,7 +93,7 @@ class Actions extends BlockLocation {
         [
             'HTTP_X-Requested-With' => 'XMLHttpRequest'
         ]);
-        
+
         $item = Block\Gallery::all()->last();
         
         if($assertion){
@@ -196,7 +196,7 @@ class Actions extends BlockLocation {
     }
     
     public function crop_photo($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"on","cropDimensions":"4:3"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":true,"cropDimensions":"4:3"}')]);
         
         $response = $this->post("admin/ajaxuploader", [
             'block_id' => $block->id,
@@ -213,7 +213,7 @@ class Actions extends BlockLocation {
         ]);
         
         $content = json_decode($response->baseResponse->content());
-        
+
         if($assertion){
             $this->assertTrue($content->crop);
             
@@ -252,7 +252,7 @@ class Actions extends BlockLocation {
     }
 
     public function recrop_photo($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"on","cropDimensions":"4:3"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":true,"cropDimensions":"4:3"}')]);
 
         $response = $this->post("admin/ajaxuploader", [
             'block_id' => $block->id,
@@ -364,7 +364,7 @@ class Actions extends BlockLocation {
                 "id" => $block->id,
                 "cropDimensions" => "4:3",
                 "ignoreCaption" => "on",
-                "customSizes" => "1",
+                "customSizes" => "on",
                 "photoSizes" => ["8","3"],
                 "settingsScale" => "100"
             ]);
@@ -387,8 +387,15 @@ class Actions extends BlockLocation {
             $item = Block\Gallery::all()->last();
             
             $form = $item->form();
+            $parameters = $block->parameters;
+
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimensions":"4:3","ignoreCaption":"on","customSizes":"1","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals('4:3', $parameters->cropDimensions);
+                $this->assertTrue($parameters->ignoreCaption);
+                $this->assertTrue($parameters->customSizes);
+                $this->assertEquals(["8", "3"], $parameters->photoSizes);
+                $this->assertEquals(100, $parameters->settingsScale);
+
                 $this->assertNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -401,7 +408,9 @@ class Actions extends BlockLocation {
                 $this->assertFileExists(public_path('storage/photos/'.$item->image.'_3.png'));
             }
             else{
-                $this->assertEquals('{"cropDimensions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals('4:3', $parameters->cropDimensions);
+                $this->assertEquals(100, $parameters->settingsScale);
+
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -428,12 +437,19 @@ class Actions extends BlockLocation {
             
             $form = $item->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimensions":"4:3","ignoreDescription":"on","customSizes":"on","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals('4:3', $parameters->cropDimensions);
+                $this->assertTrue($parameters->ignoreCaption);
+                $this->assertTrue($parameters->customSizes);
+                $this->assertEquals(["8", "3"], $parameters->photoSizes);
+                $this->assertEquals(100, $parameters->settingsScale);
+
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNull($form->getElement('description'));
             }
             else{
-                $this->assertEquals('{"cropDimensions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals('4:3', $parameters->cropDimensions);
+                $this->assertEquals(100, $parameters->settingsScale);
+
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
             }
@@ -447,13 +463,13 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+
+            $this->assertEmpty((array)$block->parameters);
         }
     }
 
     public function create_item_with_standard_image_sizes() {
-        $block = $this->setupBlock(['parameters'=>'{"settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"settingsScale":"100","orderDirection":"desc"}')]);
 
         $this->post("admin/ajaxuploader", [
             'block_id' => $block->id,
@@ -478,7 +494,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_item_with_custom_image_sizes() {
-        $block = $this->setupBlock(['parameters'=>'{"customSizes":1,"photoSizes":["6","3"],"settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"customSizes":1,"photoSizes":["6","3"],"settingsScale":"100","orderDirection":"desc"}')]);
 
         $this->post("admin/ajaxuploader", [
             'block_id' => $block->id,
@@ -506,7 +522,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_item_with_empty_custom_image_sizes() {
-        $block = $this->setupBlock(['parameters'=>'{"customSizes":1,"settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"customSizes":1,"settingsScale":"100","orderDirection":"desc"}')]);
 
         $this->post("admin/ajaxuploader", [
             'block_id' => $block->id,

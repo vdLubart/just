@@ -1,4 +1,4 @@
-<div id="dragula-container" class="dragula-list-container-{{ (isset($block->parameters()->settingsScale)?$block->parameters()->settingsScale:"100") }}">
+<div id="dragula-container" class="dragula-list-container-{{ (isset($block->parameters->settingsScale)?$block->parameters->settingsScale:"100") }}">
     @foreach($block->content() as $item)
     <div class="dragula-list-item" data-no="{{$item->orderNo}}" data-id="{{$item->id}}">
         <div class="thumbnail">

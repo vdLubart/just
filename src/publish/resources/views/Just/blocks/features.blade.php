@@ -3,7 +3,7 @@
 <div>{!! $block->description !!}</div>
 
 @foreach($block->content() as $feature)
-<div class="col-md-{{ @$block->parameters()->itemsInRow }}">
+<div class="col-md-{{ @$block->parameters->itemsInRow }}">
     <div class='featureItem'>
         <h1>
             <?php

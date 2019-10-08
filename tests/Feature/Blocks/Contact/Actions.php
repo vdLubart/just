@@ -28,7 +28,7 @@ class Actions extends BlockLocation {
     }
     
     public function access_item_form($assertion){
-        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}')]);
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -38,7 +38,7 @@ class Actions extends BlockLocation {
     }
 
     public function access_edit_item_form($assertion){
-        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}')]);
 
         $envelope = str_replace("\n", ", ", $this->faker->address);
         $phone = $this->faker->phoneNumber;
@@ -74,9 +74,9 @@ class Actions extends BlockLocation {
     }
 
     public function create_new_item_in_block($assertion){
-        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}')]);
         
-        $this->post("", [
+        $response = $this->post("", [
             'block_id' => $block->id,
             'id' => null,
             'title' => $title = $this->faker->sentence,
@@ -84,10 +84,11 @@ class Actions extends BlockLocation {
             'phone' => $phone = $this->faker->phoneNumber,
             'at' => $email = $this->faker->email
         ]);
-        
+
         $item = Block\Contact::all()->last();
-        
+
         if($assertion){
+            $response->assertSuccessful();
             $this->assertNotNull($item);
 
             $this->assertEquals($block->id, $block->firstItem()->block_id);
@@ -103,24 +104,69 @@ class Actions extends BlockLocation {
                 ->assertSuccessful();
         }
         else{
+            $response->assertRedirect('/login');
             $this->assertNull($item);
-            
-            $this->get('admin')
-                    ->assertDontSee($title)
-                    ->assertDontSee($address)
-                    ->assertDontSee($phone)
-                    ->assertDontSee($email);
-            
-            $this->get('')
-                    ->assertDontSee($title)
-                    ->assertDontSee($address)
-                    ->assertDontSee($phone)
-                    ->assertDontSee($email);
         }
+    }
+
+    public function create_new_item_with_a_lot_of_data($assertion){
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","facebook","github", "youtube", "instagram", "pinterest", "soundcloud"],"additionalFields":null,"settingsScale":"100"}')]);
+
+        $response = $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'title' => $title = $this->faker->sentence,
+            'envelope' => $address = $envelope = str_replace(["\n","'"], [", ", ""], $this->faker->address),
+            'facebook' => $facebook = $this->faker->url,
+            'github' => $github = $this->faker->url,
+            'youtube' => $youtube = $this->faker->url,
+            'instagram' => $instagram = $this->faker->url,
+            'pinterest' => $pinterest = $this->faker->url,
+            'soundcloud' => $soundcloud = $this->faker->url
+        ]);
+
+        $item = Block\Contact::all()->last();
+
+        if($assertion){
+            $response->assertSuccessful();
+            $this->assertNotNull($item);
+
+            $this->assertEquals($block->id, $block->firstItem()->block_id);
+            $this->assertEquals($title, $block->firstItem()->title);
+            $this->assertEquals($address, $block->firstItem()->contact('envelope'));
+            $this->assertEquals($facebook, $block->firstItem()->contact('facebook'));
+            $this->assertEquals($github, $block->firstItem()->contact('github'));
+            $this->assertEquals($youtube, $block->firstItem()->contact('youtube'));
+            $this->assertEquals($instagram, $block->firstItem()->contact('instagram'));
+            $this->assertEquals($pinterest, $block->firstItem()->contact('pinterest'));
+            $this->assertEquals($soundcloud, $block->firstItem()->contact('soundcloud'));
+
+            $this->get('admin')
+                ->assertSuccessful();
+
+            $this->get('')
+                ->assertSuccessful();
+        }
+        else{
+            $response->assertRedirect('/login');
+            $this->assertNull($item);
+        }
+    }
+
+    public function receive_errors_on_creating_item_with_wrong_data() {
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at","facebook"],"additionalFields":null,"settingsScale":"100"}')]);
+
+        $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'at' => $email = $this->faker->word,
+            'facebook' => $this->faker->word,
+        ])
+            ->assertSessionHasErrors(['at', 'facebook']);
     }
     
     public function dont_receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope"],"additionalFields":null,"settingsScale":"100"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope"],"additionalFields":null,"settingsScale":"100"}')]);
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -142,7 +188,7 @@ class Actions extends BlockLocation {
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}')]);
 
         $envelope = $envelope = str_replace("\n", ", ", $this->faker->address);
         $phone = $this->faker->phoneNumber;
@@ -183,7 +229,7 @@ class Actions extends BlockLocation {
     
     public function edit_block_settings($assertion){
         $block = $this->setupBlock();
-        
+
         $response = $this->get('admin/settings/'.$block->id.'/0');
         
         if($assertion){
@@ -207,8 +253,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+
+            $this->assertEquals(100, $block->parameters->settingsScale);
         }
         else{
             $response->assertStatus(302);
@@ -219,8 +265,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+
+            $this->assertEmpty((array)$block->parameters);
         }
     }
 
@@ -237,7 +283,7 @@ class Actions extends BlockLocation {
         $block = Block::find($block->id);
 
         if($assertion){
-            $this->assertEquals('{"additionalFields":"custom=>field"}', json_encode($block->parameters()));
+            $this->assertEquals("custom=>field", $block->parameters->additionalFields);
 
             $form = $block->specify()->model()->form();
             $this->assertEquals(3, $form->count());
@@ -248,12 +294,40 @@ class Actions extends BlockLocation {
             ], array_keys($form->getElements()));
         }
         else{
-            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+            $this->assertNull(@$block->parameters->additionalFields);
+        }
+    }
+
+    public function add_few_custom_contact_channels($assertion) {
+        $block = $this->setupBlock();
+
+        $this->get('admin/settings/'.$block->id.'/0');
+
+        $this->post('admin/settings/setup', [
+            "id" => $block->id,
+            "additionalFields" => "custom=>field
+newField=>New Field"
+        ]);
+
+        $block = Block::find($block->id);
+
+        if($assertion){
+            $form = $block->specify()->model()->form();
+            $this->assertEquals(4, $form->count());
+            $this->assertEquals([
+                'title',
+                'custom',
+                'newField',
+                'submit'
+            ], array_keys($form->getElements()));
+        }
+        else{
+            $this->assertNull(@$block->parameters->additionalFields);
         }
     }
 
     public function change_contact_channels($assertion) {
-        $block = $this->setupBlock(['super_parameters'=>'{"channels":["envelope"],"additionalFields":null,"settingsScale":"100"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope"],"additionalFields":null,"settingsScale":"100"}')]);
 
         $response = $this->get('admin/settings/'.$block->id.'/0');
 

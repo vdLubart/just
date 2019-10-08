@@ -7,9 +7,9 @@
             {{var_dump($block->getAttributes())}}
         </div>
     </div>
-    <div class="col-md-12 margin-bottom-20"><strong><a href="javascript:" data-toggle="collapse" data-target="#gallery_params_{{ $block->id }}_attributes">$block->parameters()</a>:</strong> Click to show attributes
+    <div class="col-md-12 margin-bottom-20"><strong><a href="javascript:" data-toggle="collapse" data-target="#gallery_params_{{ $block->id }}_attributes">$block->parameters</a>:</strong> Click to show attributes
         <div id="gallery_params_{{ $block->id }}_attributes" class="collapse">
-            {{var_dump($block->parameters())}}
+            {{var_dump($block->parameters)}}
         </div>
     </div>
     <div class="col-md-12"><strong>{{"@"}}foreach($block->categories() as $category)</strong>

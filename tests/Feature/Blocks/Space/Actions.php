@@ -22,7 +22,7 @@ class Actions extends BlockLocation {
     }
     
     public function access_item_form($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"height":"200px"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"height":"200px"}')]);
 
         $this->assertEmpty($block->content());
         
@@ -75,8 +75,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertEquals('{"height":"100px"}', json_encode($block->parameters()));
+
+            $this->assertEquals("100px", $block->parameters->height);
         }
         else{
             $response->assertStatus(302);
@@ -87,8 +87,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertNotEquals('{"height":"100px"}', json_encode($block->parameters()));
+
+            $this->assertEmpty((array)$block->parameters);
         }
     }
 }

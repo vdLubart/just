@@ -11,14 +11,15 @@ use Illuminate\Http\Request;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
-use Lubart\Just\Requests\ChangeEventRequest;
 use Intervention\Image\ImageManagerStatic as Image;
+use Lubart\Just\Structure\Panel\Block\Contracts\ContainsPublicForm;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Just\Structure\Page;
 use Lubart\Just\Tools\Slug;
 
-class Events extends AbstractBlock
+class Events extends AbstractBlock implements ContainsPublicForm
 {
 
     use Slug;
@@ -34,27 +35,9 @@ class Events extends AbstractBlock
     
     protected $table = 'events';
     
-    /**
-     * Title for model
-     * 
-     * @var string $settingsTitle
-     */
-    protected $settingsTitle = 'Event';
-
     protected $registerUrl = 'register-event';
 
     protected $neededParameters = [ 'itemRouteBase' ];
-
-    protected $publicRequestValidationMessages = [
-        'email.unique' => 'This email is already registered in this event'
-    ];
-
-    public function __construct() {
-        parent::__construct();
-
-        $this->settingsTitle = __('events.title');
-        $this->publicRequestValidationMessages['email.unique'] = __('events.registerExistingEmail');
-    }
 
     /**
      * Order by `start_date` column
@@ -210,7 +193,7 @@ $(document).ready(function(){
         return $this->form;
     }
 
-    public function registerForm() {
+    public function publicForm() {
         $form = new Form($this->registerUrl);
 
         $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block_id]));
@@ -218,10 +201,17 @@ $(document).ready(function(){
         $form->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>old('name')]));
         $form->add(FormElement::email(['name'=>'email', 'label'=>__('events.registrationForm.email'), 'value'=>old('email')]));
         $form->add(FormElement::textarea(['name'=>'comment', 'label'=>__('events.registrationForm.comment')]));
+        $form->add(FormElement::html(['value'=>'<div class="g-recaptcha" data-sitekey="'. env('RE_CAP_SITE') .'"></div>', 'name'=>'recaptcha']));
 
         $form->add(FormElement::submit(['value'=>__('events.registrationForm.register')]));
 
-        return $form->render();
+        $form->setErrorBag('errorsFrom'.ucfirst($this->block->type . $this->block_id));
+
+        return $form;
+    }
+
+    public function registerForm() {
+        return $this->publicForm()->render();
     }
 
     public function addSetupFormElements(Form &$form) {
@@ -243,7 +233,7 @@ $(document).ready(function(){
         return $form;
     }
     
-    public function handleForm(ChangeEventRequest $request) {
+    public function handleForm(ValidateRequest $request) {
         if(!file_exists(public_path('storage/'.$this->table))){
             mkdir(public_path('storage/'.$this->table), 0775);
         }
@@ -288,25 +278,6 @@ $(document).ready(function(){
     }
 
     public function handlePublicForm(Request $request) {
-        $rules = [
-            'event_id' => 'required|min:1|exists:events,id',
-            'name' => 'required',
-            'email' => [
-                'required',
-                Rule::unique('registrations')->where(function($query) use($request){
-                    return $query->where('event_id', $request->event_id);
-                })
-            ],
-            'comment' => 'nullable|max:1000'
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $this->publicRequestValidationMessages);
-
-        if($validator->fails()){
-            return $validator;
-        }
-
-
         $event = Events::find($request->get('event_id'));
         $registration = new EventRegistration();
 

@@ -11,7 +11,6 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Lubart\Just\Structure\Panel\Block;
 use Illuminate\Http\Request;
 use Lubart\Just\Tools\Useful;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 abstract class AbstractBlock extends Model
@@ -33,13 +32,6 @@ abstract class AbstractBlock extends Model
     protected $parameters = [];
     
     protected $imageSizes = [12, 9, 8, 6, 4, 3];
-
-    /**
-     * Title for the single block item
-     *
-     * @var string $settingsTitle
-     */
-    protected $settingsTitle;
 
     /**
      * Validation rules for public request inside a block.
@@ -124,7 +116,7 @@ abstract class AbstractBlock extends Model
      * @return mixed
      */
     protected function orderContent(&$content, $column = 'orderNo'){
-        return $content->orderBy($column, $this->parameter('orderDirection') ?? 'asc');
+        return $content->orderBy($column, ( $this->parameter('orderDirection') ?: 'asc'));
     }
 
     /**
@@ -144,11 +136,29 @@ abstract class AbstractBlock extends Model
      * @return SettingsForm
      */
     abstract public function form();
-    
+
+    /**
+     * Return block settings title in the current locale
+     *
+     * @return mixed
+     */
     public function settingsTitle() {
-        return $this->settingsTitle;
+        return __($this->block->type . '.title');
     }
-    
+
+    /**
+     * Handle request to create/update model item
+     *
+     * @param Contracts\ValidateRequest $request
+     * @return mixed
+     */
+    abstract public function handleForm(Block\Contracts\ValidateRequest $request);
+
+    /**
+     * Return parameters should be set before use block
+     *
+     * @return array
+     */
     public function neededParameters() {
         return $this->neededParameters;
     }
@@ -245,22 +255,13 @@ abstract class AbstractBlock extends Model
     }
     
     /**
-     * Return all block parameters
-     * 
-     * @return mixed
-     */
-    public function parameters() {
-        return json_decode($this->block->parameters);
-    }
-    
-    /**
      * Get specific block parameter by name
      * 
      * @param string $param parameter name
      * @return mixed
      */
     public function parameter($param) {
-        return $this->block->parameter($param);
+        return @$this->block->parameters->{$param};
     }
     
     /**
@@ -292,8 +293,6 @@ abstract class AbstractBlock extends Model
      * @return Form
      */
     public function setupForm(Block $block) {
-        $parameters = json_decode($block->parameters);
-        
         $form = new Form('/admin/settings/setup');
 
         $form->setType('setup');
@@ -306,7 +305,7 @@ abstract class AbstractBlock extends Model
         $settingsViewGroup->add(FormElement::select([
             'name'=>'settingsScale',
             'label'=>__('block.preferences.settingsView.scale'),
-            'value'=>isset($parameters->settingsScale)?$parameters->settingsScale:100,
+            'value'=> $block->parameters->settingsScale ?? 100,
             'options'=>[
                 '33'=>trans_choice('block.preferences.settingsView.scaleOption', 12, ['width'=>'33%', 'items'=>12]),
                 '40'=>trans_choice('block.preferences.settingsView.scaleOption', 10, ['width'=>'40%', 'items'=>10]),
@@ -498,27 +497,27 @@ abstract class AbstractBlock extends Model
     
     protected function addCropSetupGroup(&$form){
         $photoCropGroup = new FormGroup('cropGroup', __('block.preferences.cropGroup.title'), ['class'=>'col-md-6']);
-        $photoCropGroup->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>__('settings.actions.crop'), 'value'=>1, 'check'=>(@$this->parameter('cropPhoto')==1)]));
+        $photoCropGroup->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>__('settings.actions.crop'), 'check'=>($this->parameter('cropPhoto'))]));
         $photoCropGroup->add(FormElement::text(['name'=>'cropDimensions', 'label'=>__('block.preferences.cropGroup.cropDimensions'), 'value'=> $this->parameter('cropDimensions') ?? '4:3']));
         $form->addGroup($photoCropGroup);
     }
     
     protected function addIgnoretCaptionSetupGroup(&$form){
         $photoFieldsGroup = new FormGroup('fieldsGroup', __('block.preferences.fieldsGroup.title'), ['class'=>'col-md-6']);
-        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => __('block.preferences.fieldsGroup.ignoreCaption'), 'value'=>1, 'check'=>$this->parameter('ignoreCaption')]));
-        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => __('block.preferences.fieldsGroup.ignoreDescription'), 'value'=>1, 'check'=>$this->parameter('ignoreDescription')]));
+        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => __('block.preferences.fieldsGroup.ignoreCaption'), 'check'=>$this->parameter('ignoreCaption')]));
+        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => __('block.preferences.fieldsGroup.ignoreDescription'), 'check'=>$this->parameter('ignoreDescription')]));
         $form->addGroup($photoFieldsGroup);
     }
     
     protected function addResizePhotoSetupGroup(&$form){
         $photoSizesGroup = new FormGroup('sizeGroup', __('block.preferences.sizeGroup.title'), ['class'=>'col-md-6']);
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'customSizes', 'label'=> __('block.preferences.sizeGroup.customSizes'), 'value'=>1, 'check'=>$this->parameter('customSizes') ]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'100%', 'cols'=>12]), 'value'=>12, 'check'=>(in_array(12, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'75%', 'cols'=>9]), 'value'=>9, 'check'=>(in_array(9, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'67%', 'cols'=>8]), 'value'=>8, 'check'=>(in_array(8, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'50%', 'cols'=>6]), 'value'=>6, 'check'=>(in_array(6, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'33%', 'cols'=>4]), 'value'=>4, 'check'=>(in_array(4, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>__('block.preferences.sizeGroup.customSizes', ['width'=>'25%', 'cols'=>3]), 'value'=>3, 'check'=>(in_array(3, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'customSizes', 'label'=> __('block.preferences.sizeGroup.customSizes'), 'check'=>$this->parameter('customSizes') ]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.preferences.sizeGroup.size', 12, ['width'=>'100%', 'cols'=>12]), 'value'=>12, 'check'=>(in_array(12, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.preferences.sizeGroup.size', 9, ['width'=>'75%', 'cols'=>9]), 'value'=>9, 'check'=>(in_array(9, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.preferences.sizeGroup.size', 8, ['width'=>'67%', 'cols'=>8]), 'value'=>8, 'check'=>(in_array(8, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.preferences.sizeGroup.size', 6, ['width'=>'50%', 'cols'=>6]), 'value'=>6, 'check'=>(in_array(6, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.preferences.sizeGroup.size', 4, ['width'=>'33%', 'cols'=>4]), 'value'=>4, 'check'=>(in_array(4, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.preferences.sizeGroup.size', 3, ['width'=>'25%', 'cols'=>3]), 'value'=>3, 'check'=>(in_array(3, $this->parameter('photoSizes')??[]))]));
         $form->addGroup($photoSizesGroup);
     }
 
@@ -543,5 +542,33 @@ abstract class AbstractBlock extends Model
      */
     public function haveSlug(){
         return false;
+    }
+
+    protected function markObligatoryFields(&$form){
+        $validatorClass = $this->block->findValidationRequest();
+
+        $formValidator = new $validatorClass();
+        $requiredFields = [];
+
+        foreach ($formValidator->rules() as $field=>$rule){
+            if(is_string($rule)){
+                $rules = explode("|", $rule);
+                if(in_array('required', $rules)){
+                    $requiredFields[] = $field;
+                }
+            }
+
+            if(is_array($rule)){
+                if(in_array('required', $rule)){
+                    $requiredFields[] = $field;
+                }
+            }
+        }
+
+        foreach($requiredFields as $name){
+            $form->element($name)->obligatory();
+        }
+
+        return $form;
     }
 }

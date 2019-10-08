@@ -110,26 +110,18 @@ class Actions extends BlockLocation {
         
         $item = Block\Feedback::all()->last();
         
-        $response->assertRedirect();
-        
         $this->assertNull($item);
         
         if($assertion){
-            $this->followRedirects($response)
-                    ->assertSee("The username field is required")
-                    ->assertSee("The email field is required")
-                    ->assertSee("The message field is required");
+            $response->assertSessionHasErrors(['username', 'email', 'message']);
         }
         else{
-            $this->followRedirects($response)
-                    ->assertDontSee("The username field is required")
-                    ->assertDontSee("The email field is required")
-                    ->assertDontSee("The message field is required");
+            $response->assertRedirect('/login');
         }
     }
     
     public function leave_feedback_from_the_website($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}')]);
         
         $this->app['router']->post('feedback/add', "\Lubart\Just\Controllers\JustController@post")->middleware('web');
         
@@ -156,7 +148,7 @@ class Actions extends BlockLocation {
             'g-recaptcha-response' => true
         ])
             ->assertSessionHas('successMessageFromFeedback'.$block->id);
-        
+
         $note->assertSentTo(User::where('role', 'admin')->first(), NewFeedback::class);
         
         $item = Block\Feedback::all()->last();
@@ -299,8 +291,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+
+            $this->assertEquals(100, $block->parameters->settingsScale);
         }
         else{
             $response->assertStatus(302);
@@ -312,7 +304,7 @@ class Actions extends BlockLocation {
             
             $block = Block::find($block->id);
             
-            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+            $this->assertEmpty((array)$block->parameters);
         }
     }
 }

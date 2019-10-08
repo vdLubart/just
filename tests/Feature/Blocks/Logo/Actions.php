@@ -185,7 +185,7 @@ class Actions extends BlockLocation {
     }
     
     public function crop_photo($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"on"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":true}')]);
         
         $this->post("/admin/settings/setup", [
             'cropPhoto' => 'on',
@@ -275,12 +275,12 @@ class Actions extends BlockLocation {
                 "id" => $block->id,
                 "cropDimensions" => "4:3",
                 "ignoreCaption" => "on",
-                "customSizes" => "1",
+                "customSizes" => "on",
                 "photoSizes" => ["8","3"],
                 "settingsScale" => "100"
             ]);
             
-            $r = $this->post("admin/ajaxuploader", [
+            $this->post("admin/ajaxuploader", [
                 'block_id' => $block->id,
                 'id' => null,
                 'ax_file_input' => UploadedFile::fake()->image('photo.jpg'),
@@ -302,7 +302,12 @@ class Actions extends BlockLocation {
             
             $form = $item->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimensions":"4:3","ignoreCaption":"on","customSizes":"1","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals("4:3", $block->parameters->cropDimensions);
+                $this->assertTrue($block->parameters->ignoreCaption);
+                $this->assertTrue($block->parameters->customSizes);
+                $this->assertEquals(["8", "3"], $block->parameters->photoSizes);
+                $this->assertEquals(100, $block->parameters->settingsScale);
+
                 $this->assertNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -315,7 +320,9 @@ class Actions extends BlockLocation {
                 $this->assertFileExists(public_path('storage/logos/'.$item->image.'_3.png'));
             }
             else{
-                $this->assertEquals('{"cropDimensions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals("4:3", $block->parameters->cropDimensions);
+                $this->assertEquals(100, $block->parameters->settingsScale);
+
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
                 
@@ -342,12 +349,19 @@ class Actions extends BlockLocation {
             
             $form = $item->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"cropDimensions":"4:3","ignoreDescription":"on","customSizes":"on","photoSizes":["8","3"],"settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals("4:3", $block->parameters->cropDimensions);
+                $this->assertTrue($block->parameters->ignoreDescription);
+                $this->assertTrue($block->parameters->customSizes);
+                $this->assertEquals(["8", "3"], $block->parameters->photoSizes);
+                $this->assertEquals(100, $block->parameters->settingsScale);
+
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNull($form->getElement('description'));
             }
             else{
-                $this->assertEquals('{"cropDimensions":"4:3","settingsScale":"100"}', json_encode($block->parameters()));
+                $this->assertEquals("4:3", $block->parameters->cropDimensions);
+                $this->assertEquals(100, $block->parameters->settingsScale);
+
                 $this->assertNotNull($form->getElement('caption'));
                 $this->assertNotNull($form->getElement('description'));
             }
@@ -361,8 +375,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+
+            $this->assertEmpty((array)$block->parameters);
         }
     }
 }

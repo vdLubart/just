@@ -27,7 +27,7 @@ class Actions extends BlockLocation {
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
-        $response->{($assertion?'assertSee':'assertDontSee')}('select id="linkedBlock_id"');
+        $response->{($assertion?'assertSee':'assertDontSee')}('select name="linkedBlock_id"');
     }
     
     public function access_edit_item_form($assertion){
@@ -132,7 +132,7 @@ class Actions extends BlockLocation {
     
     public function edit_existing_item_in_the_block($assertion){
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
-        $contactBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'super_parameters'=>'{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}'])->specify();
+        $contactBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":100}')])->specify();
         $route = \Lubart\Just\Models\Route::create([
             'route' => $path = 'mirror-'.$this->faker->word,
             'type' => 'page'
@@ -220,8 +220,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+
+            $this->assertEquals(100, $block->parameters->settingsScale);
         }
         else{
             $response->assertStatus(302);
@@ -232,8 +232,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+
+            $this->assertEmpty((array)$block->parameters);
         }
     }
 }

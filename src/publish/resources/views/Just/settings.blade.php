@@ -50,11 +50,11 @@
                 @if(!file_exists(resource_path('views/Just/settings/'.$block->type.'.blade.php')))
                     <?php
                     $zoom = 100;
-                    if(isset($block->parameters()->itemsInRow)){
-                        $zoom = (int)round(@$block->parameters()->itemsInRow / 3 * 100);
+                    if(isset($block->parameters->itemsInRow)){
+                        $zoom = (int)round(@$block->parameters->itemsInRow / 3 * 100);
                     }
                     else{
-                        $zoom = (isset($block->parameters()->settingsScale)?$block->parameters()->settingsScale:"100");
+                        $zoom = (isset($block->parameters->settingsScale)?$block->parameters->settingsScale:"100");
                     }
                     ?>
 

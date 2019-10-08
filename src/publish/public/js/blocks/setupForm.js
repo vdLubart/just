@@ -1,14 +1,14 @@
 $(document).ready(function(){
-    var $cropDimentions = $("label[for=cropDimentions]").parent();
-    
-    $cropDimentions.toggle();
+    var $cropDimensions = $("label[for=cropDimensions]").parent();
+
+    $cropDimensions.toggle();
     
     if($('input[name=cropPhoto]').is(':checked')){
-        $cropDimentions.toggle();
+        $cropDimensions.toggle();
     }
     
     $('input[name=cropPhoto]').change(function(){
-        $cropDimentions.toggle();
+        $cropDimensions.toggle();
     });
     
     var $photoSizes = $('input[name^=photoSizes]').parent().parent();

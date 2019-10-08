@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
 class Space extends AbstractBlock
 {
@@ -32,7 +33,7 @@ class Space extends AbstractBlock
      * @return Form
      */
     public function setupForm(Block $block) {
-        $parameters = json_decode($block->parameters);
+        $parameters = $block->parameters;
         
         $form = new Form('/admin/settings/setup');
         
@@ -46,5 +47,9 @@ class Space extends AbstractBlock
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
         return $form;
+    }
+
+    public function handleForm(ValidateRequest $request) {
+        return ;
     }
 }

@@ -4,6 +4,7 @@ namespace Lubart\Just\Structure\Panel\Block;
 
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
@@ -22,16 +23,8 @@ class Gallery extends AbstractBlock
     
     protected $table = 'photos';
     
-    protected $settingsTitle = 'Image';
-    
     protected $neededParameters = [];
 
-    public function __construct() {
-        parent::__construct();
-
-        $this->settingsTitle = __('gallery.title');
-    }
-    
     public function form() {
         if(is_null($this->form)){
             return;
@@ -85,10 +78,10 @@ class Gallery extends AbstractBlock
         return $form;
     }
     
-    public function handleForm(Request $request) {
-        $parameters = json_decode($this->block->parameters);
+    public function handleForm(ValidateRequest $request) {
+        $parameters = $this->block->parameters;
         $photo = null;
-        
+
         if (isset($request->currentFile) and is_file(public_path('storage/'.$this->table . '/' . $request->currentFile))) {
             $image = Image::make(public_path('storage/'.$this->table ."/" . $request->currentFile));
             
@@ -109,14 +102,15 @@ class Gallery extends AbstractBlock
             $image->destroy();
             
             $photo->save();
-            
+
             if (isset($parameters->cropPhoto) and $parameters->cropPhoto) {
                 $photo->shouldBeCropped = true;
             }
             else{
+                $photo->shouldBeCropped = false;
                 $this->multiplicateImage($photo->image);
             }
-            
+
             Useful::normalizeOrder($this->table);
         }
         elseif(!isset($request->currentFile) and !is_null($request->get('id'))){
@@ -127,7 +121,7 @@ class Gallery extends AbstractBlock
             
             $photo->save();
         }
-        
+
         $this->handleAddons($request, $photo);
 
         return $photo;

@@ -4,16 +4,16 @@ namespace Lubart\Just\Structure\Panel\Block;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
+use Lubart\Just\Structure\Panel\Block\Contracts\ContainsPublicForm;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use Lubart\Just\Models\Route as JustRoute;
-use Lubart\Just\Requests\FeedbackChangeRequest;
 use Lubart\Just\Models\User;
 
-class Feedback extends AbstractBlock
+class Feedback extends AbstractBlock implements ContainsPublicForm
 {
     
     /**
@@ -27,28 +27,10 @@ class Feedback extends AbstractBlock
     
     protected $table = 'feedbacks';
     
-    protected $settingsTitle = 'Comment';
-    
     protected $neededParameters = [];
     
-    protected $publicRequestValidationRules = [
-        "username" => "required|max:100",
-        "email" => "required|email|max:255",
-        "message" => "required|max:1024",
-        'g-recaptcha-response'=>'required|recaptcha'
-    ];
-
-    protected $publicRequestValidationMessages = [
-        'g-recaptcha-response.required' => "reCaptcha is not validated. Please confirm you are not a bot.",
-        'g-recaptcha-response.recaptcha' => "reCaptcha is not validated. Please confirm you are not a bot."
-    ];
-
-    public function __construct() {
-        parent::__construct();
-
-        $this->settingsTitle = __('feedback.title');
-        $this->publicRequestValidationMessages['g-recaptcha-response.required'] = __('feedback.validation.recaptchaFailed');
-        $this->publicRequestValidationMessages['g-recaptcha-response.recaptcha'] = __('feedback.validation.recaptchaFailed');
+    public function settingsTitle() {
+        return __('feedback.title');
     }
     
     public function form() {
@@ -94,10 +76,10 @@ class Feedback extends AbstractBlock
     /**
      * Handle request from the settings form
      * 
-     * @param FeedbackChangeRequest $request
+     * @param ChangeFeedbackRequest $request
      * @return Feedback
      */
-    public function handleForm(FeedbackChangeRequest $request) {
+    public function handleForm(ValidateRequest $request) {
         if(is_null($request->get('id'))){
             $feedback = new Feedback;
             $feedback->orderNo = Useful::getMaxNo($this->table, ['block_id'=>$request->get('block_id')]);
@@ -119,30 +101,28 @@ class Feedback extends AbstractBlock
         
         return $feedback;
     }
-    
-    public function feedbackForm() {
+
+    public function publicForm() {
         $form = new Form("/feedback/add");
-        
+
         $form->add(FormElement::hidden(['name'=>"block_id", "value"=>$this->block_id]));
         $form->add(FormElement::text(['name'=>'username', 'label'=>__('settings.common.name'), 'value'=>$this->username]));
         $form->add(FormElement::email(['name'=>'email', 'label'=>__('feedback.form.email'), 'value'=>$this->email]));
         $form->add(FormElement::textarea(['name'=>'message', 'label'=>__('feedback.form.message'), 'value'=>$this->message]));
         $form->add(FormElement::html(['value'=>'<div class="g-recaptcha" data-sitekey="'. env('RE_CAP_SITE') .'"></div>', 'name'=>'recaptcha']));
         $form->add(FormElement::submit(['value'=>__('settings.actions.submit')]));
-        
+
         $form->setErrorBag('errorsFrom'.ucfirst($this->block->type . $this->block_id));
-        
+
         return $form;
     }
     
+    public function feedbackForm() {
+        return $this->publicForm()->render();
+    }
+
     public function handlePublicForm(Request $request) {
-        $validator = Validator::make($request->all(), $this->publicRequestValidationRules, $this->publicRequestValidationMessages);
-
-        if($validator->fails()){
-            return $validator;
-        }
-
-        $parameters = json_decode($this->block->parameters);
+        $parameters = $this->block->parameters;
         
         $this->block_id = $this->block_id;
         $this->username = $request->get('username');

@@ -2,9 +2,9 @@
 
 namespace Lubart\Just\Structure\Panel\Block;
 
-use Illuminate\Http\Request;
 use Lubart\Form\Form;
 use Lubart\Form\FormGroup;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use Lubart\Form\FormElement;
 
@@ -22,9 +22,6 @@ class Contact extends AbstractBlock
     
     protected $table = 'contacts';
 
-
-    protected $settingsTitle = 'Office';
-    
     protected $neededParameters = [ 'channels' ];
     
     /**
@@ -44,7 +41,6 @@ class Contact extends AbstractBlock
         'twitter'   => 'Twitter',
         'linkedin'  => 'LinkedIn',
         'github'    => 'GitHub',
-        'google-plus' => 'Google Plus',
         'instagram' => 'Instagram',
         'pinterest' => 'Pinterest',
         'reddit'    => 'Reddit',
@@ -60,13 +56,12 @@ class Contact extends AbstractBlock
     public function __construct() {
         parent::__construct();
 
-        $this->settingsTitle = __('contact.title');
         $this->defaultChannels['envelope'] = __('contact.channel.address');
         $this->defaultChannels['phone'] = __('contact.channel.phone');
         $this->defaultChannels['mobile'] = __('contact.channel.mobile');
         $this->defaultChannels['fax'] = __('contact.channel.fax');
     }
-    
+
     public function form() {
         if(is_null($this->form)){
             return;
@@ -107,7 +102,7 @@ class Contact extends AbstractBlock
         }
     }
     
-    public function handleForm(Request $request) {
+    public function handleForm(ValidateRequest $request) {
         if (is_null($request->get('id'))) {
             $contact = new Contact;
             $contact->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->get('block_id')]);
@@ -152,7 +147,7 @@ class Contact extends AbstractBlock
             $contacts[$channel] = $this->defaultChannels[$channel];
         }
 
-        $additionalChannels = explode('\n', @$this->parameter('additionalFields'));
+        $additionalChannels = explode("\n", @$this->parameter('additionalFields'));
 
         if(!empty($additionalChannels[0])) {
             foreach ($additionalChannels as $channel) {

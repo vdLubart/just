@@ -43,7 +43,7 @@ class Actions extends BlockLocation {
         
         $this->post('admin/settings/setup', [
             "id" => $block->id,
-            "cropPhoto" =>	"1",
+            "cropPhoto" =>	"on",
             "cropDimensions" => "4:3",
             "itemRouteBase" => "event",
             "settingsScale" => "100",
@@ -52,15 +52,22 @@ class Actions extends BlockLocation {
                 ->assertStatus(200);
         
         $block = Block::find($block->id);
-        $this->{($assertion ? 'assertJsonStringNotEqualsJsonString' : 'assertJsonStringEqualsJsonString')}('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
-        
-        $this->{($assertion ? 'assertNotEquals' : 'assertEquals')}(100, $block->parameter('settingsScale'));
-        $this->{($assertion ? 'assertNotEquals' : 'assertEquals')}("event", $block->parameter('itemRouteBase'));
+
+        if(\Auth::id()){
+            $this->assertTrue($block->parameters->cropPhoto);
+            $this->assertEquals("4:3", $block->parameters->cropDimensions);
+            $this->assertEquals("event", $block->parameters->itemRouteBase);
+            $this->assertEquals("100", $block->parameters->settingsScale);
+            $this->assertEquals("desc", $block->parameters->orderDirection);
+        }
+        else{
+            $this->assertEmpty($block->parameters);
+        }
         
     }
     
     public function access_item_form_when_block_is_setted_up($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
@@ -95,12 +102,12 @@ class Actions extends BlockLocation {
             $this->assertEquals(11, $form->count());
             $this->assertEquals(['topGroup', 'startDate', 'endDate'], array_keys($form->groups()));
             $this->assertEquals(['image', 'imagePreview_'.$item->id, 'subject'], array_keys($form->group('topGroup')->getElements()));
-            $this->assertEquals(['location', 'summary', 'text', 'submit'], array_keys($form->getElements()));
+            $this->assertEquals(['location', 'summary', 'text', 'submit', 'image', 'imagePreview_'.$item->id, 'subject', 'start_date', 'start_time', 'end_date', 'end_time'], array_keys($form->elements()));
             $this->assertEquals($text, $form->getElement('text')->value());
 
             $this->post('admin/settings/setup', [
                 "id" => $block->id,
-                "cropPhoto" =>	"1",
+                "cropPhoto" =>	"on",
                 "cropDimensions" => "4:3",
                 "itemRouteBase" => "event",
                 "settingsScale" => "100",
@@ -120,7 +127,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_new_item_in_block($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
         $response = $this->post("", [
             'block_id' => $block->id,
@@ -192,7 +199,7 @@ class Actions extends BlockLocation {
     }
     
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -203,22 +210,45 @@ class Actions extends BlockLocation {
         
         $item = Block\Articles::all()->last();
         
-        $response->assertRedirect();
-        
         $this->assertNull($item);
         
         if($assertion){
-            $this->followRedirects($response)
-                    ->assertSee("The subject field is required");
+            $response->assertSessionHasErrors(['subject', 'start_date']);
         }
         else{
-            $this->followRedirects($response)
-                    ->assertDontSee("The subject field is required");
+            $response->assertRedirect('/login');
+        }
+    }
+
+    public function receive_an_error_on_wrong_date_and_time_format($assertion){
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
+
+        $this->get("admin/settings/".$block->id."/0");
+
+        $response = $this->post("", [
+            'block_id' => $block->id,
+            'id' => null,
+            'subject' => $this->faker->sentence,
+            'start_date' => $this->faker->word,
+            'start_time' => $this->faker->word,
+            'end_date' => $this->faker->word,
+            'end_time' => $this->faker->word
+        ]);
+
+        $item = Block\Articles::all()->last();
+
+        $this->assertNull($item);
+
+        if($assertion){
+            $response->assertSessionHasErrors(['start_date', 'start_time', 'end_date', 'end_time']);
+        }
+        else{
+            $response->assertRedirect('/login');
         }
     }
 
     public function edit_existing_item_in_the_block($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -263,7 +293,7 @@ class Actions extends BlockLocation {
     }
     
     public function access_created_item($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -324,16 +354,24 @@ class Actions extends BlockLocation {
 
                 $this->post('admin/settings/setup', [
                     "id" => $block->id,
-                    "cropPhoto" => "1",
+                    "cropPhoto" => "on",
                     "cropDimensions" => "4:3",
                     "itemRouteBase" => "event",
                     "settingsScale" => "100",
-                    "orderDirection" => "desc"
+                    "orderDirection" => "desc",
+                    "customSizes" => "on",
+                    "photoSizes[]" => ["8", "6"],
                 ]);
 
                 $block = Block::find($block->id);
 
-                $this->assertEquals('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
+                $this->assertTrue($block->parameters->cropPhoto);
+                $this->assertEquals("4:3", $block->parameters->cropDimensions);
+                $this->assertEquals("event", $block->parameters->itemRouteBase);
+                $this->assertEquals("100", $block->parameters->settingsScale);
+                $this->assertEquals("desc", $block->parameters->orderDirection);
+                $this->assertNull(@$block->parameters->customSizes);
+                $this->assertNull(@$block->parameters->photoSizes);
             }
             else {
                 $response->assertSee('Resize Images')
@@ -345,16 +383,24 @@ class Actions extends BlockLocation {
 
                 $this->post('admin/settings/setup', [
                     "id" => $block->id,
-                    "cropPhoto" => "1",
+                    "cropPhoto" => "on",
                     "cropDimensions" => "4:3",
                     "itemRouteBase" => "event",
                     "settingsScale" => "100",
-                    "orderDirection" => "desc"
+                    "orderDirection" => "desc",
+                    "customSizes" => "on",
+                    "photoSizes[]" => ["8", "6"],
                 ]);
 
                 $block = Block::find($block->id);
 
-                $this->assertEquals('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
+                $this->assertTrue($block->parameters->cropPhoto);
+                $this->assertEquals("4:3", $block->parameters->cropDimensions);
+                $this->assertEquals("event", $block->parameters->itemRouteBase);
+                $this->assertEquals("100", $block->parameters->settingsScale);
+                $this->assertEquals("desc", $block->parameters->orderDirection);
+                $this->assertTrue($block->parameters->customSizes);
+                $this->assertEquals(["8", "6"], $block->parameters->photoSizes);
             }
         }
         else{
@@ -369,13 +415,13 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertNotEquals('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}', json_encode($block->parameters()));
+
+            $this->assertEmpty((array)$block->parameters);
         }
     }
 
     public function create_event_with_addon($assertion) {
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
         $addon = factory(Block\Addon::class)->create(['block_id'=>$block->id, 'type'=>'strings', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
         $addonItem = $addon->addon();
         $addonTable = (new $addonItem)->getTable();
@@ -482,7 +528,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_item_with_standard_image_sizes() {
-        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
         $this->post("", [
             'block_id' => $block->id,
@@ -509,7 +555,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_item_with_custom_image_sizes() {
-        $block = $this->setupBlock(['parameters'=>'{"customSizes":1,"photoSizes":["6","3"],"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"customSizes":1,"photoSizes":["6","3"],"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
         $this->post("", [
             'block_id' => $block->id,
@@ -539,7 +585,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_item_with_empty_custom_image_sizes() {
-        $block = $this->setupBlock(['parameters'=>'{"customSizes":1,"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"customSizes":1,"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
         $this->post("", [
             'block_id' => $block->id,
@@ -566,7 +612,20 @@ class Actions extends BlockLocation {
     }
 
     public function register_on_event() {
-        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
+
+        $client = \Mockery::mock(\GuzzleHttp\Client::class);
+        \Lubart\Just\Validators\Recaptcha::setClient($client);
+
+        $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
+
+        $client->shouldReceive('post')
+            ->once()
+            ->andReturn($response);
+
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn('{"success":true}');
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -600,13 +659,27 @@ class Actions extends BlockLocation {
             'event_id' => $item->id,
             'name' => $userName = $this->faker->name,
             'email' => $userEmail = $this->faker->email,
-            'comment' => $userComment = $this->faker->sentence
+            'comment' => $userComment = $this->faker->sentence,
+            'g-recaptcha-response' => true
         ])
             ->assertSessionHas('successMessageFromEvents'.$block->id);
     }
 
     public function register_on_event_without_comment() {
-        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
+
+        $client = \Mockery::mock(\GuzzleHttp\Client::class);
+        \Lubart\Just\Validators\Recaptcha::setClient($client);
+
+        $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
+
+        $client->shouldReceive('post')
+            ->once()
+            ->andReturn($response);
+
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn('{"success":true}');
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -639,13 +712,27 @@ class Actions extends BlockLocation {
             'block_id' => $block->id,
             'event_id' => $item->id,
             'name' => $userName = $this->faker->name,
-            'email' => $userEmail = $this->faker->email
+            'email' => $userEmail = $this->faker->email,
+            'g-recaptcha-response' => true
         ])
             ->assertSessionHas('successMessageFromEvents'.$block->id);
     }
 
     public function cannot_register_on_event_without_name() {
-        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
+
+        $client = \Mockery::mock(\GuzzleHttp\Client::class);
+        \Lubart\Just\Validators\Recaptcha::setClient($client);
+
+        $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
+
+        $client->shouldReceive('post')
+            ->once()
+            ->andReturn($response);
+
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn('{"success":true}');
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -677,13 +764,27 @@ class Actions extends BlockLocation {
         $this->post('/register-event', [
             'block_id' => $block->id,
             'event_id' => $item->id,
-            'email' => $userEmail = $this->faker->email
+            'email' => $userEmail = $this->faker->email,
+            'g-recaptcha-response' => true
         ])
             ->assertSessionHasErrors('name', 'messages', 'errorsFromEvents'.$block->id);
     }
 
     public function cannot_register_on_event_without_email() {
-        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
+
+        $client = \Mockery::mock(\GuzzleHttp\Client::class);
+        \Lubart\Just\Validators\Recaptcha::setClient($client);
+
+        $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
+
+        $client->shouldReceive('post')
+            ->once()
+            ->andReturn($response);
+
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn('{"success":true}');
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -716,12 +817,67 @@ class Actions extends BlockLocation {
             'block_id' => $block->id,
             'event_id' => $item->id,
             'name' => $userName = $this->faker->name,
+            'g-recaptcha-response' => true
         ])
             ->assertSessionHasErrors('email', 'messages', 'errorsFromEvents'.$block->id);
     }
 
+    public function cannot_register_on_event_without_captcha() {
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
+
+        $client = \Mockery::mock(\GuzzleHttp\Client::class);
+        \Lubart\Just\Validators\Recaptcha::setClient($client);
+
+        $subject = $this->faker->sentence;
+        $summary = $this->faker->text;
+        $text = $this->faker->text;
+        $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
+        $image = uniqid();
+
+        Block\Events::insert([
+            'block_id' => $block->id,
+            'subject' => $subject,
+            'summary' => $summary,
+            'slug' => str_slug($subject),
+            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
+            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
+            'location' => $address,
+            'text' => $text,
+            'image' => $image
+        ]);
+
+        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
+        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+
+        $item = Block\Events::all()->last();
+
+        $this->get("/event/".str_slug($subject))
+            ->assertSuccessful();
+
+        $this->post('/register-event', [
+            'block_id' => $block->id,
+            'event_id' => $item->id,
+            'name' => $userName = $this->faker->name
+        ])
+            ->assertSessionHasErrors('g-recaptcha-response', 'messages', 'errorsFromEvents'.$block->id);
+    }
+
     public function cannot_register_on_event_twice() {
-        $block = $this->setupBlock(['parameters'=>'{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
+
+        $client = \Mockery::mock(\GuzzleHttp\Client::class);
+        \Lubart\Just\Validators\Recaptcha::setClient($client);
+
+        $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
+
+        $client->shouldReceive('post')
+            ->twice()
+            ->andReturn($response);
+
+        $response->shouldReceive('getBody')
+            ->twice()
+            ->andReturn('{"success":true}');
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -754,7 +910,8 @@ class Actions extends BlockLocation {
             'block_id' => $block->id,
             'event_id' => $item->id,
             'name' => $userName = $this->faker->name,
-            'email' => $userEmail = $this->faker->email
+            'email' => $userEmail = $this->faker->email,
+            'g-recaptcha-response' => true
         ])
             ->assertSessionHas('successMessageFromEvents'.$block->id);
 
@@ -762,13 +919,27 @@ class Actions extends BlockLocation {
             'block_id' => $block->id,
             'event_id' => $item->id,
             'name' => $userName = $this->faker->name,
-            'email' => $userEmail
+            'email' => $userEmail,
+            'g-recaptcha-response' => true
         ])
             ->assertSessionHasErrors('email', 'messages', 'errorsFromEvents'.$block->id);
     }
 
     public function admin_is_notified_about_new_registration_on_event() {
-        $block = $this->setupBlock(['parameters'=>'{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
+
+        $client = \Mockery::mock(\GuzzleHttp\Client::class);
+        \Lubart\Just\Validators\Recaptcha::setClient($client);
+
+        $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
+
+        $client->shouldReceive('post')
+            ->once()
+            ->andReturn($response);
+
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn('{"success":true}');
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -804,7 +975,8 @@ class Actions extends BlockLocation {
             'event_id' => $item->id,
             'name' => $userName = $this->faker->name,
             'email' => $userEmail = $this->faker->email,
-            'comment' => $userComment = $this->faker->sentence
+            'comment' => $userComment = $this->faker->sentence,
+            'g-recaptcha-response' => true
         ])
             ->assertSessionHas('successMessageFromEvents'.$block->id);
 
@@ -821,7 +993,20 @@ class Actions extends BlockLocation {
     }
 
     public function user_can_see_list_of_registered_users() {
-        $block = $this->setupBlock(['parameters'=>'{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
+
+        $client = \Mockery::mock(\GuzzleHttp\Client::class);
+        \Lubart\Just\Validators\Recaptcha::setClient($client);
+
+        $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
+
+        $client->shouldReceive('post')
+            ->once()
+            ->andReturn($response);
+
+        $response->shouldReceive('getBody')
+            ->once()
+            ->andReturn('{"success":true}');
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -852,7 +1037,8 @@ class Actions extends BlockLocation {
             'event_id' => $item->id,
             'name' => $userName = $this->faker->name,
             'email' => $userEmail = $this->faker->email,
-            'comment' => $userComment = $this->faker->sentence
+            'comment' => $userComment = $this->faker->sentence,
+            'g-recaptcha-response' => true
         ])
             ->assertSessionHas('successMessageFromEvents'.$block->id);
 

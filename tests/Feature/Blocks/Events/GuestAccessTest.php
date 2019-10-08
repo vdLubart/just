@@ -39,6 +39,13 @@ class GuestAccessTest extends Actions
 		$this->inHeader()->receive_an_error_on_sending_incompleate_create_item_form(false);
 		$this->relatedBlock()->receive_an_error_on_sending_incompleate_create_item_form(false);
     }
+
+    /** @test */
+    function guest_cannot_receive_an_error_on_wrong_date_and_time_format(){
+        $this->inContent()->receive_an_error_on_wrong_date_and_time_format(false);
+        $this->inHeader()->receive_an_error_on_wrong_date_and_time_format(false);
+        $this->relatedBlock()->receive_an_error_on_wrong_date_and_time_format(false);
+    }
     
     /** @test */
     function guest_cannot_edit_item_in_the_block(){
@@ -88,6 +95,13 @@ class GuestAccessTest extends Actions
         $this->inContent()->cannot_register_on_event_without_email();
 		$this->inHeader()->cannot_register_on_event_without_email();
 		$this->relatedBlock()->cannot_register_on_event_without_email();
+    }
+
+    /** @test */
+    function guest_cannot_register_on_event_without_captcha(){
+        $this->inContent()->cannot_register_on_event_without_captcha();
+        $this->inHeader()->cannot_register_on_event_without_captcha();
+        $this->relatedBlock()->cannot_register_on_event_without_captcha();
     }
 
     /** @test */

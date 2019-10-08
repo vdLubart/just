@@ -1,10 +1,11 @@
 <?php
 
-namespace Lubart\Just\Requests;
+namespace Lubart\Just\Requests\Panel\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
-class ChangeLinkRequest extends FormRequest
+class ChangeTextRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +14,7 @@ class ChangeLinkRequest extends FormRequest
      */
     public function authorize()
     {
-        return \Auth::check();
+        return \Auth::user();
     }
 
     /**
@@ -24,8 +25,8 @@ class ChangeLinkRequest extends FormRequest
     public function rules()
     {
         return [
-            'block_id' => 'required|integer|min:1',
-            'linkedBlock_id' => 'required|integer|min:1',
+            "text" => "required",
+            "id" => "integer|min:1|nullable"
         ];
     }
 }

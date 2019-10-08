@@ -1,10 +1,11 @@
 <?php
 
-namespace Lubart\Just\Requests;
+namespace Lubart\Just\Requests\Panel\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
-class ChangeEventRequest extends FormRequest
+class ChangeEventRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +25,6 @@ class ChangeEventRequest extends FormRequest
     public function rules()
     {
         return [
-            "id" => "integer|min:1|nullable",
             "image" => "image|nullable",
             "subject" => "required",
             "start_date" => "required|date|date_format:Y-m-d",

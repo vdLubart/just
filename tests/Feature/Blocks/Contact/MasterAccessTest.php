@@ -34,6 +34,20 @@ class MasterAccessTest extends Actions
 		$this->inHeader()->create_new_item_in_block(true);
 		$this->relatedBlock()->create_new_item_in_block(true);
     }
+
+    /** @test */
+    function master_can_create_item_with_a_lot_of_data(){
+        $this->inContent()->create_new_item_with_a_lot_of_data(true);
+        $this->inHeader()->create_new_item_with_a_lot_of_data(true);
+        $this->relatedBlock()->create_new_item_with_a_lot_of_data(true);
+    }
+
+    /** @test */
+    function master_receives_errors_on_create_item_with_wrong_data(){
+        $this->inContent()->receive_errors_on_creating_item_with_wrong_data();
+        $this->inHeader()->receive_errors_on_creating_item_with_wrong_data();
+        $this->relatedBlock()->receive_errors_on_creating_item_with_wrong_data();
+    }
     
     /** @test */
     function master_doesnt_recieve_an_error_on_sending_incompleate_create_item_form(){
@@ -61,6 +75,13 @@ class MasterAccessTest extends Actions
         $this->inContent()->add_custom_contact_channel(true);
 		$this->inHeader()->add_custom_contact_channel(true);
 		$this->relatedBlock()->add_custom_contact_channel(true);
+    }
+
+    /** @test */
+    function master_can_add_few_custom_contact_channels(){
+        $this->inContent()->add_few_custom_contact_channels(true);
+        $this->inHeader()->add_few_custom_contact_channels(true);
+        $this->relatedBlock()->add_few_custom_contact_channels(true);
     }
 
     /** @test */

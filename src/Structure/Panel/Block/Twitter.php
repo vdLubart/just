@@ -5,19 +5,12 @@ namespace Lubart\Just\Structure\Panel\Block;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
 class Twitter extends AbstractBlock
 {
     
     protected $neededParameters = ['account', 'widgetId'];
-    
-    protected $settingsTitle = 'Twitter';
-
-    public function __construct() {
-        parent::__construct();
-
-        $this->settingsTitle = __('twitter.title');
-    }
     
     public function content($id = null) {
         return;
@@ -38,5 +31,9 @@ class Twitter extends AbstractBlock
         $form->addGroup($twitterGroup);
 
         return $form;
+    }
+
+    public function handleForm(ValidateRequest $request) {
+        return;
     }
 }

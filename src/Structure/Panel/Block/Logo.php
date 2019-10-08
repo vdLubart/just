@@ -6,6 +6,7 @@ use Lubart\Form\FormElement;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
 use Lubart\Form\Form;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 
 class Logo extends AbstractBlock
@@ -72,8 +73,8 @@ class Logo extends AbstractBlock
         return $form;
     }
     
-    public function handleForm(Request $request) {
-        $parameters = json_decode($this->block->parameters);
+    public function handleForm(ValidateRequest $request) {
+        $parameters = $this->block->parameters;
         $logo = null;
         
         if (isset($request->currentFile) and is_file(public_path('storage/'.$this->table . '/' . $request->currentFile))) {

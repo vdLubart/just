@@ -1,4 +1,4 @@
-<div class="dragula-list-container-{{ (isset($block->parameters()->settingsScale)?$block->parameters()->settingsScale:"100") }}">
+<div class="dragula-list-container-{{ (isset($block->parameters->settingsScale)?$block->parameters->settingsScale:"100") }}">
 
     <?php
     $menuView = function($menu) use ($block, &$menuView){

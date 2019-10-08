@@ -25,6 +25,13 @@ class GuestAccessTest extends Actions
 		$this->inHeader()->create_new_item_in_block(false);
 		$this->relatedBlock()->create_new_item_in_block(false);
     }
+
+    /** @test */
+    function guest_cannot_create_item_with_a_lot_of_data(){
+        $this->inContent()->create_new_item_with_a_lot_of_data(false);
+        $this->inHeader()->create_new_item_with_a_lot_of_data(false);
+        $this->relatedBlock()->create_new_item_with_a_lot_of_data(false);
+    }
     
     /** @test */
     function guest_cannot_recieve_an_error_on_sending_incompleate_create_item_form(){
@@ -52,6 +59,13 @@ class GuestAccessTest extends Actions
         $this->inContent()->add_custom_contact_channel(false);
 		$this->inHeader()->add_custom_contact_channel(false);
 		$this->relatedBlock()->add_custom_contact_channel(false);
+    }
+
+    /** @test */
+    function guest_cannot_add_few_custom_contact_channels(){
+        $this->inContent()->add_few_custom_contact_channels(false);
+        $this->inHeader()->add_few_custom_contact_channels(false);
+        $this->relatedBlock()->add_few_custom_contact_channels(false);
     }
 
     /** @test */

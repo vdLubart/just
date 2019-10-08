@@ -4,8 +4,9 @@ namespace Lubart\Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
-class UserChangeRequest extends FormRequest
+class UserChangeRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.

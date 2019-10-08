@@ -4,8 +4,8 @@ namespace Lubart\Just\Structure\Panel\Block;
 
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
-use Lubart\Just\Requests\ChangeArticleRequest;
 use Intervention\Image\ImageManagerStatic as Image;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Just\Structure\Page;
@@ -28,8 +28,6 @@ class Articles extends AbstractBlock
 
     protected $neededParameters = [ 'itemRouteBase' ];
 
-    protected $settingsTitle = 'Article';
-    
     public function setup() {
         if(!empty($this->block->parameter('itemRouteBase')) and !Useful::isRouteExists($this->block->parameter('itemRouteBase') . "/{id}")){
             JustRoute::where('block_id', $this->block_id)->delete();
@@ -70,7 +68,7 @@ class Articles extends AbstractBlock
         }
         $this->form->add(FormElement::text(['name'=>'subject', 'label'=>__('settings.common.subject'), 'value'=>$this->subject]));
         $this->form->add(FormElement::textarea(['name'=>'summary', 'label'=>__('settings.common.summary'), 'value'=>$this->summary]));
-        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>__('article.text'), 'value'=>$this->text]));
+        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>__('articles.text'), 'value'=>$this->text]));
 
         $this->includeAddons();
 
@@ -81,6 +79,8 @@ $(document).ready(function(){
     CKEDITOR.replace('summary');
     CKEDITOR.replace('text');
 });");
+
+        $this->markObligatoryFields($this->form);
 
         return $this->form;
     }
@@ -98,7 +98,7 @@ $(document).ready(function(){
         return $form;
     }
 
-    public function handleForm(ChangeArticleRequest $request) {
+    public function handleForm(ValidateRequest $request) {
         if(!file_exists(public_path('storage/'.$this->table))){
             mkdir(public_path('storage/'.$this->table), 0775);
         }

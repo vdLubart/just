@@ -7,14 +7,6 @@ use Lubart\Form\FormElement;
 class Html extends Text
 {
     
-    protected $settingsTitle = 'HTML Code';
-
-    public function __construct() {
-        parent::__construct();
-
-        $this->settingsTitle = __('html.title');
-    }
-    
     public function form() {
         if(is_null($this->form)){
             return;

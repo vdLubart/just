@@ -31,8 +31,8 @@ class Actions extends BlockLocation {
         $response = $this->get("admin/settings/".$block->id."/0");
         
         $response->{($assertion?'assertSee':'assertDontSee')}('input name="item"');
-        $response->{($assertion?'assertSee':'assertDontSee')}('select id="parent"');
-        $response->{($assertion?'assertSee':'assertDontSee')}('select id="route"');
+        $response->{($assertion?'assertSee':'assertDontSee')}('select name="parent"');
+        $response->{($assertion?'assertSee':'assertDontSee')}('select name="route"');
         $response->{($assertion?'assertSee':'assertDontSee')}('input name="url"');
     }
     
@@ -309,8 +309,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+
+            $this->assertEquals(100, $block->parameters->settingsScale);
         }
         else{
             $response->assertStatus(302);
@@ -321,8 +321,8 @@ class Actions extends BlockLocation {
             ]);
             
             $block = Block::find($block->id);
-            
-            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+
+            $this->assertEmpty((array) $block->parameters);
         }
     }
 

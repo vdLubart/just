@@ -2,7 +2,7 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Slider;
 
-class GuestAccessTest extends Actions
+class GuestAccess extends Actions
 {
     
     /** @test*/

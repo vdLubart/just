@@ -29,7 +29,7 @@ class Actions extends BlockLocation {
         $block = $this->setupBlock();
         
         $response = $this->get("admin/settings/".$block->id."/0");
-        
+
         $response->assertDontSee('input name="title"');
         
         $response->{($assertion?'assertDontSee':'assertSee')}('Items amount in single row');
@@ -39,20 +39,25 @@ class Actions extends BlockLocation {
             'itemsInRow' => "4"
         ])
                 ->assertStatus(200);
-        
-        $block = Block::find($block->id);
-        $this->{($assertion ? 'assertJsonStringNotEqualsJsonString' : 'assertJsonStringEqualsJsonString')}('{"itemsInRow":"4"}', json_encode($block->parameters()));
 
-        $this->{($assertion ? 'assertNotEquals' : 'assertEquals')}(4, $block->parameter('itemsInRow'));
-        
+        $block = Block::find($block->id);
+        $this->assertEquals(4, $block->parameters->itemsInRow);
+        if(\Auth::user()->role == 'master') {
+            $this->assertFalse($block->parameters->ignoreCaption);
+            $this->assertFalse($block->parameters->ignoreDescription);
+        }
+        else{
+            $this->assertNull(@$block->parameters->ignoreCaption);
+            $this->assertNull(@$block->parameters->ignoreDescription);
+        }
     }
     
     public function access_item_form_when_block_is_setted_up($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"itemsInRow":"4"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemsInRow":"4"}')]);
         
         $response = $this->get("admin/settings/".$block->id."/0");
         
-        $response->{($assertion ? 'assertSee' : 'assertDontSee')}('select id="iconSet"');
+        $response->{($assertion ? 'assertSee' : 'assertDontSee')}('select name="iconSet"');
         $response->{($assertion ? 'assertSee' : 'assertDontSee')}('input name="title"');
     }
 
@@ -68,7 +73,7 @@ class Actions extends BlockLocation {
         ]);
         
         $this->assertTrue(Useful::isRouteExists("iconset/{id}/{page?}"));
-        
+
         $this->app['router']->get('iconset/{id}/{page?}', "\Lubart\Just\Controllers\JustController@ajax")->middleware('web');
         
         $this->get("iconset/1")
@@ -91,7 +96,7 @@ class Actions extends BlockLocation {
     }
 
     public function create_new_item_in_block($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"itemsInRow":"4"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemsInRow":"4"}')]);
         
         $this->post("", [
             'block_id' => $block->id,
@@ -106,8 +111,6 @@ class Actions extends BlockLocation {
         $this->assertTrue(Useful::isRouteExists("iconset/{id}/{page?}"));
         
         $item = Block\Features::all()->last();
-        
-        $icon = \Lubart\Just\Models\Icon::find(1);
         
         if($assertion){
             $this->assertNotNull($item);
@@ -130,7 +133,7 @@ class Actions extends BlockLocation {
     }
     
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"itemsInRow":"4"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemsInRow":"4"}')]);
         
         $this->get("admin/settings/".$block->id."/0");
         
@@ -142,24 +145,18 @@ class Actions extends BlockLocation {
         
         $item = Block\Features::all()->last();
         
-        $response->assertRedirect();
-        
         $this->assertNull($item);
         
         if($assertion){
-            $this->followRedirects($response)
-                    ->assertSee("The icon field is required")
-                    ->assertSee("The title field is required");
+            $response->assertSessionHasErrors(['icon', 'title']);
         }
         else{
-            $this->followRedirects($response)
-                    ->assertDontSee("The icon field is required")
-                    ->assertDontSee("The title field is required");
+            $response->assertRedirect('/login');
         }
     }
     
     public function edit_existing_item_in_the_block($assertion){
-        $block = $this->setupBlock(['parameters'=>'{"itemsInRow":"4"}']);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"itemsInRow":"4"}')]);
         
         Block\Features::insert([
             'block_id' => $block->id,
@@ -226,12 +223,16 @@ class Actions extends BlockLocation {
             
             $form = $block->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"itemsInRow":"4","ignoreCaption":"on"}', json_encode($block->parameters()));
+                $this->assertEquals(4, $block->parameters->itemsInRow);
+                $this->assertTrue($block->parameters->ignoreCaption);
+                $this->assertFalse($block->parameters->ignoreDescription);
                 $this->assertNull($form->getElement('title'));
                 $this->assertNotNull($form->getElement('description'));
             }
             else{
-                $this->assertEquals('{"itemsInRow":"4"}', json_encode($block->parameters()));
+                $this->assertEquals(4, $block->parameters->itemsInRow);
+                $this->assertNull(@$block->parameters->ignoreCaption);
+                $this->assertNull(@$block->parameters->ignoreDescription);
                 $this->assertNotNull($form->getElement('title'));
                 $this->assertNotNull($form->getElement('description'));
             }
@@ -246,12 +247,16 @@ class Actions extends BlockLocation {
             
             $form = $block->form();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals('{"itemsInRow":"4","ignoreDescription":"on"}', json_encode($block->parameters()));
+                $this->assertEquals(4, $block->parameters->itemsInRow);
+                $this->assertFalse($block->parameters->ignoreCaption);
+                $this->assertTrue($block->parameters->ignoreDescription);
                 $this->assertNotNull($form->getElement('title'));
                 $this->assertNull($form->getElement('description'));
             }
             else{
-                $this->assertEquals('{"itemsInRow":"4"}', json_encode($block->parameters()));
+                $this->assertEquals(4, $block->parameters->itemsInRow);
+                $this->assertNull(@$block->parameters->ignoreCaption);
+                $this->assertNull(@$block->parameters->ignoreDescription);
                 $this->assertNotNull($form->getElement('title'));
                 $this->assertNotNull($form->getElement('description'));
             }
@@ -266,7 +271,7 @@ class Actions extends BlockLocation {
             
             $block = Block::find($block->id);
             
-            $this->assertNotEquals('{"settingsScale":"100"}', json_encode($block->parameters()));
+            $this->assertNotEquals(json_decode('{"settingsScale":"100"}'), $block->parameters);
         }
     }
 }

@@ -10,7 +10,7 @@ use Lubart\Just\Models\Icon;
 use Lubart\Just\Models\IconSet;
 use Illuminate\Http\Request;
 use Lubart\Just\Models\Route as JustRoute;
-use Lubart\Just\Requests\FeatureChangeRequest;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Structure\Panel\Block;
 
 class Features extends AbstractBlock
@@ -28,7 +28,7 @@ class Features extends AbstractBlock
     protected $table = 'features';
 
     protected $neededParameters = [ 'itemsInRow' ];
-    
+
     public function setup() {
         if(!Useful::isRouteExists("iconset/{id}/{page?}")){
             JustRoute::create([
@@ -56,7 +56,7 @@ class Features extends AbstractBlock
         if(empty($this->parameter('ignoreDescription'))){
             $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>$this->description]));
         }
-        $this->form->add(FormElement::text(['name'=>'link', 'label'=>__('feature.link'), 'value'=>$this->link]));
+        $this->form->add(FormElement::text(['name'=>'link', 'label'=>__('features.link'), 'value'=>$this->link]));
         
         $this->includeAddons();
         
@@ -68,8 +68,6 @@ class Features extends AbstractBlock
     }
     
     public function setupForm(Block $block) {
-        $parameters = json_decode($block->parameters);
-        
         $form = new Form('/admin/settings/setup');
         
         $form->setType('setup');
@@ -77,7 +75,7 @@ class Features extends AbstractBlock
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$block->id]));
         
         $settingsViewGroup = new FormGroup('settingsView', __('block.preferences.settingsView.title'), ['class'=>'col-md-6']);
-        $settingsViewGroup->add(FormElement::select(['name'=>'itemsInRow', 'label'=>__('feature.preferences.itemScale'), 'value'=>@$parameters->itemsInRow, 'options'=>[3=>trans_choice('feature.preferences.itemScaleValue', 4, ['items'=>4]), 4=>trans_choice('feature.preferences.itemScaleValue', 3, ['items'=>3]), 6=>trans_choice('feature.preferences.itemScaleValue', 2, ['items'=>2]), 12=>trans_choice('feature.preferences.itemScaleValue', 1, ['items'=>1])]]));
+        $settingsViewGroup->add(FormElement::select(['name'=>'itemsInRow', 'label'=>__('features.preferences.itemScale'), 'value'=>@$block->parameters->itemsInRow, 'options'=>[3=>trans_choice('feature.preferences.itemScaleValue', 4, ['items'=>4]), 4=>trans_choice('feature.preferences.itemScaleValue', 3, ['items'=>3]), 6=>trans_choice('feature.preferences.itemScaleValue', 2, ['items'=>2]), 12=>trans_choice('feature.preferences.itemScaleValue', 1, ['items'=>1])]]));
         $form->addGroup($settingsViewGroup);
 
         if(\Auth::user()->role == "master"){
@@ -91,7 +89,7 @@ class Features extends AbstractBlock
         return $form;
     }
     
-    public function handleForm(FeatureChangeRequest $request) {
+    public function handleForm(ValidateRequest $request) {
         if(is_null($request->get('id'))){
             $feature = new Features;
             $feature->orderNo = Useful::getMaxNo($this->table, ['block_id'=>$request->get('block_id')]);

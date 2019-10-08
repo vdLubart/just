@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 use Lubart\Just\Structure\Panel\Block\Addon;
 use Lubart\Just\Structure\Panel\Block;
 
-class AddonChangeRequest extends FormRequest
+class AddonChangeRequest extends FormRequest implements Block\Contracts\ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.

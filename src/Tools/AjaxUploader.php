@@ -322,9 +322,9 @@ class AjaxUploader {
     private function finish() {
         ob_start();
         $request = request();
-        $request->currentFile = $this->file_name;
+        $request->request->set('currentFile', $this->file_name);
         $model = app('Lubart\Just\Controllers\AdminController')->handleForm($request);
-        
+
         $this->imageCode = $model->image;
         $this->shouldBeCropped = $model->shouldBeCropped;
         $this->block_id = $model->block_id;
@@ -332,8 +332,8 @@ class AjaxUploader {
         $this->width = $model->layout()->width;
         $this->height = $model->layout()->width;
         $this->token = csrf_token();
-        if($model->shouldBeCropped and !empty($model->parameters()->cropDimentions)){
-            $cropDimentions = explode(":", $model->parameters()->cropDimentions);
+        if($model->shouldBeCropped and !empty($model->parameters->cropDimentions)){
+            $cropDimentions = explode(":", $model->parameters->cropDimentions);
             if(count($cropDimentions) == 2){
                 $wh = $cropDimentions[0]/$cropDimentions[1];
                 $this->width = $model->layout()->width;

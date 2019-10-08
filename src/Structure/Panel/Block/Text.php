@@ -3,8 +3,9 @@
 namespace Lubart\Just\Structure\Panel\Block;
 
 use Lubart\Form\FormElement;
+use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
-use Lubart\Just\Requests\TextChangeRequest;
+use Lubart\Just\Requests\ChangeTextRequest;
 
 class Text extends AbstractBlock
 {
@@ -19,14 +20,6 @@ class Text extends AbstractBlock
     ];
     
     protected $table = 'texts';
-    
-    protected $settingsTitle = 'Plain Text';
-
-    public function __construct() {
-        parent::__construct();
-
-        $this->settingsTitle = __('text.title');
-    }
     
     /**
      * Return item form
@@ -49,7 +42,7 @@ class Text extends AbstractBlock
         return $this->form;
     }
     
-    public function handleForm(TextChangeRequest $request) {
+    public function handleForm(ValidateRequest $request) {
         if(is_null($request->request->get('id'))){
             $text = new Text;
             $text->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->request->get('block_id')]);

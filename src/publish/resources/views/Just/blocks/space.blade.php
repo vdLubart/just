@@ -1,1 +1,1 @@
-<div style="height: {{ @$block->parameters()->height }}"></div>
+<div style="height: {{ @$block->parameters->height }}"></div>
