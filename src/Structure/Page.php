@@ -8,9 +8,12 @@ use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Illuminate\Http\Request;
+use Spatie\Translatable\HasTranslations;
 
 class Page extends Model
 {
+    use HasTranslations;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -19,6 +22,8 @@ class Page extends Model
     protected $fillable = [
         'title',  'description', 'keywords', 'author', 'copyright', 'route', 'layout_id'
     ];
+
+    public $translatable = ['title', 'description', 'author', 'copyright'];
     
     protected $table = 'pages';
     
@@ -74,13 +79,13 @@ class Page extends Model
         }
         
         $this->save();
-        
+
         if(isset($request->copyMeta)){
             Page::query()->update([
-                'description' => $request->description,
+                'description' => json_encode([\App::getLocale() =>$request->description]),
                 'keywords' => $request->keywords,
-                'author' => $request->author,
-                'copyright' => $request->copyright,
+                'author' => json_encode([\App::getLocale() => $request->author]),
+                'copyright' => json_encode([\App::getLocale() => $request->copyright]),
             ]);
         }
     }

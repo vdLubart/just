@@ -2,11 +2,11 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Link;
 
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
 
@@ -34,13 +34,12 @@ class Actions extends BlockLocation {
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
         $block = $this->setupBlock();
         
-        $text = $this->faker->paragraph;
-        
-        Block\Text::insert([
-            'block_id' => $textBlock->id,
-            'text' => $text,
-        ]);
-        
+        $textItem = new Block\Text();
+        $textItem->block_id = $textBlock->id;
+        $textItem->text = $text = $this->faker->paragraph;
+
+        $textItem->save();
+
         Block\Link::insert([
             'block_id' => $block->id,
             'linkedBlock_id' => $textBlock->id,
@@ -78,12 +77,11 @@ class Actions extends BlockLocation {
         
         $block = $this->setupBlock(['page_id'=>$page->id]);
         
-        $text = $this->faker->paragraph;
-        
-        Block\Text::insert([
-            'block_id' => $textBlock->id,
-            'text' => $text,
-        ]);
+        $textItem = new Block\Text();
+        $textItem->block_id = $textBlock->id;
+        $textItem->text = $text = $this->faker->paragraph;
+
+        $textItem->save();
         
         $this->post("", [
             'block_id' => $block->id,
@@ -149,23 +147,22 @@ class Actions extends BlockLocation {
         
         $block = $this->setupBlock(['page_id'=>$page->id]);
         
-        $text = $this->faker->paragraph;
-        
-        Block\Text::insert([
-            'block_id' => $textBlock->id,
-            'text' => $text,
-        ]);
+        $textItem = new Block\Text();
+        $textItem->block_id = $textBlock->id;
+        $textItem->text = $text = $this->faker->paragraph;
+
+        $textItem->save();
 
         $envelope = str_replace("\n", ", ", $this->faker->address);
         $phone = $this->faker->phoneNumber;
         $at = $this->faker->email;
-        
-        Block\Contact::insert([
-            'block_id' => $contactBlock->id,
-            'title' => $title = $this->faker->sentence,
-            'channels' => '{"envelope":"'.$envelope.'","phone":"'.$phone.'","at":"'.$at.'"}'
-        ]);
-        
+
+        $item = new Block\Contact();
+        $item->block_id = $contactBlock->id;
+        $item->title = $title = $this->faker->sentence;
+        $item->channels = '{"envelope":"'.$envelope.'","phone":"'.$phone.'","at":"'.$at.'"}';
+        $item->save();
+
         $this->post("", [
             'block_id' => $block->id,
             'id' => null,

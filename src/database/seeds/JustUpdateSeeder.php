@@ -31,15 +31,11 @@ class JustUpdateSeeder extends Seeder
                 // dont use break; here
                 DB::table('blockList')->insert([
                     'block' => 'space',
-                    'title' => "Empty",
-                    'description' => "Adds empty space with fixed height",
                     'table' => ''
                 ]);
                 
                 DB::table('blockList')->insert([
                     'block' => 'html',
-                    'title' => "HTML",
-                    'description' => "Adds HTML piece of code",
                     'table' => 'texts'
                 ]);
                 
@@ -55,8 +51,6 @@ class JustUpdateSeeder extends Seeder
             case version_compare(Version::current(), '1.3.0', '<'):
                 DB::table('blockList')->insert([
                     'block' => 'events',
-                    'title' => "Events",
-                    'description' => "Adds event block",
                     'table' => 'events'
                 ]);
         }

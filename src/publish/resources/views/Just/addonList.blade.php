@@ -1,7 +1,7 @@
 <div class='col-md-12'>
     <div class='col-md-10'>
         <h4>
-            @lang('settings.title') :: @lang('addon.title') :: @lang('addon.list')
+            @lang('settings.title') :: @lang('addon.title') :: @lang('addon.listTitle')
         </h4>
     </div>
     <div class='col-md-1 text-right'>

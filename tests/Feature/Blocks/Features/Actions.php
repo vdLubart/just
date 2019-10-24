@@ -2,12 +2,12 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Features;
 
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Tools\Useful;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
 
@@ -63,14 +63,15 @@ class Actions extends BlockLocation {
 
     public function access_edit_item_form($assertion){
         $block = $this->setupBlock();
-        
-        Block\Features::insert([
-            'block_id' => $block->id,
-            'icon_id' => 1,
-            'title' => $title = $this->faker->sentence,
-            'description' => $description = $this->faker->paragraph,
-            'link' => $link = $this->faker->url
-        ]);
+
+        $feature = new Block\Features();
+        $feature->block_id = $block->id;
+        $feature->icon_id = 1;
+        $feature->title = $title = $this->faker->sentence;
+        $feature->description = $description = $this->faker->paragraph;
+        $feature->link = $link = $this->faker->url;
+
+        $feature->save();
         
         $this->assertTrue(Useful::isRouteExists("iconset/{id}/{page?}"));
 
@@ -157,14 +158,15 @@ class Actions extends BlockLocation {
     
     public function edit_existing_item_in_the_block($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemsInRow":"4"}')]);
-        
-        Block\Features::insert([
-            'block_id' => $block->id,
-            'icon_id' => 1,
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->paragraph,
-            'link' => $link = $this->faker->url
-        ]);
+
+        $feature = new Block\Features();
+        $feature->block_id = $block->id;
+        $feature->icon_id = 1;
+        $feature->title = $title = $this->faker->sentence;
+        $feature->description = $description = $this->faker->paragraph;
+        $feature->link = $link = $this->faker->url;
+
+        $feature->save();
         
         $item = Block\Features::all()->last();
         

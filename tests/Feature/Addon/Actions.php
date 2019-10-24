@@ -280,41 +280,41 @@ class Actions extends TestCase{
             $this->get('admin/settings/category/0')
                     ->assertSuccessful()
                     ->assertSee('Settings :: Categories :: Create New Category');
-            
+
             $this->post('admin/settings/category/setup', [
                 'category_id' => null,
                 'addon_id' => $addon->id,
-                'name' => $catName = $this->faker->word,
-                'value' => $catTitle = $this->faker->word
+                'title' => $catTitle = $this->faker->word,
+                'value' => $catValue = $this->faker->word
             ]);
-            
+
             $category = Block\Addon\Categories::all()->last();
-            
+
             $this->get('admin/settings/category/list')
-                    ->assertSee($catName)
-                    ->assertSee($catTitle);
+                    ->assertSee($catTitle)
+                    ->assertSee($catValue);
             
             $form = $block->specify()->form();
             
-            $this->assertEquals([$category->id=>$catName], $form->getElement($name."_".$addon->id)->options());
+            $this->assertEquals([$category->id=>$catTitle], $form->getElement($name."_".$addon->id)->options());
             
             // Update category value
             $this->post('admin/settings/category/setup', [
                 'category_id' => $category->id,
                 'addon_id' => $addon->id,
-                'name' => $catName = $this->faker->word,
-                'value' => $catTitle = $this->faker->word
+                'title' => $catTitle = $this->faker->word,
+                'value' => $catValue = $this->faker->word
             ]);
             
             $category = Block\Addon\Categories::all()->last();
             
             $this->get('admin/settings/category/list')
-                    ->assertSee($catName)
-                    ->assertSee($catTitle);
+                    ->assertSee($catTitle)
+                    ->assertSee($catValue);
             
             $form = $block->specify()->form();
             
-            $this->assertEquals([$category->id=>$catName], $form->getElement($name."_".$addon->id)->options());
+            $this->assertEquals([$category->id=>$catTitle], $form->getElement($name."_".$addon->id)->options());
             
             if($revertPivot){
                 $this->removePivotTable($block->model()->getTable(), $addonTable);
@@ -341,8 +341,8 @@ class Actions extends TestCase{
             $this->post('admin/settings/category/setup', [
                 'category_id' => null,
                 'addon_id' => $addon->id,
-                'name' => $catName = $this->faker->word,
-                'value' => $catTitle = $this->faker->word
+                'name' => $catTitle = $this->faker->word,
+                'value' => $catValue = $this->faker->word
             ]);
             
             $category = Block\Addon\Categories::all()->last();
@@ -832,13 +832,13 @@ class Actions extends TestCase{
         
         Block\Addon\Categories::create([
             'addon_id' => $addon->id,
-            'name' => $this->faker->word,
+            'title' => $this->faker->word,
             'value' => $this->faker->word
         ]);
         
         $secondCategory = Block\Addon\Categories::create([
             'addon_id' => $addon->id,
-            'name' => $categoryName = $this->faker->word,
+            'title' => $categoryTitle = $this->faker->word,
             'value' => $categoryValue = $this->faker->word
         ]);
         
@@ -853,10 +853,10 @@ class Actions extends TestCase{
         
         if($assertion){
             $this->assertNotNull($element);
-            
+
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($text, $block->firstItem()->text);
-            $this->assertEquals([$categoryValue => $categoryName], $block->firstItem()->{$name});
+            $this->assertEquals([$categoryValue => $categoryTitle], $block->firstItem()->{$name});
         }
         else{
             $this->assertNull($element);
@@ -1038,13 +1038,13 @@ class Actions extends TestCase{
         
         $firstCategory = Block\Addon\Categories::create([
             'addon_id' => $addon->id,
-            'name' => $categoryName = $this->faker->word,
+            'title' => $categoryTitle = $this->faker->word,
             'value' => $categoryValue = $this->faker->word
         ]);
         
         $secondCategory = Block\Addon\Categories::create([
             'addon_id' => $addon->id,
-            'name' =>  $this->faker->word,
+            'title' =>  $this->faker->word,
             'value' => $this->faker->word
         ]);
         
@@ -1073,11 +1073,11 @@ class Actions extends TestCase{
             
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($text, $block->firstItem()->text);
-            $this->assertEquals([$categoryValue => $categoryName], $block->firstItem()->{$name});
+            $this->assertEquals([$categoryValue => $categoryTitle], $block->firstItem()->{$name});
         }
         else{
             $this->assertNotEquals($text, $block->firstItem()->text);
-            $this->assertNotEquals([$categoryValue => $categoryName], $block->firstItem()->{$name});
+            $this->assertNotEquals([$categoryValue => $categoryTitle], $block->firstItem()->{$name});
         }
         
         $this->removePivotTable($block->model()->getTable(), $addonTable);

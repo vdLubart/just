@@ -28,7 +28,7 @@
                 <a href="javascript: openSettings('category', {{ $category->id }})" title="@lang('settings.actions.edit')">
                     <i class="fa fa-pencil"></i>
                 </a>
-                <a href="javascript: openSettings('category', {{ $category->id }})">{{ $category->name }}:{{ $category->value }}</a>
+                <a href="javascript: openSettings('category', {{ $category->id }})">{{ $category->title }}:{{ $category->value }}</a>
             </li>
         @endforeach
     </ul>

@@ -6,9 +6,11 @@ use Lubart\Form\FormElement;
 use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use Lubart\Just\Requests\ChangeTextRequest;
+use Spatie\Translatable\HasTranslations;
 
 class Text extends AbstractBlock
 {
+    use HasTranslations;
     
     /**
      * The attributes that are mass assignable.
@@ -16,8 +18,10 @@ class Text extends AbstractBlock
      * @var array
      */
     protected $fillable = [
-        'text',
+        'text', 'orderNo'
     ];
+
+    public $translatable = ['text'];
     
     protected $table = 'texts';
     

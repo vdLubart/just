@@ -6,13 +6,13 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Lubart\Just\Models\User;
 use Lubart\Just\Notifications\NewRegistration;
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Lubart\Just\Tests\Feature\Helper;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
     use Helper;
@@ -83,18 +83,20 @@ class Actions extends BlockLocation {
         $text = $this->faker->text;
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
-        
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
-        
+
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
+
         $item = Block\Events::all()->last();
         
         if($assertion){
@@ -255,17 +257,19 @@ class Actions extends BlockLocation {
         $text = $this->faker->text;
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
-        
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
         
         $item = Block\Events::all()->last();
 
@@ -301,16 +305,18 @@ class Actions extends BlockLocation {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
         
         $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
@@ -633,17 +639,18 @@ class Actions extends BlockLocation {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'slug' => str_slug($subject),
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
 
         $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
@@ -687,17 +694,18 @@ class Actions extends BlockLocation {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'slug' => str_slug($subject),
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
 
         $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
@@ -740,17 +748,18 @@ class Actions extends BlockLocation {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'slug' => str_slug($subject),
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
 
         $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
@@ -792,17 +801,18 @@ class Actions extends BlockLocation {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'slug' => str_slug($subject),
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
 
         $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
@@ -834,17 +844,18 @@ class Actions extends BlockLocation {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'slug' => str_slug($subject),
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
 
         $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
@@ -885,17 +896,18 @@ class Actions extends BlockLocation {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'slug' => str_slug($subject),
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
 
         $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
@@ -947,17 +959,18 @@ class Actions extends BlockLocation {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'slug' => str_slug($subject),
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
 
         $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
@@ -1014,17 +1027,18 @@ class Actions extends BlockLocation {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        Block\Events::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'summary' => $summary,
-            'slug' => str_slug($subject),
-            'start_date' => Carbon::now()->modify("+2 hours")->format("Y-m-d H:i"),
-            'end_date' => Carbon::now()->modify("+4 hours")->format("Y-m-d H:i"),
-            'location' => $address,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $event = new Block\Events();
+        $event->block_id = $block->id;
+        $event->subject = $subject;
+        $event->slug = str_slug($subject);
+        $event->summary = $summary;
+        $event->start_date = Carbon::now()->modify("+2 hours")->format("Y-m-d H:i");
+        $event->end_date = Carbon::now()->modify("+4 hours")->format("Y-m-d H:i");
+        $event->location = $address;
+        $event->text = $text;
+        $event->image = $image;
+
+        $event->save();
 
         $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);

@@ -7,12 +7,17 @@ use Lubart\Form\FormElement;
 use Lubart\Just\Structure\Panel\Block\Addon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\Translatable\HasTranslations;
 
 class Categories extends AbstractAddon
 {
+    use HasTranslations;
+
     protected $table = 'categories';
     
-    protected $fillable = ['addon_id', 'name', 'value'];
+    protected $fillable = ['addon_id', 'title', 'value'];
+
+    public $translatable = ['title'];
     
     /**
      * Update existing settings form and add new elements
@@ -21,7 +26,7 @@ class Categories extends AbstractAddon
      * @param Form $form Form object
      */
     public static function updateForm(Addon $addon, Form $form, $values) {
-        $form->add(FormElement::select(['name'=>$addon->name."_".$addon->id, 'label'=>$addon->title, 'options'=>$addon->valuesSelectArray('name'), 'value'=>$values]));
+        $form->add(FormElement::select(['name'=>$addon->name."_".$addon->id, 'label'=>$addon->title, 'options'=>$addon->valuesSelectArray('title'), 'value'=>$values]));
         
         return $form;
     }
@@ -69,7 +74,7 @@ class Categories extends AbstractAddon
         
         $form->add(FormElement::hidden(['name'=>'category_id', 'value'=>@$this->id]));
         $form->add(FormElement::select(['name'=>'addon_id', 'label'=>__('addon.category.createForm.addon'), 'value'=>@$this->addon_id, 'options'=>$addons]));
-        $form->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>@$this->name]));
+        $form->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>@$this->title]));
         $form->add(FormElement::text(['name'=>'value', 'label'=>__('addon.category.createForm.value'), 'value'=>@$this->value]));
         
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
@@ -79,7 +84,7 @@ class Categories extends AbstractAddon
     
     public function handleSettingsForm(Request $request) {
         $this->addon_id = $request->addon_id;
-        $this->name = $request->name;
+        $this->title = $request->title;
         $this->value = $request->value;
         
         $this->save();

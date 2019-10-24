@@ -2,12 +2,12 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Contact;
 
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
 
@@ -46,11 +46,12 @@ class Actions extends BlockLocation {
         
         Block\Contact::insert([
             'block_id' => $block->id,
-            'title' => $title = $this->faker->sentence,
             'channels' => '{"envelope":"'.$envelope.'","phone":"'.$phone.'","at":"'.$at.'"}'
         ]);
         
         $item = Block\Contact::all()->last();
+        $item->title = $title = $this->faker->sentence;
+        $item->save();
 
         if($assertion){
             $form = $item->form();
@@ -196,11 +197,12 @@ class Actions extends BlockLocation {
 
         Block\Contact::insert([
             'block_id' => $block->id,
-            'title' => $title = $this->faker->sentence,
             'channels' => '{"envelope":"'.$envelope.'","phone":"'.$phone.'","at":"'.$at.'"}'
         ]);
         
         $item = Block\Contact::all()->last();
+        $item->title = $title = $this->faker->sentence;
+        $item->save();
         
         $this->post("", [
             'block_id' => $block->id,

@@ -100,7 +100,7 @@ abstract class AbstractBlock extends Model
                     $this->{$addon->name} = $addonItem->value;
                 }
                 else{
-                    $this->{$addon->name} = [$addonItem->value => $addonItem->name];
+                    $this->{$addon->name} = [$addonItem->value => $addonItem->title];
                 }
             }
             else{
@@ -463,16 +463,16 @@ abstract class AbstractBlock extends Model
     /**
      * Return specific related block
      * 
-     * @param string $name type of related block
-     * @param string $title title of related block
+     * @param string $type type of related block
+     * @param string $name name of related block
      * @param int $id id of related block
      * @return Block|null
      */
-    public function relatedBlock($name, $title = null, $id = null) {
+    public function relatedBlock($type, $name = null, $id = null) {
         $relBlock = $this->belongsToMany(Block::class, $this->getTable().'_blocks', 'modelItem_id', 'block_id')
-                ->where('type', $name);
-        if(!is_null($title)){
-            $relBlock->where('title', $title);
+                ->where('type', $type);
+        if(!is_null($name)){
+            $relBlock->where('name', $name);
         }
         if(!is_null($id)){
             $relBlock->where('blocks.id', $id);

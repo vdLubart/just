@@ -27,7 +27,7 @@ class ChangeCategoryRequest extends FormRequest implements ValidateRequest
     {
         $rules = [
             'addon_id' => "required|integer",
-            "name" => "required",
+            "title" => "required",
             'value' => "required"
         ];
         

@@ -85,8 +85,3 @@ Route::get("admin/settings/password", "\Lubart\Just\Controllers\AdminController@
 Route::post("admin/settings/password/update", "\Lubart\Just\Controllers\AdminController@changePassword")->middleware(['web','auth']);
 Route::get("admin/settings/layout/default", "\Lubart\Just\Controllers\AdminController@defaultLayout")->middleware(['web','auth']);
 Route::post("admin/settings/layout/default/set", "\Lubart\Just\Controllers\AdminController@setDefaultLayout")->middleware(['web','auth']);
-
-Route::get('dev', function(){
-    $block = \Lubart\Just\Structure\Panel\Block::find(1400);
-   dd($block->super_parameters->object->key);
-});

@@ -3,13 +3,13 @@
 namespace Lubart\Just\Tests\Feature\Blocks\Articles;
 
 use App\User;
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
 
@@ -78,14 +78,14 @@ class Actions extends BlockLocation {
         $text = $this->faker->text;
         $image = uniqid();
         
-        Block\Articles::insert([
-            'block_id' => $block->id,
-            'subject' => $subject,
-            'slug' => str_slug($subject),
-            'summary' => $summary,
-            'text' => $text,
-            'image' => $image
-        ]);
+        $article = new Block\Articles();
+        $article->block_id = $block->id;
+        $article->subject = $subject;
+        $article->slug = str_slug($subject);
+        $article->summary = $summary;
+        $article->text = $text;
+        $article->image = $image;
+        $article->save();
         
         $item = Block\Articles::all()->last();
         
@@ -250,14 +250,14 @@ class Actions extends BlockLocation {
     public function access_created_item($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"article","settingsScale":"100","orderDirection":"desc"}')]);
 
-        Block\Articles::insert([
-            'block_id' => $block->id,
-            'subject' => $subject = $this->faker->sentence,
-            'slug' => str_slug($subject),
-            'summary' => $summary = $this->faker->text,
-            'text' => $text = $this->faker->text,
-            'image' => uniqid()
-        ]);
+        $article = new Block\Articles();
+        $article->block_id = $block->id;
+        $article->subject = $subject = $this->faker->sentence;
+        $article->slug = str_slug($subject);
+        $article->summary = $summary = $this->faker->text;
+        $article->text = $text = $this->faker->text;
+        $article->image = uniqid();
+        $article->save();
         
         $this->app['router']->get('article/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/article/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);

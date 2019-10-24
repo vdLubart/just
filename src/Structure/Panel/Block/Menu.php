@@ -7,9 +7,11 @@ use Lubart\Just\Requests\ChangeMenuRequest;
 use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use \Illuminate\Support\Facades\Route;
+use Spatie\Translatable\HasTranslations;
 
 class Menu extends AbstractBlock
 {
+    use HasTranslations;
     
     /**
      * The attributes that are mass assignable.
@@ -19,7 +21,9 @@ class Menu extends AbstractBlock
     protected $fillable = [
         'item', 'parent', 'route', 'url', 'orderNo', 'isActive'
     ];
-    
+
+    public $translatable = ['item'];
+
     protected $table = 'menus';
     
     protected $menu = [];

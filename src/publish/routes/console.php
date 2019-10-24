@@ -199,7 +199,6 @@ Artisan::command('make:relatedBlockMigration {name}', function () {
 
 Artisan::command('just:makeBlock {className}', function () {
     $className = ucfirst($this->argument("className"));
-    $description = $this->ask('Provide block description');
     $table = $this->ask('Enter block\'s database table');
     
     $lines = [];
@@ -237,14 +236,13 @@ Artisan::command('just:makeBlock {className}', function () {
         file_put_contents(base_path('resources/views/'.$theme->name.'/settings/' . lcfirst($className) . '.blade.php'), "<?php\n/*\nStandard list potentially can be used\n\n@include('Just.settings.list')\n*/\n?>");
     }
     
-    Illuminate\Support\Facades\DB::table('blockList')->insert([
+    \Lubart\Just\Models\BlockList::insert([
         'block' => lcfirst($className),
-        'title' => ucfirst($className),
-        'description' => $description,
         'table' => $table
     ]);
     
     $this->info('Block was created successfully!');
+    $this->info('Please update your language pack and add title and description for this block');
     
 })->describe('Create custom block');
 
@@ -289,7 +287,6 @@ Artisan::command('just:createTheme {themeName}', function () {
 
 Artisan::command('just:makeAddon {className}', function () {
     $className = ucfirst($this->argument("className"));
-    $description = $this->ask('Provide addon description');
     $table = $this->ask('Enter addon\'s database table');
     
     $lines = [];
@@ -331,13 +328,12 @@ Artisan::command('just:makeAddon {className}', function () {
 
     file_put_contents(app_path('Just/Panel/Block/Addon/' . $className . ".php"), implode("\n", $lines));
     
-    Illuminate\Support\Facades\DB::table('addonList')->insert([
+    \Lubart\Just\Models\AddonList::insert([
         'addon' => lcfirst($className),
-        'title' => ucfirst($className),
-        'description' => $description,
         'table' => $table
     ]);
     
     $this->info('Addon was created successfully!');
+    $this->info('Please update your language pack and add title and description for this addon');
     
 })->describe('Create custom addon');

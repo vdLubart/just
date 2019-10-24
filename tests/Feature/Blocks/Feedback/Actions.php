@@ -2,14 +2,14 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Feedback;
 
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Models\User;
 use Illuminate\Support\Facades\Notification;
 use Lubart\Just\Notifications\NewFeedback;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
 

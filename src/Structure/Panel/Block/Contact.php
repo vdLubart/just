@@ -7,9 +7,11 @@ use Lubart\Form\FormGroup;
 use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use Lubart\Form\FormElement;
+use Spatie\Translatable\HasTranslations;
 
 class Contact extends AbstractBlock
 {
+    use HasTranslations;
     
     /**
      * The attributes that are mass assignable.
@@ -17,7 +19,13 @@ class Contact extends AbstractBlock
      * @var array
      */
     protected $fillable = [
-        'title', 'channels', 'orderNo', 'isActive'
+        'title', 'orderNo', 'isActive'
+    ];
+
+    public $translatable = ['title'];
+
+    protected $casts = [
+        'channels' => 'object'
     ];
     
     protected $table = 'contacts';
@@ -69,10 +77,8 @@ class Contact extends AbstractBlock
         
         $this->form->add(FormElement::text(['name'=>'title', 'label'=>__('contact.office'), 'value'=>@$this->title]));
 
-        $channels = json_decode($this->channels);
-
         foreach($this->allChannels() as $icon=>$label){
-            $this->form->add(FormElement::text(['name'=>$icon, 'label'=>$label, 'value'=>@$channels->{$icon}]));
+            $this->form->add(FormElement::text(['name'=>$icon, 'label'=>$label, 'value'=>@$this->channels->{$icon}]));
         }
         
         $this->includeAddons();
@@ -103,16 +109,16 @@ class Contact extends AbstractBlock
     }
     
     public function handleForm(ValidateRequest $request) {
-        if (is_null($request->get('id'))) {
+        if (is_null($request->id)) {
             $contact = new Contact;
-            $contact->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->get('block_id')]);
-            $contact->setBlock($request->get('block_id'));
+            $contact->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->block_id]);
+            $contact->setBlock($request->block_id);
         }
         else{
-            $contact = Contact::findOrNew($request->get('id'));
+            $contact = Contact::findOrNew($request->id);
         }
 
-        $contact->title = $request->get('title');
+        $contact->title = $request->title;
         $channels = new \stdClass();
         foreach($request->all() as $channel=>$val){
             if(in_array($channel, array_keys($this->allChannels()))) {
@@ -120,7 +126,7 @@ class Contact extends AbstractBlock
             }
         }
 
-        $contact->channels = json_encode($channels);
+        $contact->channels = $channels;
         
         $contact->save();
         
@@ -161,13 +167,12 @@ class Contact extends AbstractBlock
     }
 
     public function contacts() {
-        $channels = json_decode($this->channels);
         $contacts = [];
 
         foreach($this->allChannels() as $icon=>$label){
             $contacts[$icon] = [
                 'label' => $label,
-                'value' => @$channels->{$icon}
+                'value' => @$this->channels->{$icon}
             ];
         }
 

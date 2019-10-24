@@ -12,6 +12,7 @@ class Actions extends TestCase{
     use WithFaker;
     
     protected function tearDown(): void{
+
         foreach(Route::all() as $route){
             if($route->route != ""){
                 $route->delete();
@@ -23,7 +24,7 @@ class Actions extends TestCase{
                 $page->delete();
             }
         }
-        
+
         parent::tearDown();
     }
     
@@ -156,10 +157,10 @@ class Actions extends TestCase{
             "route" => $page1->route,
             "layout_id" => 1
         ]);
-        
+
         $page1 = Page::find($page1->id);
         $page2 = Page::find($page2->id);
-        
+
         if($assertion){
             $this->assertEquals($keywords, $page1->keywords);
             $this->assertEquals($author, $page1->author);

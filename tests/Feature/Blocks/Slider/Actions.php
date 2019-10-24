@@ -2,14 +2,14 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Slider;
 
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
 use Lubart\Just\Models\User;
 use Intervention\Image\ImageManagerStatic as Image;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
 

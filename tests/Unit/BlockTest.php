@@ -42,15 +42,17 @@ class BlockTest extends TestCase
     function get_all_block_models(){
         $block = factory(Block::class)->create(['name'=>$name = $this->faker->word]);
 
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+        $textItem = new Block\Text();
+        $textItem->block_id = $block->id;
+        $textItem->text = $this->faker->paragraph;
 
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+        $textItem->save();
+
+        $textItem = new Block\Text();
+        $textItem->block_id = $block->id;
+        $textItem->text = $this->faker->paragraph;
+
+        $textItem->save();
 
         $this->assertCount(2, $block->models);
     }

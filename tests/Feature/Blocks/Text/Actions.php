@@ -2,12 +2,12 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Text;
 
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
 
@@ -33,12 +33,13 @@ class Actions extends BlockLocation {
         $block = $this->setupBlock();
         
         $text = $this->faker->paragraph;
-        
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $text,
-        ]);
-        
+
+        $textBlock = new Block\Text();
+        $textBlock->block_id = $block->id;
+        $textBlock->text = $text;
+
+        $textBlock->save();
+
         $item = Block\Text::all()->last();
         
         if($assertion){
@@ -132,11 +133,12 @@ class Actions extends BlockLocation {
     
     public function edit_existing_item_in_the_block($assertion){
         $block = $this->setupBlock();
-        
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+
+        $textBlock = new Block\Text();
+        $textBlock->block_id = $block->id;
+        $textBlock->text = $this->faker->paragraph;
+
+        $textBlock->save();
         
         $item = Block\Text::all()->last();
         

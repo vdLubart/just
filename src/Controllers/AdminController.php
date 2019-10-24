@@ -173,10 +173,10 @@ class AdminController extends Controller
     public function categoryList() {
         $categories = Categories::join("addons", "categories.addon_id", "=", "addons.id")
                 ->join("blocks", "addons.block_id", "=", "blocks.id")
-                ->select(['categories.*', DB::raw("addons.title as addonTitle"), DB::raw("blocks.type as blockType"), DB::raw("blocks.title as blockTitle")])
+                ->select(['categories.*', DB::raw("addons.title->>'$.".(\App::getLocale())."' as addonTitle"), DB::raw("blocks.type as blockType"), DB::raw("blocks.title->>'$.".(\App::getLocale())."' as blockTitle")])
                 ->orderBy("addons.id", "desc")
                 ->get();
-        
+
         return view(viewPath(Theme::active()->layout, 'categoryList'))->with(['categories'=>$categories, 'currentId' => 0]);
     }
     
@@ -542,14 +542,15 @@ class AdminController extends Controller
         $parentBlock = Block::find($request->block_id);
         $model = $parentBlock->specify($request->id)->model();
         
-        $relatedBlock = Block::create([
-            'type' => $request->relatedBlockName,
-            'title' => $request->title?$request->title:"",
-            'description' => $request->description?$request->description:"",
-            'orderNo' => 0,
-            'parent' => $parentBlock->id
-        ]);
-        
+        $relatedBlock = new Block();
+        $relatedBlock->type = $request->relatedBlockName;
+        $relatedBlock->title = $request->title?$request->title:"";
+        $relatedBlock->description = $request->description?$request->description:"";
+        $relatedBlock->orderNo = 0;
+        $relatedBlock->parent = $parentBlock->id;
+
+        $relatedBlock->save();
+
         Block::createPivotTable($model->getTable());
         
         DB::table($model->getTable()."_blocks")->insert([

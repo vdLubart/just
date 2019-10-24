@@ -10,10 +10,12 @@ use Lubart\Just\Tools\Useful;
 use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Just\Structure\Page;
 use Lubart\Just\Tools\Slug;
+use Spatie\Translatable\HasTranslations;
 
 class Articles extends AbstractBlock
 {
    use Slug;
+   use HasTranslations;
 
     /**
      * The attributes that are mass assignable.
@@ -21,10 +23,12 @@ class Articles extends AbstractBlock
      * @var array
      */
     protected $fillable = [
-        'subject', 'slug', 'summary', 'text', 'image'
+        'subject', 'summary', 'text', 'slug', 'image'
     ];
     
     protected $table = 'articles';
+
+    public $translatable = ['subject', 'summary', 'text'];
 
     protected $neededParameters = [ 'itemRouteBase' ];
 

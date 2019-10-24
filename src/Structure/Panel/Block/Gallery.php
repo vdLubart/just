@@ -8,9 +8,12 @@ use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
+use Spatie\Translatable\HasTranslations;
 
 class Gallery extends AbstractBlock
 {
+
+    use HasTranslations;
     
     /**
      * The attributes that are mass assignable.
@@ -20,6 +23,8 @@ class Gallery extends AbstractBlock
     protected $fillable = [
         'caption', 'description', 'image', 'block_id'
     ];
+
+    public $translatable = ['caption', 'description'];
     
     protected $table = 'photos';
     

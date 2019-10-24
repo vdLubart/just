@@ -18,10 +18,11 @@ use Lubart\Just\Tools\Useful;
 use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Just\Structure\Page;
 use Lubart\Just\Tools\Slug;
+use Spatie\Translatable\HasTranslations;
 
 class Events extends AbstractBlock implements ContainsPublicForm
 {
-
+    use HasTranslations;
     use Slug;
     
     /**
@@ -30,12 +31,14 @@ class Events extends AbstractBlock implements ContainsPublicForm
      * @var array
      */
     protected $fillable = [
-        'subject', 'summary', 'text', 'image', 'date_start', 'date_end', 'location'
+        'subject', 'summary', 'text', 'location', 'image', 'date_start', 'date_end'
     ];
     
     protected $table = 'events';
     
     protected $registerUrl = 'register-event';
+
+    public $translatable = ['subject', 'summary', 'text', 'location'];
 
     protected $neededParameters = [ 'itemRouteBase' ];
 

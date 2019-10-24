@@ -8,9 +8,12 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Lubart\Form\Form;
 use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Tools\Useful;
+use Spatie\Translatable\HasTranslations;
 
 class Logo extends AbstractBlock
 {
+
+    use HasTranslations;
     
     /**
      * The attributes that are mass assignable.
@@ -20,6 +23,8 @@ class Logo extends AbstractBlock
     protected $fillable = [
         'image', 'caption', 'description'
     ];
+
+    public $translatable = ['caption', 'description'];
     
     protected $table = 'logos';
     

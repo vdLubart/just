@@ -14,7 +14,7 @@ use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Structure\Panel\Block\Text;
 use Tests\TestCase;
 
-class BlockLocation extends TestCase {
+class LocationBlock extends TestCase {
 
     protected $blockParams = [];
 
@@ -33,10 +33,11 @@ class BlockLocation extends TestCase {
     public function relatedBlock() {
         $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
 
-        Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+        $textBlock = new Block\Text();
+        $textBlock->block_id = $block->id;
+        $textBlock->text = $this->faker->paragraph;
+
+        $textBlock->save();
 
         $this->blockParams = ['panelLocation'=>null, 'page_id'=>null, 'type'=>$this->type, 'parent'=>$block->id];
 
@@ -51,6 +52,8 @@ class BlockLocation extends TestCase {
             $relatedBlock = factory(Block::class)->create($blockAttrib + $this->blockParams)->specify();
 
             $item = Text::all()->last();
+
+            Block::createPivotTable($item->getTable());
 
             DB::table('texts_blocks')->insert([
                 'modelItem_id' => $item->id,

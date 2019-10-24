@@ -6,12 +6,17 @@ use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Just\Structure\Panel\Block\Addon;
 use Illuminate\Http\Request;
+use Spatie\Translatable\HasTranslations;
 
 class Strings extends AbstractAddon
 {
+    use HasTranslations;
+
     protected $table = 'strings';
     
     protected $fillable = ['addon_id', 'value'];
+
+    public $translatable = ['value'];
     
     /**
      * Update existing settings form and add new elements

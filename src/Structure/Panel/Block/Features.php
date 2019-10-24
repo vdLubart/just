@@ -12,9 +12,11 @@ use Illuminate\Http\Request;
 use Lubart\Just\Models\Route as JustRoute;
 use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Just\Structure\Panel\Block;
+use Spatie\Translatable\HasTranslations;
 
 class Features extends AbstractBlock
 {
+    use HasTranslations;
     
     /**
      * The attributes that are mass assignable.
@@ -24,7 +26,9 @@ class Features extends AbstractBlock
     protected $fillable = [
         'icon_id', 'title', 'description', 'link', 'orderNo', 'isActive'
     ];
-    
+
+    public $translatable = ['title', 'description'];
+
     protected $table = 'features';
 
     protected $neededParameters = [ 'itemsInRow' ];

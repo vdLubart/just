@@ -7,7 +7,25 @@ return [
         'addon' => 'Додаток',
         'block' => 'Блок'
     ],
-    'list' => 'Список додатків',
+    'listTitle' => 'Список додатків',
+    'list' => [
+        'categories' => [
+            'title' => 'Категорії',
+            'description' => 'Допомагає категоризувати блок'
+        ],
+        'images' => [
+            'title' => 'Додаткове зображення',
+            'description' => 'Додає зображення до елемента'
+        ],
+        'paragraphs' => [
+            'title' => 'Додатковий текст',
+            'description' => 'Додає текстове поле до елемента'
+        ],
+        'strings' => [
+            'title' => 'Текстове значення',
+            'description' => 'Додає рядок до елемента'
+        ]
+    ],
     'addonLocation' => ':addon у блоці :block на сторінці :page',
     'category' => [
         'title' => 'Категорії',

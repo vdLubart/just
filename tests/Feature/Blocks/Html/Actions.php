@@ -2,11 +2,11 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Html;
 
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
 
@@ -31,23 +31,20 @@ class Actions extends BlockLocation {
     public function access_edit_item_form($assertion){
         $block = $this->setupBlock();
         
-        $text = $this->faker->paragraph;
-        
-        Block\Html::insert([
-            'block_id' => $block->id,
-            'text' => $text,
-        ]);
-        
-        $item = Block\Html::all()->last();
-        
+        $htmlItem = new Block\Text();
+        $htmlItem->block_id = $block->id;
+        $htmlItem->text = $text = $this->faker->paragraph;
+
+        $htmlItem->save();
+
         if($assertion){
-            $form = $item->form();
+            $form = $htmlItem->form();
             $this->assertEquals(2, $form->count());
             $this->assertEquals(['text', 'submit'], array_keys($form->getElements()));
             $this->assertEquals($text, $form->getElement('text')->value());
         }
         else{
-            $this->assertNull($item->form());
+            $this->assertNull($htmlItem->form());
         }
     }
 
@@ -146,29 +143,28 @@ class Actions extends BlockLocation {
     
     public function edit_existing_item_in_the_block($assertion){
         $block = $this->setupBlock();
-        
-        Block\Html::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
-        
-        $item = Block\Html::all()->last();
-        
+
+        $htmlItem = new Block\Text();
+        $htmlItem->block_id = $block->id;
+        $htmlItem->text = $this->faker->paragraph;
+
+        $htmlItem->save();
+
         $text = $this->faker->paragraph;
         
         $this->post("", [
             'block_id' => $block->id,
-            'id' => $item->id,
+            'id' => $htmlItem->id,
             'text' => $text
         ]);
         
-        $item = Block\Html::all()->last();
+        $htmlItem = Block\Html::all()->last();
         
         if($assertion){
-            $this->assertEquals($text, $item->text);
+            $this->assertEquals($text, $htmlItem->text);
         }
         else{
-            $this->assertNotEquals($text, $item->text);
+            $this->assertNotEquals($text, $htmlItem->text);
         }
     }
     

@@ -2,12 +2,12 @@
 
 namespace Lubart\Just\Tests\Feature\Blocks\Menu;
 
-use Lubart\Just\Tests\Feature\Blocks\BlockLocation;
+use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Models\Route;
 
-class Actions extends BlockLocation {
+class Actions extends LocationBlock {
     
     use WithFaker;
 
@@ -38,15 +38,16 @@ class Actions extends BlockLocation {
     
     public function access_edit_item_form($assertion){
         $block = $this->setupBlock();
-        
-        Block\Menu::insert([
-            'block_id' => $block->id,
-            'item' => $menuItem = $this->faker->word,
-            'parent' => null,
-            'route' => '',
-            'url' => ''
-        ]);
-        
+
+        $item = new Block\Menu();
+        $item->block_id = $block->id;
+        $item->item = $menuItem = $this->faker->word;
+        $item->parent = null;
+        $item->route = '';
+        $item->url = '';
+
+        $item->save();
+
         $item = Block\Menu::all()->last();
         
         if($assertion){
@@ -260,14 +261,15 @@ class Actions extends BlockLocation {
     
     public function edit_existing_item_in_the_block($assertion){
         $block = $this->setupBlock();
-        
-        Block\Menu::insert([
-            'block_id' => $block->id,
-            'item' => $this->faker->word,
-            'parent' => null,
-            'route' => '',
-            'url' => null
-        ]);
+
+        $item = new Block\Menu();
+        $item->block_id = $block->id;
+        $item->item = $menuItem = $this->faker->word;
+        $item->parent = null;
+        $item->route = '';
+        $item->url = '';
+
+        $item->save();
         
         $item = Block\Menu::all()->last();
         
@@ -329,58 +331,63 @@ class Actions extends BlockLocation {
     public function change_items_order_in_the_block($assertion){
         $block = $this->setupBlock();
 
-        Block\Menu::insert([
-            'block_id' => $block->id,
-            'item' => $this->faker->word,
-            'parent' => null,
-            'route' => '',
-            'url' => null,
-            'orderNo' => 1
-        ]);
+        $item = new Block\Menu();
+        $item->block_id = $block->id;
+        $item->item = $this->faker->word;
+        $item->parent = null;
+        $item->route = '';
+        $item->url = null;
+        $item->orderNo = 1;
 
-        Block\Menu::insert([
-            'block_id' => $block->id,
-            'item' => $this->faker->word,
-            'parent' => null,
-            'route' => '',
-            'url' => null,
-            'orderNo' => 2
-        ]);
+        $item->save();
+
+        $item = new Block\Menu();
+        $item->block_id = $block->id;
+        $item->item = $this->faker->word;
+        $item->parent = null;
+        $item->route = '';
+        $item->url = null;
+        $item->orderNo = 2;
+
+        $item->save();
 
         $items = Block\Menu::where('block_id', $block->id)->get();
         $firstItem = $items->first();
         $secondItem = $items->last();
 
-        Block\Menu::insert([
-            'block_id' => $block->id,
-            'item' => $this->faker->word,
-            'parent' => $secondItem->id,
-            'route' => '',
-            'url' => null,
-            'orderNo' => 1
-        ]);
+        $item = new Block\Menu();
+        $item->block_id = $block->id;
+        $item->item = $this->faker->word;
+        $item->parent = $secondItem->id;
+        $item->route = '';
+        $item->url = null;
+        $item->orderNo = 1;
 
-        Block\Menu::insert([
-            'block_id' => $block->id,
-            'item' => $this->faker->word,
-            'parent' => $secondItem->id,
-            'route' => '',
-            'url' => null,
-            'orderNo' => 2
-        ]);
+        $item->save();
+
+        $item = new Block\Menu();
+        $item->block_id = $block->id;
+        $item->item = $this->faker->word;
+        $item->parent = $secondItem->id;
+        $item->route = '';
+        $item->url = null;
+        $item->orderNo = 2;
+
+        $item->save();
 
         $secondItems = Block\Menu::where('block_id', $block->id)->where('parent', $secondItem->id)->get();
         $second_firstItem = $secondItems->first();
         $second_secondItem = $secondItems->last();
 
-        Block\Menu::insert([
-            'block_id' => $block->id,
-            'item' => $this->faker->word,
-            'parent' => null,
-            'route' => '',
-            'url' => null,
-            'orderNo' => 3
-        ]);
+        $item = new Block\Menu();
+        $item->block_id = $block->id;
+        $item->item = $this->faker->word;
+        $item->parent = null;
+        $item->route = '';
+        $item->url = null;
+        $item->orderNo = 3;
+
+        $item->save();
 
         $items = Block\Menu::where('block_id', $block->id)->get();
         $thirdItem = $items->last();

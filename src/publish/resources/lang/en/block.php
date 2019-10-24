@@ -48,5 +48,67 @@ return [
         'edit' => 'Edit Related Block',
         'create' => 'Create Related Block'
     ],
-    'untitled' => 'Untitled'
+    'untitled' => 'Untitled',
+    'list' => [
+        'articles' => [
+            'title' => 'Articles',
+            'description' => 'Blog or newsline with set of articles'
+        ],
+        'contact' => [
+            'title' => 'Contact',
+            'description' => 'Shows contact information'
+        ],
+        'events' => [
+            'title' => 'Events',
+            'description' => 'Adds event block to the page'
+        ],
+        'features' => [
+            'title' => 'Feature',
+            'description' => 'Adds short feature description with icon'
+        ],
+        'feedback' => [
+            'title' => 'Feedback',
+            'description' => 'Adds feedback form to the website'
+        ],
+        'gallery' => [
+            'title' => 'Photo Gallery',
+            'description' => 'Shows photo gallery on the website'
+        ],
+        'html' => [
+            'title' => 'HTML Block',
+            'description' => 'Adds HTML piece of code'
+        ],
+        'langs' => [
+            'title' => 'Languages',
+            'description' => 'Makes localizations available'
+        ],
+        'link' => [
+            'title' => 'Link',
+            'description' => 'Shows data from other blocks'
+        ],
+        'logo' => [
+            'title' => 'Logo',
+            'description' => 'Website logo'
+        ],
+        'menu' => [
+            'title' => 'Menu',
+            'description' => 'Menu builder'
+        ],
+        'slider' => [
+            'title' => 'Slider',
+            'description' => 'Adds image slider with or without text descriptions'
+        ],
+        'space' => [
+            'title' => 'Empty Space',
+            'description' => 'Adds empty space with fixed height'
+        ],
+        'text' => [
+            'title' => 'Text',
+            'description' => 'Adds well-formatted text with the caption to the website'
+        ],
+        'twitter' => [
+            'title' => 'Twitter',
+            'description' => 'Adds Twitter block to the website'
+        ]
+    ]
 ];

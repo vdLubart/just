@@ -159,11 +159,12 @@ class Actions extends TestCase{
     
     public function deactivate_block($assertion){
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text'])->specify();
-        
-        Block\Text::insert([
-            'block_id' => $textBlock->id,
-            'text' => $text = $this->faker->paragraph
-        ]);
+
+        $block = new Block\Text();
+        $block->block_id = $textBlock->id;
+        $block->text = $text = $this->faker->paragraph;
+
+        $block->save();
         
         $this->post("/admin/deactivate", [
             "block_id" => $textBlock->id,
@@ -192,11 +193,12 @@ class Actions extends TestCase{
     
     public function activate_block($assertion){
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text', 'isActive'=>0])->specify();
-        
-        Block\Text::insert([
-            'block_id' => $textBlock->id,
-            'text' => $text = $this->faker->paragraph
-        ]);
+
+        $block = new Block\Text();
+        $block->block_id = $textBlock->id;
+        $block->text = $text = $this->faker->paragraph;
+
+        $block->save();
         
         $this->post("/admin/activate", [
             "block_id" => $textBlock->id,
@@ -225,11 +227,12 @@ class Actions extends TestCase{
     
     public function delete_block($assertion){
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text'])->specify();
-        
-        Block\Text::insert([
-            'block_id' => $textBlock->id,
-            'text' => $text = $this->faker->paragraph
-        ]);
+
+        $block = new Block\Text();
+        $block->block_id = $textBlock->id;
+        $block->text = $text = $this->faker->paragraph;
+
+        $block->save();
         
         $this->post("/admin/delete", [
             "block_id" => $textBlock->id,
@@ -252,17 +255,18 @@ class Actions extends TestCase{
         $items = function() use ($block){
             $items = [];
             for($i=1; $i<=3; $i++){
-                $items[] = [
-                    'block_id' => $block->id,
-                    'text' => $this->faker->paragraph,
-                    'orderNo' => $i
-                ];
+                $textblock = new Block\Text();
+                $textblock->block_id = $block->id;
+                $textblock->text = $this->faker->paragraph;
+                $textblock->orderNo = $i;
+
+                $textblock->save();
             }
             
             return $items;
         };
-        
-        Block\Text::insert($items());
+
+        $items();
         
         $firstItem = Block\Text::first();
         $lastItem = Block\Text::all()->last();
@@ -271,7 +275,7 @@ class Actions extends TestCase{
         $this->assertEquals(3, $lastItem->orderNo);
         
         // test moving item up
-        $r = $this->post('admin/moveup', [
+        $this->post('admin/moveup', [
             'block_id' => $block->id,
             'id' => $lastItem->id
         ]);
@@ -339,11 +343,12 @@ class Actions extends TestCase{
     
     public function deactivate_item_in_the_block($assertion){
         $block = factory(Block::class)->create();
-        
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+
+        $textBlock = new Block\Text();
+        $textBlock->block_id = $block->id;
+        $textBlock->text = $text = $this->faker->paragraph;
+
+        $textBlock->save();
         
         $item = Block\Text::first();
         
@@ -379,11 +384,12 @@ class Actions extends TestCase{
     
     public function delete_item_in_the_block($assertion){
         $block = factory(Block::class)->create();
-        
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+
+        $textBlock = new Block\Text();
+        $textBlock->block_id = $block->id;
+        $textBlock->text = $text = $this->faker->paragraph;
+
+        $textBlock->save();
         
         $item = Block\Text::first();
         
@@ -443,11 +449,12 @@ class Actions extends TestCase{
     
     public function add_related_block_to_the_item($assertion){
         $block = factory(Block::class)->create()->specify();
-        
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+
+        $textblock = new Block\Text();
+        $textblock->block_id = $block->id;
+        $textblock->text = $text = $this->faker->paragraph;
+
+        $textblock->save();
         
         $item = Block\Text::all()->last();
         
@@ -475,11 +482,12 @@ class Actions extends TestCase{
     
     public function add_item_to_related_block($assertion){
         $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
-        
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+
+        $textblock = new Block\Text();
+        $textblock->block_id = $block->id;
+        $textblock->text = $text = $this->faker->paragraph;
+
+        $textblock->save();
         
         $item = Block\Text::all()->last();
         
@@ -525,38 +533,41 @@ class Actions extends TestCase{
     
     public function access_data_from_related_block(){
         $block = factory(Block::class)->create()->specify();
-        
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+
+        $textblock = new Block\Text();
+        $textblock->block_id = $block->id;
+        $textblock->text = $this->faker->paragraph;
+
+        $textblock->save();
         
         $item = Block\Text::all()->last();
         
-        $relatedBlock = factory(Block::class)->create(['panelLocation'=>null, 'page_id'=>null, 'parent'=>$block->id, 'title'=>$title = $this->faker->sentence])->specify();
+        $relatedBlock = factory(Block::class)->create(['panelLocation'=>null, 'page_id'=>null, 'parent'=>$block->id, 'name'=>$name = $this->faker->word])->specify();
         
         DB::table('texts_blocks')->insert([
             'modelItem_id' => $item->id,
             'block_id' => $relatedBlock->id
         ]);
-        
-        Block\Text::insert([
-            'block_id' => $relatedBlock->id,
-            'text' => $relText = $this->faker->paragraph,
-        ]);
-        
-        $this->assertEquals($relText, $item->relatedBlock('text', $title)->firstItem()->text);
+
+        $relTextblock = new Block\Text();
+        $relTextblock->block_id = $relatedBlock->id;
+        $relTextblock->text = $relText = $this->faker->paragraph;
+
+        $relTextblock->save();
+
+        $this->assertEquals($relText, $item->relatedBlock('text', $name)->firstItem()->text);
         $this->assertEquals($relText, $item->relatedBlock('text', null, $relatedBlock->id)->firstItem()->text);
         $this->assertNull($item->relatedBlock('text', null, 0));
     }
     
     public function access_parent_block_from_the_related_one(){
         $block = factory(Block::class)->create()->specify();
-        
-        Block\Text::insert([
-            'block_id' => $block->id,
-            'text' => $this->faker->paragraph,
-        ]);
+
+        $textblock = new Block\Text();
+        $textblock->block_id = $block->id;
+        $textblock->text = $text = $this->faker->paragraph;
+
+        $textblock->save();
         
         $item = Block\Text::all()->last();
         
@@ -566,11 +577,12 @@ class Actions extends TestCase{
             'modelItem_id' => $item->id,
             'block_id' => $relatedBlock->id
         ]);
-        
-        Block\Text::insert([
-            'block_id' => $relatedBlock->id,
-            'text' => $relText = $this->faker->paragraph,
-        ]);
+
+        $relTextblock = new Block\Text();
+        $relTextblock->block_id = $relatedBlock->id;
+        $relTextblock->text = $relText = $this->faker->paragraph;
+
+        $relTextblock->save();
         
         $this->assertCount(1, $block->firstItem()->relatedBlocks);
         $this->assertEquals($relatedBlock->parentBlock()->id, $block->id);

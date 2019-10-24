@@ -5,6 +5,8 @@ namespace Lubart\Just\Structure\Panel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Lubart\Just\Models\BlockList;
+use Spatie\Translatable\HasTranslations;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Lubart\Form\FormElement;
 use Lubart\Just\Structure\Panel;
@@ -19,7 +21,9 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
 
 class Block extends Model
-{   
+{
+    use HasTranslations;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -32,6 +36,8 @@ class Block extends Model
     protected $casts = [
         'parameters' => 'object'
     ];
+
+    public $translatable = ['title', 'description'];
     
     protected $table = 'blocks';
     
@@ -143,8 +149,8 @@ class Block extends Model
             }
             $form->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>@$this->name]));
             $form->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>@$this->title]));
-            $form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>@$this->description, "class"=>"ckeditor"]));
-            $form->applyJS("$(document).ready(function(){CKEDITOR.replace('description') });");
+            $form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>@$this->description, "class"=>"ckeditor", "id"=>"description"]));
+            $form->applyJS("$(document).ready(function(){CKEDITOR.replace('description');});");
             $form->add(FormElement::select(['name'=>'width', 'label'=>__('block.form.width'), 'value'=>$this->width ?? 12, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
             if(\Auth::user()->role == "master"){
                 $form->add(FormElement::text(['name'=>'layoutClass', 'label'=>__('block.form.layoutClass'), 'value'=>$this->layoutClass ?? 'primary']));
@@ -164,13 +170,11 @@ class Block extends Model
     }
     
     public function allBlocksSelect() {
-        $blocks = DB::table('blockList')
-                ->select('block', 'title')
-                ->get()->toArray();
+        $blocks = BlockList::all();
         
         $select = [];
         foreach($blocks as $block){
-            $select[$block->block] = $block->title;
+            $select[$block->block] = __('block.list.'.$block->block.'.title');
         }
         
         return $select;

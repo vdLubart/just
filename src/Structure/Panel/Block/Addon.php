@@ -6,18 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 use Lubart\Form\Form;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Lubart\Just\Models\AddonList;
 use Lubart\Just\Structure\Panel\Block;
 use Illuminate\Support\Facades\DB;
 use Lubart\Form\FormElement;
 use Lubart\Just\Tools\Useful;
 use Illuminate\Support\Facades\Artisan;
 use Lubart\Just\Requests\AddonChangeRequest;
+use Spatie\Translatable\HasTranslations;
 
 class Addon extends Model
-{   
+{
+    use HasTranslations;
+
     protected $table = 'addons';
     
     protected $fillable = ['block_id', 'type', 'name', 'title', 'description', 'orderNo', 'isActive', 'parameters'];
+
+    public $translatable = ['title', 'description'];
     
     /**
      * Class name of the current addon
@@ -101,8 +107,8 @@ class Addon extends Model
         $form = new Form('admin/settings/addon/setup');
         
         $addons = [];
-        foreach(DB::table('addonList')->get() as $addon){
-            $addons[$addon->addon] = $addon->title." - ".$addon->description;
+        foreach(AddonList::all() as $addon){
+            $addons[$addon->addon] = __('addon.list.'.$addon->addon.'.title') ." - ".__('addon.list.'.$addon->addon.'.description');
         }
         $blocks = [];
         foreach(Block::all() as $block){
@@ -118,7 +124,7 @@ class Addon extends Model
             $form->getElement("block_id")->setParameters("disabled", "disabled");
         }
         $form->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>@$this->title]));
-        $form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>@$this->description]));
+        $form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>@$this->description, 'id'=>'description']));
         $form->applyJS("CKEDITOR.replace('description');");
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
@@ -136,7 +142,7 @@ class Addon extends Model
             $this->orderNo = Useful::getMaxNo('addons', ['block_id'=>$request->block_id]);
             
             $modelTable = Block::find($request->block_id)->specify()->model()->getTable();
-            $addonTable = DB::table('addonList')->where('addon', $request->type)->first()->table;
+            $addonTable = AddonList::where('addon', $request->type)->first()->table;
             
             $this->createPivotTable($modelTable, $addonTable);
         }
