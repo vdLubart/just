@@ -10,6 +10,7 @@ use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Just\Requests\UserChangeRequest;
 use App\User as AppUser;
+use Illuminate\Support\Facades\Auth;
 
 class User extends AppUser
 {
@@ -83,5 +84,31 @@ class User extends AppUser
         }
         
         $this->save();
+    }
+
+    /**
+     * Check if user has admin rights. User should has admin or master role
+     *
+     * @return bool
+     */
+    public function isAdmin(){
+        return in_array($this->role, ['admin', 'master']);
+    }
+
+    /**
+     * Check if user has master access rights
+     *
+     * @return bool
+     */
+    public function isMaster() {
+        return $this->role === 'master';
+    }
+
+    public static function authAsAdmin() {
+        return Auth::check() and User::find(Auth::id())->isAdmin();
+    }
+
+    public static function authAsMaster(){
+        return Auth::check() and User::find(Auth::id())->isMaster();
     }
 }

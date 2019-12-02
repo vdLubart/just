@@ -14,34 +14,34 @@ return [
 
     'layouts' => [
         'top' => 'Layouts',
-        'create' => 'Create layout',
-        'default' => 'Default layout',
-        'list' => 'Layout list',
-        'settings' => 'Layout settings'
+        'create' => 'Create Layout',
+        'default' => 'Default Layout',
+        'list' => 'Layout List',
+        'settings' => 'Layout Settings'
     ],
     'pages' => [
         'top' => 'Pages',
-        'create' => 'Create page',
-        'list' => 'Page list',
-        'settings' => 'Page settings'
+        'create' => 'Create Page',
+        'list' => 'Page List',
+        'settings' => 'Page Settings'
     ],
     'categories' => [
         'top' => 'Categories',
-        'create' => 'Create category',
-        'list' => 'Category list'
+        'create' => 'Create Category',
+        'list' => 'Category List'
     ],
     'addons' => [
         'top' => 'Addons',
-        'add' => 'Add addon',
-        'list' => 'Addon list'
+        'add' => 'Add Addon',
+        'list' => 'Addon List'
     ],
     'users' => [
         'top' => 'Users',
-        'add' => 'Add user',
-        'list' => 'User list'
+        'add' => 'Add User',
+        'list' => 'User List'
     ],
     'user' => [
-        'changePassword' => 'Change password',
+        'changePassword' => 'Change Password',
         'logout' => 'Logout'
     ]
 ];

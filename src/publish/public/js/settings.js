@@ -1,3 +1,28 @@
+/**
+ * Open settings modal
+ *
+ * @param String url
+ */
+function openSettings(event){
+    event.preventDefault();
+
+    let url = $(event.target).attr('href');
+    $("#settings").css("display", "block");
+
+    $.ajax({
+        url: url,
+        success: function(data){
+            $("#settings").html(data);
+        },
+        error: function(data){
+            console.log("Cannot get settings data.");
+            console.log(data);
+            showErrors(data);
+        }
+    });
+}
+
+
 /*
  * Open settings for blocks, pages, layouts and addons
  * 
@@ -5,7 +30,7 @@
  * @param number modelId id for block, page, layout or addon
  * @returns {undefined}
  */
-function openSettings(blockId, modelId){
+function openBlockSettings(blockId, modelId){
     $("#settings").css("display", "block");
 
     $.ajax({
@@ -65,11 +90,11 @@ function openPanelSettings(pageId, panelLocation, blockId){
     });
 }
 
-function openList(item){
+function openList(url){
     $("#settings").css("display", "block");
 
     $.ajax({
-        url: "/admin/settings/"+item+"/list",
+        url: url,
         success: function(data){
             $("#settings").html(data);
         },

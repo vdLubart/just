@@ -7,12 +7,10 @@ use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Structure\Panel;
 use Lubart\Just\Tools\AjaxUploader;
 use Lubart\Just\Tools\Useful;
-use Lubart\Just\Structure\Page;
+use Lubart\Just\Models\Page;
 use Lubart\Just\Structure\Layout;
 use Lubart\Just\Structure\Panel\Block\Addon;
 use Intervention\Image\ImageManagerStatic as Image;
-use Lubart\Just\Requests\ChangeLayoutRequest;
-use Lubart\Just\Requests\ChangePageRequest;
 use Illuminate\Support\Facades\DB;
 use Lubart\Just\Requests\UploadImageRequest;
 use Lubart\Just\Models\User;
@@ -80,38 +78,6 @@ class AdminController extends Controller
         }
         
         return view(viewPath(Theme::active()->layout, 'panelSettings'))->with(['panel'=>$panel, 'block'=>$block]);
-    }
-    
-    public function pageSettingsForm($pageId) {
-        $page = Page::findOrNew($pageId);
-        
-        return view(viewPath(Theme::active()->layout, 'pageSettings'))->with(['page'=>$page]);
-    }
-    
-    public function pageList() {
-        $pages = Page::all();
-        
-        return view(viewPath(Theme::active()->layout, 'pageList'))->with(['pages'=>$pages]);
-    }
-    
-    public function layoutSettingsForm($layoutId) {
-        if(\Auth::user()->role != "master"){
-            return view(viewPath(Theme::active()->layout, 'noAccess'));
-        }
-        
-        $layout = Layout::findOrNew($layoutId);
-        
-        return view(viewPath(Theme::active()->layout, 'layoutSettings'))->with(['layout'=>$layout]);
-    }
-    
-    public function layoutList() {
-        if(\Auth::user()->role != "master"){
-            return view(viewPath(Theme::active()->layout, 'noAccess'));
-        }
-        
-        $layouts = Layout::all();
-        
-        return view(viewPath(Theme::active()->layout, 'layoutList'))->with(['layouts'=>$layouts]);
     }
     
     public function addonList() {
@@ -242,26 +208,6 @@ class AdminController extends Controller
         return redirect()->back();
     }
     
-    public function handlePageForm(ChangePageRequest $request) {
-        $page = Page::findOrNew($request->page_id);
-        
-        $page->handleSettingsForm($request);
-        
-        return redirect()->back();
-    }
-    
-    public function handleLayoutForm(ChangeLayoutRequest $request) {
-        if(\Auth::user()->role != "master"){
-            return view(viewPath(Theme::active()->layout, 'noAccess'));
-        }
-        
-        $layout = Layout::findOrNew($request->layout_id);
-        
-        $layout->handleSettingsForm($request);
-        
-        return redirect()->back();
-    }
-    
     public function handleCrop(Request $request) {
         $block = $this->specifyBlock($request);
         
@@ -326,18 +272,6 @@ class AdminController extends Controller
         return ['id'=>$block->id, 'panelLocation'=>$block->panelLocation, 'page_id'=>(is_null($block->page_id)?0:$block->page_id), 'parent'=>$block->parent];
     }
     
-    public function deletePage(Request $request) {
-        $page = Page::find($request->id);
-        $route = \Lubart\Just\Models\Route::where('route', $page->route)->first();
-        
-        if(!empty($page)){
-            $page->delete();
-            $route->delete();
-        }
-        
-        return ;
-    }
-    
     public function deleteAddon(Request $request) {
         if(\Auth::user()->role != "master"){
             return view(viewPath(Theme::active()->layout, 'noAccess'));
@@ -367,21 +301,6 @@ class AdminController extends Controller
         
         if(!empty($category)){
             $category->delete();
-        }
-        
-        return ;
-    }
-    
-    public function deleteLayout(DeleteLayoutRequest $request) {
-        $layout = Layout::find($request->layout_id);
-        
-        if(!empty($layout)){
-            $pages = Page::where('layout_id', $request->layout_id)->first();
-            if(!empty($pages)){
-                return json_encode(['error'=>'Layout cannot be deleted because page "'.$pages->first()->title.'" is using it']);
-            }
-            
-            $layout->delete();
         }
         
         return ;
@@ -570,35 +489,6 @@ class AdminController extends Controller
         
         $user->password = bcrypt($request->new_password);
         $user->save();
-        
-        return;
-    }
-    
-    public function defaultLayout(){
-        if(\Auth::user()->role != "master"){
-            return view(viewPath(Theme::active()->layout, 'noAccess'));
-        }
-        
-        return view(viewPath(Theme::active()->layout, 'defaultLayout'))->with(['form'=>Layout::setDefaultForm()]);
-    }
-    
-    public function setDefaultLayout(Request $request){
-        if(\Auth::user()->role != "master"){
-            return view(viewPath(Theme::active()->layout, 'noAccess'));
-        }
-        
-        $validator = \Validator::make($request->all(),
-                    [
-                        'layout' => "required|string",
-                        'change_all' => "nullable"
-                    ]);
-        $validator->validate();
-        
-        Theme::setActive($request->layout);
-        
-        if(isset($request->change_all)){
-            Page::setLayoutToAllPages(Theme::where('name', $request->layout)->first()->layout);
-        }
         
         return;
     }

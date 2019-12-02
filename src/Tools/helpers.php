@@ -4,7 +4,7 @@ if(!function_exists('viewPath')){
     /**
      * Return path to the view
      * 
-     * @param \Lubart\Just\Structure\Layout $layout
+     * @param \Lubart\Just\Models\Layout $layout
      * @param string|\Lubart\Just\Structure\Panel|Lubart\Just\Structure\Panel\Block $path
      */
     function viewPath($layout, $path){
@@ -74,10 +74,10 @@ if(!function_exists('justLayout')){
     /**
      * Return primary Just! layout
      * 
-     * @return \Lubart\Just\Structure\Layout
+     * @return \Lubart\Just\Models\Layout
      */
     function justLayout(){
-        return \Lubart\Just\Structure\Layout::where('name', 'Just')
+        return \Lubart\Just\Models\Layout::where('name', 'Just')
                         ->where('class', 'primary')
                         ->first();
     }

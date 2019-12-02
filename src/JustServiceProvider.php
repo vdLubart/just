@@ -57,8 +57,10 @@ class JustServiceProvider extends ServiceProvider
         });
         
         if (Schema::hasTable('themes')) {
-            \Config::set('mail.markdown.paths', [resource_path('views/'.(@Models\Theme::active()->name ?? 'Just').'/emails/mail')]);
+            \Config::set('mail.markdown.paths', [resource_path('views/'.(Models\Theme::active()->name ?? 'Just').'/emails/mail')]);
         }
+
+        $this->app['router']->aliasMiddleware('master', \Lubart\Just\Middleware\MasterAccess::class);
     }
 
     /**

@@ -3,19 +3,23 @@
 namespace Lubart\Just\Controllers;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Routing\Controller as BaseController;
+use App\Http\Controllers\Controller as LaravelController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Lubart\Just\Models\Route;
+use Lubart\Just\Models\System\Route;
 use Illuminate\Http\Request;
 use Lubart\Just\Structure\Panel\Block;
 use Lubart\Just\Validators\ValidatorExtended;
 
-class Controller extends BaseController
+class Controller extends LaravelController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
     public function __construct() {
+        if(method_exists(LaravelController::class, '__construct')) {
+            parent::__construct();
+        }
+
         \Config::set('isAdmin', false);
         \App::setLocale(env('DEFAULT_LANG', 'en'));
     }

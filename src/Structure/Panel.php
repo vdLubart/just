@@ -3,6 +3,7 @@
 namespace Lubart\Just\Structure;
 
 use Illuminate\Database\Eloquent\Model;
+use Lubart\Just\Models\Layout;
 use Lubart\Just\Structure\Panel\Block;
 
 class Panel extends Model

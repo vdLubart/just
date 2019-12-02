@@ -4,9 +4,9 @@ namespace Lubart\Just\Tests\Feature\Layouts;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Page;
-use Lubart\Just\Models\Route;
-use Lubart\Just\Structure\Layout;
+use Lubart\Just\Models\Page;
+use Lubart\Just\Models\System\Route;
+use Lubart\Just\Models\Layout;
 use Lubart\Just\Models\Theme;
 use Lubart\Just\Structure\Panel;
 
@@ -51,9 +51,9 @@ class Actions extends TestCase{
     
     
     public function cannot_change_default_layout(){
-        $this->get('admin/settings/layout/1');
+        $this->get('/settings/layout/1');
         
-        $response = $this->post("admin/settings/layout/setup", [
+        $response = $this->post("/settings/layout/setup", [
             'layout_id' => 1,
             'width'=> $this->faker->numberBetween(),
         ]);
@@ -66,7 +66,7 @@ class Actions extends TestCase{
             $content->assertSee("This layout is default and cannot be changed");
         }
         else{
-            $content->assertSee("You do not have permitions for that action");
+            $content->assertSee("This action is unauthorized");
         }
     }
     
@@ -74,8 +74,17 @@ class Actions extends TestCase{
         $newTheme = Theme::create([
             'name' => $this->faker->word
         ]);
+
+        $response = $this->get('/settings/layout/0');
+
+        if($assertion){
+            $response->assertSuccessful();
+        }
+        else{
+            $response->assertRedirect();
+        }
         
-        $response = $this->post("/admin/settings/layout/setup", [
+        $response = $this->post("/settings/layout/setup", [
             "layout_id" => null,
             "name" => $newTheme->name,
             "class" => $class = "primary",
@@ -102,7 +111,7 @@ class Actions extends TestCase{
         }
         else{
             if(\Auth::id()){
-                $this->followRedirects($response)->assertSee("You do not have permitions for that action");
+                $this->followRedirects($response)->assertSee("This action is unauthorized");
             }
             else{
                 $response->assertRedirect('/login');
@@ -111,9 +120,9 @@ class Actions extends TestCase{
     }
     
     public function cannot_create_layout_with_existing_class(){
-        $this->get('admin/settings/layout/0');
+        $this->get('/settings/layout/0');
         
-        $response = $this->post("/admin/settings/layout/setup", [
+        $response = $this->post("/settings/layout/setup", [
             "layout_id" => null,
             "name" => "Just",
             "class" => "specific",
@@ -121,7 +130,7 @@ class Actions extends TestCase{
             "panel_1" => "content",
             "panelType_1" => "dynamic"
         ]);
-        
+
         $content = $this->followRedirects($response);
         if(!\Auth::id()){
             $response->assertRedirect('/login');
@@ -130,7 +139,7 @@ class Actions extends TestCase{
             $content->assertSee("Class &quot;specific&quot; already used in &quot;Just&quot; layout");
         }
         else{
-            $content->assertSee("You do not have permitions for that action");
+            $content->assertSee("This action is unauthorized");
         }
     }
     
@@ -153,40 +162,41 @@ class Actions extends TestCase{
             'layout_id' => 1
         ]);
         
-        $response = $this->post("admin/settings/layout/default/set", [
+        $response = $this->post("/settings/layout/setdefault", [
             "layout" => $newLayout->name,
             "change_all" => "on"
         ]);
-        
+
         $page = Page::find($page->id);
         
         if($assertion){
             $this->assertEquals($newLayout->id, $page->layout_id);
             
-            $this->get('admin/settings/layout/default')
+            $this->get('/settings/layout/default')
                     ->assertSuccessful();
-            
-            $this->get('admin/settings/layout/0')
+
+            $this->get('/settings/layout/0')
                     ->assertSee("value=\"".$newTheme->name."\" selected=\"selected\"");
         }
         else{
             if(\Auth::id()){
-                $this->followRedirects($response)->assertSee("You do not have permitions for that action");
+                $this->followRedirects($response)->assertSee("This action is unauthorized");
                 
-                $this->get('admin/settings/layout/default')
-                    ->assertSee("You do not have permitions for that action");
+                $this->get('/settings/layout/default')
+                    ->assertRedirect('settings/noaccess');
             }
             else{
                 $response->assertRedirect('/login');
                 
-                $this->get('admin/settings/layout/default')
-                    ->assertRedirect();
+                $this->get('/settings/layout/default')
+                    ->assertRedirect('login');
             }
         }
     }
     
     public function access_layout_list($assertion){
-        $response = $this->get('admin/settings/layout/list');
+        $response = $this->get('/settings/layout/list');
+
         if($assertion){
             $response->assertSuccessful()
                     ->assertSee("Settings :: Layouts");
@@ -195,14 +205,14 @@ class Actions extends TestCase{
             if(\Auth::id()){
                 $this->followRedirects($response)->assertSee("You do not have permitions for that action");
                 
-                $this->get('admin/settings/layout/default')
-                    ->assertSee("You do not have permitions for that action");
+                $this->get('/settings/layout/default')
+                    ->assertRedirect('settings/noaccess');
             }
             else{
                 $response->assertRedirect('/login');
                 
-                $this->get('admin/settings/layout/default')
-                    ->assertRedirect();
+                $this->get('/settings/layout/default')
+                    ->assertRedirect('login');
             }
         }
     }
@@ -224,10 +234,10 @@ class Actions extends TestCase{
             "type" => "dynamic"
         ]);
         
-        $this->post('admin/layout/delete', [
+        $r = $this->post('settings/layout/delete', [
             'layout_id' => $layout->id
         ]);
-        
+
         $layout = Layout::find($layout->id);
         $panel = Panel::find($panel->id);
         

@@ -37,36 +37,28 @@
                     
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a href="/admin/layout/create"
-                               onclick="event.preventDefault();
-                                                    openSettings('layout', 0);">
+                            <slink href="/settings/layout/0">
                                 <i class="fa fa-plus"></i>
                                 @lang('navbar.layouts.create')
-                            </a>
+                            </slink>
                         </li>
                         <li>
-                            <a href="/admin/layout/default"
-                               onclick="event.preventDefault();
-                                                    setDefaultLayout();">
+                            <slink href="/settings/layout/default">
                                 <i class="fa fa-check"></i>
                                 @lang('navbar.layouts.default')
-                            </a>
+                            </slink>
                         </li>
                         <li>
-                            <a href="/admin/layout/list"
-                               onclick="event.preventDefault();
-                                                    openList('layout');">
+                            <slink href="/settings/layout/list">
                                 <i class="fa fa-list"></i>
                                 @lang('navbar.layouts.list')
-                            </a>
+                            </slink>
                         </li>
                         <li>
-                            <a href="/admin/layout/settings"
-                               onclick="event.preventDefault();
-                                                    openSettings('layout', {{ $layout->id }});">
+                            <slink href="/settings/layout/{{ $layout->id }}">
                                 <i class="fa fa-cogs"></i>
                                 @lang('navbar.layouts.settings')
-                            </a>
+                            </slink>
                         </li>
                     </ul>
                 </li>
@@ -79,7 +71,7 @@
                     
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a href="/admin/page/create"
+                            <a href="/settings/page/create"
                                onclick="event.preventDefault();
                                                     openSettings('page', 0);">
                                 <i class="fa fa-plus"></i>
@@ -87,7 +79,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="/admin/page/list"
+                            <a href="/settings/page/list"
                                onclick="event.preventDefault();
                                                     openList('page');">
                                 <i class="fa fa-list"></i>
@@ -95,7 +87,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="/admin/page/settings"
+                            <a href="/settings/page/settings"
                                onclick="event.preventDefault();
                                                     openSettings('page', {{ $page->id }});">
                                 <i class="fa fa-cogs"></i>

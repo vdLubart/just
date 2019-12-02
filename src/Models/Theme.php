@@ -3,7 +3,6 @@
 namespace Lubart\Just\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Lubart\Just\Structure\Layout;
 
 class Theme extends Model
 {

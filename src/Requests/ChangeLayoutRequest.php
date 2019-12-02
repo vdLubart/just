@@ -4,6 +4,7 @@ namespace Lubart\Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Lubart\Just\Models\User;
 use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
 class ChangeLayoutRequest extends FormRequest implements ValidateRequest
@@ -15,7 +16,7 @@ class ChangeLayoutRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return \Auth::check();
+        return User::authAsMaster();
     }
 
     /**

@@ -4,8 +4,8 @@ namespace Lubart\Just\Tests\Feature\Just\Pages;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Page;
-use Lubart\Just\Models\Route;
+use Lubart\Just\Models\Page;
+use Lubart\Just\Models\System\Route;
 
 class Actions extends TestCase{
     
@@ -37,7 +37,7 @@ class Actions extends TestCase{
             'layout_id' => 1
         ]);
         
-        $response = $this->get('/admin/settings/page/'.$page->id);
+        $response = $this->get('/settings/page/'.$page->id);
         
         if($assertion){
             $response->assertStatus(200)
@@ -47,7 +47,7 @@ class Actions extends TestCase{
             $response->assertStatus(302);
         }
         
-        $this->post("/admin/settings/page/setup", [
+        $this->post("/settings/page/setup", [
             "page_id" => $page->id,
             "title" => $title = $this->faker->word,
             "description" => $description = $this->faker->paragraph,
@@ -79,7 +79,7 @@ class Actions extends TestCase{
     }
     
     public function create_new_page($assertion){
-        $response = $this->get('admin/settings/page/0');
+        $response = $this->get('/settings/page/0');
         if($assertion){
             $response->assertStatus(200);
         }
@@ -87,7 +87,7 @@ class Actions extends TestCase{
             $response->assertStatus(302);
         }
         
-        $this->post("/admin/settings/page/setup", [
+        $this->post("/settings/page/setup", [
             "page_id" => null,
             "title" => $title = $this->faker->word,
             "description" => $description = $this->faker->paragraph,
@@ -97,7 +97,7 @@ class Actions extends TestCase{
             "route" => $newRoute = $this->faker->word,
             "layout_id" => 1
         ]);
-        
+
         $newPage = Page::where('id', '>', 1)->get()->last();
         
         $route = Route::where('route', $newRoute)->first();
@@ -136,7 +136,7 @@ class Actions extends TestCase{
         ]);
         $homePage = Page::find(1);
         
-        $response = $this->get('/admin/settings/page/'.$page1->id);
+        $response = $this->get('/settings/page/'.$page1->id);
         
         if($assertion){
             $response->assertStatus(200)
@@ -146,7 +146,7 @@ class Actions extends TestCase{
             $response->assertStatus(302);
         }
         
-        $this->post("/admin/settings/page/setup", [
+        $this->post("/settings/page/setup", [
             "page_id" => $page1->id,
             "title" => $page1->title,
             "description" => $page1->description,
@@ -170,7 +170,7 @@ class Actions extends TestCase{
             $this->assertEquals($author, $page2->author);
             $this->assertEquals($copyright, $page2->copyright);
             
-            $this->post("/admin/settings/page/setup", [
+            $this->post("/settings/page/setup", [
             "page_id" => $homePage->id,
             "title" => $homePage->title,
             "description" => $homePage->description,
@@ -189,7 +189,7 @@ class Actions extends TestCase{
     }
     
     public function access_page_list($assertion){
-        $response = $this->get('admin/settings/page/list');
+        $response = $this->get('/settings/page/list');
         if($assertion){
             $response->assertSuccessful()
                     ->assertSee("Settings :: Pages");
@@ -218,7 +218,7 @@ class Actions extends TestCase{
             'layout_id' => 1
         ]);
         
-        $response = $this->get('admin/settings/page/list');
+        $response = $this->get('/settings/page/list');
         if($assertion){
             $response->assertSuccessful()
                     ->assertSee("Settings :: Pages")
@@ -229,7 +229,7 @@ class Actions extends TestCase{
             $response->assertRedirect();
         }
         
-        $response = $this->get('admin/settings/page/'.$page1->id);
+        $response = $this->get('/settings/page/'.$page1->id);
         
         if($assertion){
             $response->assertSuccessful();
@@ -238,7 +238,7 @@ class Actions extends TestCase{
             $response->assertRedirect();
         }
         
-        $this->post("/admin/settings/page/setup", [
+        $this->post("/settings/page/setup", [
             "page_id" => $page1->id,
             "title" => $title = $this->faker->word,
             "description" => $description = $this->faker->paragraph,
@@ -248,7 +248,7 @@ class Actions extends TestCase{
             "route" => $route1->route,
             "layout_id" => 1
         ]);
-        
+
         $updatedPage = Page::find($page1->id);
         
         if($assertion){
@@ -277,10 +277,10 @@ class Actions extends TestCase{
             'layout_id' => 1
         ]);
         
-        $this->post('admin/page/delete', [
+        $this->post('settings/page/delete', [
             'id' => $page->id
         ]);
-        
+
         $deletedPage = Page::find($page->id);
         $route = Route::findByUrl($route->route);
         

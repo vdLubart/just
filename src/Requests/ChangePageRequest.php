@@ -3,6 +3,7 @@
 namespace Lubart\Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Lubart\Just\Models\User;
 use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
 class ChangePageRequest extends FormRequest implements ValidateRequest
@@ -14,7 +15,7 @@ class ChangePageRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return \Auth::check();
+        return User::canAccessAdminPanel();
     }
 
     /**

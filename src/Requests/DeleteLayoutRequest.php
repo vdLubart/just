@@ -3,6 +3,7 @@
 namespace Lubart\Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Lubart\Just\Models\User;
 use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
 class DeleteLayoutRequest extends FormRequest implements ValidateRequest
@@ -14,7 +15,7 @@ class DeleteLayoutRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return \Auth::user()->role == "master";
+        return User::authAsMaster();
     }
 
     /**
@@ -24,6 +25,8 @@ class DeleteLayoutRequest extends FormRequest implements ValidateRequest
      */
     public function rules()
     {
-        return ['layout_id'=>"integer|min:1"];
+        return [
+            'layout_id'=>"integer|min:1|exists:layouts,id"
+        ];
     }
 }

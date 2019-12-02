@@ -1,0 +1,77 @@
+html, body {
+  background-color: #fff;
+  color: #636b6f;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 100;
+  height: 100vh;
+  margin: 0;
+}
+
+.links > a {
+  color: #636b6f;
+  padding: 0 25px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.settings{
+     z-index: 900;
+     border: 1px solid #d3e0e9;
+     border-radius: 5px;
+     position: fixed;
+     top:15%;
+     left: 50%;
+     width: 1170px;
+     height: 70%;
+     margin-left: -585px;
+     background-color: #fff;
+     box-shadow: 10px 10px 30px #d3e0e9;
+     overflow: scroll;
+     display: none;
+     padding: 15px;
+ }
+ 
+#cropping{
+    z-index: 1100;
+}
+
+.margin-bottom-20{
+    margin-bottom: 20px;
+}
+
+nav.header{
+    z-index: 10;
+}
+
+#icons a.featureIcon{
+    font-size: x-large;
+    margin: 10px;
+    width: 30px;
+    text-align: center;
+}
+
+.featureItem{
+    text-align: center;
+}
+
+.featureItem h1{
+    font-size: 48pt;
+}
+
+.inactive{
+    background-color: #cccccc;
+}
+
+.dragula-list-container-33{display:grid;grid-template-columns:8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5%}
+.dragula-list-container-40{display:grid;grid-template-columns:10% 10% 10% 10% 10% 10% 10% 10% 10% 10%}
+.dragula-list-container-50{display:grid;grid-template-columns:12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%}
+.dragula-list-container-67{display:grid;grid-template-columns:16.6666% 16.6666% 16.6666% 16.6666% 16.6666% 16.6666%}
+.dragula-list-container-80{display:grid;grid-template-columns:20% 20% 20% 20% 20%}
+.dragula-list-container-100{display:grid;grid-template-columns:25% 25% 25% 25%}
+.dragula-list-container-133{display:grid;grid-template-columns:33.3333% 33.3333% 33.3333%}
+.dragula-list-container-200{display:grid;grid-template-columns:50% 50%}
+.dragula-list-container-400{display:grid;grid-template-columns:100%}
+.dragula-list-item{margin:5px;-ms-flex-item-align:center;align-self:center}

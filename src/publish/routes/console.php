@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Artisan;
-use Lubart\Just\Models\Version;
+use Lubart\Just\Models\System\Version;
 
 /*
 |--------------------------------------------------------------------------
