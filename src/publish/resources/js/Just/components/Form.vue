@@ -2,7 +2,7 @@
 
     <form action="">
 
-        <field v-for="element in form.unGrouppedElements" :element="element"></field>
+        <field v-for="(element, key) in form.unGrouppedElements" :element="element" :key="key"></field>
 
     </form>
     

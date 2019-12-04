@@ -31,7 +31,7 @@ class Layout extends Model
         
         $form->setType("layoutSettings");
         
-        $form->add(FormElement::hidden(['name'=>'layout_id', 'value'=>$this->id]));
+        $form->add(FormElement::hidden(['name'=>'layout_id', 'value'=>(string) $this->id]));
         $form->add(FormElement::select(['name'=>'name', 'label'=>__('layout.createForm.themeTitle'), 'value'=>$this->name ?? Theme::where('isActive', 1)->first()->name, 'options'=>Theme::all()->pluck('name', 'name')]));
         $form->add(FormElement::text(['name'=>'class', 'label'=>__('layout.createForm.themeClass'), 'value'=>$this->class ?? 'primary']));
         if($this->id == 1){

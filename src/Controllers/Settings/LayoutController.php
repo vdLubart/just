@@ -3,6 +3,7 @@
 namespace Lubart\Just\Controllers\Settings;
 
 
+use Illuminate\Support\Collection;
 use Lubart\Just\Controllers\SettingsController;
 use Lubart\Just\Models\Layout;
 use Lubart\Just\Models\Page;
@@ -14,23 +15,39 @@ use Lubart\Just\Requests\SetDefaultLayoutRequest;
 class LayoutController extends SettingsController {
 
     /**
-     * Render layout settings form
+     * Generate settings form data
      *
      * @param int $layoutId layout id
      * @throws \Throwable
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return \Illuminate\Http\JsonResponse
      */
     public function settingsForm($layoutId) {
         return $this->settingsFormView($layoutId);
     }
 
     /**
-     * Render layout list
+     * Generate list data
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return \Illuminate\Http\JsonResponse
      */
     public function layoutList() {
         return $this->listView();
+    }
+
+    /**
+     * Build model list from the Collection
+     *
+     * @param Collection $items
+     * @return array
+     */
+    protected function buildList(Collection $items):array {
+        $list = [];
+
+        foreach($items as $item){
+            $list[$item->id] = $item->name. ".". $item->class;
+        }
+
+        return $list;
     }
 
     /**
