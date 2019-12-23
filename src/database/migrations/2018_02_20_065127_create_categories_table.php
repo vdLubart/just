@@ -18,7 +18,7 @@ class CreateCategoriesTable extends Migration
             
             $table->increments('id');
             $table->integer('addon_id')->unsigned();
-            $table->char('name', 255);
+            $table->json('title');
             $table->string('value')->unique();
             $table->timestamps();
             

@@ -17,7 +17,7 @@ class CreateTextsTable extends Migration
             $table->engine = 'InnoDB';
             
             $table->increments('id');
-            $table->text('text');
+            $table->json('text');
             $table->integer('block_id')->unsigned();
             $table->integer('orderNo')->unsigned();
             $table->boolean('isActive')->default(true);

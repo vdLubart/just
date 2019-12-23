@@ -17,21 +17,22 @@ class CreateBlocksTable extends Migration
             $table->engine = 'InnoDB';
             
             $table->increments('id');
-            $table->string('name');
+            $table->string('type');
+            $table->string('name')->unique()->nullable()->default(null);
             $table->string('panelLocation')->nullable()->default(null);
             $table->integer('page_id')->unsigned()->nullable()->default(null);
-            $table->char('title', 255);
-            $table->text('description');
+            $table->json('title');
+            $table->json('description');
             $table->integer('width')->unsigned()->default(12);
             $table->string('layoutClass', 100)->default('primary');
             $table->string('cssClass', 200)->nullable()->default(null);
             $table->integer('orderNo')->unsigned();
             $table->boolean('isActive')->default(true);
-            $table->string('parameters')->default('{}');
+            $table->json('parameters');
             $table->integer('parent')->unsigned()->nullable()->default(null);
             $table->timestamps();
             
-            $table->foreign('name')->references('block')->on('blockList')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('type')->references('block')->on('blockList')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('panelLocation')->references('location')->on('panelLocations')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('page_id')->references('id')->on('pages')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('parent')->references('id')->on('blocks')->onUpdate('cascade')->onDelete('cascade');

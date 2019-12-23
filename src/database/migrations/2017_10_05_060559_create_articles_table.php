@@ -18,9 +18,10 @@ class CreateArticlesTable extends Migration
             
             $table->increments('id');
             $table->integer('block_id')->unsigned();
-            $table->string("subject");
-            $table->string("summary");
-            $table->text("text");
+            $table->json("subject");
+            $table->string('slug')->unique();
+            $table->json("summary", 1000);
+            $table->json("text");
             $table->string("image");
             $table->integer('orderNo')->unsigned();
             $table->boolean('isActive')->default(true);

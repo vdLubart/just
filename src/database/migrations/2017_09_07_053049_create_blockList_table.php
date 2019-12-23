@@ -17,8 +17,6 @@ class CreateBlockListTable extends Migration
             $table->engine = 'InnoDB';
             
             $table->string('block')->unique();
-            $table->char('title', 100)->unique();
-            $table->char('description', 255);
             $table->string('table', 100);
         });
     }

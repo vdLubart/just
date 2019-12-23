@@ -18,15 +18,16 @@ class CreateAddonsTable extends Migration
             
             $table->increments('id');
             $table->integer('block_id')->unsigned();
+            $table->string('type');
             $table->string('name');
-            $table->char('title', 255);
-            $table->text('description')->nullable();
+            $table->json('title');
+            $table->json('description')->nullable();
             $table->integer('orderNo')->unsigned();
             $table->boolean('isActive')->default(true);
             $table->string('parameters')->default('{}');
             $table->timestamps();
             
-            $table->foreign('name')->references('addon')->on('addonList')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('type')->references('addon')->on('addonList')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('block_id')->references('id')->on('blocks')->onUpdate('cascade')->onDelete('cascade');
         });
     }

@@ -19,8 +19,8 @@ class CreatePhotosTable extends Migration
             $table->increments('id');
             $table->integer('block_id')->unsigned();
             $table->string('image');
-            $table->string('caption')->default('');
-            $table->text('description');
+            $table->json('caption');
+            $table->json('description');
             $table->integer('orderNo')->unsigned();
             $table->boolean('isActive')->default(true);
             $table->timestamps();

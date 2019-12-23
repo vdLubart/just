@@ -18,7 +18,7 @@ class CreateParagraphsTable extends Migration
             
             $table->increments('id');
             $table->integer('addon_id')->unsigned();
-            $table->text('value')->nullable();
+            $table->json('value')->nullable();
             $table->timestamps();
             
             $table->foreign("addon_id")->references("id")->on("addons")->onUpdate('cascade')->onDelete('cascade');

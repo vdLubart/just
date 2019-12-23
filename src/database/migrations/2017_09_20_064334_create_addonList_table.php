@@ -17,8 +17,6 @@ class CreateAddonListTable extends Migration
             $table->engine = 'InnoDB';
             
             $table->string('addon')->unique();
-            $table->char('title', 100)->unique();
-            $table->text('description');
             $table->string('table', 100);
         });
     }

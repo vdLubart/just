@@ -18,7 +18,7 @@ class CreateMenusTable extends Migration
             
             $table->increments('id');
             $table->integer("block_id")->unsigned();
-            $table->string("item");
+            $table->json("item");
             $table->integer('parent')->unsigned()->nullable()->default(null);
             $table->string('route')->nullable()->default(null);
             $table->string('url')->nullable()->default(null);

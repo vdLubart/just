@@ -19,8 +19,8 @@ class CreateFeaturesTable extends Migration
             $table->increments('id');
             $table->integer('block_id')->unsigned();
             $table->integer('icon_id')->unsigned();
-            $table->string('title');
-            $table->text('description')->nullable()->default(null);
+            $table->json('title');
+            $table->json('description')->nullable()->default(null);
             $table->string('link')->nullable()->default(null);
             $table->integer('orderNo')->unsigned();
             $table->boolean('isActive')->default(true);

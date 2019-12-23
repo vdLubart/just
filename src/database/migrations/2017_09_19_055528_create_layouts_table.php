@@ -19,7 +19,6 @@ class CreateLayoutsTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('class');
-            $table->enum('type', ['float', 'grid']);
             $table->integer('width');
             $table->timestamps();
             

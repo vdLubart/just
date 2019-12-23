@@ -16,14 +16,14 @@ class CreateEventsTable extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('block_id')->unsigned();
-            $table->string('subject');
-            $table->string('summary', 1000);
+            $table->json('subject');
+            $table->json('summary');
             $table->string('slug');
-            $table->text('text');
+            $table->json('text');
             $table->string('image');
             $table->dateTime('start_date');
             $table->dateTime('end_date');
-            $table->string('location');
+            $table->json('location');
             $table->boolean('isActive')->default(true);
             $table->timestamps();
 

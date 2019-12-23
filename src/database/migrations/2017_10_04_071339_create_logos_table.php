@@ -19,8 +19,8 @@ class CreateLogosTable extends Migration
             $table->increments('id');
             $table->string("image");
             $table->integer('block_id')->unsigned();
-            $table->string("caption");
-            $table->text("description");
+            $table->json("caption");
+            $table->json("description");
             $table->integer('orderNo')->unsigned();
             $table->boolean('isActive')->default(true);
             $table->timestamps();
