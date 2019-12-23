@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\Menu;
+namespace Just\Tests\Feature\Blocks\Menu;
 
-use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
+use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
-use Lubart\Just\Models\Route;
+use Just\Structure\Panel\Block;
+use Just\Models\Route;
 
 class Actions extends LocationBlock {
     
@@ -114,12 +114,12 @@ class Actions extends LocationBlock {
     public function create_new_item_with_link_to_another_page($assertion){
         $block = $this->setupBlock();
         
-        $route = \Lubart\Just\Models\Route::create([
+        $route = \Just\Models\Route::create([
             'route' => $this->faker->word,
             'type' => 'page'
         ]);
         
-        \Lubart\Just\Structure\Page::create([
+        \Just\Structure\Page::create([
             'title' => $this->faker->word,
             'route' => $route->route,
             'layout_id' => 1

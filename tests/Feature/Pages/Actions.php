@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Just\Pages;
+namespace Just\Tests\Feature\Just\Pages;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Models\Page;
-use Lubart\Just\Models\System\Route;
+use Just\Models\Page;
+use Just\Models\System\Route;
 
 class Actions extends TestCase{
     

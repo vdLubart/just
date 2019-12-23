@@ -1,12 +1,12 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\Articles;
+namespace Just\Tests\Feature\Blocks\Articles;
 
 use App\User;
-use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
+use Just\Tests\Feature\Blocks\LocationBlock;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
 
 class Actions extends LocationBlock {
@@ -140,7 +140,7 @@ class Actions extends LocationBlock {
             $this->assertNull($response);
         }
 
-        $articleRoute = \Lubart\Just\Models\Route::where('route', 'article/{id}')->first();
+        $articleRoute = \Just\Models\Route::where('route', 'article/{id}')->first();
         $this->assertNotNull($articleRoute);
         
         $item = Block\Articles::all()->last();
@@ -259,8 +259,8 @@ class Actions extends LocationBlock {
         $article->image = uniqid();
         $article->save();
         
-        $this->app['router']->get('article/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/article/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->get('article/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/article/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         
         $item = Block\Articles::all()->last();
         

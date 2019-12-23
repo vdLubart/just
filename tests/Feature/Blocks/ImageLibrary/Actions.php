@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\ImageLibrary;
+namespace Just\Tests\Feature\Blocks\ImageLibrary;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
 
 class Actions extends TestCase{

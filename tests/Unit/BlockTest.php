@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Tests\Unit;
+namespace Just\Tests\Unit;
 
-use Lubart\Just\Structure\Panel;
+use Just\Structure\Panel;
 use Tests\TestCase;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 use Illuminate\Foundation\Testing\WithFaker;
 
 class BlockTest extends TestCase

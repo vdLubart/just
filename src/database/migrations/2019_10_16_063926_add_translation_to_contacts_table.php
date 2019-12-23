@@ -3,8 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Lubart\Just\Database\Helpers\AddTranslations;
-use Lubart\Just\Structure\Panel\Block\Contact;
+use Just\Database\Helpers\AddTranslations;
+use Just\Structure\Panel\Block\Contact;
 
 class AddTranslationToContactsTable extends Migration
 {
@@ -20,7 +20,7 @@ class AddTranslationToContactsTable extends Migration
     public function up()
     {
         Schema::table($this->table, function (Blueprint $table) {
-            $table->json('channels')->change();
+            $table->json('channels')->charset('')->change();
         });
 
         $this->convertToJson(['title']);

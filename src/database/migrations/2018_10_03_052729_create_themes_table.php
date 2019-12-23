@@ -3,8 +3,8 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Lubart\Just\Models\Theme;
-use Lubart\Just\Structure\Layout;
+use Just\Models\Theme;
+use Just\Models\Layout;
 
 class CreateThemesTable extends Migration
 {

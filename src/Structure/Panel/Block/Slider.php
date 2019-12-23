@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 // TODO: create script for different types of sliders
 class Slider extends Gallery

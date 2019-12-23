@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
-use Lubart\Just\Tools\Useful;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Tools\Useful;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Spatie\Translatable\HasTranslations;

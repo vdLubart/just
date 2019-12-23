@@ -6,11 +6,11 @@
  * Time: 20:39
  */
 
-namespace Lubart\Just\Tests\Browser\Master;
+namespace Just\Tests\Browser\Master;
 
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
-use Lubart\Just\Tests\Browser\Helper;
+use Just\Tests\Browser\Helper;
 
 class MasterTests extends DuskTestCase {
 

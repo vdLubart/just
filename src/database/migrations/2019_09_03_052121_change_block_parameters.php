@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 
 class ChangeBlockParameters extends Migration
 {
@@ -21,8 +21,8 @@ class ChangeBlockParameters extends Migration
     public function up()
     {
         Schema::table('blocks', function (Blueprint $table) {
-            $table->json('super_parameters')->default('')->change();
-            $table->json('parameters')->default('')->change();
+            $table->json('super_parameters')->default(null)->charset('')->change();
+            $table->json('parameters')->default(null)->charset('')->change();
         });
 
         $procedure = "drop procedure if exists `merge_parameters`;
@@ -40,14 +40,14 @@ class ChangeBlockParameters extends Migration
             set r = 0;
                         
             while r < rowCount do
-               	set i = 0;
+                set i = 0;
                 
                 select `id` from `blocks` limit r, 1 into rowId;
                 
                 select json_length(`super_parameters`) from `blocks` where `id` = rowId into spLength;
                 
                 while i < spLength do
-                	UPDATE `blocks` SET `parameters` =
+                    UPDATE `blocks` SET `parameters` =
                     JSON_REMOVE(
                             `parameters`,
                             CONCAT(

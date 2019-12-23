@@ -1,5 +1,5 @@
 <?php
-namespace Lubart\Just\Tools;
+namespace Just\Tools;
 
 trait Slug{
 

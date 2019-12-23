@@ -6,7 +6,7 @@
  * Time: 7:26
  */
 
-namespace Lubart\Just\Structure\Panel\Block\Contracts;
+namespace Just\Structure\Panel\Block\Contracts;
 
 
 interface ValidateRequest {

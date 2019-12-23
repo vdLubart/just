@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Controllers;
+namespace Just\Controllers;
 
 class JustController extends Controller
 {

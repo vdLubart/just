@@ -1,23 +1,23 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Lubart\Just\Models\EventRegistration;
-use Lubart\Just\Models\User;
+use Just\Models\EventRegistration;
+use Just\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
 use Intervention\Image\ImageManagerStatic as Image;
-use Lubart\Just\Structure\Panel\Block\Contracts\ContainsPublicForm;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
-use Lubart\Just\Tools\Useful;
-use Lubart\Just\Models\Route as JustRoute;
-use Lubart\Just\Structure\Page;
-use Lubart\Just\Tools\Slug;
+use Just\Structure\Panel\Block\Contracts\ContainsPublicForm;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Tools\Useful;
+use Just\Models\Route as JustRoute;
+use Just\Structure\Page;
+use Just\Tools\Slug;
 use Spatie\Translatable\HasTranslations;
 
 class Events extends AbstractBlock implements ContainsPublicForm

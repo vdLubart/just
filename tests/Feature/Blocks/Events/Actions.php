@@ -1,15 +1,15 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\Events;
+namespace Just\Tests\Feature\Blocks\Events;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
-use Lubart\Just\Models\User;
-use Lubart\Just\Notifications\NewRegistration;
-use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
-use Lubart\Just\Tests\Feature\Helper;
+use Just\Models\User;
+use Just\Notifications\NewRegistration;
+use Just\Tests\Feature\Blocks\LocationBlock;
+use Just\Tests\Feature\Helper;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
 
 class Actions extends LocationBlock {
@@ -152,7 +152,7 @@ class Actions extends LocationBlock {
             $response->assertRedirect();
         }
 
-        $eventRoute = \Lubart\Just\Models\Route::where('route', 'event/{id}')->first();
+        $eventRoute = \Just\Models\Route::where('route', 'event/{id}')->first();
         $this->assertNotNull($eventRoute);
         
         $item = Block\Events::all()->last();
@@ -318,8 +318,8 @@ class Actions extends LocationBlock {
 
         $event->save();
         
-        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         
         $item = Block\Events::all()->last();
 
@@ -456,7 +456,7 @@ class Actions extends LocationBlock {
             $response->assertRedirect();
         }
 
-        $eventRoute = \Lubart\Just\Models\Route::where('route', 'event/{id}')->first();
+        $eventRoute = \Just\Models\Route::where('route', 'event/{id}')->first();
         $this->assertNotNull($eventRoute);
 
         $item = Block\Events::all()->last();
@@ -621,7 +621,7 @@ class Actions extends LocationBlock {
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
 
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
-        \Lubart\Just\Validators\Recaptcha::setClient($client);
+        \Just\Validators\Recaptcha::setClient($client);
 
         $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
 
@@ -652,9 +652,9 @@ class Actions extends LocationBlock {
 
         $event->save();
 
-        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+        $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
         $item = Block\Events::all()->last();
 
@@ -676,7 +676,7 @@ class Actions extends LocationBlock {
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
 
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
-        \Lubart\Just\Validators\Recaptcha::setClient($client);
+        \Just\Validators\Recaptcha::setClient($client);
 
         $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
 
@@ -707,9 +707,9 @@ class Actions extends LocationBlock {
 
         $event->save();
 
-        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+        $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
         $item = Block\Events::all()->last();
 
@@ -730,7 +730,7 @@ class Actions extends LocationBlock {
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
 
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
-        \Lubart\Just\Validators\Recaptcha::setClient($client);
+        \Just\Validators\Recaptcha::setClient($client);
 
         $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
 
@@ -761,9 +761,9 @@ class Actions extends LocationBlock {
 
         $event->save();
 
-        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+        $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
         $item = Block\Events::all()->last();
 
@@ -783,7 +783,7 @@ class Actions extends LocationBlock {
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
 
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
-        \Lubart\Just\Validators\Recaptcha::setClient($client);
+        \Just\Validators\Recaptcha::setClient($client);
 
         $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
 
@@ -814,9 +814,9 @@ class Actions extends LocationBlock {
 
         $event->save();
 
-        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
-        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+        $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
+        $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
         $item = Block\Events::all()->last();
 
@@ -836,7 +836,7 @@ class Actions extends LocationBlock {
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
 
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
-        \Lubart\Just\Validators\Recaptcha::setClient($client);
+        \Just\Validators\Recaptcha::setClient($client);
 
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
@@ -857,9 +857,9 @@ class Actions extends LocationBlock {
 
         $event->save();
 
-        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
-        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+        $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
+        $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
         $item = Block\Events::all()->last();
 
@@ -878,7 +878,7 @@ class Actions extends LocationBlock {
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
 
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
-        \Lubart\Just\Validators\Recaptcha::setClient($client);
+        \Just\Validators\Recaptcha::setClient($client);
 
         $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
 
@@ -909,9 +909,9 @@ class Actions extends LocationBlock {
 
         $event->save();
 
-        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+        $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
         $item = Block\Events::all()->last();
 
@@ -941,7 +941,7 @@ class Actions extends LocationBlock {
         $block = $this->setupBlock(['parameters'=>json_decode('{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
 
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
-        \Lubart\Just\Validators\Recaptcha::setClient($client);
+        \Just\Validators\Recaptcha::setClient($client);
 
         $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
 
@@ -972,9 +972,9 @@ class Actions extends LocationBlock {
 
         $event->save();
 
-        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+        $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
         $item = Block\Events::all()->last();
 
@@ -1009,7 +1009,7 @@ class Actions extends LocationBlock {
         $block = $this->setupBlock(['parameters'=>json_decode('{"notify":"1","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc","successText":"'.($successMessage = $this->faker->sentence).'"}')]);
 
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
-        \Lubart\Just\Validators\Recaptcha::setClient($client);
+        \Just\Validators\Recaptcha::setClient($client);
 
         $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
 
@@ -1040,9 +1040,9 @@ class Actions extends LocationBlock {
 
         $event->save();
 
-        $this->app['router']->get('event/{id}', "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/event/{id}', "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-        $this->app['router']->post('register-event', "\Lubart\Just\Controllers\JustController@post")->middleware(['web']);
+        $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
         $item = Block\Events::all()->last();
 

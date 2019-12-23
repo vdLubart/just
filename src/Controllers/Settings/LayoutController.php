@@ -1,16 +1,16 @@
 <?php
 
-namespace Lubart\Just\Controllers\Settings;
+namespace Just\Controllers\Settings;
 
 
 use Illuminate\Support\Collection;
-use Lubart\Just\Controllers\SettingsController;
-use Lubart\Just\Models\Layout;
-use Lubart\Just\Models\Page;
-use Lubart\Just\Models\Theme;
-use Lubart\Just\Requests\ChangeLayoutRequest;
-use Lubart\Just\Requests\DeleteLayoutRequest;
-use Lubart\Just\Requests\SetDefaultLayoutRequest;
+use Just\Controllers\SettingsController;
+use Just\Models\Layout;
+use Just\Models\Page;
+use Just\Models\Theme;
+use Just\Requests\ChangeLayoutRequest;
+use Just\Requests\DeleteLayoutRequest;
+use Just\Requests\SetDefaultLayoutRequest;
 
 class LayoutController extends SettingsController {
 

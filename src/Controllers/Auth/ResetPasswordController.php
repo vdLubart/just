@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Controllers\Auth;
+namespace Just\Controllers\Auth;
 
 use Illuminate\Http\Request;
-use Lubart\Just\Controllers\Controller;
+use Just\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
-use Lubart\Just\Models\Theme;
+use Just\Models\Theme;
 
 class ResetPasswordController extends Controller
 {

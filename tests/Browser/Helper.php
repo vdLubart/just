@@ -6,9 +6,9 @@
  * Time: 20:36
  */
 
-namespace Lubart\Just\Tests\Browser;
+namespace Just\Tests\Browser;
 
-use Lubart\Just\Models\User as UserModel;
+use Just\Models\User as UserModel;
 
 class Helper {
 

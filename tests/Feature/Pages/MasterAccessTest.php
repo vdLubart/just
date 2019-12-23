@@ -1,8 +1,8 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Just\Pages;
+namespace Just\Tests\Feature\Just\Pages;
 
-use Lubart\Just\Tests\Feature\Helper;
+use Just\Tests\Feature\Helper;
 
 class MasterAccessTest extends Actions
 {

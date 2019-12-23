@@ -1,13 +1,13 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Addon;
+namespace Just\Tests\Feature\Addon;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
-use Lubart\Just\Tests\Feature\Helper;
+use Just\Structure\Panel\Block;
+use Just\Tests\Feature\Helper;
 use Illuminate\Http\UploadedFile;
-use Lubart\Just\Models\User;
+use Just\Models\User;
 use Illuminate\Support\Facades\Artisan;
 
 class Actions extends TestCase{

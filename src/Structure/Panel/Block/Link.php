@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
 use Lubart\Form\FormElement;
-use Lubart\Just\Structure\Panel\Block;
-use Lubart\Just\Tools\Useful;
+use Just\Structure\Panel\Block;
+use Just\Tools\Useful;
 
 class Link extends AbstractBlock
 {

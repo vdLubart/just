@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Requests;
+namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
 class UserChangeRequest extends FormRequest implements ValidateRequest
 {

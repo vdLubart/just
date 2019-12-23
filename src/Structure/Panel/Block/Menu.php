@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Lubart\Form\FormElement;
-use Lubart\Just\Requests\ChangeMenuRequest;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
-use Lubart\Just\Tools\Useful;
+use Just\Requests\ChangeMenuRequest;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Tools\Useful;
 use \Illuminate\Support\Facades\Route;
 use Spatie\Translatable\HasTranslations;
 
@@ -65,7 +65,7 @@ class Menu extends AbstractBlock
         
         $this->form->add(FormElement::text(['name'=>'item', 'label'=>__('menu.form.item'), 'value'=>$this->item]));
         $this->form->add(FormElement::select(['name'=>'parent', 'label'=>__('menu.form.parentItem'), 'options'=>$this->itemList($this->content()), 'value'=>$this->parent]));
-        $route = \Lubart\Just\Models\Route::findByUrl($this->route);
+        $route = \Just\Models\Route::findByUrl($this->route);
         $this->form->add(FormElement::select(['name'=>'route', 'label'=>__('menu.form.route'), 'options'=>$this->routes(), 'value'=>$route->id]));
         $this->form->add(FormElement::text(['name'=>'url', 'label'=>__('menu.form.url'), 'value'=>$this->url]));
         
@@ -94,7 +94,7 @@ class Menu extends AbstractBlock
         $item->setBlock($request->get('block_id'));
         $item->item = $request->get('item');
         $item->parent = $request->get('parent') == 0 ? null : $request->get('parent');
-        $route = \Lubart\Just\Models\Route::find($request->get('route'));
+        $route = \Just\Models\Route::find($request->get('route'));
         $item->route = $route->route;
         $item->url = $request->get('url');
         
@@ -142,7 +142,7 @@ class Menu extends AbstractBlock
     private function routes() {
         $routes = [];
         
-        foreach(\Lubart\Just\Models\Route::where('type', 'page')->get() as $route){
+        foreach(\Just\Models\Route::where('type', 'page')->get() as $route){
             $routes[$route->id] = $route->route;
         };
         

@@ -1,14 +1,14 @@
 <?php
 
-namespace Lubart\Just\Models;
+namespace Just\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Illuminate\Support\Facades\DB;
 use Lubart\Form\FormGroup;
-use Lubart\Just\Requests\ChangeLayoutRequest;
-use Lubart\Just\Structure\Panel;
+use Just\Requests\ChangeLayoutRequest;
+use Just\Structure\Panel;
 
 class Layout extends Model
 {

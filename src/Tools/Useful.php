@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Tools;
+namespace Just\Tools;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -47,7 +47,7 @@ class Useful {
     }
     
     public static function isRouteExists($route) {
-        $routes = \Lubart\Just\Models\Route::where('route', $route)->first();
+        $routes = \Just\Models\Route::where('route', $route)->first();
         
         if(!empty($routes)){
             return true;

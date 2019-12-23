@@ -4,8 +4,8 @@ if(!function_exists('viewPath')){
     /**
      * Return path to the view
      * 
-     * @param \Lubart\Just\Models\Layout $layout
-     * @param string|\Lubart\Just\Structure\Panel|Lubart\Just\Structure\Panel\Block $path
+     * @param \Just\Models\Layout $layout
+     * @param string|\Just\Structure\Panel|Just\Structure\Panel\Block $path
      */
     function viewPath($layout, $path){
         switch(true){
@@ -20,7 +20,7 @@ if(!function_exists('viewPath')){
                     return new \Exception("Resource \"Just.".$path."\" does not exists.");
                 }
                 break;
-            case $path instanceof \Lubart\Just\Structure\Panel:
+            case $path instanceof \Just\Structure\Panel:
                 if($layout->class != "primary" and
                         file_exists(resource_path('views/'.$layout->name.'/panels/'.$path->location.'_'.$layout->class.'.blade.php'))){
                     return $layout->name.'.panels.'. $path->location . '_' . $layout->class;
@@ -41,7 +41,7 @@ if(!function_exists('viewPath')){
                     return new \Exception("Resource \"Just.panels.".$path->location."\" does not exists.");
                 }
                 break;
-            case $path instanceof Lubart\Just\Structure\Panel\Block:
+            case $path instanceof Just\Structure\Panel\Block:
                 if ($layout->class != "primary" and
                         file_exists(resource_path('views/' . $layout->name . '/blocks/' . $path->type . '_' . $layout->class . '.blade.php'))){
                     return $layout->name.'.blocks.'. $path->type . '_' . $layout->class;
@@ -74,10 +74,10 @@ if(!function_exists('justLayout')){
     /**
      * Return primary Just! layout
      * 
-     * @return \Lubart\Just\Models\Layout
+     * @return \Just\Models\Layout
      */
     function justLayout(){
-        return \Lubart\Just\Models\Layout::where('name', 'Just')
+        return \Just\Models\Layout::where('name', 'Just')
                         ->where('class', 'primary')
                         ->first();
     }

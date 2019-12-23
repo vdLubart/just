@@ -1,17 +1,17 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
-use Lubart\Just\Tools\Useful;
-use Lubart\Just\Models\Icon;
-use Lubart\Just\Models\IconSet;
+use Just\Tools\Useful;
+use Just\Models\Icon;
+use Just\Models\IconSet;
 use Illuminate\Http\Request;
-use Lubart\Just\Models\Route as JustRoute;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Models\Route as JustRoute;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Structure\Panel\Block;
 use Spatie\Translatable\HasTranslations;
 
 class Features extends AbstractBlock

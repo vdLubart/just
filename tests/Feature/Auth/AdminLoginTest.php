@@ -1,9 +1,9 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Auth;
+namespace Just\Tests\Feature\Auth;
 
 use Tests\TestCase;
-use Lubart\Just\Models\User;
+use Just\Models\User;
 
 class AdminLoginTest extends TestCase
 {

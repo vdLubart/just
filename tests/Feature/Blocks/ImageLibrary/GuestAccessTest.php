@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\ImageLibrary;
+namespace Just\Tests\Feature\Blocks\ImageLibrary;
 
 class GuestAccessTest extends Actions
 {

@@ -6,9 +6,9 @@
  * Time: 8:32
  */
 
-namespace Lubart\Just\Tests\Feature\Languages;
+namespace Just\Tests\Feature\Languages;
 
-use Lubart\Just\Tests\Feature\Helper;
+use Just\Tests\Feature\Helper;
 
 class AdminAccessTest extends Actions {
 

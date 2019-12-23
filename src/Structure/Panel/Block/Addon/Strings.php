@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block\Addon;
+namespace Just\Structure\Panel\Block\Addon;
 
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
-use Lubart\Just\Structure\Panel\Block\Addon;
+use Just\Structure\Panel\Block\Addon;
 use Illuminate\Http\Request;
 use Spatie\Translatable\HasTranslations;
 

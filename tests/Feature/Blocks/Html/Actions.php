@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\Html;
+namespace Just\Tests\Feature\Blocks\Html;
 
-use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
+use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 
 class Actions extends LocationBlock {
     

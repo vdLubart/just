@@ -1,9 +1,10 @@
 <?php
 
-namespace Lubart\Just\Database\Seeds;
+namespace Just\Database\Seeds;
 
 use Illuminate\Database\Seeder;
-use Lubart\Just\Models;
+use Just\Models;
+use Just\Models\System\Version;
 
 class JustDataSeeder extends Seeder
 {
@@ -16,22 +17,18 @@ class JustDataSeeder extends Seeder
     {
         //Users
         Models\User::insert([
-			[
-		        'role' => 'admin',
-		        'name' => 'Admin',
-		        'email' => 'admin@just-use.it',
-		        'password' => bcrypt('admin')
-		    ],
-		    [
-		        'role' => 'master',
-		        'name' => 'Master',
-		        'email' => 'master@just-use.it',
-		        'password' => bcrypt('master')
-		    ]
-		]);
-        
-        Models\Version::create([
-            'version' => justVersion()
+            [
+                'role' => 'admin',
+                'name' => 'Admin',
+                'email' => 'admin@just-use.it',
+                'password' => bcrypt('admin')
+            ],
+            [
+                'role' => 'master',
+                'name' => 'Master',
+                'email' => 'master@just-use.it',
+                'password' => bcrypt('master')
+            ]
         ]);
     }
 }

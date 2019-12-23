@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Lubart\Form\FormElement;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
-use Lubart\Just\Tools\Useful;
-use Lubart\Just\Requests\ChangeTextRequest;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Tools\Useful;
+use Just\Requests\ChangeTextRequest;
 use Spatie\Translatable\HasTranslations;
 
 class Text extends AbstractBlock

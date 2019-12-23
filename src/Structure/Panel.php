@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Structure;
+namespace Just\Structure;
 
 use Illuminate\Database\Eloquent\Model;
-use Lubart\Just\Models\Layout;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Models\Layout;
+use Just\Structure\Panel\Block;
 
 class Panel extends Model
 {

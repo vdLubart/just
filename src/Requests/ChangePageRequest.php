@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Requests;
+namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Lubart\Just\Models\User;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Models\User;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
 class ChangePageRequest extends FormRequest implements ValidateRequest
 {

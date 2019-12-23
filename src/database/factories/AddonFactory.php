@@ -13,7 +13,7 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(\Lubart\Just\Structure\Panel\Block\Addon::class, function (Faker $faker){
+$factory->define(\Just\Structure\Panel\Block\Addon::class, function (Faker $faker){
     return [
         'block_id' => 1,
         'type' => 'strings',

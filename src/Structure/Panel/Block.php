@@ -1,22 +1,22 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel;
+namespace Just\Structure\Panel;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Lubart\Just\Models\BlockList;
+use Just\Models\BlockList;
 use Spatie\Translatable\HasTranslations;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Lubart\Form\FormElement;
-use Lubart\Just\Structure\Panel;
-use Lubart\Just\Structure\Page;
-use Lubart\Just\Models\Route;
-use Lubart\Just\Structure\Layout;
-use Lubart\Just\Structure\Panel\Block\Addon;
+use Just\Structure\Panel;
+use Just\Structure\Page;
+use Just\Models\Route;
+use Just\Structure\Layout;
+use Just\Structure\Panel\Block\Addon;
 use Lubart\Form\Form;
 use Illuminate\Support\Facades\DB;
-use Lubart\Just\Tools\Useful;
+use Just\Tools\Useful;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
 
@@ -64,7 +64,7 @@ class Block extends Model
 
         // looking for a custom block
         if(!class_exists($name)){
-            $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
+            $name = "\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
             if(!class_exists($name)){
                 throw new \Exception("Block class \"".ucfirst($this->type)."\" not found");
             }
@@ -242,7 +242,7 @@ class Block extends Model
         $validatorClass =  "\\App\\Just\\Requests\\Panel\\Block\\" . $publicity . "\\" . $requestType . Str::ucfirst( Str::singular($this->type) ) . 'Request';
 
         if (!class_exists($validatorClass)) {
-            $validatorClass =  "\\Lubart\\Just\\Requests\\Panel\\Block\\" . $publicity . "\\" . $requestType . Str::ucfirst( Str::singular($this->type) ) . 'Request';
+            $validatorClass =  "\\Just\\Requests\\Panel\\Block\\" . $publicity . "\\" . $requestType . Str::ucfirst( Str::singular($this->type) ) . 'Request';
         }
 
         return $validatorClass;
@@ -383,7 +383,7 @@ class Block extends Model
     }
     
     public function models() {
-        $name = "\\Lubart\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
+        $name = "\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
         return $this->hasMany($name);
     }
     

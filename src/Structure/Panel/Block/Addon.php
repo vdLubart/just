@@ -1,18 +1,18 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Illuminate\Database\Eloquent\Model;
 use Lubart\Form\Form;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use Lubart\Just\Models\AddonList;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Models\AddonList;
+use Just\Structure\Panel\Block;
 use Illuminate\Support\Facades\DB;
 use Lubart\Form\FormElement;
-use Lubart\Just\Tools\Useful;
+use Just\Tools\Useful;
 use Illuminate\Support\Facades\Artisan;
-use Lubart\Just\Requests\AddonChangeRequest;
+use Just\Requests\AddonChangeRequest;
 use Spatie\Translatable\HasTranslations;
 
 class Addon extends Model
@@ -31,7 +31,7 @@ class Addon extends Model
      * @return string $addon
      */
     public function addon(){
-        $class = "\\Lubart\\Just\\Structure\\Panel\\Block\\Addon\\".ucfirst($this->type);
+        $class = "\\Just\\Structure\\Panel\\Block\\Addon\\".ucfirst($this->type);
         
         if(!class_exists($class)){
             $class = "\\App\\Just\\Panel\\Block\\Addon\\". ucfirst($this->type);

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Artisan;
-use Lubart\Just\Models\System\Version;
+use Just\Models\System\Version;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,9 +33,9 @@ Artisan::command('just:install', function () {
     $this->info('Database structure was created!');
     
     // Seed data
-    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustStructureSeeder"]);
-    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustIconSeeder"]);
-    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustDataSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustStructureSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustIconSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustDataSeeder"]);
     
     Version::create(['version' => Version::inComposer()]);
     
@@ -56,7 +56,7 @@ Artisan::command('just:update', function () {
     $this->info('Database structure was updated!');
     
     if(Version::shouldBeUpdated()){
-        Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustUpdateSeeder"]);
+        Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustUpdateSeeder"]);
         
         $this->info('New data seeded to the database!');
         
@@ -67,9 +67,9 @@ Artisan::command('just:update', function () {
 
 Artisan::command('just:seed', function () {
     // Seed Just! data
-    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustStructureSeeder"]);
-    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustIconSeeder"]);
-    Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustDataSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustStructureSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustIconSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustDataSeeder"]);
     
     // Seed project data
     Artisan::call("db:seed");
@@ -207,9 +207,9 @@ Artisan::command('just:makeBlock {className}', function () {
     $lines[] = "namespace App\Just\Panel\Block;";
     $lines[] = "";
     $lines[] = "use Lubart\Form\FormElement;";
-    $lines[] = "use Lubart\Just\Tools\Useful;";
+    $lines[] = "use Just\Tools\Useful;";
     $lines[] = "use Illuminate\Http\Request;";
-    $lines[] = "use Lubart\Just\Structure\Panel\Block\AbstractBlock;";
+    $lines[] = "use Just\Structure\Panel\Block\AbstractBlock;";
     $lines[] = "";
     $lines[] = "class " . $className . " extends AbstractBlock";
     $lines[] = "{";
@@ -231,12 +231,12 @@ Artisan::command('just:makeBlock {className}', function () {
 
     file_put_contents(app_path('Just/Panel/Block/' . $className . ".php"), implode("\n", $lines));
     
-    foreach(Lubart\Just\Models\Theme::all() as $theme){
+    foreach(Just\Models\Theme::all() as $theme){
         file_put_contents(base_path('resources/views/'.$theme->name.'/blocks/' . lcfirst($className) . '.blade.php'), '<div>'.$className.' content</div>');
         file_put_contents(base_path('resources/views/'.$theme->name.'/settings/' . lcfirst($className) . '.blade.php'), "<?php\n/*\nStandard list potentially can be used\n\n@include('Just.settings.list')\n*/\n?>");
     }
     
-    \Lubart\Just\Models\BlockList::insert([
+    \Just\Models\BlockList::insert([
         'block' => lcfirst($className),
         'table' => $table
     ]);
@@ -250,7 +250,7 @@ Artisan::command('just:makeBlock {className}', function () {
 Artisan::command('just:createTheme {themeName}', function () {
     $theme = ucfirst($this->argument("themeName"));
     
-    $isExists = !! \Lubart\Just\Models\Theme::where('name', $theme)->first();
+    $isExists = !! \Just\Models\Theme::where('name', $theme)->first();
     
     if($isExists){
         $error = 'Theme "'.$theme.'" already exists! Create layout for it with master user.';
@@ -266,7 +266,7 @@ Artisan::command('just:createTheme {themeName}', function () {
         return;
     }
     
-    \Lubart\Just\Models\Theme::create([
+    \Just\Models\Theme::create([
         'name' => $theme
     ]);
      
@@ -296,9 +296,9 @@ Artisan::command('just:makeAddon {className}', function () {
     $lines[] = "";
     $lines[] = "use Lubart\Form\Form;";
     $lines[] = "use Lubart\Form\FormElement;";
-    $lines[] = "use Lubart\Just\Structure\Panel\Block\Addon;";
+    $lines[] = "use Just\Structure\Panel\Block\Addon;";
     $lines[] = "use Illuminate\Http\Request;";
-    $lines[] = "use Lubart\Just\Structure\Panel\Block\Addon\AbstractAddon;";
+    $lines[] = "use Just\Structure\Panel\Block\Addon\AbstractAddon;";
     $lines[] = "";
     $lines[] = "class " . $className . " extends AbstractAddon";
     $lines[] = "{";
@@ -328,7 +328,7 @@ Artisan::command('just:makeAddon {className}', function () {
 
     file_put_contents(app_path('Just/Panel/Block/Addon/' . $className . ".php"), implode("\n", $lines));
     
-    \Lubart\Just\Models\AddonList::insert([
+    \Just\Models\AddonList::insert([
         'addon' => lcfirst($className),
         'table' => $table
     ]);

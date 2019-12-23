@@ -1,5 +1,5 @@
 <?php
-namespace Lubart\Just\Tests\Feature\Languages;
+namespace Just\Tests\Feature\Languages;
 
 use Tests\TestCase;
 

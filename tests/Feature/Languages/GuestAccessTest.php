@@ -6,7 +6,7 @@
  * Time: 8:32
  */
 
-namespace Lubart\Just\Tests\Feature\Languages;
+namespace Just\Tests\Feature\Languages;
 
 class GuestAccessTest extends Actions {
 

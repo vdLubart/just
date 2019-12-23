@@ -13,91 +13,91 @@
 </script>
 
 <style>
-	body {
-		background-color:#F18273;
-		max-width:400px;
-		margin:auto;
-		padding:12px;
-		margin-top:6%;
-		margin-bottom:6%;
-		font-family:Verdana, Geneva, sans-serif;
-	}
+    body {
+        background-color:#F18273;
+        max-width:400px;
+        margin:auto;
+        padding:12px;
+        margin-top:6%;
+        margin-bottom:6%;
+        font-family:Verdana, Geneva, sans-serif;
+    }
 
-	.container {
-		background-color:#FFF;
-		padding:30px;
-		border-radius:0px;
-		-webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
-		-moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
-		box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
-		text-align:center;
-	}
+    .container {
+        background-color:#FFF;
+        padding:30px;
+        border-radius:0px;
+        -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+        -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+        box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+        text-align:center;
+    }
 
-	.logo {
-		width:70%;
-	}
+    .logo {
+        width:70%;
+    }
 
-	input {
-		border-radius:0px;
-		width:100%;
-		border:solid;
-		border-width:thin;
-		border-color:#CCC;
-		padding:4px;
-		margin-bottom:10px;
-		font-size:24px;
-		font-weight:lighter;
-		transition: all .25s ease-in-out;
-		-moz-transition: all .25s ease-in-out;
-		-webkit-transition: all .25s ease-in-out;
+    input {
+        border-radius:0px;
+        width:100%;
+        border:solid;
+        border-width:thin;
+        border-color:#CCC;
+        padding:4px;
+        margin-bottom:10px;
+        font-size:24px;
+        font-weight:lighter;
+        transition: all .25s ease-in-out;
+        -moz-transition: all .25s ease-in-out;
+        -webkit-transition: all .25s ease-in-out;
 
-		-webkit-box-sizing: border-box;
-		   -moz-box-sizing: border-box;
-				box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+           -moz-box-sizing: border-box;
+                box-sizing: border-box;
 
-		-webkit-appearance: none;
-		-webkit-border-radius:0px;
+        -webkit-appearance: none;
+        -webkit-border-radius:0px;
 
 
-	}
+    }
 
-	input:focus {
-		box-shadow: 0 0 3px #64C6E7;
-		opacity:1;
-	}
+    input:focus {
+        box-shadow: 0 0 3px #64C6E7;
+        opacity:1;
+    }
 
-	.nameOfInput {
-		font-size:14px;
-		margin-bottom:1px;
-		text-align:left;
-		font-weight:bold;
-		color:#666;
-	}
+    .nameOfInput {
+        font-size:14px;
+        margin-bottom:1px;
+        text-align:left;
+        font-weight:bold;
+        color:#666;
+    }
 
-	.login_btn {
-		margin-top:14px;
-		background-color:#F9F9F9;
-		border-radius:2px;
-		color:#666;
-		font-weight:normal;
-		font-size:16px;
-		width:auto;
-		padding:5px;
-		border:none !important;
-		cursor:pointer;
-	}
+    .login_btn {
+        margin-top:14px;
+        background-color:#F9F9F9;
+        border-radius:2px;
+        color:#666;
+        font-weight:normal;
+        font-size:16px;
+        width:auto;
+        padding:5px;
+        border:none !important;
+        cursor:pointer;
+    }
 
-	.hrNews {
-		border-top:solid;
-		border-top-width:thin;
-		border-top-color:#CCC;
-		margin:auto;
-		margin-top:7px;
-	}
+    .hrNews {
+        border-top:solid;
+        border-top-width:thin;
+        border-top-color:#CCC;
+        margin:auto;
+        margin-top:7px;
+    }
 
-	.hrNews2 {
-		margin-top:20px;
-	}
+    .hrNews2 {
+        margin-top:20px;
+    }
     h1 {
         color: #1862A8;
         font-family: 'Open Sans', sans-serif;
@@ -141,11 +141,11 @@
 </head>
 <body>
 <div class="container">
-	<div class="login">
+    <div class="login">
     <h1>Welcome!</h1>
     <h2>Please create a new (local) account to prevent others to view and manage your images.</h2>
     <h3 class="disable" onclick="window.open('http://imageuploaderforckeditor.altervista.org/disable_pw.html','about:blank', 'toolbar=no, scrollbars=yes, resizable=no, width=900, height=600');">How can I disable the password protection? (external link)</h3>
-	<form name="form2" action="create.php" method="post">
+    <form name="form2" action="create.php" method="post">
     <p class="nameOfInput">Username</p>
     <input type="text" name="username" class="login_form">
     <p class="nameOfInput">Password</p>

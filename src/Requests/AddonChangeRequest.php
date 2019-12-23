@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Requests;
+namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Lubart\Just\Structure\Panel\Block\Addon;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block\Addon;
+use Just\Structure\Panel\Block;
 
 class AddonChangeRequest extends FormRequest implements Block\Contracts\ValidateRequest
 {

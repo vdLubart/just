@@ -1,14 +1,14 @@
 <?php
 
-namespace Lubart\Just\Tests\Browser\Master\Layouts;
+namespace Just\Tests\Browser\Master\Layouts;
 
 use Laravel\Dusk\Browser;
 use App\User;
-use Lubart\Just\Models\Layout;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Models\Layout;
+use Just\Structure\Panel\Block;
 use Facebook\WebDriver\WebDriverBy;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Tests\Browser\Master\MasterTests;
+use Just\Tests\Browser\Master\MasterTests;
 
 class LayoutTest extends MasterTests
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature;
+namespace Just\Tests\Feature;
 
-use Lubart\Just\Models\User;
+use Just\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 

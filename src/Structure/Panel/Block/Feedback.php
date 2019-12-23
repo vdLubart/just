@@ -1,17 +1,17 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
-use Lubart\Just\Structure\Panel\Block\Contracts\ContainsPublicForm;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
-use Lubart\Just\Tools\Useful;
-use Lubart\Just\Models\Route as JustRoute;
-use Lubart\Just\Models\User;
+use Just\Structure\Panel\Block\Contracts\ContainsPublicForm;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Tools\Useful;
+use Just\Models\Route as JustRoute;
+use Just\Models\User;
 
 class Feedback extends AbstractBlock implements ContainsPublicForm
 {

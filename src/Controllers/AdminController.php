@@ -1,29 +1,29 @@
 <?php
 
-namespace Lubart\Just\Controllers;
+namespace Just\Controllers;
 
 use Illuminate\Http\Request;
-use Lubart\Just\Structure\Panel\Block;
-use Lubart\Just\Structure\Panel;
-use Lubart\Just\Tools\AjaxUploader;
-use Lubart\Just\Tools\Useful;
-use Lubart\Just\Models\Page;
-use Lubart\Just\Structure\Layout;
-use Lubart\Just\Structure\Panel\Block\Addon;
+use Just\Structure\Panel\Block;
+use Just\Structure\Panel;
+use Just\Tools\AjaxUploader;
+use Just\Tools\Useful;
+use Just\Models\Page;
+use Just\Structure\Layout;
+use Just\Structure\Panel\Block\Addon;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\DB;
-use Lubart\Just\Requests\UploadImageRequest;
-use Lubart\Just\Models\User;
-use Lubart\Just\Requests\ChangePasswordRequest;
-use Lubart\Just\Validators\ValidatorExtended;
-use Lubart\Just\Structure\Panel\Block\Addon\Categories;
-use Lubart\Just\Models\Theme;
-use Lubart\Just\Requests\ChangeCategoryRequest;
-use Lubart\Just\Requests\AddonChangeRequest;
-use Lubart\Just\Requests\UserChangeRequest;
-use Lubart\Just\Requests\DeleteUserRequest;
-use Lubart\Just\Requests\DeleteLayoutRequest;
-use Lubart\Just\Requests\ChangeBlockRequest;
+use Just\Requests\UploadImageRequest;
+use Just\Models\User;
+use Just\Requests\ChangePasswordRequest;
+use Just\Validators\ValidatorExtended;
+use Just\Structure\Panel\Block\Addon\Categories;
+use Just\Models\Theme;
+use Just\Requests\ChangeCategoryRequest;
+use Just\Requests\AddonChangeRequest;
+use Just\Requests\UserChangeRequest;
+use Just\Requests\DeleteUserRequest;
+use Just\Requests\DeleteLayoutRequest;
+use Just\Requests\ChangeBlockRequest;
 
 class AdminController extends Controller
 {

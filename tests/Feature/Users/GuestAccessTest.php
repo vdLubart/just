@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Just\Users;
+namespace Just\Tests\Feature\Just\Users;
 
 class GuestAccessTest extends Actions
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace Lubart\Just\Controllers\Settings;
+namespace Just\Controllers\Settings;
 
-use Lubart\Just\Controllers\SettingsController;
-use Lubart\Just\Requests\DeletePageRequest;
-use Lubart\Just\Requests\ChangePageRequest;
-use Lubart\Just\Models\Page;
-use Lubart\Just\Models\System\Route as JustRoute;
+use Just\Controllers\SettingsController;
+use Just\Requests\DeletePageRequest;
+use Just\Requests\ChangePageRequest;
+use Just\Models\Page;
+use Just\Models\System\Route as JustRoute;
 
 class PageController extends SettingsController
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks;
+namespace Just\Tests\Feature\Blocks;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
-use Lubart\Just\Models\User;
+use Just\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class Actions extends TestCase{

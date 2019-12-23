@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Models;
+namespace Just\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

@@ -1,15 +1,15 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Intervention\Image\ImageManagerStatic as Image;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
-use Lubart\Just\Tools\Useful;
-use Lubart\Just\Models\Route as JustRoute;
-use Lubart\Just\Structure\Page;
-use Lubart\Just\Tools\Slug;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Tools\Useful;
+use Just\Models\Route as JustRoute;
+use Just\Structure\Page;
+use Just\Tools\Slug;
 use Spatie\Translatable\HasTranslations;
 
 class Articles extends AbstractBlock

@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Lubart\Just\Database\Helpers\AddTranslations;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Database\Helpers\AddTranslations;
+use Just\Structure\Panel\Block;
 
 class AddTranslationsToBlocksTable extends Migration
 {

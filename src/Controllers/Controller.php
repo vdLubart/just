@@ -1,15 +1,15 @@
 <?php
 
-namespace Lubart\Just\Controllers;
+namespace Just\Controllers;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Controllers\Controller as LaravelController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Lubart\Just\Models\System\Route;
+use Just\Models\System\Route;
 use Illuminate\Http\Request;
-use Lubart\Just\Structure\Panel\Block;
-use Lubart\Just\Validators\ValidatorExtended;
+use Just\Structure\Panel\Block;
+use Just\Validators\ValidatorExtended;
 
 class Controller extends LaravelController
 {

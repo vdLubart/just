@@ -1,8 +1,8 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\Articles;
+namespace Just\Tests\Feature\Blocks\Articles;
 
-use Lubart\Just\Tests\Feature\Helper;
+use Just\Tests\Feature\Helper;
 use Tests\TestCase;
 
 class AdminAccessTest extends Actions

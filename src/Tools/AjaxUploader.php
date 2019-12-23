@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Tools;
+namespace Just\Tools;
 
 use Illuminate\Support\Facades\Storage;
 
@@ -323,7 +323,7 @@ class AjaxUploader {
         ob_start();
         $request = request();
         $request->request->set('currentFile', $this->file_name);
-        $model = app('Lubart\Just\Controllers\AdminController')->handleForm($request);
+        $model = app('Just\Controllers\AdminController')->handleForm($request);
 
         $this->imageCode = $model->image;
         $this->shouldBeCropped = $model->shouldBeCropped;

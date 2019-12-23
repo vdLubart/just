@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Notifications;
+namespace Just\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
-use Lubart\Just\Models\Theme;
+use Just\Models\Theme;
 
 class NewFeedback extends Notification
 {

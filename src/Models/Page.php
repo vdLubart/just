@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Models;
+namespace Just\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
-use Lubart\Just\Models\System\Route as JustRoute;
+use Just\Models\System\Route as JustRoute;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Illuminate\Http\Request;

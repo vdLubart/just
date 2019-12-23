@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Middleware;
+namespace Just\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
-use Lubart\Just\Models\User;
+use Just\Models\User;
 
 class MasterAccess
 {

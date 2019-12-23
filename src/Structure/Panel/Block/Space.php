@@ -1,12 +1,12 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Illuminate\Database\Eloquent\Collection;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
 class Space extends AbstractBlock
 {

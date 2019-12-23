@@ -1,9 +1,9 @@
 <?php
 
-namespace Lubart\Just\Models\System;
+namespace Just\Models\System;
 
 use Illuminate\Database\Eloquent\Model;
-use Lubart\Just\Models\Page;
+use Just\Models\Page;
 
 class Route extends Model
 {

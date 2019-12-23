@@ -6,12 +6,12 @@
  * Time: 16:58
  */
 
-namespace Lubart\Just\Tests\Feature\Blocks;
+namespace Just\Tests\Feature\Blocks;
 
 
 use Illuminate\Support\Facades\DB;
-use Lubart\Just\Structure\Panel\Block;
-use Lubart\Just\Structure\Panel\Block\Text;
+use Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block\Text;
 use Tests\TestCase;
 
 class LocationBlock extends TestCase {

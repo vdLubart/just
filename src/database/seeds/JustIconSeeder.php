@@ -6,10 +6,11 @@
  * and open the template in the editor.
  */
 
-namespace Lubart\Just\Database\Seeds;
+namespace Just\Database\Seeds;
 
 use Illuminate\Database\Seeder;
-use Lubart\Just\Models;
+use Just\Models\System\IconSet;
+use Just\Models\System\Icon;
 
 /**
  * Description of JustIconSeeder
@@ -22,19 +23,19 @@ class JustIconSeeder extends Seeder {
     public function run(){
         
         // Icons
-        $faIconSet = Models\IconSet::create([
+        $faIconSet = IconSet::create([
             'title' => 'Font Awesome',
             'tag' => 'i',
             'class' => 'fa'
         ]);
         
-        $fabIconSet = Models\IconSet::create([
+        $fabIconSet = IconSet::create([
             'title' => 'Font Awesome Brands',
             'tag' => 'i',
             'class' => 'fab'
         ]);
         
-        Models\Icon::insert(
+        Icon::insert(
             array(
                 array('icon_set_id' => $faIconSet->id, 'class' => 'fa-ad'),
                     array('icon_set_id' => $faIconSet->id, 'class' => 'fa-address-book'),
@@ -954,7 +955,7 @@ class JustIconSeeder extends Seeder {
                 )
         );
         
-        Models\Icon::insert(
+        Icon::insert(
             array(
                 array('icon_set_id' => $fabIconSet->id, 'class' => 'fa-500px'),
                     array('icon_set_id' => $fabIconSet->id, 'class' => 'fa-accessible-icon'),

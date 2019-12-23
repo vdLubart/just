@@ -1,14 +1,14 @@
 <?php
 
-namespace Lubart\Just\Models;
+namespace Just\Models;
 
 use Illuminate\Notifications\Notifiable;
-use Lubart\Just\Notifications\NewRegistration;
-use Lubart\Just\Notifications\PasswordReset;
-use Lubart\Just\Notifications\NewFeedback;
+use Just\Notifications\NewRegistration;
+use Just\Notifications\PasswordReset;
+use Just\Notifications\NewFeedback;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
-use Lubart\Just\Requests\UserChangeRequest;
+use Just\Requests\UserChangeRequest;
 use App\User as AppUser;
 use Illuminate\Support\Facades\Auth;
 

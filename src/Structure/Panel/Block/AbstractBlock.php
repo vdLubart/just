@@ -1,16 +1,16 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Illuminate\Database\Eloquent\Model;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
-use Lubart\Just\Requests\CropRequest;
+use Just\Requests\CropRequest;
 use Intervention\Image\ImageManagerStatic as Image;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 use Illuminate\Http\Request;
-use Lubart\Just\Tools\Useful;
+use Just\Tools\Useful;
 use Illuminate\Support\Facades\Schema;
 
 abstract class AbstractBlock extends Model
@@ -362,7 +362,7 @@ abstract class AbstractBlock extends Model
     /**
      * Return current layout
      * 
-     * @return \Lubart\Just\Structure\Layout;
+     * @return \Just\Structure\Layout;
      */
     public function layout() {
         return $this->block->layout();
@@ -414,7 +414,7 @@ abstract class AbstractBlock extends Model
     public function addon($name){
         $addon = Addon::where('name', $name)->first();
 
-        return $this->belongsToMany('Lubart\\Just\\Structure\\Panel\\Block\\Addon\\'.ucfirst($addon->type), $this->getTable().'_'.$addon->type, 'modelItem_id', 'addonItem_id')->first();
+        return $this->belongsToMany('Just\\Structure\\Panel\\Block\\Addon\\'.ucfirst($addon->type), $this->getTable().'_'.$addon->type, 'modelItem_id', 'addonItem_id')->first();
     }
 
 

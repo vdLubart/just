@@ -1,7 +1,7 @@
 <?php
 
-namespace Lubart\Just\Requests\Panel\Block\Admin;
+namespace Just\Requests\Panel\Block\Admin;
 
-use Lubart\Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
 class ChangeHtmlRequest extends ChangeTextRequest implements ValidateRequest {}

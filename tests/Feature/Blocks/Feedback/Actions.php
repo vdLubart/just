@@ -1,13 +1,13 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\Feedback;
+namespace Just\Tests\Feature\Blocks\Feedback;
 
-use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
+use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
-use Lubart\Just\Models\User;
+use Just\Structure\Panel\Block;
+use Just\Models\User;
 use Illuminate\Support\Facades\Notification;
-use Lubart\Just\Notifications\NewFeedback;
+use Just\Notifications\NewFeedback;
 
 class Actions extends LocationBlock {
     
@@ -123,10 +123,10 @@ class Actions extends LocationBlock {
     public function leave_feedback_from_the_website($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}')]);
         
-        $this->app['router']->post('feedback/add', "\Lubart\Just\Controllers\JustController@post")->middleware('web');
+        $this->app['router']->post('feedback/add', "\Just\Controllers\JustController@post")->middleware('web');
         
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
-        \Lubart\Just\Validators\Recaptcha::setClient($client);
+        \Just\Validators\Recaptcha::setClient($client);
 
         $response = \Mockery::mock(\GuzzleHttp\Psr7\Response::class);
 
@@ -172,7 +172,7 @@ class Actions extends LocationBlock {
     public function receive_an_error_on_sending_incompleate_feedback_on_the_website(){
         $block = $this->setupBlock(['parameters'=>'{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}']);
         
-        $this->app['router']->post('feedback/add', "\Lubart\Just\Controllers\JustController@post")->middleware('web');
+        $this->app['router']->post('feedback/add', "\Just\Controllers\JustController@post")->middleware('web');
         
         $note = Notification::fake();
         

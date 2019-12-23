@@ -13,7 +13,7 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(Lubart\Just\Structure\Page::class, function (Faker $faker){
+$factory->define(Just\Structure\Page::class, function (Faker $faker){
     return [
         'title' => $faker->name,
         'description' => $faker->sentence,

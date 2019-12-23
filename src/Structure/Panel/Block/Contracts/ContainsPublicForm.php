@@ -6,7 +6,7 @@
  * Time: 18:27
  */
 
-namespace Lubart\Just\Structure\Panel\Block\Contracts;
+namespace Just\Structure\Panel\Block\Contracts;
 
 use Illuminate\Http\Request;
 use Lubart\Form\Form;

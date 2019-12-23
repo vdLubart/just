@@ -1,11 +1,14 @@
 <?php
 
-namespace Lubart\Just\Database\Seeds;
+namespace Just\Database\Seeds;
 
 use Illuminate\Database\Seeder;
-use Lubart\Just\Structure;
-use Lubart\Just\Models;
+use Just\Structure;
+use Just\Models;
 use Illuminate\Support\Facades\DB;
+use Just\Models\Layout;
+use Just\Models\Page;
+use Just\Models\System\Route;
 
 class JustStructureSeeder extends Seeder
 {
@@ -23,13 +26,13 @@ class JustStructureSeeder extends Seeder
         ]);
         
         // Layout
-        $justPrimaryLayout = Structure\Layout::create([
+        $justPrimaryLayout = Layout::create([
             'name' => 'Just',
             'class' => 'primary',
             'width' => 1170, // 1920 for fully responsive design
         ]);
         
-        $justSpecificLayout = Structure\Layout::create([
+        $justSpecificLayout = Layout::create([
             'name' => 'Just',
             'class' => 'specific',
             'width' => 1170, // 1920 for fully responsive design
@@ -213,14 +216,16 @@ class JustStructureSeeder extends Seeder
         ]);
         
         // Routes
-        $homeRoute = Models\Route::create([
+        $homeRoute = Route::create([
             'route' => ''
         ]);
         
         //Pages
-        $homePage = Structure\Page::create([
+        $homePage = Page::create([
             'title' => 'Home',
             'description' => 'Home page',
+            'author' => '{}',
+            'copyright' => '{}',
             'route' => $homeRoute->route,
             'layout_id' => $justPrimaryLayout->id
         ]);

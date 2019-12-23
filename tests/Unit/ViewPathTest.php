@@ -1,13 +1,13 @@
 <?php
 
-namespace Lubart\Just\Tests\Unit;
+namespace Just\Tests\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Layout;
-use Lubart\Just\Structure\Panel;
-use Lubart\Just\Models\Theme;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Layout;
+use Just\Structure\Panel;
+use Just\Models\Theme;
+use Just\Structure\Panel\Block;
 use Illuminate\Support\Facades\DB;
 
 /**

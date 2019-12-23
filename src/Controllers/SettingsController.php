@@ -1,12 +1,12 @@
 <?php
 
-namespace Lubart\Just\Controllers;
+namespace Just\Controllers;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
-use Lubart\Just\Models\Theme;
+use Just\Models\Theme;
 
 abstract class SettingsController extends Controller
 {
@@ -22,7 +22,7 @@ abstract class SettingsController extends Controller
      * @return string
      */
     private function itemClass() {
-        return '\\Lubart\\Just\\Models\\' . $this->modelName();
+        return '\\Just\\Models\\' . $this->modelName();
     }
 
     /**

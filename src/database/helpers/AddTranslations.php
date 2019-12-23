@@ -1,5 +1,5 @@
 <?php
-namespace Lubart\Just\Database\Helpers;
+namespace Just\Database\Helpers;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -30,7 +30,7 @@ trait AddTranslations {
 
         Schema::table($this->table, function (Blueprint $table) use ($columns){
             foreach ($columns as $column){
-                $table->json($column)->change();
+                $table->json($column)->charset('')->change();
             }
         });
     }

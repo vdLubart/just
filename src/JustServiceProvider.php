@@ -1,9 +1,9 @@
 <?php
 
-namespace Lubart\Just;
+namespace Just;
 
 use Illuminate\Support\ServiceProvider;
-use Lubart\Just\Validators\ValidatorExtended;
+use Just\Validators\ValidatorExtended;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Schema;
 
@@ -49,7 +49,7 @@ class JustServiceProvider extends ServiceProvider
         
         Validator::extend(
             'recaptcha',
-            'Lubart\\Just\\Validators\\Recaptcha@validate'
+            'Just\\Validators\\Recaptcha@validate'
         );
         
         $this->app->validator->resolver(function($translator, $data, $rules, $messages){
@@ -60,7 +60,7 @@ class JustServiceProvider extends ServiceProvider
             \Config::set('mail.markdown.paths', [resource_path('views/'.(Models\Theme::active()->name ?? 'Just').'/emails/mail')]);
         }
 
-        $this->app['router']->aliasMiddleware('master', \Lubart\Just\Middleware\MasterAccess::class);
+        $this->app['router']->aliasMiddleware('master', \Just\Middleware\MasterAccess::class);
     }
 
     /**

@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block\Addon;
+namespace Just\Structure\Panel\Block\Addon;
 
 use Illuminate\Database\Eloquent\Model;
 use Lubart\Form\Form;
-use Lubart\Just\Structure\Panel\Block\Addon;
+use Just\Structure\Panel\Block\Addon;
 use Illuminate\Support\Facades\DB;
 
 abstract class AbstractAddon extends Model

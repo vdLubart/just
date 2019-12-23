@@ -1,14 +1,15 @@
 <?php
 
-namespace Lubart\Just\Database\Seeds;
+namespace Just\Database\Seeds;
 
 use Illuminate\Database\Seeder;
-use Lubart\Just\Models\Version;
+use Just\Models\System\Version;
 use Illuminate\Support\Facades\DB;
-use Lubart\Just\Models;
+use Just\Models;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
+use Just\Models\System\IconSet;
 
 class JustUpdateSeeder extends Seeder
 {
@@ -41,9 +42,9 @@ class JustUpdateSeeder extends Seeder
                 
             case version_compare(Version::current(), '1.2.0', '<'):
                 // some code applied starting from v.1.2.0
-                Models\IconSet::where('title', 'Font Awesome')->delete();
+                IconSet::where('title', 'Font Awesome')->delete();
                 
-                Artisan::call("db:seed", ["--class" => "Lubart\\Just\\Database\\Seeds\\JustIconSeeder"]);
+                Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustIconSeeder"]);
                 
                 Schema::table('themes', function(Blueprint $table){
                     $table->increments('id');

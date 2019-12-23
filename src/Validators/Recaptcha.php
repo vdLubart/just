@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Validators;
+namespace Just\Validators;
 
 use GuzzleHttp\Client;
 

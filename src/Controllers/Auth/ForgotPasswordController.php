@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Controllers\Auth;
+namespace Just\Controllers\Auth;
 
-use Lubart\Just\Controllers\Controller;
+use Just\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
-use Lubart\Just\Models\Theme;
+use Just\Models\Theme;
 
 class ForgotPasswordController extends Controller
 {

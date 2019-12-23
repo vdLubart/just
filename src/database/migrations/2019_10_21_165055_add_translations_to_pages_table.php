@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Lubart\Just\Database\Helpers\AddTranslations;
-use Lubart\Just\Structure\Page;
+use Just\Database\Helpers\AddTranslations;
+use Just\Models\Page;
 
 class AddTranslationsToPagesTable extends Migration
 {

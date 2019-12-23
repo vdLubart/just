@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use Lubart\Just\Structure\Panel\Block\Contact;
+use Just\Structure\Panel\Block\Contact;
 
 class UpdateContactsTable extends Migration
 {

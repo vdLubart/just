@@ -1,12 +1,12 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\Gallery;
+namespace Just\Tests\Feature\Blocks\Gallery;
 
-use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
+use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 use Illuminate\Http\UploadedFile;
-use Lubart\Just\Models\User;
+use Just\Models\User;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class Actions extends LocationBlock {

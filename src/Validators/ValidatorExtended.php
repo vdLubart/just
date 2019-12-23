@@ -5,7 +5,7 @@
  *
  * @author Viacheslav Dymarchuk
  */
-namespace Lubart\Just\Validators;
+namespace Just\Validators;
 
 use Illuminate\Validation\Validator;
 

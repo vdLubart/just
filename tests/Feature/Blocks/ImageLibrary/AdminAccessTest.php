@@ -1,8 +1,8 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\ImageLibrary;
+namespace Just\Tests\Feature\Blocks\ImageLibrary;
 
-use Lubart\Just\Tests\Feature\Helper;
+use Just\Tests\Feature\Helper;
 
 class AdminAccessTest extends Actions
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lubart\Just\Structure\Panel\Block;
+namespace Just\Structure\Panel\Block;
 
 use Lubart\Form\FormElement;
 

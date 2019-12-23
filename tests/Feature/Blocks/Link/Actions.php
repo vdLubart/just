@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\Link;
+namespace Just\Tests\Feature\Blocks\Link;
 
-use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
+use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 
 class Actions extends LocationBlock {
     
@@ -17,7 +17,7 @@ class Actions extends LocationBlock {
             $block->delete();
         }
         
-        \Lubart\Just\Models\Route::where('id', '>', 1)->delete();
+        \Just\Models\Route::where('id', '>', 1)->delete();
         
         parent::tearDown();
     }
@@ -61,19 +61,19 @@ class Actions extends LocationBlock {
 
     public function create_new_item_in_block($assertion){
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
-        $route = \Lubart\Just\Models\Route::create([
+        $route = \Just\Models\Route::create([
             'route' => 'mirror-'.$this->faker->word,
             'type' => 'page'
         ]);
         
-        $page = \Lubart\Just\Structure\Page::create([
+        $page = \Just\Structure\Page::create([
             'title' => 'Mirror',
             'route' => $route->route,
             'layout_id' => 1
         ]);
         
-        $this->app['router']->get($route->route, "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/'.$route->route, "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->get($route->route, "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/'.$route->route, "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         
         $block = $this->setupBlock(['page_id'=>$page->id]);
         
@@ -131,19 +131,19 @@ class Actions extends LocationBlock {
     public function edit_existing_item_in_the_block($assertion){
         $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
         $contactBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":100}')])->specify();
-        $route = \Lubart\Just\Models\Route::create([
+        $route = \Just\Models\Route::create([
             'route' => $path = 'mirror-'.$this->faker->word,
             'type' => 'page'
         ]);
         
-        $page = \Lubart\Just\Structure\Page::create([
+        $page = \Just\Structure\Page::create([
             'title' => 'Mirror',
             'route' => $route->route,
             'layout_id' => 1
         ]);
         
-        $this->app['router']->get($route->route, "\Lubart\Just\Controllers\JustController@buildPage")->middleware('web');
-        $this->app['router']->get('admin/'.$route->route, "\Lubart\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+        $this->app['router']->get($route->route, "\Just\Controllers\JustController@buildPage")->middleware('web');
+        $this->app['router']->get('admin/'.$route->route, "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         
         $block = $this->setupBlock(['page_id'=>$page->id]);
         

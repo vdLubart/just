@@ -1,11 +1,11 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Blocks\Features;
+namespace Just\Tests\Feature\Blocks\Features;
 
-use Lubart\Just\Tests\Feature\Blocks\LocationBlock;
+use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Structure\Panel\Block;
-use Lubart\Just\Tools\Useful;
+use Just\Structure\Panel\Block;
+use Just\Tools\Useful;
 
 class Actions extends LocationBlock {
     
@@ -75,7 +75,7 @@ class Actions extends LocationBlock {
         
         $this->assertTrue(Useful::isRouteExists("iconset/{id}/{page?}"));
 
-        $this->app['router']->get('iconset/{id}/{page?}', "\Lubart\Just\Controllers\JustController@ajax")->middleware('web');
+        $this->app['router']->get('iconset/{id}/{page?}', "\Just\Controllers\JustController@ajax")->middleware('web');
         
         $this->get("iconset/1")
                 ->assertStatus(200);

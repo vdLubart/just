@@ -5,7 +5,7 @@ namespace Tests\Browser\Blocks;
 use Tests\DuskTestCase;
 use Laravel\Dusk\Browser;
 use App\User;
-use Lubart\Just\Structure\Panel\Block;
+use Just\Structure\Panel\Block;
 use Facebook\WebDriver\WebDriverBy;
 use Illuminate\Foundation\Testing\WithFaker;
 

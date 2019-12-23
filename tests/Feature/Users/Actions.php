@@ -1,10 +1,10 @@
 <?php
 
-namespace Lubart\Just\Tests\Feature\Just\Users;
+namespace Just\Tests\Feature\Just\Users;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Lubart\Just\Models\User;
+use Just\Models\User;
 
 class Actions extends TestCase{
     
