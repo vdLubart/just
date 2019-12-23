@@ -1,10 +1,13 @@
 <template>
 
-    <ul>
-        <li v-for="(label, key) in list" :key="key">
-            <slink :href="'/settings/layout/' + key">{{ label }}</slink>
-        </li>
-    </ul>
+    <div>
+        <span v-if="isWaitingData">Loading data...</span>
+        <ul v-else>
+            <li v-for="(label, key) in content" :key="key">
+                <slink :href="'/settings/layout/' + key">{{ label }}</slink>
+            </li>
+        </ul>
+    </div>
 
 </template>
 
@@ -16,11 +19,7 @@
 
         components: {Link},
 
-        data(){
-            return {
-                list: this.$parent.$parent.content
-            }
-        }
+        props: ['content', 'isWaitingData']
     }
 </script>
 

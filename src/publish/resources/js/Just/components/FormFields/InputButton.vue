@@ -2,7 +2,7 @@
 
     <block :no-wrap="!wrap" :id="name" :withoutLabel="true">
 
-        <button type="button" :name="name" :id="name" class="input-component__button" v-on:click="$emit('click', true)">{{ content }}</button>
+        <button type="button" :name="name" :id="name" class="input-component__button" v-on:click="$emit('click', true)" v-bind="parameters">{{ content }}</button>
 
     </block>
 

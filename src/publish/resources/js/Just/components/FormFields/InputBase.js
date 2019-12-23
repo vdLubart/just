@@ -9,7 +9,8 @@ export default {
         noWrap: {type: Boolean, default: false},
         withoutLabel: {type: Boolean, default: false},
         value: {type: String, default: ""},
-        label: {type: String, default: ""}
+        label: {type: String, default: ""},
+        parameters: {type: Object}
     },
 
     data(){

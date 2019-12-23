@@ -16,7 +16,9 @@ Vue.config.devtools = true;
 Vue.component('slink', Link);
 Vue.component('settings', Settings);
 
-new Vue({
+export const eventBus = new Vue();
+
+window.App = new Vue({
     el: '#app',
 
     data: {
@@ -43,7 +45,7 @@ new Vue({
         },
 
         showErrors(data){
-
+            console.log(data);
         }
     },
 

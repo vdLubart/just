@@ -4,7 +4,13 @@
         <div class="settings-component__background" @click="closeModal"></div>
         <div class="settings-component__card">
             <header class="settings-component__card__header">
-                <span class="settings-component__card__header__title" v-html="caption"></span>
+                <div>
+                    <span v-for="(captionLabel, url, index) in caption" :key="index">
+                        <slink :href="url">
+                            <span class="settings-component__card__header__title" v-html="captionLabel"></span>
+                        </slink><span v-if="(index+1) < Object.keys(caption).length"> :: </span>
+                    </span>
+                </div>
                 <a href="#"  class="settings-component__card__header__close"  @click.prevent="closeModal" title='settings.actions.close'><i class="fa fa-times"></i></a>
             </header>
             <alert v-if="Object.keys(alertNotes).length" :notes="alertNotes" :status="alertStatus" :renderHtml="alertRenderHtml"></alert>
@@ -18,14 +24,16 @@
 <script>
     import Alert from './Alert';
     import ContentView from './Content';
+    import {eventBus} from "../adminApp";
+    import Slink from './Link';
 
     export default {
         name: "Settings",
 
-        components: { Alert, ContentView },
+        components: { Alert, ContentView, Slink },
 
         props: {
-            title: {type: String},                                      // modal caption
+            title: {type: Array},                                      // modal caption
             visible: {type: Boolean, default: false},                   // modal visibility
             alert: {type: Object, default: () => {return {};} },
             alertStatus: {type: String, default: "success"},
@@ -34,8 +42,8 @@
 
         data() {
             return {
-                content: "Loading data...",
-                contentType: 'list',
+                content: null,
+                contentType: null,
                 caption: this.title,
                 visibility: this.visible,
                 alertNotes: this.alert,
@@ -61,6 +69,10 @@
 
             alert(val){
                 this.alertNotes = val;
+            },
+
+            content(val){
+                eventBus.$emit('contentReceived', val);
             }
         },
     }
@@ -73,7 +85,7 @@
         align-items: center;
         flex-direction: column;
         justify-content: center;
-        overflow: hidden;
+        overflow: scroll;
         position: fixed;
         z-index: 100;
         bottom: 0;
@@ -94,8 +106,7 @@
     .settings-component__card{
         display: flex;
         flex-direction: column;
-        max-height: calc(100vh - 40px);
-        overflow: hidden;
+        max-height: calc(100vh - 120px);
         z-index: 100;
         min-width: 33%;
     }

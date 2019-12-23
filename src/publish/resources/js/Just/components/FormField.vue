@@ -9,6 +9,8 @@
     import RadioGroup from './FormFields/RadioGroup';
     import InputButton from './FormFields/InputButton';
     import InputHidden from './FormFields/InputHidden';
+    import SelectChosen from './FormFields/SelectChosen';
+    import HtmlBlock from './FormFields/HtmlBlock';
 
     export default {
         name: "FormField",
@@ -29,12 +31,12 @@
                 'checkbox': CheckboxGroup,
                 'radio': RadioGroup,
                 'number': InputNumber,
-                'select': null,
+                'select': SelectChosen,
                 'selectRange': null,
                 'selectMonth': null,
                 'hidden': InputHidden,
                 'button': InputButton,
-                'html': null,
+                'html': HtmlBlock,
                 'date': InputDate,
                 'time': null
             }
@@ -48,7 +50,8 @@
                     label: this.element.label,
                     name: this.element.name,
                     required: this.element.isObligatory,
-                    value: this.element.value
+                    value: this.element.value,
+                    parameters: this.element.parameters
                 }
             });
         }

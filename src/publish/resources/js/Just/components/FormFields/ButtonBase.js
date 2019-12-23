@@ -6,7 +6,8 @@ export default {
     props: {
         name: {type: String},
         wrap: {type: Boolean, default: false},
-        label: {type: String, default: ""}
+        label: {type: String, default: ""},
+        parameters: {type: Object}
     },
 
     data(){

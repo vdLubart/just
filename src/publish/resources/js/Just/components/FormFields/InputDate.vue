@@ -1,7 +1,7 @@
 <template>
 
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <date-picker lang="en" :inputName="name" :format="format" :placeholder="placeholder" v-model="content" @input="handleInput"></date-picker>
+        <date-picker lang="en" :inputName="name" :format="format" :placeholder="placeholder" v-model="content" @input="handleInput" v-bind="parameters"></date-picker>
     </block>
 
 </template>

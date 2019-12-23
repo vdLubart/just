@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Illuminate\Support\Facades\DB;
+use Lubart\Form\FormGroup;
 use Lubart\Just\Requests\ChangeLayoutRequest;
 use Lubart\Just\Structure\Panel;
 
@@ -30,26 +31,34 @@ class Layout extends Model
         $form = new Form('settings/layout/setup');
         
         $form->setType("layoutSettings");
-        
-        $form->add(FormElement::hidden(['name'=>'layout_id', 'value'=>(string) $this->id]));
-        $form->add(FormElement::select(['name'=>'name', 'label'=>__('layout.createForm.themeTitle'), 'value'=>$this->name ?? Theme::where('isActive', 1)->first()->name, 'options'=>Theme::all()->pluck('name', 'name')]));
-        $form->add(FormElement::text(['name'=>'class', 'label'=>__('layout.createForm.themeClass'), 'value'=>$this->class ?? 'primary']));
+
+        $paramsGroup = new FormGroup('paramsGroup', 'Layout Parameters', ['style' => 'flex: 0 1 100%']);
+
+        $paramsGroup->add(FormElement::hidden(['name'=>'layout_id', 'value'=>(string) $this->id]));
+        $paramsGroup->add(FormElement::select(['name'=>'name', 'label'=>__('layout.createForm.themeTitle'), 'value'=>$this->name ?? Theme::where('isActive', 1)->first()->name, 'options'=>Theme::all()->pluck('name', 'name')]));
+        $paramsGroup->add(FormElement::text(['name'=>'class', 'label'=>__('layout.createForm.themeClass'), 'value'=>$this->class ?? 'primary']));
         if($this->id == 1){
-            $form->getElement("name")->setParameters("disabled", "disabled");
-            $form->getElement("class")->setParameters("disabled", "disabled");
+            $paramsGroup->element("name")->setParameters("disabled", "disabled");
+            $paramsGroup->element("class")->setParameters("disabled", "disabled");
         }
-        $form->add(FormElement::number(['name'=>'width', 'label'=>__('layout.createForm.width'), 'value'=>$this->width ?: '1920']));
+        $paramsGroup->add(FormElement::number(['name'=>'width', 'label'=>__('layout.createForm.width'), 'value'=>$this->width ?: '1920']));
+
+        $form->addGroup($paramsGroup);
+
+        $panelGroup = new FormGroup('panelGroup', 'Layout Panel', ['style' => 'flex: 1 0 50%']);
+
+        $panelGroup->add(FormElement::select(['name'=>'panel', 'label'=>__('layout.createForm.panel'), 'value'=>null, 'options'=>$this->panelLocations()]));
+        $panelGroup->add(FormElement::select(['name'=>'panelType', 'label'=>__('layout.createForm.panelType'), 'value'=>null, 'options'=>['static'=>'static', 'dynamic'=>'dynamic']]));
+
+        $panelGroup->add(FormElement::html(['name'=>'addPanel', 'value'=>'<div id="addPanel"><a href="javascript:CreateLayout.addPanel()"><i class="fa fa-plus"></i> ' . __('layout.createForm.addPanel') . ' </a></div>']));
+        $panelGroup->add(FormElement::html(['name'=>'removePanel', 'value'=>'<div id="removePanel"><a href="#" onclick="CreateLayout.removePanel(this)"><i class="fa fa-trash-alt"></i> ' . __('layout.createForm.removePanel') . '</a></div>']));
+
+        $form->addGroup($panelGroup);
         
-        $form->add(FormElement::select(['name'=>'panel', 'label'=>__('layout.createForm.panel'), 'value'=>null, 'options'=>$this->panelLocations()]));
-        $form->add(FormElement::select(['name'=>'panelType', 'label'=>__('layout.createForm.panelType'), 'value'=>null, 'options'=>['static'=>'static', 'dynamic'=>'dynamic']]));
-        
-        $form->add(FormElement::html(['name'=>'panels', 'value'=>'<div id="addPanel"><a href="javascript:addPanel()"><i class="fa fa-plus"></i> ' . __('layout.createForm.addPanel') . ' </a></div><div id="layoutPanels"></div><div style="clear:left"></div>']));
-        $form->add(FormElement::html(['name'=>'removePanelSpan', 'value'=>'<span class="hidden"><i class="fa fa-trash-o"></i> ' . __('layout.createForm.removePanel') . '</span>']));
-        
-        $form->useJSFile('/js/layouts/layoutSettingsForm.js');
-        
+        $form->applyJS("window.CreateLayout = this.getClassInstance('CreateLayout')");
+
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
-        
+
         return $form;
     }
     

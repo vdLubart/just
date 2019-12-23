@@ -1,7 +1,7 @@
 <template>
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <select :multiple="multiple" @input="handleInput">
-            <slot></slot>
+        <select :name="name" :id="name" :multiple="multiple" @input="handleInput" v-bind="parameters">
+            <option v-for="(label, value) in options" :value="value">{{ label }}</option>
         </select>
     </block>
 
@@ -25,21 +25,23 @@
             value: [String, Array],
             label: {type: String, default: ""},
             multiple: {type: Boolean, default: false},
-            chosen: {type: Boolean, default: true}
+            chosen: {type: Boolean, default: true},
+            parameters: {type: Object}
         },
 
         data(){
             return {
-                content: this.value
+                content: this.value,
+                options: this.$parent.element.options
             }
         },
 
         methods:{
             applyChosen(){
-                $(this.$el)
+                $(this.$el).find('select')
                     .val(this.value)
                     .chosen({})
-                    .on("change", e => this.$emit('onChange', $(this.$el).val()));
+                    .on("change", e => this.$emit('onChange', $(this.$el).find('select').val()));
             },
 
             handleInput (e) {

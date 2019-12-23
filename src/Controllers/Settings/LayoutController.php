@@ -35,19 +35,19 @@ class LayoutController extends SettingsController {
     }
 
     /**
-     * Build model list from the Collection
+     * Build model list from the Collection in JSON format
      *
      * @param Collection $items
-     * @return array
+     * @return string
      */
-    protected function buildList(Collection $items):array {
+    protected function buildList(Collection $items):string {
         $list = [];
 
         foreach($items as $item){
             $list[$item->id] = $item->name. ".". $item->class;
         }
 
-        return $list;
+        return json_encode($list);
     }
 
     /**

@@ -46,6 +46,8 @@ if (Schema::hasTable('routes')){
 
 Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
 
+    Route::get("", "\Lubart\Just\Controllers\Settings\LayoutController@settingsHome");
+
     Route::prefix('page')->group(function(){
         Route::get("{pageId}", "\Lubart\Just\Controllers\Settings\PageController@settingsForm")->where(['pageId'=>'\d+']);
         Route::get("list", "\Lubart\Just\Controllers\Settings\PageController@pageList");
@@ -58,8 +60,9 @@ Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
     Route::prefix('layout')->middleware(['master'])->group(function(){
         Route::get("{layoutId}", "\Lubart\Just\Controllers\Settings\LayoutController@settingsForm")->where(['layoutId'=>'\d+']);
         Route::get("list", "\Lubart\Just\Controllers\Settings\LayoutController@layoutList");
-        Route::post("setup", "\Lubart\Just\Controllers\Settings\LayoutController@setup");
         Route::get("default", "\Lubart\Just\Controllers\Settings\LayoutController@defaultLayout");
+
+        Route::post("setup", "\Lubart\Just\Controllers\Settings\LayoutController@setup");
         Route::post("setdefault", "\Lubart\Just\Controllers\Settings\LayoutController@setDefault");
         Route::post("delete", "\Lubart\Just\Controllers\Settings\LayoutController@delete");
     });

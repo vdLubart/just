@@ -3,7 +3,7 @@
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
         <div v-for="(radioLabel, radioValue) in radioButtons">
             <label class="radio-group__normalFont">
-                <input type="radio" :name="name" :value="radioValue" :checked="radioValue === value" @input="handleInput"> {{ radioLabel }}
+                <input type="radio" :name="name" :value="radioValue" :checked="radioValue === value" @input="handleInput" v-bind="parameters"> {{ radioLabel }}
             </label>
         </div>
     </block>

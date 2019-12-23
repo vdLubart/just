@@ -43,6 +43,10 @@ abstract class SettingsController extends Controller
         return Str::lower($this->modelName());
     }
 
+    private function pluralItemName() {
+        return Str::plural($this->itemName());
+    }
+
     /**
      * Return translatable phrase for the item
      *
@@ -64,7 +68,9 @@ abstract class SettingsController extends Controller
     private function response(array $caption, $content, $type) {
         $response = new \stdClass();
 
-        $response->caption = __('settings.title') . " :: " . implode(" :: ", $caption);
+        $response->caption = [
+           '/settings' =>  __('settings.title')
+        ] + $caption;
         $response->contentType = $type;
         switch ($type){
             case 'form':
@@ -89,8 +95,8 @@ abstract class SettingsController extends Controller
     protected function settingsFormView($id) {
         $item = $this->itemClass()::findOrNew($id);
         $caption = [
-            $this->itemTranslation('title'),
-            $id == 0 ? $this->itemTranslation('createForm.title') : $this->itemTranslation('editForm.title')
+            '/settings/' . $this->itemName() => $this->itemTranslation('title'),
+            '/settings/' . $this->itemName() . '/' . $id => $id == 0 ? $this->itemTranslation('createForm.title') : $this->itemTranslation('editForm.title')
         ];
 
         return $this->response($caption, $item, 'form');
@@ -99,8 +105,8 @@ abstract class SettingsController extends Controller
     protected function listView() {
         $items = $this->itemClass()::all();
         $caption = [
-            $this->itemTranslation('title'),
-            $this->itemTranslation('list')
+            '/settings/' . $this->itemName() => $this->itemTranslation('title'),
+            '/settings/' . $this->itemName() . '/list' => $this->itemTranslation('list')
         ];
 
         return $this->response($caption, $items, 'list');
@@ -110,11 +116,15 @@ abstract class SettingsController extends Controller
      * Build model list from the Collection
      *
      * @param Collection $items
-     * @return array
+     * @return string
      */
-    abstract protected function buildList(Collection $items): array;
+    abstract protected function buildList(Collection $items): string;
 
     protected function noAccessView() {
         return view(viewPath(Theme::active()->layout, 'noAccess'));
+    }
+
+    public function settingsHome() {
+        return $this->response([], [], 'items');
     }
 }

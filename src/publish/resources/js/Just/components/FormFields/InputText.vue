@@ -1,7 +1,7 @@
 <template>
 
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <input type="text" :name="name" :id="name" class="input-component__text" :placeholder="placeholder" :value="content" @input="handleInput" />
+        <input type="text" :name="name" :id="name" class="input-component__text" :placeholder="placeholder" :value="content" @input="handleInput" v-bind="parameters"/>
     </block>
 
 </template>
@@ -15,7 +15,7 @@
         extends: InputBase,
 
         props: {
-            placeholder: {type: String, default: ""},
+            placeholder: {type: String, default: ""}
         }
     }
 </script>

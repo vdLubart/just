@@ -2,7 +2,7 @@
 
     <block :no-wrap="!wrap" :id="name" :withoutLabel="true">
 
-        <input v-if="submit" type="submit" :name="name" :id="name" class="input-component__button" :value="content" />
+        <input v-if="submit" type="submit" :name="name" :id="name" class="input-component__button" :value="content" v-bind="parameters" />
 
     </block>
 

@@ -3,7 +3,7 @@
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
         <div v-for="(ticLabel, ticValue) in checkboxes">
             <label class="checkbox-group__normalFont">
-                <input type="checkbox" :name="name" :value="ticValue" :checked="content[ticValue]" @input="handleInput"> {{ ticLabel }}
+                <input type="checkbox" :name="name" :value="ticValue" :checked="content[ticValue]" @input="handleInput" v-bind="parameters"> {{ ticLabel }}
             </label>
         </div>
     </block>

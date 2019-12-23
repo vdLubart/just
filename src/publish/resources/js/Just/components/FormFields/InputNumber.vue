@@ -1,7 +1,7 @@
 <template>
 
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <input type="number" :name="name" :id="name" :value="content" class="input-component__text" :placeholder="placeholder" @input="handleInput"/>
+        <input type="number" :name="name" :id="name" :value="content" class="input-component__text" :placeholder="placeholder" @input="handleInput" v-bind="parameters"/>
     </block>
 
 </template>

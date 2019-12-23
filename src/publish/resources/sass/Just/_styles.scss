@@ -33,6 +33,12 @@ html, body {
      display: none;
      padding: 15px;
  }
+
+.settingsContent{
+    background-color: white;
+    padding: 20px 10px;
+    overflow-y: auto;
+}
  
 #cropping{
     z-index: 1100;

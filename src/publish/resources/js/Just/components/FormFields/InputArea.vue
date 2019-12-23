@@ -1,7 +1,7 @@
 <template>
 
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <textarea :name="name" :id="name" :cols="cols" :rows="rows" :placeholder="placeholder" class="input-component__textarea" :value="content" @input="handleInput"></textarea>
+        <textarea :name="name" :id="name" :cols="cols" :rows="rows" :placeholder="placeholder" class="input-component__textarea" :value="content" @input="handleInput" v-bind="parameters"></textarea>
     </block>
 
 </template>
