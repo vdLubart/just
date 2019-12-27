@@ -41,6 +41,8 @@ return [
         'caption' => 'Заголовок',
         'summary' => 'Резюме',
         'description' => 'Опис',
-        'name' => "Ім'я"
+        'name' => "Ім'я",
+        'no' => 'Ні',
+        'yes' => 'Так'
     ]
 ];

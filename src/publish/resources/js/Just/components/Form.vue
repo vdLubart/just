@@ -2,30 +2,29 @@
 
     <div>
         <span v-if="isWaitingData">Loading data...</span>
-        <form v-else action="" style="display: flex; flex-wrap: wrap">
+        <div v-else>
+            <form :action="content.action">
 
-            <fieldset v-for="group in content.groups" v-bind="group.parameters">
-                <legend>{{ group.label }}</legend>
+                <fieldset v-for="group in content.groups" v-bind="group.parameters">
+                    <legend>{{ group.label }}</legend>
 
-                <field v-for="(element, key) in group.elements" :element="element" :key="key"></field>
+                    <field v-for="(element, key) in group.elements" :element="element" :key="key"></field>
 
-            </fieldset>
+                </fieldset>
 
-            <field v-for="(element, key) in content.unGrouppedElements" :element="element" :key="key"></field>
+                <field v-for="(element, key) in content.unGrouppedElements" :element="element" :key="key"></field>
 
-        </form>
+            </form>
+        </div>
 
-        <footer>
-            <button>Save</button>
-        </footer>
     </div>
     
 </template>
 
 <script>
     import Field from './FormField';
-
     import CreateLayout from './FormLogic/Layout/CreateLayout';
+    import {eventBus} from "../adminApp";
 
     export default {
         name: "Form",
@@ -36,14 +35,21 @@
 
         data() {
             return {
-                logicClass: null
+                logicClass: null,
+                formData: {}
             }
         },
 
         created(){
+            eventBus.$on('submitForm', this.submitForm);
+
             if(this.content.js != null){
                 eval(this.content.js);
             }
+        },
+
+        beforeDestroy(){
+            eventBus.$off('submitForm');
         },
 
         methods: {
@@ -59,16 +65,39 @@
                 }
 
                 return this.logicClass;
+            },
+
+            submitForm(){
+                this.content.unGrouppedElements.forEach(element=>this.elementValue(element));
+
+                this.content.groups.forEach(group => {
+                    group.elements.forEach(element=>this.elementValue(element))
+                });
+
+                axios({
+                    method: this.content.method,
+                    url: this.content.action,
+                    data: this.formData
+                })
+                    .then((response) => {
+                        this.$parent.$parent.showSuccessMessage(response.data.message);
+                    })
+                    .catch((response) => {
+                        console.log("Cannot send data.");
+                        console.log(response.response);
+                        this.$parent.$parent.showErrors(response.response.data);
+                    });
+            },
+
+            elementValue(element){
+                if(!_.includes(['submit', 'html', 'button'], element.type)){
+                    this.formData[element.name] = element.value;
+                }
             }
         }
     }
 </script>
 
 <style scoped>
-
-    footer{
-        display: flex;
-        justify-content: end;
-    }
 
 </style>

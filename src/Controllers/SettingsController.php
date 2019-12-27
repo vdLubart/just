@@ -39,7 +39,7 @@ abstract class SettingsController extends Controller
      *
      * @return string
      */
-    private function itemName() {
+    protected function itemName() {
         return Str::lower($this->modelName());
     }
 
@@ -53,7 +53,7 @@ abstract class SettingsController extends Controller
      * @param string $phrasePath key path in language file
      * @return array|\Illuminate\Contracts\Translation\Translator|null|string
      */
-    private function itemTranslation($phrasePath) {
+    protected function itemTranslation($phrasePath) {
         return __($this->itemName() . "." . $phrasePath);
     }
 
@@ -65,7 +65,7 @@ abstract class SettingsController extends Controller
      * @throws \Throwable
      * @return \Illuminate\Http\JsonResponse
      */
-    private function response(array $caption, $content, $type) {
+    protected function response(array $caption, $content, $type) {
         $response = new \stdClass();
 
         $response->caption = [
@@ -76,8 +76,11 @@ abstract class SettingsController extends Controller
             case 'form':
                 $response->content = $content->settingsForm()->toJson();
                 break;
+            case 'items':
+                $response->content = $this->buildItemList($content);
+                break;
             case 'list':
-                $response->content = $this->buildList($content);
+                $response->content = json_encode($content);
                 break;
         }
 
@@ -109,7 +112,7 @@ abstract class SettingsController extends Controller
             '/settings/' . $this->itemName() . '/list' => $this->itemTranslation('list')
         ];
 
-        return $this->response($caption, $items, 'list');
+        return $this->response($caption, $items, 'items');
     }
 
     /**
@@ -118,13 +121,43 @@ abstract class SettingsController extends Controller
      * @param Collection $items
      * @return string
      */
-    abstract protected function buildList(Collection $items): string;
+    abstract protected function buildItemList(Collection $items): string;
 
     protected function noAccessView() {
         return view(viewPath(Theme::active()->layout, 'noAccess'));
     }
 
     public function settingsHome() {
-        return $this->response([], [], 'items');
+        $items = [];
+        if(\Auth::user()->role == "master"){
+            $items['layout'] = [
+                'label' => __('navbar.layouts.top'),
+                'icon' => 'paint-brush'
+            ];
+        }
+
+        $items += [
+            'page' => [
+                'label' => __('navbar.pages.top'),
+                'icon' => 'sitemap'
+            ],
+            'category' => [
+                'label' => __('navbar.categories.top'),
+                'icon' => 'th-list'
+            ]
+        ];
+
+        if(\Auth::user()->role == "master"){
+            $items['addon'] = [
+                'label' => __('navbar.addons.top'),
+                'icon' => 'puzzle-piece'
+            ];
+            $items['user'] = [
+                'label' => __('navbar.users.top'),
+                'icon' => 'users'
+            ];
+        }
+
+        return $this->response([], $items, 'list');
     }
 }

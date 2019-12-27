@@ -40,11 +40,13 @@ class LayoutController extends SettingsController {
      * @param Collection $items
      * @return string
      */
-    protected function buildList(Collection $items):string {
+    protected function buildItemList(Collection $items):string {
         $list = [];
 
         foreach($items as $item){
-            $list[$item->id] = $item->name. ".". $item->class;
+            $list[$this->itemName() . '/'. $item->id] = [
+                'caption' => $item->name. ".". $item->class
+            ];
         }
 
         return json_encode($list);
@@ -61,33 +63,10 @@ class LayoutController extends SettingsController {
 
         $layout->handleSettingsForm($request);
 
-        return redirect()->back();
-    }
+        $response = new \stdClass();
+        $response->message = __('layout.messages.success.' . ($request->layout_id == 0 ? 'created' : 'updated'));
 
-    /**
-     * Render view with default layout form
-     *
-     * TODO: delete this view and move functoinality to layoutList
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function defaultLayout(){
-        return view(viewPath(Theme::active()->layout, 'defaultLayout'))->with(['form'=>Layout::setDefaultForm()]);
-    }
-
-    /**
-     * Set default layout
-     *
-     * @param SetDefaultLayoutRequest $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|void
-     */
-    public function setDefault(SetDefaultLayoutRequest $request){
-        Theme::setActive($request->layout);
-
-        if(isset($request->change_all)){
-            Page::setLayoutToAllPages(Theme::where('name', $request->layout)->first()->layout);
-        }
-
-        return;
+        return json_encode($response);
     }
 
     /**
@@ -98,17 +77,44 @@ class LayoutController extends SettingsController {
      */
     public function delete(DeleteLayoutRequest $request) {
         $layout = Layout::find($request->layout_id);
+        $response = new \stdClass();
 
-        if(!empty($layout)){
-            $pages = Page::where('layout_id', $request->layout_id)->first();
-            if(!empty($pages)){
-                return json_encode(['error'=>'Layout cannot be deleted because page "'.$pages->first()->title.'" is using it']);
-            }
-
-            $layout->delete();
+        $pages = Page::where('layout_id', $request->layout_id)->first();
+        if(!empty($pages)){
+            $response->error = __('layout.messages.error.usedOnPage', ['page' => $pages->first()->title]);
+            return json_encode($response);
         }
 
-        return ;
+        $layout->delete();
+
+        $response->message = __('layout.messages.success.deleted');
+
+        return json_encode($response);
+    }
+
+    /**
+     * Return list with available actions for the layout
+     */
+    public function actions() {
+        $items = [
+            $this->itemName() . '/0' => [
+                'label' => __('navbar.layouts.create'),
+                'icon' => 'plus'
+            ],
+            $this->itemName() . '/list' => [
+                'label' => __('navbar.layouts.list'),
+                'icon' => 'list'
+            ],
+            $this->itemName() . '/' . Theme::active()->layout->id => [
+                'label' => __('navbar.layouts.settings'),
+                'icon' => 'cogs'
+            ]
+        ];
+        $caption = [
+            '/settings/' . $this->itemName() => $this->itemTranslation('title')
+        ];
+
+        return $this->response($caption, $items, 'list');
     }
 
 }

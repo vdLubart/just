@@ -17,37 +17,6 @@ html, body {
   text-transform: uppercase;
 }
 
-.settings{
-     z-index: 900;
-     border: 1px solid #d3e0e9;
-     border-radius: 5px;
-     position: fixed;
-     top:15%;
-     left: 50%;
-     width: 1170px;
-     height: 70%;
-     margin-left: -585px;
-     background-color: #fff;
-     box-shadow: 10px 10px 30px #d3e0e9;
-     overflow: scroll;
-     display: none;
-     padding: 15px;
- }
-
-.settingsContent{
-    background-color: white;
-    padding: 20px 10px;
-    overflow-y: auto;
-}
- 
-#cropping{
-    z-index: 1100;
-}
-
-.margin-bottom-20{
-    margin-bottom: 20px;
-}
-
 nav.header{
     z-index: 10;
 }

@@ -43,12 +43,6 @@
                             </slink>
                         </li>
                         <li>
-                            <slink href="/settings/layout/default">
-                                <i class="fa fa-check"></i>
-                                @lang('navbar.layouts.default')
-                            </slink>
-                        </li>
-                        <li>
                             <slink href="/settings/layout/list">
                                 <i class="fa fa-list"></i>
                                 @lang('navbar.layouts.list')

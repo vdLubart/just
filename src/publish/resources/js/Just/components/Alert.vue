@@ -1,26 +1,68 @@
 <template>
-    <div :class="'alert-component alert-component__' + status">
+    <div :class="'alert-component alert-component__' + status" class="alert-structure">
         <ul>
             <li v-if="renderHtml" v-for="note in notes" v-html="note"></li>
 
             <li v-if="!renderHtml" v-for="note in notes">{{ note }}</li>
         </ul>
+
+        <div v-if="withConfirmation">
+            <input-button :label="__('common.no')" @click="reset"></input-button>
+            <input-button :label="__('common.yes')" @click="confirmAction"></input-button>
+        </div>
     </div>
 </template>
 
 <script>
+    import {InputButton} from 'lubart-vue-input-component';
+
     export default {
         name: "Alert",
+
+        components: { InputButton },
 
         props: {
             status: {type: String, default: "success"}, // available values are: danger, success, info, warning
             notes: {type: Object},
-            renderHtml: {type: Boolean, default: false}
+            renderHtml: {type: Boolean, default: false},
+            withConfirmation: {type: Boolean, default: false},
+            confirmationAction: {type:Object, default: ()=>false}
+        },
+
+        methods:{
+            confirmAction(){
+                this.confirmationAction();
+
+                this.reset();
+            },
+
+            reset(){
+                this.$parent.alertNotes = {};
+                this.$parent.alertType = 'success';
+                this.$parent.alertRenderHtml = false;
+                this.$parent.confirmation = false;
+                this.$parent.confirmationAction = () => false;
+
+                this.$parent.isAlertVisible = false;
+            }
         }
     }
 </script>
 
 <style scoped>
+
+    .alert-structure{
+        display: flex;
+    }
+
+    .alert-structure ul{
+        flex-grow: 5;
+    }
+
+    .alert-structure div{
+        flex-grow: 1;
+        text-align: right;
+    }
 
     .alert-component{
         padding-left: 0.75rem;

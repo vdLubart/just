@@ -49,8 +49,8 @@ class ChangeLayoutRequest extends FormRequest implements ValidateRequest
     public function messages() {
         return parent::messages() + 
                 [
-                    'class.unique' => 'Class "'.$this->class .'" already used in "'.$this->name .'" layout.',
-                    'layout_id.min' => 'This layout is default and cannot be changed'
+                    'class.unique' => __('layout.messages.error.classInUse', ['class'=>$this->class, 'layout' => $this->name]),
+                    'layout_id.min' => __('layout.messages.error.protectedLayout')
                 ];
     }
 }

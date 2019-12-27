@@ -47,24 +47,23 @@ if (Schema::hasTable('routes')){
 Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
 
     Route::get("", "\Just\Controllers\Settings\LayoutController@settingsHome");
+    Route::get('noaccess', 'SettingsController@noAccessView')->name('noaccess');
+
+    Route::prefix('layout')->middleware(['master'])->group(function(){
+        Route::get('', "\Just\Controllers\Settings\LayoutController@actions");
+        Route::get("{layoutId}", "\Just\Controllers\Settings\LayoutController@settingsForm")->where(['layoutId'=>'\d+']);
+        Route::get("list", "\Just\Controllers\Settings\LayoutController@layoutList");
+
+        Route::post("setup", "\Just\Controllers\Settings\LayoutController@setup");
+        Route::post("setdefault", "\Just\Controllers\Settings\LayoutController@setDefault");
+        Route::post("delete", "\Just\Controllers\Settings\LayoutController@delete");
+    });
 
     Route::prefix('page')->group(function(){
         Route::get("{pageId}", "\Just\Controllers\Settings\PageController@settingsForm")->where(['pageId'=>'\d+']);
         Route::get("list", "\Just\Controllers\Settings\PageController@pageList");
         Route::post("setup", "\Just\Controllers\Settings\PageController@setup");
         Route::post("delete", "\Just\Controllers\Settings\PageController@delete");
-    });
-
-    Route::get('noaccess', 'SettingsController@noAccessView')->name('noaccess');
-
-    Route::prefix('layout')->middleware(['master'])->group(function(){
-        Route::get("{layoutId}", "\Just\Controllers\Settings\LayoutController@settingsForm")->where(['layoutId'=>'\d+']);
-        Route::get("list", "\Just\Controllers\Settings\LayoutController@layoutList");
-        Route::get("default", "\Just\Controllers\Settings\LayoutController@defaultLayout");
-
-        Route::post("setup", "\Just\Controllers\Settings\LayoutController@setup");
-        Route::post("setdefault", "\Just\Controllers\Settings\LayoutController@setDefault");
-        Route::post("delete", "\Just\Controllers\Settings\LayoutController@delete");
     });
 });
 

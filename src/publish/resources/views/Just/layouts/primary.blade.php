@@ -41,16 +41,21 @@
 
             @if(\Config::get('isAdmin'))
                 <settings ref="settings"></settings>
-
+<!--
                 <div id="cropping" class="settings">
                     <div class="loading">
                         Loading data...
                     </div>
                 </div>
+-->
             @endif
         </div>
 
         @if(\Config::get('isAdmin'))
+            <script>
+                window.settingsTranslations = {!! collect(cache('settings-translations')) !!};
+            </script>
+
             <script src="{{ mix('/js/Just/adminApp.js') }}"></script>
         @endif
     </body>

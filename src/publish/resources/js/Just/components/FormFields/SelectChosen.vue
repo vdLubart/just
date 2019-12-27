@@ -1,6 +1,6 @@
 <template>
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <select :name="name" :id="name" :multiple="multiple" @input="handleInput" v-bind="parameters">
+        <select :name="name" :id="name" :multiple="multiple" v-bind="parameters">
             <option v-for="(label, value) in options" :value="value">{{ label }}</option>
         </select>
     </block>
@@ -41,12 +41,7 @@
                 $(this.$el).find('select')
                     .val(this.value)
                     .chosen({})
-                    .on("change", e => this.$emit('onChange', $(this.$el).find('select').val()));
-            },
-
-            handleInput (e) {
-                this.content = e.target.value;
-                this.$emit('input', this.content);
+                    .on("change", e => this.$emit('input', this.content = $(this.$el).find('select').val()));
             }
         },
 

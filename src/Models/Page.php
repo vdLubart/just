@@ -99,8 +99,13 @@ class Page extends Model
         
         return $layouts;
     }
-    
-    public static function setLayoutToAllPages($layout){
+
+    /**
+     * Apply layout to all existing pages
+     *
+     * @param Layout $layout
+     */
+    public static function setLayoutToAllPages(Layout $layout){
         Page::where('id', '>', 0)->update(['layout_id'=>$layout->id]);
     }
 

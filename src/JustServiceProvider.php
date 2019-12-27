@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use Just\Validators\ValidatorExtended;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 
 class JustServiceProvider extends ServiceProvider
 {
@@ -57,10 +59,14 @@ class JustServiceProvider extends ServiceProvider
         });
         
         if (Schema::hasTable('themes')) {
-            \Config::set('mail.markdown.paths', [resource_path('views/'.(Models\Theme::active()->name ?? 'Just').'/emails/mail')]);
+            Config::set('mail.markdown.paths', [resource_path('views/'.(Models\Theme::active()->name ?? 'Just').'/emails/mail')]);
         }
 
         $this->app['router']->aliasMiddleware('master', \Just\Middleware\MasterAccess::class);
+
+        Cache::rememberForever('settings-translations', function() {
+            return trans('settings');
+        });
     }
 
     /**

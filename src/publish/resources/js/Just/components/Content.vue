@@ -1,12 +1,13 @@
 <script>
     import Form from './Form';
-    import ListView from './ListView';
+    import List from './List';
+    import ItemList from './ItemList';
     import {eventBus} from "../adminApp";
 
     export default {
         name: "Content",
 
-        components: {Form, ListView},
+        components: {Form, List, ItemList},
 
         props:{
             "type": {type: String, default: "list"}     // values: list, form, items
@@ -28,10 +29,15 @@
             });
         },
 
+        beforeDestroy(){
+            eventBus.$off('contentReceived');
+        },
+
         render(createElement){
             let inputMap = {
                 'form': Form,
-                'list': ListView
+                'list': List,
+                'items': ItemList
             }
 
             return createElement(inputMap[this.type], {

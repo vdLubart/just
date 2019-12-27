@@ -41,6 +41,8 @@ return [
         'caption' => 'Caption',
         'summary' => 'Summary',
         'description' => 'Description',
-        'name' => "Name"
+        'name' => "Name",
+        'no' => 'No',
+        'yes' => 'Yes'
     ]
 ];

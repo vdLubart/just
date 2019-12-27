@@ -13,9 +13,13 @@
                 </div>
                 <a href="#"  class="settings-component__card__header__close"  @click.prevent="closeModal" title='settings.actions.close'><i class="fa fa-times"></i></a>
             </header>
-            <alert v-if="Object.keys(alertNotes).length" :notes="alertNotes" :status="alertStatus" :renderHtml="alertRenderHtml"></alert>
+            <alert v-if="isAlertVisible" :notes="alertNotes" :status="alertType" :renderHtml="alertRenderHtml" :with-confirmation="confirmation" :confirmation-action="confirmationAction"></alert>
 
             <content-view :type="contentType"></content-view>
+
+            <footer v-if="contentType === 'form'" class="settings-component__card__footer">
+                <input-button :disabled="false" :label="__('actions.save')" @click="submitForm"></input-button>
+            </footer>
         </div>
     </div>
 
@@ -26,11 +30,12 @@
     import ContentView from './Content';
     import {eventBus} from "../adminApp";
     import Slink from './Link';
+    import {InputButton} from 'lubart-vue-input-component';
 
     export default {
         name: "Settings",
 
-        components: { Alert, ContentView, Slink },
+        components: { Alert, ContentView, Slink, InputButton },
 
         props: {
             title: {type: Array},                                      // modal caption
@@ -46,15 +51,64 @@
                 contentType: null,
                 caption: this.title,
                 visibility: this.visible,
+                isAlertVisible: false,
+                alertType: this.alertStatus,
                 alertNotes: this.alert,
                 alertRenderHtml: this.alertHtml,
-                contentIsReady: false
+                contentIsReady: false,
+                confirmation: false,
+                confirmationAction: () => false,
             }
         },
 
         methods: {
             closeModal(){
                 this.visibility = false;
+            },
+
+            submitForm(){
+                eventBus.$emit('submitForm');
+            },
+
+            showErrors(errorData){
+                this.alertType = "danger";
+
+                if(errorData.errors !== undefined){
+                    this.alertRenderHtml = false;
+                    Object.keys(errorData.errors).forEach(field => {
+                        errorData.errors[field].forEach((error, index) => {
+                            this.alertNotes[field+"_"+index] = error;
+                        });
+                    });
+                }
+                else{
+                    this.alertRenderHtml = true;
+                    let htmlError = '<h2>'+errorData.exception+'</h2>';
+                    htmlError += '<h5>'+errorData.file+' line '+errorData.line+'</h5>';
+                    htmlError += '<h4>'+errorData.message+'</h4>';
+                }
+
+                this.isAlertVisible = !!Object.keys(this.alertNotes).length;
+            },
+
+            showSuccessMessage(message){
+                this.alertType = "success";
+                this.alertRenderHtml = false;
+
+                this.alertNotes.success = message;
+
+                this.isAlertVisible = !!Object.keys(this.alertNotes).length;
+            },
+
+            askConfirmation(question, confirmedCallback){
+                this.alertType = "warning";
+                this.alertRenderHtml = false;
+
+                this.alertNotes.warning = question;
+
+                this.isAlertVisible = !!Object.keys(this.alertNotes).length;
+                this.confirmation = true;
+                this.confirmationAction = confirmedCallback;
             }
         },
 
@@ -74,7 +128,7 @@
             content(val){
                 eventBus.$emit('contentReceived', val);
             }
-        },
+        }
     }
 </script>
 
@@ -120,6 +174,15 @@
         display: flex;
         flex-shrink: 0;
         justify-content: space-between;
+        padding: 20px;
+        position: relative;
+    }
+
+    .settings-component__card__footer{
+        background-color: #f5f5f5;
+        display: flex;
+        flex-shrink: 0;
+        justify-content: flex-end;
         padding: 20px;
         position: relative;
     }

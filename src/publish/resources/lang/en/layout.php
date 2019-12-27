@@ -20,5 +20,18 @@ return [
     'list' => 'Layout List',
     'editForm' => [
         'title' => 'Current Layout Settings'
+    ],
+    'messages' => [
+        'success' => [
+            'created' => 'Layout was created successfully',
+            'updated' => 'Layout was updated successfully',
+            'deleted' => 'Layout was deleted successfully'
+        ],
+
+        'error' => [
+            'classInUse' => 'Class ":class" is already used in ":layout" layout',
+            'protectedLayout' => 'This layout is default and cannot be changed',
+            'usedOnPage' => 'Layout cannot be deleted because page ":page" is using it'
+        ]
     ]
 ];

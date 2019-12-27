@@ -1,24 +1,22 @@
 <script>
-    import InputText from './FormFields/InputText';
-    import InputNumber from './FormFields/InputNumber';
-    import InputEmail from './FormFields/InputEmail';
-    import InputArea from './FormFields/InputArea';
-    import InputDate from './FormFields/InputDate';
-    import InputCheckbox from './FormFields/InputCheckbox';
-    import CheckboxGroup from './FormFields/CheckboxGroup';
-    import RadioGroup from './FormFields/RadioGroup';
-    import InputButton from './FormFields/InputButton';
+    import { InputText, InputArea, InputDate, RadioGroup, InputNumber, InputCheckbox, InputEmail, InputButton } from 'lubart-vue-input-component';
     import InputHidden from './FormFields/InputHidden';
-    import SelectChosen from './FormFields/SelectChosen';
     import HtmlBlock from './FormFields/HtmlBlock';
+    import SelectChosen from './FormFields/SelectChosen';
 
     export default {
         name: "FormField",
 
-        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, CheckboxGroup, RadioGroup, InputButton, InputHidden},
+        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, RadioGroup, InputButton, InputHidden, SelectChosen, HtmlBlock},
 
         props:{
             "element": {type: Object}
+        },
+
+        methods:{
+            updateContent(value){
+                this.element.value = value;
+            }
         },
 
         render(createElement){
@@ -28,7 +26,7 @@
                 'password': null,
                 'email': InputEmail,
                 'file': null,
-                'checkbox': CheckboxGroup,
+                'checkbox': InputCheckbox,
                 'radio': RadioGroup,
                 'number': InputNumber,
                 'select': SelectChosen,
@@ -52,6 +50,9 @@
                     required: this.element.isObligatory,
                     value: this.element.value,
                     parameters: this.element.parameters
+                },
+                on: {
+                    input: this.updateContent
                 }
             });
         }

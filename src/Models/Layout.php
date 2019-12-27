@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Lubart\Form\FormGroup;
 use Just\Requests\ChangeLayoutRequest;
 use Just\Structure\Panel;
+use Exception;
 
 class Layout extends Model
 {
@@ -26,24 +27,30 @@ class Layout extends Model
      * Get layout settings form
      * 
      * @return Form
+     * @throws Exception;
      */
     public function settingsForm() {
-        $form = new Form('settings/layout/setup');
+        $form = new Form('/settings/layout/setup');
         
-        $form->setType("layoutSettings");
-
         $paramsGroup = new FormGroup('paramsGroup', 'Layout Parameters', ['style' => 'flex: 0 1 100%']);
 
         $paramsGroup->add(FormElement::hidden(['name'=>'layout_id', 'value'=>(string) $this->id]));
         $paramsGroup->add(FormElement::select(['name'=>'name', 'label'=>__('layout.createForm.themeTitle'), 'value'=>$this->name ?? Theme::where('isActive', 1)->first()->name, 'options'=>Theme::all()->pluck('name', 'name')]));
         $paramsGroup->add(FormElement::text(['name'=>'class', 'label'=>__('layout.createForm.themeClass'), 'value'=>$this->class ?? 'primary']));
         if($this->id == 1){
-            $paramsGroup->element("name")->setParameters("disabled", "disabled");
-            $paramsGroup->element("class")->setParameters("disabled", "disabled");
+            $paramsGroup->element("name")->setParameter("disabled", "disabled");
+            $paramsGroup->element("class")->setParameter("disabled", "disabled");
         }
-        $paramsGroup->add(FormElement::number(['name'=>'width', 'label'=>__('layout.createForm.width'), 'value'=>$this->width ?: '1920']));
+        $paramsGroup->add(FormElement::number(['name'=>'width', 'label'=>__('layout.createForm.width'), 'value'=>(int)($this->width ?: '1920')]));
 
         $form->addGroup($paramsGroup);
+
+        $defaultGroup = new FormGroup('defaultGroup', 'Default Layout', ['style' => 'flex: 0 1 100%']);
+
+        $defaultGroup->add(FormElement::checkbox(['name'=>'isDefault', 'label'=>__('layout.setDefaultForm.defaultLayout'), 'value'=>Theme::active()->name == $this->name]));
+        $defaultGroup->add(FormElement::checkbox(['name'=>'applyOnAllPages', 'label'=>__('layout.setDefaultForm.forAllPages')]));
+
+        $form->addGroup($defaultGroup);
 
         $panelGroup = new FormGroup('panelGroup', 'Layout Panel', ['style' => 'flex: 1 0 50%']);
 
@@ -82,7 +89,7 @@ class Layout extends Model
                     $panels[$val] = $request->{"panelType_".$match[1]};
                 }
             }
-            
+
             $orderNo = 1;
             foreach ($panels as $location => $type){
                 $panel = new Panel();
@@ -107,6 +114,14 @@ class Layout extends Model
                     }
                 }
             }
+        }
+
+        if(isset($request->isDefault) and !!$request->isDefault) {
+            Theme::setActive($this->name);
+        }
+
+        if(isset($request->applyOnAllPages)){
+            Page::setLayoutToAllPages($this);
         }
     }
     
