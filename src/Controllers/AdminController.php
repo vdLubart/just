@@ -3,13 +3,12 @@
 namespace Just\Controllers;
 
 use Illuminate\Http\Request;
-use Just\Structure\Panel\Block;
+use Just\Models\Block;
 use Just\Structure\Panel;
 use Just\Tools\AjaxUploader;
 use Just\Tools\Useful;
 use Just\Models\Page;
-use Just\Structure\Layout;
-use Just\Structure\Panel\Block\Addon;
+use Just\Models\AddOn;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\DB;
 use Just\Requests\UploadImageRequest;
@@ -22,7 +21,6 @@ use Just\Requests\ChangeCategoryRequest;
 use Just\Requests\AddonChangeRequest;
 use Just\Requests\UserChangeRequest;
 use Just\Requests\DeleteUserRequest;
-use Just\Requests\DeleteLayoutRequest;
 use Just\Requests\ChangeBlockRequest;
 
 class AdminController extends Controller
@@ -85,7 +83,7 @@ class AdminController extends Controller
             return view(viewPath(Theme::active()->layout, 'noAccess'));
         }
         
-        $addons = Addon::all();
+        $addons = AddOn::all();
         
         return view(viewPath(Theme::active()->layout, 'addonList'))->with(['addons'=>$addons]);
     }
@@ -95,13 +93,13 @@ class AdminController extends Controller
             return view(viewPath(Theme::active()->layout, 'noAccess'));
         }
         
-        $addon = Addon::findOrNew($addonId);
+        $addon = AddOn::findOrNew($addonId);
         
         return view(viewPath(Theme::active()->layout, 'addonSettings'))->with(['addon'=>$addon]);
     }
     
     public function handleAddonForm(AddonChangeRequest $request) {
-        $addon = Addon::findOrNew($request->addon_id);
+        $addon = AddOn::findOrNew($request->addon_id);
         
         $addon->handleSettingsForm($request);
         
@@ -277,7 +275,7 @@ class AdminController extends Controller
             return view(viewPath(Theme::active()->layout, 'noAccess'));
         }
         
-        $addon = Addon::find($request->id);
+        $addon = AddOn::find($request->id);
         
         if(!empty($addon)){
             $addon->delete();

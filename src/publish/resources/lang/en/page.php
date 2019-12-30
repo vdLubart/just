@@ -15,6 +15,13 @@ return [
     ],
     'list' => 'Page List',
     'editForm' => [
-        'title' => 'Current Page Settings'
+        'title' => 'Edit Page ":page"'
+    ],
+    'messages' => [
+        'success' => [
+            'created' => 'Page was created successfully',
+            'updated' => 'Page was updated successfully',
+            'deleted' => 'Page was deleted successfully'
+        ]
     ]
 ];

@@ -8,7 +8,6 @@ use Lubart\Form\FormElement;
 use Illuminate\Support\Facades\DB;
 use Lubart\Form\FormGroup;
 use Just\Requests\ChangeLayoutRequest;
-use Just\Structure\Panel;
 use Exception;
 
 class Layout extends Model
@@ -32,27 +31,33 @@ class Layout extends Model
     public function settingsForm() {
         $form = new Form('/settings/layout/setup');
         
-        $paramsGroup = new FormGroup('paramsGroup', 'Layout Parameters', ['style' => 'flex: 0 1 100%']);
+        $paramsGroup = new FormGroup('paramsGroup', 'Layout Parameters');
 
         $paramsGroup->add(FormElement::hidden(['name'=>'layout_id', 'value'=>(string) $this->id]));
-        $paramsGroup->add(FormElement::select(['name'=>'name', 'label'=>__('layout.createForm.themeTitle'), 'value'=>$this->name ?? Theme::where('isActive', 1)->first()->name, 'options'=>Theme::all()->pluck('name', 'name')]));
-        $paramsGroup->add(FormElement::text(['name'=>'class', 'label'=>__('layout.createForm.themeClass'), 'value'=>$this->class ?? 'primary']));
+        $paramsGroup->add(FormElement::select(['name'=>'name', 'label'=>__('layout.createForm.themeTitle'), 'value'=>$this->name ?? Theme::where('isActive', 1)->first()->name, 'options'=>Theme::all()->pluck('name', 'name')])
+            ->obligatory()
+        );
+        $paramsGroup->add(FormElement::text(['name'=>'class', 'label'=>__('layout.createForm.themeClass'), 'value'=>$this->class ?? 'primary'])
+            ->obligatory()
+        );
         if($this->id == 1){
             $paramsGroup->element("name")->setParameter("disabled", "disabled");
             $paramsGroup->element("class")->setParameter("disabled", "disabled");
         }
-        $paramsGroup->add(FormElement::number(['name'=>'width', 'label'=>__('layout.createForm.width'), 'value'=>(int)($this->width ?: '1920')]));
+        $paramsGroup->add(FormElement::number(['name'=>'width', 'label'=>__('layout.createForm.width'), 'value'=>(int)($this->width ?: '1920')])
+            ->obligatory()
+        );
 
         $form->addGroup($paramsGroup);
 
-        $defaultGroup = new FormGroup('defaultGroup', 'Default Layout', ['style' => 'flex: 0 1 100%']);
+        $defaultGroup = new FormGroup('defaultGroup', 'Default Layout');
 
         $defaultGroup->add(FormElement::checkbox(['name'=>'isDefault', 'label'=>__('layout.setDefaultForm.defaultLayout'), 'value'=>Theme::active()->name == $this->name]));
         $defaultGroup->add(FormElement::checkbox(['name'=>'applyOnAllPages', 'label'=>__('layout.setDefaultForm.forAllPages')]));
 
         $form->addGroup($defaultGroup);
 
-        $panelGroup = new FormGroup('panelGroup', 'Layout Panel', ['style' => 'flex: 1 0 50%']);
+        $panelGroup = new FormGroup('panelGroup', 'Layout Panel');
 
         $panelGroup->add(FormElement::select(['name'=>'panel', 'label'=>__('layout.createForm.panel'), 'value'=>null, 'options'=>$this->panelLocations()]));
         $panelGroup->add(FormElement::select(['name'=>'panelType', 'label'=>__('layout.createForm.panelType'), 'value'=>null, 'options'=>['static'=>'static', 'dynamic'=>'dynamic']]));

@@ -2,7 +2,7 @@
 
 return [
     'title' => 'Додатки',
-    'addForm' => [
+    'createForm' => [
         'title' => 'Додати додаток',
         'addon' => 'Додаток',
         'block' => 'Блок'

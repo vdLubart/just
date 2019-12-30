@@ -40,7 +40,7 @@
             }
         },
 
-        created(){
+        mounted(){
             eventBus.$on('submitForm', this.submitForm);
 
             if(this.content.js != null){

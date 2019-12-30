@@ -1,6 +1,13 @@
 <script>
-    import { InputText, InputArea, InputDate, RadioGroup, InputNumber, InputCheckbox, InputEmail, InputButton } from 'lubart-vue-input-component';
+    import { InputButton } from 'lubart-vue-input-component';
+    import InputText from './FormFields/InputText';
+    import InputArea from './FormFields/InputArea';
+    import InputDate from './FormFields/InputDate';
+    import RadioGroup from './FormFields/RadioGroup';
+    import InputNumber from './FormFields/InputNumber';
     import InputHidden from './FormFields/InputHidden';
+    import InputEmail from './FormFields/InputEmail';
+    import InputCheckbox from './FormFields/InputCheckbox';
     import HtmlBlock from './FormFields/HtmlBlock';
     import SelectChosen from './FormFields/SelectChosen';
 

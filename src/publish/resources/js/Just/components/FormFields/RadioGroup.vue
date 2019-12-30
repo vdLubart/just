@@ -11,30 +11,15 @@
 </template>
 
 <script>
-    import InputBase from './InputBase';
-    import _ from 'lodash';
+    import { RadioGroup } from 'lubart-vue-input-component';
 
     export default {
         name: "RadioGroup",
 
-        extends: InputBase,
+        extends: RadioGroup,
 
         props: {
-            radioButtons: {type: Object, function (){ return {} }},                      // format should be {"radio value":"radio label"}
-        },
-
-        created(){
-            if(!_.has(this.radioButtons, this.value)){
-                this.content = null;
-            }
+            parameters: { type: Object }
         }
     }
 </script>
-
-<style scoped>
-
-    .radio-group__normalFont{
-        font-weight: normal;
-    }
-
-</style>

@@ -15,7 +15,7 @@ class DeletePageRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return User::canAccessAdminPanel();
+        return User::authAsAdmin();
     }
 
     /**

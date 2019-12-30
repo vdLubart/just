@@ -2,7 +2,7 @@
 
 return [
     'title' => 'Add-ons',
-    'addForm' => [
+    'createForm' => [
         'title' => 'Add Add-on',
         'addon' => 'Add-on',
         'block' => 'Block'

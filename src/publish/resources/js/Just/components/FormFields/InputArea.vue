@@ -1,37 +1,21 @@
 <template>
 
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <textarea :name="name" :id="name" :cols="cols" :rows="rows" :placeholder="placeholder" class="input-component__textarea" :value="content" @input="handleInput" v-bind="parameters"></textarea>
+        <textarea :name="name" :id="name" :cols="cols" :rows="rows" class="input-component__textarea" :value="content" @input="handleInput" v-bind="parameters"></textarea>
     </block>
 
 </template>
 
 <script>
-    import InputBase from './InputBase';
+    import { InputArea } from 'lubart-vue-input-component';
 
     export default {
         name: "InputArea",
 
-        extends: InputBase,
+        extends: InputArea,
 
         props: {
-            placeholder: {type: String, default: ""},
-            rows: {type: Number, default: 5},
-            cols: {type: Number, default: 40}
+            parameters: { type: Object }
         }
     }
 </script>
-
-<style scoped>
-
-    .input-component__textarea{
-        border: 1px solid #dbdbdb;
-        border-radius: 4px;
-        padding: 5px;
-    }
-
-    .input-component__textarea:focus{
-        border: 1px solid #77BAC0;
-    }
-
-</style>

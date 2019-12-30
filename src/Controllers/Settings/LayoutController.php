@@ -45,18 +45,22 @@ class LayoutController extends SettingsController {
 
         foreach($items as $item){
             $list[$this->itemName() . '/'. $item->id] = [
-                'caption' => $item->name. ".". $item->class
+                'caption' => $this->caption($item)
             ];
         }
 
         return json_encode($list);
     }
 
+    protected function caption(Layout $item){
+        return $item->name. ".". $item->class;
+    }
+
     /**
      * Create new or update existing layout
      *
      * @param ChangeLayoutRequest $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
+     * @return string response in JSON format
      */
     public function setup(ChangeLayoutRequest $request) {
         $layout = Layout::findOrNew($request->layout_id);
@@ -76,10 +80,10 @@ class LayoutController extends SettingsController {
      * @return string|void
      */
     public function delete(DeleteLayoutRequest $request) {
-        $layout = Layout::find($request->layout_id);
+        $layout = Layout::find($request->id);
         $response = new \stdClass();
 
-        $pages = Page::where('layout_id', $request->layout_id)->first();
+        $pages = Page::where('layout_id', $request->id)->first();
         if(!empty($pages)){
             $response->error = __('layout.messages.error.usedOnPage', ['page' => $pages->first()->title]);
             return json_encode($response);

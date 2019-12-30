@@ -19,7 +19,7 @@ return [
     ],
     'list' => 'Layout List',
     'editForm' => [
-        'title' => 'Current Layout Settings'
+        'title' => 'Edit Layout ":layout"'
     ],
     'messages' => [
         'success' => [

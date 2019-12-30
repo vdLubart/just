@@ -1,9 +1,9 @@
 <template>
     <div :class="'alert-component alert-component__' + status" class="alert-structure">
         <ul>
-            <li v-if="renderHtml" v-for="note in notes" v-html="note"></li>
+            <li v-if="renderHtml" v-for="note in messages" v-html="note"></li>
 
-            <li v-if="!renderHtml" v-for="note in notes">{{ note }}</li>
+            <li v-if="!renderHtml" v-for="note in messages">{{ note }}</li>
         </ul>
 
         <div v-if="withConfirmation">
@@ -26,7 +26,13 @@
             notes: {type: Object},
             renderHtml: {type: Boolean, default: false},
             withConfirmation: {type: Boolean, default: false},
-            confirmationAction: {type:Object, default: ()=>false}
+            confirmationAction: {type:Function, default: ()=>false}
+        },
+
+        data(){
+            return {
+                messages: this.notes
+            }
         },
 
         methods:{
@@ -37,13 +43,13 @@
             },
 
             reset(){
-                this.$parent.alertNotes = {};
-                this.$parent.alertType = 'success';
-                this.$parent.alertRenderHtml = false;
-                this.$parent.confirmation = false;
-                this.$parent.confirmationAction = () => false;
+                this.$parent.resetAlert();
+            }
+        },
 
-                this.$parent.isAlertVisible = false;
+        watch:{
+            notes(val){
+                this.messages = val;
             }
         }
     }

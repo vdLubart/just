@@ -60,10 +60,23 @@ Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
     });
 
     Route::prefix('page')->group(function(){
+        Route::get('', "\Just\Controllers\Settings\PageController@actions");
         Route::get("{pageId}", "\Just\Controllers\Settings\PageController@settingsForm")->where(['pageId'=>'\d+']);
         Route::get("list", "\Just\Controllers\Settings\PageController@pageList");
+
         Route::post("setup", "\Just\Controllers\Settings\PageController@setup");
         Route::post("delete", "\Just\Controllers\Settings\PageController@delete");
+    });
+
+    Route::prefix('add-on')->group(function(){
+        Route::middleware(['master'])->group(function(){
+            Route::get('', "\Just\Controllers\Settings\AddOnController@actions");
+            Route::get("{addOnId}", "\Just\Controllers\Settings\AddOnController@settingsForm")->where(['addOnId'=>'\d+']);
+            Route::get("list", "\Just\Controllers\Settings\AddOnController@addOnList");
+
+            Route::post("setup", "\Just\Controllers\Settings\AddOnController@setup");
+            Route::post("delete", "\Just\Controllers\Settings\AddOnController@delete");
+        });
     });
 });
 

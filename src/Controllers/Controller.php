@@ -8,7 +8,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Just\Models\System\Route;
 use Illuminate\Http\Request;
-use Just\Structure\Panel\Block;
+use Just\Models\Block;
 use Just\Validators\ValidatorExtended;
 
 class Controller extends LaravelController

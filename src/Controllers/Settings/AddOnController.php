@@ -10,17 +10,17 @@ use Just\Requests\ChangePageRequest;
 use Just\Models\Page;
 use Just\Models\System\Route as JustRoute;
 
-class PageController extends SettingsController
+class AddOnController extends SettingsController
 {
     /**
-     * Render view with the page settings form
+     * Render view with the add-on settings form
      *
-     * @param int $pageId page id
+     * @param int $addOnId page id
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
-    public function settingsForm($pageId) {
-        return $this->settingsFormView($pageId);
+    public function settingsForm($addOnId) {
+        return $this->settingsFormView($addOnId);
     }
 
     /**
@@ -28,7 +28,7 @@ class PageController extends SettingsController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function pageList() {
+    public function addOnList() {
         return $this->listView();
     }
 

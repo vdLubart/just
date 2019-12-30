@@ -17,11 +17,11 @@ class CreatePagesTable extends Migration
             $table->engine = 'InnoDB';
             
             $table->increments('id');
-            $table->json('title');
+            $table->json('title')->nullable()->default(null);
             $table->json('description')->nullable()->default(null);
-            $table->string('keywords', 500)->default('');
-            $table->json('author');
-            $table->json('copyright');
+            $table->string('keywords', 500)->nullable()->default(null);
+            $table->json('author')->nullable()->default(null);
+            $table->json('copyright')->nullable()->default(null);
             $table->string('route');
             $table->integer('layout_id')->unsigned();
             $table->timestamps();

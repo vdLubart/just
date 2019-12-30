@@ -13,6 +13,23 @@
         label{
             display: initial;
         }
+
+        >fieldset{
+            flex: 1 0 50%;
+        }
+
+        .input-text-component__translate-container{
+            display: flex;
+            margin-bottom: 10px;
+
+            div:first-child{
+                flex: 1 0 30%;
+            }
+
+            div:last-child{
+                flex: 1 0 70%;
+            }
+        }
     }
 
     ul{

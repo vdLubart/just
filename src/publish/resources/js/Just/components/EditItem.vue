@@ -49,7 +49,7 @@
             deleteItem(){
                 axios.post('/settings/' + this.$parent.itemName + '/delete', {
                     _token: this.$root.csrf,
-                    layout_id: _.last(this.editUrl.split('/'))
+                    id: _.last(this.editUrl.split('/'))
                 }).then((response) => {
                     new Promise(resolve => {
                         return resolve(this.$root.navigate('/settings/' + this.$parent.itemName + '/list'));
@@ -58,10 +58,10 @@
                             this.$root.$refs.settings.showSuccessMessage(response.data.message);
                         });
                 })
-                    .catch((response) => {
+                    .catch((error) => {
                         console.log("Cannot receive data.");
-                        console.log(response.data);
-                        this.showErrors(response.data);
+                        console.log(error.response);
+                        this.$root.$refs.settings.showErrors(error.response.data);
                     });
             },
 

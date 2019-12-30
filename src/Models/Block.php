@@ -1,19 +1,15 @@
 <?php
 
-namespace Just\Structure\Panel;
+namespace Just\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Just\Models\BlockList;
+use Just\Models\System\BlockList;
 use Spatie\Translatable\HasTranslations;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Lubart\Form\FormElement;
 use Just\Structure\Panel;
-use Just\Structure\Page;
-use Just\Models\Route;
-use Just\Structure\Layout;
-use Just\Structure\Panel\Block\Addon;
 use Lubart\Form\Form;
 use Illuminate\Support\Facades\DB;
 use Just\Tools\Useful;
@@ -88,7 +84,7 @@ class Block extends Model
         $this->model->setup();
 
         foreach($this->addons as $addon){
-            $this->{$addon->name} = Addon::find($addon->id);
+            $this->{$addon->name} = AddOn::find($addon->id);
         }
 
         return $this;
@@ -471,7 +467,7 @@ class Block extends Model
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function addons() {
-        return $this->hasMany(Addon::class);
+        return $this->hasMany(AddOn::class);
     }
 
     /**
@@ -481,7 +477,7 @@ class Block extends Model
      * @return mixed
      */
     public static function addon($name) {
-        return Addon::where('name', $name)->first();
+        return AddOn::where('name', $name)->first();
     }
     
     /**

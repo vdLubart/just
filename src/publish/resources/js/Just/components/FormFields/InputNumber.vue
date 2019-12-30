@@ -1,53 +1,21 @@
 <template>
 
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <input type="number" :name="name" :id="name" :value="content" class="input-component__text" :placeholder="placeholder" @input="handleInput" v-bind="parameters"/>
+        <input type="number" :name="name" :id="name" :value="content" class="input-component__text" @input="handleInput" v-bind="parameters"/>
     </block>
 
 </template>
 
 <script>
-    import InputBase from './InputBase';
+    import { InputNumber } from 'lubart-vue-input-component';
 
     export default {
         name: "InputNumber",
 
-        extends: InputBase,
+        extends: InputNumber,
 
         props: {
-            value: {type: Number},
-            placeholder: {type: String, default: ""},
-            min: {type: Number},
-            max: {type: Number}
-        },
-
-        methods: {
-            handleInput (e) {
-                this.content = parseInt(e.target.value);
-                if(this.min != undefined && this.content < this.min){
-                    this.content = this.min;
-                }
-
-                if(this.max != undefined && this.content > this.max){
-                    this.content = this.max;
-                }
-
-                this.$emit('input', this.content);
-            }
+            parameters: { type: Object }
         }
     }
 </script>
-
-<style scoped>
-
-    .input-component__text{
-        border: 1px solid #dbdbdb;
-        border-radius: 4px;
-        padding: 5px;
-    }
-
-    .input-component__text:focus{
-        border: 1px solid #77BAC0;
-    }
-
-</style>

@@ -9,31 +9,15 @@
 </template>
 
 <script>
-    import InputBase from './InputBase';
+    import { InputCheckbox } from 'lubart-vue-input-component';
 
     export default {
         name: "InputCheckbox",
 
-        extends: InputBase,
+        extends: InputCheckbox,
 
         props: {
-            value: {type: Boolean, default: false},
-            ticValue: {type: String, default: ""},
-            ticLabel: {type: String}
-        },
-
-        methods: {
-            handleInput (e) {
-                this.$emit('input', e.target.checked)
-            }
+            parameters: { type: Object }
         }
     }
 </script>
-
-<style scoped>
-
-    .checkbox-group__normalFont{
-        font-weight: normal;
-    }
-
-</style>

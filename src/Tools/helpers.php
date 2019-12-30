@@ -5,7 +5,8 @@ if(!function_exists('viewPath')){
      * Return path to the view
      * 
      * @param \Just\Models\Layout $layout
-     * @param string|\Just\Structure\Panel|Just\Structure\Panel\Block $path
+     * @param string|\Just\Models\Panel|Just\Models\Block $path
+     * @return void
      */
     function viewPath($layout, $path){
         switch(true){
@@ -20,7 +21,7 @@ if(!function_exists('viewPath')){
                     return new \Exception("Resource \"Just.".$path."\" does not exists.");
                 }
                 break;
-            case $path instanceof \Just\Structure\Panel:
+            case $path instanceof \Just\Models\Panel:
                 if($layout->class != "primary" and
                         file_exists(resource_path('views/'.$layout->name.'/panels/'.$path->location.'_'.$layout->class.'.blade.php'))){
                     return $layout->name.'.panels.'. $path->location . '_' . $layout->class;
@@ -41,7 +42,7 @@ if(!function_exists('viewPath')){
                     return new \Exception("Resource \"Just.panels.".$path->location."\" does not exists.");
                 }
                 break;
-            case $path instanceof Just\Structure\Panel\Block:
+            case $path instanceof Just\Models\Block:
                 if ($layout->class != "primary" and
                         file_exists(resource_path('views/' . $layout->name . '/blocks/' . $path->type . '_' . $layout->class . '.blade.php'))){
                     return $layout->name.'.blocks.'. $path->type . '_' . $layout->class;

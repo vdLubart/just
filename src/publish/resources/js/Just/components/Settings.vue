@@ -71,6 +71,7 @@
             },
 
             showErrors(errorData){
+                this.resetAlert();
                 this.alertType = "danger";
 
                 if(errorData.errors !== undefined){
@@ -86,12 +87,15 @@
                     let htmlError = '<h2>'+errorData.exception+'</h2>';
                     htmlError += '<h5>'+errorData.file+' line '+errorData.line+'</h5>';
                     htmlError += '<h4>'+errorData.message+'</h4>';
+
+                    this.alertNotes.exception = htmlError;
                 }
 
                 this.isAlertVisible = !!Object.keys(this.alertNotes).length;
             },
 
             showSuccessMessage(message){
+                this.resetAlert();
                 this.alertType = "success";
                 this.alertRenderHtml = false;
 
@@ -101,6 +105,7 @@
             },
 
             askConfirmation(question, confirmedCallback){
+                this.resetAlert();
                 this.alertType = "warning";
                 this.alertRenderHtml = false;
 
@@ -109,6 +114,16 @@
                 this.isAlertVisible = !!Object.keys(this.alertNotes).length;
                 this.confirmation = true;
                 this.confirmationAction = confirmedCallback;
+            },
+
+            resetAlert(){
+                this.alertNotes = {};
+                this.alertType = 'success';
+                this.alertRenderHtml = false;
+                this.confirmation = false;
+                this.confirmationAction = () => false;
+
+                this.$parent.isAlertVisible = false;
             }
         },
 
@@ -162,7 +177,8 @@
         flex-direction: column;
         max-height: calc(100vh - 120px);
         z-index: 100;
-        min-width: 33%;
+        width:50%;
+
     }
 
     .settings-component__card__header{

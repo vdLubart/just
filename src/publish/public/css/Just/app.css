@@ -13350,6 +13350,27 @@ nav.header {
   display: initial;
 }
 
+.settings-component form > fieldset {
+  -webkit-box-flex: 1;
+          flex: 1 0 50%;
+}
+
+.settings-component form .input-text-component__translate-container {
+  display: -webkit-box;
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.settings-component form .input-text-component__translate-container div:first-child {
+  -webkit-box-flex: 1;
+          flex: 1 0 30%;
+}
+
+.settings-component form .input-text-component__translate-container div:last-child {
+  -webkit-box-flex: 1;
+          flex: 1 0 70%;
+}
+
 .settings-component ul {
   list-style: none;
 }

@@ -18,7 +18,8 @@
         "laravolt/avatar": "^3.0",
         "lubart/form": "^1.3",
         "laravel/helpers": "^1.0",
-        "spatie/laravel-translatable": "^4.2"
+        "spatie/laravel-translatable": "^4.2",
+        "caouecs/Laravel-lang": "^4.0"
     },
     "autoload": {
         "psr-4": {

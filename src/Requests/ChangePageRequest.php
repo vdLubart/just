@@ -3,6 +3,9 @@
 namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Just\Models\Page;
+use Just\Models\System\Route;
 use Just\Models\User;
 use Just\Structure\Panel\Block\Contracts\ValidateRequest;
 
@@ -15,7 +18,9 @@ class ChangePageRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return User::canAccessAdminPanel();
+        $this->merge(['route' => urlencode(trim(is_null($this->route)?"":$this->route, "/"))]);
+
+        return User::authAsAdmin();
     }
 
     /**
@@ -26,13 +31,32 @@ class ChangePageRequest extends FormRequest implements ValidateRequest
     public function rules()
     {
         $rules = [
-            'layout_id' => 'required|integer|min:1'
+            'layout' => 'required|integer|min:1',
         ];
-        
+
         if(empty($this->page_id)){
-            $rules['route'] = 'required|unique:routes,route';
+            $rules['route'] = [
+                Rule::unique('routes', 'route')
+            ];
         }
-        
+        else{
+            $pageRoute = Page::find($this->page_id)->getRoute();
+
+            $rules['route'] = [
+                Rule::unique('routes', 'route')->ignore($pageRoute->id)
+            ];
+        }
+
+        if(!empty(Route::where('route', '')->first())){
+            $rules['route'][] = 'required';
+        }
+
         return $rules;
+    }
+
+    public function messages() {
+        return [
+            'route.required' => __('validation.unique', ['attribute' => 'route'])
+        ];
     }
 }

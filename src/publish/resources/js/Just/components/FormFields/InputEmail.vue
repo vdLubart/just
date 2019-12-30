@@ -7,11 +7,15 @@
 </template>
 
 <script>
-    import InputText from './InputText';
+    import { InputEmail } from 'lubart-vue-input-component';
 
     export default {
         name: "InputEmail",
 
-        extends: InputText
+        extends: InputEmail,
+
+        props: {
+            parameters: { type: Object }
+        }
     }
 </script>

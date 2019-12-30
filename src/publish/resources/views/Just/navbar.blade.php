@@ -65,53 +65,22 @@
                     
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a href="/settings/page/create"
-                               onclick="event.preventDefault();
-                                                    openSettings('page', 0);">
+                            <slink href="/settings/page/0">
                                 <i class="fa fa-plus"></i>
                                 @lang('navbar.pages.create')
-                            </a>
+                            </slink>
                         </li>
                         <li>
-                            <a href="/settings/page/list"
-                               onclick="event.preventDefault();
-                                                    openList('page');">
+                            <slink href="/settings/page/list">
                                 <i class="fa fa-list"></i>
                                 @lang('navbar.pages.list')
-                            </a>
+                            </slink>
                         </li>
                         <li>
-                            <a href="/settings/page/settings"
-                               onclick="event.preventDefault();
-                                                    openSettings('page', {{ $page->id }});">
+                            <slink href="/settings/page/{{ $page->id }}">
                                 <i class="fa fa-cogs"></i>
                                 @lang('navbar.pages.settings')
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                        <i class="fa fa-th-list"></i>
-                        @lang('navbar.categories.top') <span class="caret"></span>
-                    </a>
-                    
-                    <ul class="dropdown-menu" role="menu">
-                        <li>
-                            <a href="/admin/category/create"
-                               onclick="event.preventDefault();
-                                                    openSettings('category', 0);">
-                                <i class="fa fa-plus"></i>
-                               @lang('navbar.categories.create')
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/admin/category/list"
-                               onclick="event.preventDefault();
-                                                    openList('category');">
-                                <i class="fa fa-list"></i>
-                                @lang('navbar.categories.list')
-                            </a>
+                            </slink>
                         </li>
                     </ul>
                 </li>
@@ -124,20 +93,42 @@
                     
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a href="#"
-                               onclick="event.preventDefault();
-                                                    openSettings('addon', 0);">
+                            <slink href="/settings/add-on/0">
                                 <i class="fa fa-plus"></i>
                                 @lang('navbar.addons.add')
-                            </a>
+                            </slink>
                         </li>
                         <li>
-                            <a href="#"
-                               onclick="event.preventDefault();
-                                                    openList('addon');">
+                            <a href="/settings/add-on/list">
                                 <i class="fa fa-list"></i>
                                 @lang('navbar.addons.list')
                             </a>
+                        </li>
+                        <!-- TODO: Categories must be available for admin role -->
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                                <i class="fa fa-th-list"></i>
+                                @lang('navbar.categories.top') <span class="caret"></span>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu">
+                                <li>
+                                    <a href="/admin/category/create"
+                                       onclick="event.preventDefault();
+                                                    openSettings('category', 0);">
+                                        <i class="fa fa-plus"></i>
+                                        @lang('navbar.categories.create')
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/admin/category/list"
+                                       onclick="event.preventDefault();
+                                                    openList('category');">
+                                        <i class="fa fa-list"></i>
+                                        @lang('navbar.categories.list')
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </li>

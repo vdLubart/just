@@ -1,10 +1,8 @@
 <?php
 
-namespace Just\Structure;
+namespace Just\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Just\Models\Layout;
-use Just\Structure\Panel\Block;
 
 class Panel extends Model
 {

@@ -53,8 +53,8 @@ abstract class SettingsController extends Controller
      * @param string $phrasePath key path in language file
      * @return array|\Illuminate\Contracts\Translation\Translator|null|string
      */
-    protected function itemTranslation($phrasePath) {
-        return __($this->itemName() . "." . $phrasePath);
+    protected function itemTranslation($phrasePath, $replace = []) {
+        return __($this->itemName() . "." . $phrasePath, $replace);
     }
 
     /**
@@ -99,7 +99,7 @@ abstract class SettingsController extends Controller
         $item = $this->itemClass()::findOrNew($id);
         $caption = [
             '/settings/' . $this->itemName() => $this->itemTranslation('title'),
-            '/settings/' . $this->itemName() . '/' . $id => $id == 0 ? $this->itemTranslation('createForm.title') : $this->itemTranslation('editForm.title')
+            '/settings/' . $this->itemName() . '/' . $id => $id == 0 ? $this->itemTranslation('createForm.title') : $this->itemTranslation('editForm.title', [$this->itemName() => $this->caption($item)])
         ];
 
         return $this->response($caption, $item, 'form');

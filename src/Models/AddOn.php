@@ -1,21 +1,19 @@
 <?php
 
-namespace Just\Structure\Panel\Block;
+namespace Just\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Lubart\Form\Form;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use Just\Models\AddonList;
-use Just\Structure\Panel\Block;
-use Illuminate\Support\Facades\DB;
+use Just\Models\System\AddonList;
 use Lubart\Form\FormElement;
 use Just\Tools\Useful;
 use Illuminate\Support\Facades\Artisan;
 use Just\Requests\AddonChangeRequest;
 use Spatie\Translatable\HasTranslations;
 
-class Addon extends Model
+class AddOn extends Model
 {
     use HasTranslations;
 
