@@ -4,11 +4,13 @@ return [
     'title' => 'Додатки',
     'createForm' => [
         'title' => 'Додати додаток',
-        'addon' => 'Додаток',
-        'block' => 'Блок'
+        'addOn' => 'Додаток',
+        'block' => 'Блок',
+        'name' => 'Назва (dev змінна, [a-z])',
+        'title' => 'Користувацький заголовок додатка'
     ],
-    'listTitle' => 'Список додатків',
-    'list' => [
+    'list' => 'Список додатків',
+    'addOns' => [
         'categories' => [
             'title' => 'Категорії',
             'description' => 'Допомагає категоризувати блок'
@@ -26,13 +28,16 @@ return [
             'description' => 'Додає рядок до елемента'
         ]
     ],
-    'addonLocation' => ':addon у блоці :block на сторінці :page',
+    'addOnLocation' => ':addOn у блоці :block на сторінці :page',
     'category' => [
         'title' => 'Категорії',
         'createForm' => [
             'title' => 'Створити нову категорію',
-            'addon' => 'Додаток',
-            'value' => 'Значення'
+            'addOnGroup' => 'Оберіть додаток',
+            'addOn' => 'Додаток категорій',
+            'pairGroup' => 'Пара категорії',
+            'caption' => 'Видимий заголовок',
+            'value' => 'HTML значення'
         ],
         'list' => 'Список категорій',
         'emptyList' => 'Ще не створено жодної категорії',

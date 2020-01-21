@@ -45,15 +45,15 @@ class LayoutController extends SettingsController {
 
         foreach($items as $item){
             $list[$this->itemName() . '/'. $item->id] = [
-                'caption' => $this->caption($item)
+                'image' => null,
+                'featureIcon' => null,
+                'text' => null,
+                'caption' => $item->itemCaption(),
+                'width' => $item->width
             ];
         }
 
         return json_encode($list);
-    }
-
-    protected function caption(Layout $item){
-        return $item->name. ".". $item->class;
     }
 
     /**
@@ -65,12 +65,7 @@ class LayoutController extends SettingsController {
     public function setup(ChangeLayoutRequest $request) {
         $layout = Layout::findOrNew($request->layout_id);
 
-        $layout->handleSettingsForm($request);
-
-        $response = new \stdClass();
-        $response->message = __('layout.messages.success.' . ($request->layout_id == 0 ? 'created' : 'updated'));
-
-        return json_encode($response);
+        return $this->setupSettingsForm($layout, $request, $request->layout_id, '/settings/layout/list');
     }
 
     /**
@@ -92,6 +87,7 @@ class LayoutController extends SettingsController {
         $layout->delete();
 
         $response->message = __('layout.messages.success.deleted');
+        $response->redirect = '/settings/layout/list';
 
         return json_encode($response);
     }

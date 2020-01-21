@@ -66,6 +66,14 @@ Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
 
         Route::post("setup", "\Just\Controllers\Settings\PageController@setup");
         Route::post("delete", "\Just\Controllers\Settings\PageController@delete");
+
+        Route::prefix('{pageId}/panel/{panelLocation}')->where(['pageId'=>'\d+', 'panelLocation'=>'[a-zA-Z]+'])->group(function(){
+            Route::get('', "\Just\Controllers\Settings\BlockController@panelActions");
+            Route::prefix('block')->group(function(){
+                Route::get('create', "\Just\Controllers\Settings\BlockController@createForm")->where(['blockId'=>'\d+']);
+                Route::get('list', "\Just\Controllers\Settings\BlockController@blockList");
+            });
+        });
     });
 
     Route::prefix('add-on')->group(function(){
@@ -76,7 +84,29 @@ Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
 
             Route::post("setup", "\Just\Controllers\Settings\AddOnController@setup");
             Route::post("delete", "\Just\Controllers\Settings\AddOnController@delete");
+
+            Route::prefix('category')->group(function(){
+                Route::get('', "\Just\Controllers\Settings\AddOnController@categoryActions");
+                Route::get("{categoryId}", "\Just\Controllers\Settings\AddOnController@categorySettingsForm")->where(['categoryId'=>'\d+']);
+                Route::get("list", "\Just\Controllers\Settings\AddOnController@categoryList");
+
+                Route::post("setup", "\Just\Controllers\AdminController@handleCategoryForm");
+            });
         });
+    });
+
+    Route::prefix('block')->group(function(){
+        Route::prefix('{blockId}')->where(['blockId'=>'\d+'])->group(function(){
+            Route::get('', "\Just\Controllers\Settings\BlockController@content");
+            Route::get('settings', "\Just\Controllers\Settings\BlockController@settingsForm");
+            Route::get('customization', "\Just\Controllers\Settings\BlockController@customizationForm");
+            Route::get('item/{itemId}', "\Just\Controllers\Settings\BlockController@itemSettingsForm")->where(['itemId'=>'\d+']);
+        });
+
+        Route::post('setup', '\Just\Controllers\Settings\BlockController@setup');
+        Route::post('customize', '\Just\Controllers\Settings\BlockController@customize');
+        Route::post('delete', '\Just\Controllers\Settings\BlockController@delete');
+        Route::post('item/setup', '\Just\Controllers\Settings\BlockController@itemSetup');
     });
 });
 
@@ -84,18 +114,9 @@ Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){
 
     Route::prefix('settings')->group(function(){
         Route::get("{blockId}/{id}/{subid?}", "\Just\Controllers\AdminController@settingsForm")->where(['blockId'=>'\d+', 'id'=>'\d+', 'subId'=>'\d+']);
-        Route::post("block/setup", "\Just\Controllers\AdminController@handleBlockForm");
 
         Route::get("panel/{pageId}/{panelLocation}/{blockId?}", "\Just\Controllers\AdminController@panelSettingsForm")->where(['pageId'=>'\d+', 'blockId'=>'\d+']);
         Route::post("panel/setup", "\Just\Controllers\AdminController@handlePanelForm");
-
-        Route::get("addon/list", "\Just\Controllers\AdminController@addonList");
-        Route::get("addon/{addonId}", "\Just\Controllers\AdminController@addonSettingsForm")->where(['addonId'=>'\d+']);
-        Route::post("addon/setup", "\Just\Controllers\AdminController@handleAddonForm");
-
-        Route::get("category/list", "\Just\Controllers\AdminController@categoryList");
-        Route::get("category/{categoryId}", "\Just\Controllers\AdminController@categorySettingsForm")->where(['categoryId'=>'\d+']);
-        Route::post("category/setup", "\Just\Controllers\AdminController@handleCategoryForm");
 
         Route::get("user/list", "\Just\Controllers\AdminController@userList");
         Route::get("user/{userId}", "\Just\Controllers\AdminController@userSettingsForm")->where(['userId'=>'\d+']);

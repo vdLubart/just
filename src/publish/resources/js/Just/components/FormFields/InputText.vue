@@ -1,6 +1,6 @@
 <template>
 
-    <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
+    <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel" >
         <fieldset v-if="parameters.translate === true">
             <div v-for="(label, lang) in languages" class="input-text-component__translate-container">
                 <div>{{ label }}</div>

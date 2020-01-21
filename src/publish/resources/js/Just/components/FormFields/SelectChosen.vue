@@ -78,9 +78,10 @@
     /* Chosen override */
 
     .chosen-container-single .chosen-single{
-        border-radius: initial;
-        height: 29px;
+        border-radius: 4px;
+        height: 34px;
         background: #fff;
+        border-color: #dbdbdb;
     }
 
     .chosen-container .chosen-results li.highlighted {
@@ -95,6 +96,10 @@
 
     .chosen-container-active .chosen-choices{
         border: 1px solid #77bac0;
+    }
+
+    .ql-tooltip.ql-editing{
+        left: 0px !important;
     }
 
     /* END Chosen override */

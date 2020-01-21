@@ -149,4 +149,13 @@ class Layout extends Model
         
         return $form;
     }
+
+    /**
+     * Return caption for layout item in the layout list
+     *
+     * @return string
+     */
+    public function itemCaption() {
+        return $this->name. ".". $this->class;
+    }
 }

@@ -15,6 +15,10 @@
             </header>
             <alert v-if="isAlertVisible" :notes="alertNotes" :status="alertType" :renderHtml="alertRenderHtml" :with-confirmation="confirmation" :confirmation-action="confirmationAction"></alert>
 
+            <block-tabs v-if="!!responseParameters.blockTabs" :tab="responseParameters.blockTabs" :block-id="responseParameters.blockId"></block-tabs>
+
+            <item-tabs v-if="!!responseParameters.itemTabs" :tab="responseParameters.itemTabs" :block-id="responseParameters.blockId" :item-id="responseParameters.itemId"></item-tabs>
+
             <content-view :type="contentType"></content-view>
 
             <footer v-if="contentType === 'form'" class="settings-component__card__footer">
@@ -31,11 +35,13 @@
     import {eventBus} from "../adminApp";
     import Slink from './Link';
     import {InputButton} from 'lubart-vue-input-component';
+    import BlockTabs from './BlockTabs';
+    import ItemTabs from './ItemTabs';
 
     export default {
         name: "Settings",
 
-        components: { Alert, ContentView, Slink, InputButton },
+        components: { Alert, ContentView, Slink, InputButton, BlockTabs, ItemTabs },
 
         props: {
             title: {type: Array},                                      // modal caption
@@ -49,6 +55,7 @@
             return {
                 content: null,
                 contentType: null,
+                responseParameters: [],
                 caption: this.title,
                 visibility: this.visible,
                 isAlertVisible: false,
@@ -123,7 +130,7 @@
                 this.confirmation = false;
                 this.confirmationAction = () => false;
 
-                this.$parent.isAlertVisible = false;
+                this.isAlertVisible = false;
             }
         },
 

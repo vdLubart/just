@@ -1,10 +1,10 @@
 <template>
 
-    <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
+    <div>
         <label class="checkbox-group__normalFont">
-            <input type="checkbox" :name="name" :value="ticValue" :checked="content" @input="handleInput" v-bind="parameters"> {{ ticLabel }}
+            <input type="checkbox" :name="name" :value="ticValue" :checked="content" @input="handleInput" v-bind="parameters"> {{ label }}
         </label>
-    </block>
+    </div>
 
 </template>
 

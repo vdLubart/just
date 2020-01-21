@@ -137,4 +137,13 @@ class Page extends Model
 
         return JustRoute::findByUrl($currentUri)->page;
     }
+
+    /**
+     * Return caption for page item in the page list
+     *
+     * @return string
+     */
+    public function itemCaption() {
+        return ($this->title === '' ? __('block.untitled') : $this->title);
+    }
 }

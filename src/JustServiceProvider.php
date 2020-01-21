@@ -27,11 +27,11 @@ class JustServiceProvider extends ServiceProvider
         $this->app->make(\Illuminate\Database\Eloquent\Factory::class)->load(__DIR__ . '/database/factories');
         
         $this->publishes([
-            __DIR__.'/publish/resources/assets' => base_path('resources/assets'),
+            //__DIR__.'/publish/resources/assets' => base_path('resources/assets'),
             __DIR__.'/publish/resources/views/Just' => base_path('resources/views/Just'),
             __DIR__.'/publish/resources/lang' => base_path('resources/lang'),
             __DIR__.'/publish/config' => base_path('config'),
-            __DIR__.'/publish/webpack.mix.js' => base_path('webpack.mix.js'),
+            //__DIR__.'/publish/webpack.mix.js' => base_path('webpack.mix.js'),
             __DIR__.'/publish/public/css' => base_path('public/css'),
             __DIR__.'/publish/public/fonts' => base_path('public/fonts'),
             __DIR__.'/publish/public/js' => base_path('public/js'),
@@ -65,7 +65,7 @@ class JustServiceProvider extends ServiceProvider
         $this->app['router']->aliasMiddleware('master', \Just\Middleware\MasterAccess::class);
 
         Cache::rememberForever('settings-translations', function() {
-            return trans('settings');
+            return array_merge(trans('settings'), ['blockTabs' => trans('block.tabs'), 'itemTabs' => trans('block.itemTabs')]);
         });
     }
 

@@ -51,12 +51,11 @@
                     _token: this.$root.csrf,
                     id: _.last(this.editUrl.split('/'))
                 }).then((response) => {
-                    new Promise(resolve => {
-                        return resolve(this.$root.navigate('/settings/' + this.$parent.itemName + '/list'));
-                    })
-                        .then(resolve => {
-                            this.$root.$refs.settings.showSuccessMessage(response.data.message);
-                        });
+                    this.$root.navigate(response.data.redirect).then(()=>{
+                        this.$root.$refs.settings.showSuccessMessage(response.data.message);
+
+                        setTimeout(this.$root.$refs.settings.resetAlert, 5000);
+                    });
                 })
                     .catch((error) => {
                         console.log("Cannot receive data.");

@@ -25,15 +25,15 @@ return [
         'list' => 'Page List',
         'settings' => 'Page Settings'
     ],
-    'categories' => [
-        'top' => 'Categories',
-        'create' => 'Create Category',
-        'list' => 'Category List'
-    ],
-    'addons' => [
-        'top' => 'Addons',
-        'add' => 'Add Addon',
-        'list' => 'Addon List'
+    'addOns' => [
+        'top' => 'Add-Ons',
+        'create' => 'Add Add-On',
+        'list' => 'Add-On List',
+        'categories' => [
+            'top' => 'Categories',
+            'create' => 'Create Category',
+            'list' => 'Category List'
+        ],
     ],
     'users' => [
         'top' => 'Users',

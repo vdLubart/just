@@ -43,15 +43,11 @@ class PageController extends SettingsController
 
         foreach($items as $item){
             $list[$this->itemName() . '/'. $item->id] = [
-                'caption' => $this->caption($item)
+                'caption' => $item->title . ' :: /' . $item->route
             ];
         }
 
         return json_encode($list);
-    }
-
-    protected function caption(Page $item){
-        return $item->title . ' :: /' . $item->route;
     }
 
     /**
@@ -63,18 +59,14 @@ class PageController extends SettingsController
     public function setup(ChangePageRequest $request) {
         $page = Page::findOrNew($request->page_id);
 
-        $page->handleSettingsForm($request);
-
-        $response = new \stdClass();
-        $response->message = __('page.messages.success.' . ($request->page_id == 0 ? 'created' : 'updated'));
-
-        return json_encode($response);
+        return $this->setupSettingsForm($page, $request, $request->page_id, '/settings/page/list');
     }
 
     /**
      * Delete page
      *
      * @param DeletePageRequest $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function delete(DeletePageRequest $request) {
         $page = Page::find($request->id);
@@ -87,6 +79,7 @@ class PageController extends SettingsController
 
         $response = new \stdClass();
         $response->message = __('page.messages.success.deleted');
+        $response->redirect = '/settings/page/list';
 
         return json_encode($response);
     }

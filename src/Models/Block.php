@@ -5,18 +5,21 @@ namespace Just\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Just\Models\Blocks\Contracts\BlockItem;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Models\System\BlockList;
 use Spatie\Translatable\HasTranslations;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Lubart\Form\FormElement;
-use Just\Structure\Panel;
 use Lubart\Form\Form;
 use Illuminate\Support\Facades\DB;
 use Just\Tools\Useful;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
+use Lubart\Form\FormGroup;
+use Just\Models\Blocks\AddOns\Categories;
 
-class Block extends Model
+class Block extends Model implements BlockItem
 {
     use HasTranslations;
 
@@ -56,15 +59,7 @@ class Block extends Model
      * @throws \Exception
      */
     public function specify($id = null) {
-        $name = "\\App\\Just\\Panel\\Block\\". ucfirst($this->type);
-
-        // looking for a custom block
-        if(!class_exists($name)){
-            $name = "\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
-            if(!class_exists($name)){
-                throw new \Exception("Block class \"".ucfirst($this->type)."\" not found");
-            }
-        }
+        $name = $this->modelClassName();
 
         // make sure if string $id parameter is a number
         if((int)$id > 0 and (string)(int)$id == $id){
@@ -127,30 +122,43 @@ class Block extends Model
         
         return $form;
     }
-    
-    public function panelForm() {
-        $form = new Form('/admin/settings/panel/setup');
+
+    /**
+     * Return form to create or update new block
+     *
+     * @return Form
+     * @throws \Exception
+     */
+    public function settingsForm(): Form {
+        $form = new Form('/settings/block/setup');
         
-        if(!is_null($this->id)){
-            $form->open();
-        }
-        
-        if(empty($form->getElements())){
-            $form->add(FormElement::hidden(['name'=>'panel_id', 'value'=>$this->panel_id]));
-            $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>@$this->id]));
-            $form->add(FormElement::hidden(['name'=>'page_id', 'value'=>$this->page_id]));
-            $form->add(FormElement::select(['name'=>'type', 'label'=>__('block.form.type'), 'value'=>@$this->type, 'options'=>$this->allBlocksSelect()]));
+        if(empty($form->elements())){
+            $blockGroup = new FormGroup('blockGroup', __('block.createForm.blockData'), ['class'=>'fullWidth twoColumns']);
+            $blockGroup->add(FormElement::hidden(['name'=>'panelLocation', 'value'=>$this->panelLocation]));
+            $blockGroup->add(FormElement::hidden(['name'=>'block_id', 'value'=>@$this->id]));
+            $blockGroup->add(FormElement::hidden(['name'=>'page_id', 'value'=>$this->page_id]));
+            $blockGroup->add(FormElement::select(['name'=>'type', 'label'=>__('block.createForm.type'), 'value'=>@$this->type, 'options'=>$this->allBlocksSelect()]));
             if(!is_null($this->id)){
-                $form->getElement("type")->setParameters("disabled", "disabled");
+                $blockGroup->element("type")->setParameter("disabled", "disabled");
             }
-            $form->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>@$this->name]));
-            $form->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>@$this->title]));
-            $form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>@$this->description, "class"=>"ckeditor", "id"=>"description"]));
-            $form->applyJS("$(document).ready(function(){CKEDITOR.replace('description');});");
-            $form->add(FormElement::select(['name'=>'width', 'label'=>__('block.form.width'), 'value'=>$this->width ?? 12, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]]));
+            else{
+                $blockGroup->element("type")->obligatory();
+            }
+            $blockGroup->add(FormElement::select(['name'=>'width', 'label'=>__('block.createForm.width'), 'value'=>$this->width ?? 12, 'options'=>[3=>"25%", 4=>"33%", 6=>"50%", 8=>"67%", 9=>"75%", 12=>"100%"]])
+                ->obligatory()
+            );
+            $blockGroup->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>$this->getTranslations('title'), 'translate'=>true]));
+            $blockGroup->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>@$this->name]));
+            $blockGroup->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>$this->getTranslations('description'), 'translate'=>true]));
+
+            $form->addGroup($blockGroup);
+
             if(\Auth::user()->role == "master"){
-                $form->add(FormElement::text(['name'=>'layoutClass', 'label'=>__('block.form.layoutClass'), 'value'=>$this->layoutClass ?? 'primary']));
-                $form->add(FormElement::text(['name'=>'cssClass', 'label'=>__('block.form.cssClass'), 'value'=>@$this->cssClass]));
+                $viewGroup = new FormGroup('viewGroup', __('block.createForm.blockView'), ['class'=>'fullWidth twoColumns']);
+
+                $viewGroup->add(FormElement::text(['name'=>'layoutClass', 'label'=>__('block.createForm.layoutClass'), 'value'=>$this->layoutClass ?? 'primary']));
+                $viewGroup->add(FormElement::text(['name'=>'cssClass', 'label'=>__('block.createForm.cssClass'), 'value'=>@$this->cssClass]));
+                $form->addGroup($viewGroup);
             }
             $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         }
@@ -170,7 +178,7 @@ class Block extends Model
         
         $select = [];
         foreach($blocks as $block){
-            $select[$block->block] = __('block.list.'.$block->block.'.title');
+            $select[$block->block] = __('block.type.'.$block->block.'.title');
         }
         
         return $select;
@@ -235,18 +243,18 @@ class Block extends Model
             $publicity = 'Admin';
         }
 
-        $validatorClass =  "\\App\\Just\\Requests\\Panel\\Block\\" . $publicity . "\\" . $requestType . Str::ucfirst( Str::singular($this->type) ) . 'Request';
+        $validatorClass =  "\\App\\Just\\Requests\\Block\\" . $publicity . "\\" . $requestType . Str::ucfirst( Str::singular($this->type) ) . 'Request';
 
         if (!class_exists($validatorClass)) {
-            $validatorClass =  "\\Just\\Requests\\Panel\\Block\\" . $publicity . "\\" . $requestType . Str::ucfirst( Str::singular($this->type) ) . 'Request';
+            $validatorClass =  "\\Just\\Requests\\Block\\" . $publicity . "\\" . $requestType . Str::ucfirst( Str::singular($this->type) ) . 'Request';
         }
 
         return $validatorClass;
     }
     
-    public function handleForm(Request $request, $isPublic = false) {
+    public function handleItemSetupForm(Request $request, $isPublic = false) {
         if(!$isPublic) {
-            $method = 'handleForm';
+            $method = 'handleSettingsForm';
 
             // looking for a custom request validator
             $validatorClass = $this->findValidationRequest();
@@ -295,27 +303,27 @@ class Block extends Model
 
         return $this->model->{$method}($validatedRequest);
     }
-    
-    public function handlePanelForm(Request $request) {
+
+    public function handleSettingsForm(ValidateRequest $request) {
         if(is_null($this->id)){
             $this->type = $request->type;
         }
-        $panel = Panel::find($request->panel_id);
-        $this->panelLocation = $panel->location;
+        $this->panelLocation = $request->panelLocation;
         $this->page_id = $request->page_id;
         $this->name = $request->name;
         $this->title = $request->title ?? "";
-        $this->description = $request->blockDescription ?? "";
+        $this->description = $request->description ?? "";
         $this->width = $request->width ?? ( $this->width ?? 12 );
         $this->layoutClass = (\Auth::user()->role == "master" ? $request->layoutClass : $this->layoutClass) ?? 'primary';
         $this->cssClass = (\Auth::user()->role == "master" ?  $request->cssClass : $this->cssClass) ?? '';
-        $this->orderNo = $this->orderNo?$this->orderNo : Useful::getMaxNo($this->table, ['panelLocation' => $panel->location, "page_id"=>$request->page_id]);
-        
+        $this->orderNo = $this->orderNo?$this->orderNo : Useful::getMaxNo($this->table, ['panelLocation' => $request->panelLocation, "page_id"=>$request->page_id]);
+        $this->parameters = json_decode('{}');
+
         $this->save();
-        
+
         return $this;
     }
-    
+
     public function handleCrop(Request $request) {
         $reflection = new \ReflectionMethod($this->model, 'handleCrop');
         $validatorClass = $reflection->getParameters()[0]->getClass()->name;
@@ -375,12 +383,29 @@ class Block extends Model
     }
     
     public function model() {
+        if($this->model === null){
+            $this->specify();
+        }
+
         return $this->model;
     }
     
     public function models() {
-        $name = "\\Just\\Structure\\Panel\\Block\\". ucfirst($this->type);
-        return $this->hasMany($name);
+        return $this->hasMany($this->modelClassName());
+    }
+
+    protected function modelClassName() {
+        $name = "\\App\\Just\\Models\\Blocks\\". ucfirst($this->type);
+
+        // looking for a custom block
+        if(!class_exists($name)){
+            $name = "\\Just\\Models\\Blocks\\". ucfirst($this->type);
+            if(!class_exists($name)){
+                throw new \Exception("Block class \"".ucfirst($this->type)."\" not found");
+            }
+        }
+
+        return $name;
     }
     
     public function move($dir) {
@@ -440,9 +465,14 @@ class Block extends Model
 
         return $isSetted;
     }
-    
-    public function setupForm() {
-        return $this->model->setupForm($this);
+
+    /**
+     * Return form to customize the block
+     *
+     * @return mixed
+     */
+    public function customizationForm() {
+        return $this->model()->customizationForm($this);
     }
     
     public function parameter($param) {
@@ -520,7 +550,7 @@ class Block extends Model
     
     public function currentCategory() {
         if(is_null($this->currentCategory)){
-            $this->currentCategory = Addon\Categories::where('value', request('category'))->first();
+            $this->currentCategory = Categories::where('value', request('category'))->first();
         }
         
         return $this->currentCategory;
@@ -563,5 +593,26 @@ class Block extends Model
         return $this->join('blockList', $this->table.'.type', '=', 'blockList.block')
                 ->where($this->table.'.id', $this->id)
                 ->first();
+    }
+
+    public function itemImage(): ?string {
+        return null;
+    }
+
+    public function itemIcon(): ?string {
+        return null;
+    }
+
+    public function itemText(): ?string {
+        return null;
+    }
+
+    /**
+     * Return caption for block item in the block list
+     *
+     * @return string
+     */
+    public function itemCaption(): string {
+        return ($this->title == '' ? __('block.untitled') : $this->title) . ' (' . $this->type . ')';
     }
 }

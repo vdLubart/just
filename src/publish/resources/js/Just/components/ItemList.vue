@@ -2,22 +2,23 @@
 
     <div>
         <span v-if="isWaitingData">Loading data...</span>
+        <span v-else-if="emptyContent">There are no items found...</span>
         <div v-else class="settings-list-component">
-            <div class="thumbnail" v-for="(item, key) in content" :key="key">
-                <slink v-if="item.image !== undefined" :href="'/settings/' + key">
+            <div class="thumbnail" v-for="(item, key) in content" :key="key" :class="'w'+ item.width">
+                <slink v-if="!isEmpty(item.image)" :href="'/settings/' + key">
                     <img :src="item.image" />
                 </slink>
 
-                <h1 v-if="item.featureIcon !== undefined" class='featureItem'>
+                <h1 v-if="!isEmpty(item.featureIcon)" class='featureItem'>
                     {{ item.featureIcon }}
                 </h1>
 
-                <div v-if="item.text !== undefined">
+                <div v-if="!isEmpty(item.text)">
                     {{ item.text }}
                 </div>
 
                 <div class="caption">
-                    <slink :href="'/settings/' + key">
+                    <slink :href="'/settings/' + key" v-if="!isEmpty(item.caption)">
                         <strong>{{ item.caption }}</strong>
                     </slink><br/>
 
@@ -42,15 +43,33 @@
 
         data(){
             return {
-                itemName: _.first(_.first(Object.keys(this.content)).split('/')),
-                activating: _.includes(['layout'], this.itemName),
-                moving: _.includes(['layout'], this.itemName)
+                itemName: '',
+                activating: true,
+                moving: true,
+                emptyContent: false
+            }
+        },
+
+        methods:{
+            isEmpty(condition){
+                return _.isEmpty(condition);
+            }
+        },
+
+        mounted() {
+            if(Object.keys(this.content).length){
+                this.itemName = _.first(_.first(Object.keys(this.content)).split('/')),
+                this.activating = !_.includes(['layout', 'page'], this.itemName),
+                this.moving = !_.includes(['layout', 'page'], this.itemName)
+            }
+            else{
+                this.emptyContent = true;
             }
         }
     }
 </script>
 
-<style scoped>
+<style>
 
     .settings-list-component{
         display: flex;
@@ -58,8 +77,32 @@
     }
 
     .settings-list-component > div{
-        flex: 1 0 25%;
-        margin: 5px;
+        flex: 1 0 98%;
+        margin: 1%;
+    }
+
+    .settings-list-component > div.w3{
+        flex: 1 0 23%; /* (100% - 2x4x1%) / 4 = 23% */
+    }
+
+    .settings-list-component > div.w4{
+        flex: 1 0 31%; /* (100% - 2x3x1%) / 3 = 31.3% */
+    }
+
+    .settings-list-component > div.w6{
+        flex: 1 0 48%; /* (100% - 2x2x1%) / 2 = 48% */
+    }
+
+    .settings-list-component > div.w8{
+        flex: 1 0 65%;
+    }
+
+    .settings-list-component > div.w9{
+        flex: 1 0 73%;
+    }
+
+    .settings-list-component > div.w12{
+        flex: 1 0 98%;
     }
 
 </style>

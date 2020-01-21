@@ -37,6 +37,7 @@ window.App = new Vue({
             await axios.get(url).then((response) => {
                 this.settings.caption = response.data.caption;
                 this.settings.contentType = response.data.contentType;
+                this.settings.responseParameters = response.data.parameters;
                 this.settings.content = JSON.parse(response.data.content);
                 this.settings.contentIsReady = true;
 
@@ -45,8 +46,8 @@ window.App = new Vue({
                 this.settings.alertType = 'success';
             })
                 .catch((response) => {
-                    console.log("Cannot receive data.");
-                    console.log(response.data);
+                    console.error("Cannot receive data.");
+                    console.error(response.data);
                     this.showErrors(response.data);
                 });
 

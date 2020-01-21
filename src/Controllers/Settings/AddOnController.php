@@ -4,6 +4,8 @@ namespace Just\Controllers\Settings;
 
 use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
+use Just\Models\AddOn;
+use Just\Models\Block\AddOns\Categories;
 use Just\Models\Theme;
 use Just\Requests\DeletePageRequest;
 use Just\Requests\ChangePageRequest;
@@ -50,10 +52,6 @@ class AddOnController extends SettingsController
         return json_encode($list);
     }
 
-    protected function caption(Page $item){
-        return $item->title . ' :: /' . $item->route;
-    }
-
     /**
      * Create new or update existing page
      *
@@ -61,20 +59,16 @@ class AddOnController extends SettingsController
      * @return string response in JSON format
      */
     public function setup(ChangePageRequest $request) {
-        $page = Page::findOrNew($request->page_id);
+        $addOn = AddOn::findOrNew($request->addon_id);
 
-        $page->handleSettingsForm($request);
-
-        $response = new \stdClass();
-        $response->message = __('page.messages.success.' . ($request->page_id == 0 ? 'created' : 'updated'));
-
-        return json_encode($response);
+        return $this->setupSettingsForm($addOn, $request, $request->addon_id);
     }
 
     /**
      * Delete page
      *
      * @param DeletePageRequest $request
+     * @return string response in JSON format
      */
     public function delete(DeletePageRequest $request) {
         $page = Page::find($request->id);
@@ -96,19 +90,53 @@ class AddOnController extends SettingsController
      */
     public function actions() {
         $items = [
-            $this->itemName() . '/0' => [
-                'label' => __('navbar.pages.create'),
+            $this->itemKebabName() . '/0' => [
+                'label' => __('navbar.addOns.create'),
                 'icon' => 'plus'
             ],
-            $this->itemName() . '/list' => [
-                'label' => __('navbar.pages.list'),
+            $this->itemKebabName() . '/list' => [
+                'label' => __('navbar.addOns.list'),
                 'icon' => 'list'
             ]
         ];
         $caption = [
-            '/settings/' . $this->itemName() => $this->itemTranslation('title')
+            '/settings/' . $this->itemKebabName() => $this->itemTranslation('title')
         ];
 
         return $this->response($caption, $items, 'list');
+    }
+
+    public function categorySettingsForm($categoryId){
+        return $this->addOnSettingsFormView($categoryId, 'category');
+    }
+
+    /**
+     * Return list with available actions for the layout
+     */
+    public function categoryActions() {
+        $items = [
+            $this->itemKebabName() . '/category/0' => [
+                'label' => __('navbar.addOns.categories.create'),
+                'icon' => 'plus'
+            ],
+            $this->itemKebabName() . '/category/list' => [
+                'label' => __('navbar.addOns.categories.list'),
+                'icon' => 'list'
+            ]
+        ];
+        $caption = [
+            '/settings/' . $this->itemKebabName() => $this->itemTranslation('title')
+        ];
+
+        return $this->response($caption, $items, 'list');
+    }
+
+    /**
+     * Render view with page list
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function categoryList() {
+        return $this->addOnListView('category');
     }
 }

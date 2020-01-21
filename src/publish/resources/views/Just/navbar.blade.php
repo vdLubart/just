@@ -1,4 +1,4 @@
-<nav class="navbar navbar-default navbar-static-top">
+<nav class="just-navbar navbar navbar-default navbar-static-top">
     <div class="container">
         <div class="navbar-header">
 
@@ -84,54 +84,51 @@
                         </li>
                     </ul>
                 </li>
-                @if(\Auth::user()->role == "master")
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-puzzle-piece"></i>
-                        @lang('navbar.addons.top') <span class="caret"></span>
+                        @lang('navbar.addOns.top') <span class="caret"></span>
                     </a>
                     
-                    <ul class="dropdown-menu" role="menu">
+                    <ul class="dropdown-menu multi-level">
+                        @if(\Auth::user()->role == "master")
                         <li>
                             <slink href="/settings/add-on/0">
                                 <i class="fa fa-plus"></i>
-                                @lang('navbar.addons.add')
+                                @lang('navbar.addOns.create')
                             </slink>
                         </li>
                         <li>
-                            <a href="/settings/add-on/list">
+                            <slink href="/settings/add-on/list">
                                 <i class="fa fa-list"></i>
-                                @lang('navbar.addons.list')
-                            </a>
+                                @lang('navbar.addOns.list')
+                            </slink>
                         </li>
-                        <!-- TODO: Categories must be available for admin role -->
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                        @endif
+                        <li class="dropdown-submenu">
+                            <a href="#">
                                 <i class="fa fa-th-list"></i>
-                                @lang('navbar.categories.top') <span class="caret"></span>
+                                @lang('navbar.addOns.categories.top')
                             </a>
 
-                            <ul class="dropdown-menu" role="menu">
+                            <ul class="dropdown-menu">
                                 <li>
-                                    <a href="/admin/category/create"
-                                       onclick="event.preventDefault();
-                                                    openSettings('category', 0);">
+                                    <slink href="/settings/add-on/category/0">
                                         <i class="fa fa-plus"></i>
-                                        @lang('navbar.categories.create')
-                                    </a>
+                                        @lang('navbar.addOns.categories.create')
+                                    </slink>
                                 </li>
                                 <li>
-                                    <a href="/admin/category/list"
-                                       onclick="event.preventDefault();
-                                                    openList('category');">
+                                    <slink href="/settings/add-on/category/list">
                                         <i class="fa fa-list"></i>
-                                        @lang('navbar.categories.list')
-                                    </a>
+                                        @lang('navbar.addOns.categories.list')
+                                    </slink>
                                 </li>
                             </ul>
                         </li>
                     </ul>
                 </li>
+                @if(\Auth::user()->role == "master")
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
                         <i class="fa fa-users"></i>

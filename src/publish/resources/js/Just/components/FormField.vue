@@ -3,18 +3,19 @@
     import InputText from './FormFields/InputText';
     import InputArea from './FormFields/InputArea';
     import InputDate from './FormFields/InputDate';
+    import InputRadio from './FormFields/InputRadio';
     import RadioGroup from './FormFields/RadioGroup';
     import InputNumber from './FormFields/InputNumber';
     import InputHidden from './FormFields/InputHidden';
     import InputEmail from './FormFields/InputEmail';
     import InputCheckbox from './FormFields/InputCheckbox';
     import HtmlBlock from './FormFields/HtmlBlock';
-    import SelectChosen from './FormFields/SelectChosen';
+    import SelectVue from './FormFields/SelectVue';
 
     export default {
         name: "FormField",
 
-        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, RadioGroup, InputButton, InputHidden, SelectChosen, HtmlBlock},
+        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, InputRadio, RadioGroup, InputButton, InputHidden, SelectVue, HtmlBlock},
 
         props:{
             "element": {type: Object}
@@ -34,9 +35,9 @@
                 'email': InputEmail,
                 'file': null,
                 'checkbox': InputCheckbox,
-                'radio': RadioGroup,
+                'radio': _.isEmpty(this.element.options) ? InputRadio : RadioGroup,
                 'number': InputNumber,
-                'select': SelectChosen,
+                'select': SelectVue,
                 'selectRange': null,
                 'selectMonth': null,
                 'hidden': InputHidden,

@@ -12,6 +12,7 @@ use Just\Tools\Useful;
 use Illuminate\Support\Facades\Artisan;
 use Just\Requests\AddonChangeRequest;
 use Spatie\Translatable\HasTranslations;
+use Lubart\Form\FormGroup;
 
 class AddOn extends Model
 {
@@ -27,14 +28,15 @@ class AddOn extends Model
      * Class name of the current addon
      * 
      * @return string $addon
+     * @throws \Exception
      */
     public function addon(){
-        $class = "\\Just\\Structure\\Panel\\Block\\Addon\\".ucfirst($this->type);
+        $class = "\\Just\\Models\\AddOns\\".ucfirst($this->type);
         
         if(!class_exists($class)){
-            $class = "\\App\\Just\\Panel\\Block\\Addon\\". ucfirst($this->type);
+            $class = "\\App\\Just\\Models\\AddOns\\". ucfirst($this->type);
             if(!class_exists($class)){
-                throw new \Exception("Addon class not found");
+                throw new \Exception("Add-on class not found");
             }
         }
         
@@ -103,10 +105,10 @@ class AddOn extends Model
      */
     public function settingsForm() {
         $form = new Form('admin/settings/addon/setup');
-        
+
         $addons = [];
         foreach(AddonList::all() as $addon){
-            $addons[$addon->addon] = __('addon.list.'.$addon->addon.'.title') ." - ".__('addon.list.'.$addon->addon.'.description');
+            $addons[$addon->addon] = __('addOn.list.'.$addon->addon.'.title') ." - ".__('addOn.list.'.$addon->addon.'.description');
         }
         $blocks = [];
         foreach(Block::all() as $block){
@@ -114,18 +116,24 @@ class AddOn extends Model
         }
         
         $form->add(FormElement::hidden(['name'=>'addon_id', 'value'=>@$this->id]));
-        $form->add(FormElement::select(['name'=>'type', 'label'=>__('addon.addForm.addon'), 'value'=>@$this->type, 'options'=>$addons]));
-        $form->add(FormElement::text(['name'=>'name', 'label'=>__('settings.common.name'), 'value'=>@$this->name]));
-        $form->add(FormElement::select(['name'=>'block_id', 'label'=>__('addon.addForm.block'), 'value'=>@$this->block_id, 'options'=>$blocks]));
+        $form->add(FormElement::select(['name'=>'type', 'label'=>__('addOn.createForm.addOn'), 'value'=>@$this->type, 'options'=>$addons])
+            ->obligatory()
+        );
+        $form->add(FormElement::text(['name'=>'name', 'label'=>__('addOn.createForm.name'), 'value'=>@$this->name])
+            ->obligatory()
+        );
+        $form->add(FormElement::select(['name'=>'block_id', 'label'=>__('addOn.createForm.block'), 'value'=>@$this->block_id, 'options'=>$blocks])
+            ->obligatory()
+        );
         if(!is_null($this->id)){
-            $form->getElement("type")->setParameters("disabled", "disabled");
-            $form->getElement("block_id")->setParameters("disabled", "disabled");
+            $form->element("type")->setParameters("disabled", "disabled");
+            $form->element("block_id")->setParameters("disabled", "disabled");
         }
-        $form->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>@$this->title]));
-        $form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>@$this->description, 'id'=>'description']));
-        $form->applyJS("CKEDITOR.replace('description');");
+        $form->add(FormElement::text(['name'=>'title', 'label'=>__('addOn.createForm.title'), 'value'=>@$this->title]));
+        $form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>@$this->description]));
+
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
-        
+
         return $form;
     }
     

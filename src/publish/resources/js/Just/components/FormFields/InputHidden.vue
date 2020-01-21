@@ -10,7 +10,7 @@
 
         props: {
             name: {type: String},
-            value: {type: String, default: ""},
+            value: {type: Number|String, default: ""},
         },
 
         data(){

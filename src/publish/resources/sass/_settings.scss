@@ -18,6 +18,14 @@
             flex: 1 0 50%;
         }
 
+        >fieldset.fullWidth{
+            flex: 1 0 100%;
+        }
+
+        >div{
+            flex: 1 0 50%;
+        }
+
         .input-text-component__translate-container{
             display: flex;
             margin-bottom: 10px;
@@ -28,6 +36,26 @@
 
             div:last-child{
                 flex: 1 0 70%;
+            }
+        }
+
+        input, textarea, select{
+            width: 95%;
+        }
+
+        input[type=submit],
+        input[type=checkbox],
+        input[type=radio],
+        input.vs__search{
+            width: auto;
+        }
+
+        .twoColumns{
+            display: flex;
+            flex-wrap: wrap;
+
+            >div{
+                flex: 1 0 50%;
             }
         }
     }
@@ -46,5 +74,77 @@
     .dragula-list-container-200{display:grid;grid-template-columns:50% 50%}
     .dragula-list-container-400{display:grid;grid-template-columns:100%}
     .dragula-list-item{margin:5px;-ms-flex-item-align:center;align-self:center}
+
+}
+
+nav.just-navbar{
+
+    .dropdown-menu{
+        > li > a{
+            color: #777;
+
+            &:hover{
+                color: #333;
+            }
+        }
+    }
+
+    .dropdown-submenu {
+        position: relative;
+
+        >.dropdown-menu {
+            top: 0;
+            left: 100%;
+            margin-top: -6px;
+            margin-left: -1px;
+            -webkit-border-radius: 0 6px 6px 6px;
+            -moz-border-radius: 0 6px 6px;
+            border-radius: 0 6px 6px 6px;
+
+            > li > a{
+                color: #777;
+
+                &:hover{
+                    color: #333;
+                }
+            }
+        }
+
+        &:hover{
+            >.dropdown-menu {
+                display: block;
+            }
+
+            >a:after {
+                border-left-color: #333;
+            }
+        }
+
+        >a:after {
+            display: block;
+            content: " ";
+            float: right;
+            width: 0;
+            height: 0;
+            border-color: transparent;
+            border-style: solid;
+            border-width: 5px 0 5px 5px;
+            border-left-color: #777;
+            margin-top: 5px;
+            margin-right: -10px;
+        }
+
+        .pull-left {
+            float: none;
+
+            >.dropdown-menu {
+                left: -100%;
+                margin-left: 10px;
+                -webkit-border-radius: 6px 0 6px 6px;
+                -moz-border-radius: 6px 0 6px 6px;
+                border-radius: 6px 0 6px 6px;
+            }
+        }
+    }
 
 }

@@ -80,11 +80,19 @@
                     data: this.formData
                 })
                     .then((response) => {
+                        if(response.data.redirect !== null) {
+                            this.$root.navigate(response.data.redirect).then(()=>{
+                                this.$parent.$parent.showSuccessMessage(response.data.message);
+
+                                setTimeout(this.$parent.$parent.resetAlert, 5000);
+                            });
+                        }
+
                         this.$parent.$parent.showSuccessMessage(response.data.message);
                     })
                     .catch((response) => {
-                        console.log("Cannot send data.");
-                        console.log(response.response);
+                        console.error("Cannot send data.");
+                        console.error(response.response);
                         this.$parent.$parent.showErrors(response.response.data);
                     });
             },

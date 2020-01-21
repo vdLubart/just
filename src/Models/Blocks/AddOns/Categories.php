@@ -1,13 +1,14 @@
 <?php
 
-namespace Just\Structure\Panel\Block\Addon;
+namespace Just\Models\Blocks\AddOns;
 
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
-use Just\Structure\Panel\Block\Addon;
+use Just\Models\AddOn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Translatable\HasTranslations;
+use Lubart\Form\FormGroup;
 
 class Categories extends AbstractAddon
 {
@@ -22,16 +23,20 @@ class Categories extends AbstractAddon
     /**
      * Update existing settings form and add new elements
      * 
-     * @param Addon $addon Addon object
+     * @param AddOn $addon Addon object
      * @param Form $form Form object
+     * @param mixed $values
+     *
+     * @return Form;
+     * @throws \Exception;
      */
-    public static function updateForm(Addon $addon, Form $form, $values) {
+    public static function updateForm(AddOn $addon, Form $form, $values) {
         $form->add(FormElement::select(['name'=>$addon->name."_".$addon->id, 'label'=>$addon->title, 'options'=>$addon->valuesSelectArray('title'), 'value'=>$values]));
         
         return $form;
     }
     
-    public static function handleForm(Addon $addon, Request $request, $item) {
+    public static function handleForm(AddOn $addon, Request $request, $item) {
         DB::table($item->getTable()."_".$addon->type)
                 ->join($addon->type, $item->getTable()."_".$addon->type.".addonItem_id", "=", $addon->type.".id")
                 ->where('addon_id', $addon->id)
@@ -56,7 +61,7 @@ class Categories extends AbstractAddon
         }
     }
     
-    public static function validationRules(Addon $addon) {
+    public static function validationRules(AddOn $addon) {
         return [
             $addon->name."_".$addon->id => "required|integer|min:1",
         ];
@@ -66,16 +71,22 @@ class Categories extends AbstractAddon
      * Get page settings form
      * 
      * @return Form
+     * @throws \Exception
      */
     public function settingsForm() {
         $form = new Form('admin/settings/category/setup');
         
-        $addons = Addon::where('type', 'categories')->pluck('title', 'id');
+        $addons = AddOn::where('type', 'categories')->pluck('title', 'id');
         
         $form->add(FormElement::hidden(['name'=>'category_id', 'value'=>@$this->id]));
-        $form->add(FormElement::select(['name'=>'addon_id', 'label'=>__('addon.category.createForm.addon'), 'value'=>@$this->addon_id, 'options'=>$addons]));
-        $form->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>@$this->title]));
-        $form->add(FormElement::text(['name'=>'value', 'label'=>__('addon.category.createForm.value'), 'value'=>@$this->value]));
+        $addOnGroup = new FormGroup('addOnGroup', __('addOn.category.createForm.addOnGroup'), ['style'=>'flex: 1 0 100%']);
+        $addOnGroup->add(FormElement::select(['name'=>'addon_id', 'label'=>__('addOn.category.createForm.addOn'), 'value'=>@$this->addon_id, 'options'=>$addons]));
+        $form->addGroup($addOnGroup);
+
+        $pairGroup = new FormGroup('pairGroup', __('addOn.category.createForm.pairGroup'), ['style'=>'margin-top:50px', 'class'=>'twoColumns']);
+        $pairGroup->add(FormElement::text(['name'=>'title', 'label'=>__('addOn.category.createForm.caption'), 'value'=>@$this->title]));
+        $pairGroup->add(FormElement::text(['name'=>'value', 'label'=>__('addOn.category.createForm.value'), 'value'=>@$this->value]));
+        $form->addGroup($pairGroup);
         
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         

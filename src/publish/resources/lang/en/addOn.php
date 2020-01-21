@@ -1,14 +1,16 @@
 <?php
 
 return [
-    'title' => 'Add-ons',
+    'title' => 'Add-Ons',
     'createForm' => [
-        'title' => 'Add Add-on',
-        'addon' => 'Add-on',
-        'block' => 'Block'
+        'title' => 'Add Add-On',
+        'addOn' => 'Add-On',
+        'block' => 'Block',
+        'name' => 'Name (dev variable, [a-z])',
+        'title' => 'User\'s Add-On Title'
     ],
-    'listTitle' => 'Add-on list',
-    'list' => [
+    'list' => 'Add-On list',
+    'addOns' => [
         'categories' => [
             'title' => 'Categories',
             'description' => 'Helps categorize block'
@@ -26,13 +28,16 @@ return [
             'description' => 'Adds a string to the item'
         ]
     ],
-    'addonLocation' => ':addon in :block block at :page page',
+    'addOnLocation' => ':addOn in :block block at :page page',
     'category' => [
         'title' => 'Categories',
         'createForm' => [
             'title' => 'Create New Category',
-            'addon' => 'Addon',
-            'value' => 'Value'
+            'addOnGroup' => 'Choose Add-On',
+            'addOn' => 'Categories Add-On',
+            'pairGroup' => 'Category Pair',
+            'caption' => 'Visible Caption',
+            'value' => 'HTML Value'
         ],
         'list' => 'Category List',
         'emptyList' => 'No category is created yet',

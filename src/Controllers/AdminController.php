@@ -181,22 +181,7 @@ class AdminController extends Controller
         return $model;
     }
     
-    public function handleBlockForm(ChangeBlockRequest $request) {
-        $block = Block::find($request->block_id);
-        
-        if(!empty($block)){
-            $block->name = $request->name;
-            $block->title = $request->title;
-            $block->description = $request->description;
-            $block->width = $request->width ?? 12;
-            $block->layoutClass = $request->layoutClass ?? 'primary';
-            $block->cssClass = $request->cssClass;
-            
-            $block->save();
-        }
-        
-        return redirect()->back();
-    }
+
     
     public function handlePanelForm(ChangeBlockRequest $request) {
         $block = Block::findOrNew($request->block_id);

@@ -3,18 +3,18 @@
         @if(\Config::get('isAdmin'))
         <div class="blockTitle">
             {{ $block->title }}
-            <a href="javascript:openSettings({{ $block->id }}, {{ $block->model()->id }})">
+            <slink href="javascript:openSettings({{ $block->id }}, {{ $block->model()->id }})">
                 <i class="fa fa-cog"></i>
-            </a>
+            </slink>
         </div>
         @endif
 
         @include($layout->name.'.blocks.'. $block->type)
     @elseif(\Config::get('isAdmin'))
         <div class="blockTitle">
-            <a href="javascript:openPanelSettings({{ $page->id }}, '{{$panel->location}}')" dusk="content-panel-settings">
+            <slink href="/settings/page/{{ $page->id }}/panel/{{$panel->location}}" dusk="content-panel-settings">
                 <i class="fa fa-cogs"></i> @lang('settings.panel.setup')
-            </a>
+            </slink>
         </div>
     @endif
     
@@ -23,9 +23,9 @@
             @if(\Config::get('isAdmin'))
             <div class="blockTitle">
                 {{ $block->title }}
-                <a href="javascript:openSettings({{ $block->id }}, 0)">
+                <slink href="/settings/block/{{ $block->id }}">
                     <i class="fa fa-cog"></i>
-                </a>
+                </slink>
             </div>
             @endif
             <div id="{{ $block->type."_".$block->id }}">

@@ -1,15 +1,34 @@
 <?php
 
 return [
-    'form' => [
+    'create' => 'Create Block',
+    'list' => 'Block List',
+    'createForm' => [
+        'title' => 'Create New Block',
+        'blockData' => 'Block Data',
         'type' => 'Type',
         'width' => 'Block Width',
+        'blockView' => 'Block View',
         'layoutClass' => 'Layout Class',
         'cssClass' => 'Additional CSS Classes'
     ],
-    'content' => 'Content',
+    'editForm' => [
+        'title' => "Block ':title'",
+        'item' => 'Edit Item'
+    ],
+    'tabs' => [
+        'content' => 'Block Content',
+        'blockSettings' => 'Block Settings',
+        'blockCustomization' => 'Block Customization',
+        'createItem' => 'Create New Item'
+    ],
+    'itemTabs' => [
+        'edit' => 'Edit Item',
+        'createRelation' => 'Create Related Block',
+        'relations' => 'Related Block List'
+    ],
     'properties' => 'Properties',
-    'preferences' => [
+    'customizations' => [
         'title' => 'Preferences',
         'settingsView' => [
             'title' => 'Settings View',
@@ -40,8 +59,8 @@ return [
             'desc' => 'New item appears on the top'
         ]
     ],
-    'create' => 'Create New Item',
-    'edit' => 'Edit Item',
+    'createItem' => 'Create New Item',
+    'editItem' => 'Edit Item',
     'registrations' => 'Registrations',
     'relatedBlock' => [
         'title' => 'Related Blocks',
@@ -49,10 +68,10 @@ return [
         'create' => 'Create Related Block'
     ],
     'untitled' => 'Untitled',
-    'list' => [
+    'type' => [
         'articles' => [
             'title' => 'Articles',
-            'description' => 'Blog or newsline with set of articles'
+            'description' => 'Blog or news line with set of articles'
         ],
         'contact' => [
             'title' => 'Contact',
@@ -110,5 +129,14 @@ return [
             'title' => 'Twitter',
             'description' => 'Adds Twitter block to the website'
         ]
+    ],
+    'messages' => [
+        'success' => [
+            'created' => 'Block was created successfully',
+            'updated' => 'Block was updated successfully',
+            'deleted' => 'Block was deleted successfully',
+            'customized' => 'Block parameters were saved successfully'
+        ],
+
     ]
 ];
