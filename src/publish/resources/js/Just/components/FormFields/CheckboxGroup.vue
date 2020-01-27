@@ -1,69 +1,50 @@
 <template>
 
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <div v-for="(ticLabel, ticValue) in checkboxes">
-            <label class="checkbox-group__normalFont">
-                <input type="checkbox" :name="name" :value="ticValue" :checked="content[ticValue]" @input="handleInput" v-bind="parameters"> {{ ticLabel }}
-            </label>
-        </div>
+        <label v-for="(ticLabel, ticValue) in options" class="checkbox-group__normalFont">
+            <input type="checkbox" :name="name" :value="ticValue" :checked="content.indexOf(ticValue) !== -1" @input="handleInput" v-bind="parameters"> {{ ticLabel }}
+        </label>
     </block>
 
 </template>
 
 <script>
-    import InputBase from './InputBase';
+    import RadioGroup from './RadioGroup';
 
     export default {
         name: "CheckboxGroup",
 
-        extends: InputBase,
+        extends: RadioGroup,
 
-        props: {
-            checkboxes: {type: Object},                      // format should be {"tic_value":"tic label"}
-            value: {type: Array, default: function () { return [] }}              // format should be ["tic_value"]
+        props:{
+            value: {type: String|Boolean}
         },
 
-        data(){
-            let ticStatus = {};
-
-            Object.keys(this.checkboxes).forEach((value) => {
-                ticStatus[value] = false;
-            });
-
-            this.value.forEach((value) => {
-                ticStatus[value] = true;
-            });
-
-            return {
-                content: ticStatus,
-                checkedValues: [],
-            }
+        created() {
+            this.content = _.isEmpty(this.value) || _.isBoolean(this.value) ? [] : JSON.parse(this.value);
         },
 
-        methods: {
+        methods:{
             handleInput (e) {
-                this.content[e.target.value] = e.target.checked;
-                this.checkedValues = this.checkedTics();
-                this.$emit('input', this.checkedValues)
-            },
+                let index = this.content.indexOf(e.target.value);
 
-            checkedTics(){
-                let checkedTics = [];
-                Object.keys(this.content).forEach((tic) => {
-                    if(this.content[tic]) {
-                        checkedTics.push(tic);
-                    }
-                });
+                if(!e.target.checked){
+                    if (index !== -1) this.content.splice(index, 1);
+                }
+                else{
+                    if (index === -1) this.content.push(e.target.value);
+                }
 
-                return checkedTics;
+                this.$emit('input', this.content);
             }
-        }
+        },
     }
 </script>
 
 <style scoped>
 
     .checkbox-group__normalFont{
+        display: block;
         font-weight: normal;
     }
 

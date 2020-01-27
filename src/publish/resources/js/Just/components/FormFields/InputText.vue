@@ -15,15 +15,16 @@
 </template>
 
 <script>
-    import { InputText } from 'lubart-vue-input-component';
+    import InputBase from './InputBase';
 
     export default {
         name: "InputText",
 
-        extends: InputText,
+        extends: InputBase,
 
         props: {
             parameters: { type: Object },
+            placeholder: {type: String},
             value: {}
         },
 

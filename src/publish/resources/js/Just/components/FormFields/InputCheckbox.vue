@@ -18,6 +18,11 @@
 
         props: {
             parameters: { type: Object }
+        },
+
+        created() {
+            this.value = this.content = this.$parent.element.checked;
+            this.$emit('input', this.content);
         }
     }
 </script>

@@ -57,6 +57,8 @@ class PageController extends SettingsController
      * @return string response in JSON format
      */
     public function setup(ChangePageRequest $request) {
+        $this->decodeRequest($request);
+
         $page = Page::findOrNew($request->page_id);
 
         return $this->setupSettingsForm($page, $request, $request->page_id, '/settings/page/list');

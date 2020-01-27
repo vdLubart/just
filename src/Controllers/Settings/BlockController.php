@@ -114,6 +114,8 @@ class BlockController extends SettingsController {
      * @return string response in JSON format
      */
     public function setup(ChangeBlockRequest $request) {
+        $this->decodeRequest($request);
+
         $block = Block::findOrNew($request->block_id);
 
         return $this->setupSettingsForm($block, $request, $request->block_id, '/settings/page/' . $block->page_id . '/panel/' . $block->panelLocation . '/block/list');
@@ -127,6 +129,8 @@ class BlockController extends SettingsController {
      * @throws
      */
     public function itemSetup(Request $request) {
+        $this->decodeRequest($request);
+
         if(empty($block = $this->findBlock($request->block_id))){
             return redirect()->back();
         }
@@ -292,6 +296,8 @@ class BlockController extends SettingsController {
 
             $block->parameters = $parameters;
             $block->save();
+
+            $block->model()->setup();
         }
 
         $response = new \stdClass();

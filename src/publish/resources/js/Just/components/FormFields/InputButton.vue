@@ -28,6 +28,7 @@
         padding-left: 1.5rem;
         padding-right: 1.5rem;
         font-weight: 700;
+        border-width: 0;
         border-radius: 0.25rem;
         margin: 0 0.25rem;
     }

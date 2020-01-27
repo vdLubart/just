@@ -54,14 +54,14 @@ class Text extends AbstractBlock
     public function handleSettingsForm(ValidateRequest $request) {
         if(is_null($request->request->get('id'))){
             $text = new Text;
-            $text->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->request->get('block_id')]);
-            $text->setBlock($request->get('block_id'));
+            $text->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->block_id]);
+            $text->setBlock($request->block_id);
         }
         else{
-            $text = Text::findOrNew($request->request->get('id'));
+            $text = Text::findOrNew($request->id);
         }
         
-        $text->text = $request->request->get('text');
+        $text->text = $request->text;
         $text->save();
         
         $this->handleAddons($request, $text);

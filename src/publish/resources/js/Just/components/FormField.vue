@@ -1,5 +1,5 @@
 <script>
-    import { InputButton } from 'lubart-vue-input-component';
+    import InputButton from './FormFields/InputButton';
     import InputText from './FormFields/InputText';
     import InputArea from './FormFields/InputArea';
     import InputDate from './FormFields/InputDate';
@@ -9,13 +9,15 @@
     import InputHidden from './FormFields/InputHidden';
     import InputEmail from './FormFields/InputEmail';
     import InputCheckbox from './FormFields/InputCheckbox';
+    import CheckboxGroup from './FormFields/CheckboxGroup';
     import HtmlBlock from './FormFields/HtmlBlock';
     import SelectVue from './FormFields/SelectVue';
+    import InputFile from './FormFields/InputFile';
 
     export default {
         name: "FormField",
 
-        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, InputRadio, RadioGroup, InputButton, InputHidden, SelectVue, HtmlBlock},
+        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, CheckboxGroup, InputRadio, RadioGroup, InputButton, InputHidden, SelectVue, HtmlBlock, InputFile},
 
         props:{
             "element": {type: Object}
@@ -33,8 +35,8 @@
                 'textarea': InputArea,
                 'password': null,
                 'email': InputEmail,
-                'file': null,
-                'checkbox': InputCheckbox,
+                'file': InputFile,
+                'checkbox': _.isEmpty(this.element.options) ? InputCheckbox : CheckboxGroup,
                 'radio': _.isEmpty(this.element.options) ? InputRadio : RadioGroup,
                 'number': InputNumber,
                 'select': SelectVue,
@@ -45,7 +47,7 @@
                 'html': HtmlBlock,
                 'date': InputDate,
                 'time': null
-            }
+            };
 
             if(inputMap[this.type] === null){
                 return createElement('span');

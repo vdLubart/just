@@ -35,6 +35,8 @@ class ChangeBlockRequest extends FormRequest implements ValidateRequest
             'type' => 'required_without:block_id|exists:blockList,block',
             'name' => [
                 'nullable',
+                'string',
+                'regex:/[a-z_0-9]+/',
                 Rule::unique('blocks')->ignore($blockId)
             ],
             'panelLocation' => 'nullable|exists:panels,location',

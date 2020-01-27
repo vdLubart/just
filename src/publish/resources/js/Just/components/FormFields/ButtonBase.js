@@ -6,18 +6,18 @@ export default {
     props: {
         name: {type: String},
         wrap: {type: Boolean, default: false},
-        label: {type: String, default: ""},
+        value: {type: String, default: ""},
         parameters: {type: Object}
     },
 
     data(){
         return {
-            content: this.label
+            content: this.value
         }
     },
 
     watch: {
-        label(val){
+        value(val){
             this.content = val;
         }
     }

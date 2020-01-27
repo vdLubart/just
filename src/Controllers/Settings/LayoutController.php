@@ -63,6 +63,8 @@ class LayoutController extends SettingsController {
      * @return string response in JSON format
      */
     public function setup(ChangeLayoutRequest $request) {
+        $this->decodeRequest($request);
+
         $layout = Layout::findOrNew($request->layout_id);
 
         return $this->setupSettingsForm($layout, $request, $request->layout_id, '/settings/layout/list');

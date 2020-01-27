@@ -1,9 +1,10 @@
 <?php
 
-namespace Just\Requests\Panel\Block\Admin;
+namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Models\User;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 
 class ChangeArticleRequest extends FormRequest implements ValidateRequest
 {
@@ -14,7 +15,7 @@ class ChangeArticleRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return \Auth::user();
+        return User::authAsAdmin();
     }
 
     /**
@@ -26,9 +27,9 @@ class ChangeArticleRequest extends FormRequest implements ValidateRequest
     {
         return [
             "image" => "image|nullable",
-            "subject" => "required|string|max:255",
-            "summary" => "string|nullable|max:1000",
-            "text" => "required|string"
+            "subject" => "required|max:255",
+            "summary" => "nullable|max:1000",
+            "text" => "required"
         ];
     }
 }

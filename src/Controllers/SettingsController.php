@@ -219,4 +219,13 @@ abstract class SettingsController extends Controller
 
         return json_encode($response);
     }
+
+    protected function decodeRequest(&$request) {
+        $decodedRequest = [];
+        foreach ($request->all() as $key=>$item){
+            $decodedRequest[$key] = json_decode($item, true) ?? $item;
+        }
+
+        $request->replace($decodedRequest);
+    }
 }

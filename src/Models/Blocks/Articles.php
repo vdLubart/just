@@ -1,21 +1,21 @@
 <?php
 
-namespace Just\Structure\Panel\Block;
+namespace Just\Models\Blocks;
 
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Intervention\Image\ImageManagerStatic as Image;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Tools\Useful;
-use Just\Models\Route as JustRoute;
-use Just\Structure\Page;
+use Just\Models\System\Route as JustRoute;
+use Just\Models\Page;
 use Just\Tools\Slug;
 use Spatie\Translatable\HasTranslations;
+use Lubart\Form\FormGroup;
 
 class Articles extends AbstractBlock
 {
-   use Slug;
-   use HasTranslations;
+   use Slug, HasTranslations;
 
     /**
      * The attributes that are mass assignable.
@@ -51,45 +51,56 @@ class Articles extends AbstractBlock
         }
     }
 
-    public function form() {
+    public function settingsForm(): Form {
         if(is_null($this->form)){
-            return;
+            return new Form();
         }
 
-        $this->form->add(FormElement::file(['name'=>'image', 'label'=>__('settings.actions.upload')]));
+        $this->identifySettingsForm();
+
+        $imageGroup = new FormGroup('imageGroup', __('articles.imageGroup.title'), ['class'=>'twoColumns']);
+
+        $imageGroup->add($imageField = FormElement::file(['name'=>'image', 'label'=>__('settings.actions.upload')]));
         if(!is_null($this->id)){
             if(file_exists(public_path('storage/'.$this->table.'/'.$this->image.'_3.png'))){
-                $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
+                $imageGroup->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
             }
             else{
-                $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
+                $imageGroup->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
             }
 
             if(!empty($this->parameter('cropPhoto'))){
-                $this->form->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
-                $this->form->getElement("recrop")->setParameters('javasript:openCropping(' . $this->block_id . ', ' . $this->id . ')', 'onclick');
+                $imageGroup->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
+                $imageGroup->element("recrop")->setParameter('javasript:openCropping(' . $this->block_id . ', ' . $this->id . ')', 'onclick');
             }
         }
-        $this->form->add(FormElement::text(['name'=>'subject', 'label'=>__('settings.common.subject'), 'value'=>$this->subject]));
-        $this->form->add(FormElement::textarea(['name'=>'summary', 'label'=>__('settings.common.summary'), 'value'=>$this->summary]));
-        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>__('articles.text'), 'value'=>$this->text]));
+        else{
+            $imageField->obligatory();
+        }
+        $this->form->addGroup($imageGroup);
+
+        $textGroup = new FormGroup('textGroup', __('articles.textGroup.title'), ['class'=>'fullWidth']);
+
+        $textGroup->add(FormElement::text(['name'=>'subject', 'label'=>__('settings.common.subject'), 'value'=>$this->getTranslations('subject'), 'translate'=>true])
+            ->obligatory()
+        );
+        $textGroup->add(FormElement::textarea(['name'=>'summary', 'label'=>__('settings.common.summary'), 'value'=>$this->getTranslations('summary'), 'translate'=>true]));
+        $textGroup->add(FormElement::textarea(['name'=>'text', 'label'=>__('articles.text'), 'value'=>$this->getTranslations('text'), 'translate'=>true])
+            ->obligatory()
+        );
+
+        $this->form->addGroup($textGroup);
 
         $this->includeAddons();
 
         $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
-
-        $this->form->applyJS("
-$(document).ready(function(){
-    CKEDITOR.replace('summary');
-    CKEDITOR.replace('text');
-});");
 
         $this->markObligatoryFields($this->form);
 
         return $this->form;
     }
 
-    public function addSetupFormElements(Form &$form) {
+    public function addCustomizationFormElements(Form &$form) {
         $this->addCropSetupGroup($form);
 
         if(\Auth::user()->role == "master"){
@@ -102,7 +113,7 @@ $(document).ready(function(){
         return $form;
     }
 
-    public function handleForm(ValidateRequest $request) {
+    public function handleSettingsForm(ValidateRequest $request) {
         if(!file_exists(public_path('storage/'.$this->table))){
             mkdir(public_path('storage/'.$this->table), 0775);
         }
@@ -111,21 +122,22 @@ $(document).ready(function(){
             $image = Image::make($request->file('image'));
         }
 
-        if(is_null($request->get('id'))){
+        if(is_null($request->id)){
             $article = new Articles;
-            $article->orderNo = Useful::getMaxNo($this->table, ['block_id'=>$request->get('block_id')]);
+            $article->orderNo = Useful::getMaxNo($this->table, ['block_id'=>$request->block_id]);
         }
         else{
-            $article = Articles::findOrNew($request->get('id'));
+            $article = Articles::findOrNew($request->id);
         }
-        $article->setBlock($request->get('block_id'));
+        $article->setBlock($request->block_id);
         if(!is_null($request->file('image'))){
             $article->image = uniqid();
         }
-        $article->subject = $request->get('subject');
-        $article->slug = $this->createSlug($request->get('subject'));
-        $article->summary = $request->get('summary');
-        $article->text = $request->get('text');
+
+        $article->subject = $request->subject;
+        $article->slug = $this->createSlug($request->subject['en']);
+        $article->summary = $request->summary;
+        $article->text = $request->text;
         $article->save();
 
         $this->handleAddons($request, $article);
@@ -142,5 +154,13 @@ $(document).ready(function(){
         }
 
         return $article;
+    }
+
+    public function itemCaption(): string {
+        return $this->subject;
+    }
+
+    public function itemImage():string {
+        return $this->imageSrc($this->image, 3);
     }
 }

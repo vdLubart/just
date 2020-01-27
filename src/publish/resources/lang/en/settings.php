@@ -29,7 +29,9 @@ return [
         'upload' => 'Upload Image',
         'crop' => 'Crop Image',
         'recrop' => 'Re-Crop Image',
-        'submit' => 'Submit'
+        'submit' => 'Submit',
+        'showField' => 'Show Field',
+        'hideField' => 'Hide Field'
     ],
     'noAccess' => [
         'title' => 'No Access',

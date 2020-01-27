@@ -4,6 +4,7 @@ namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Models\User;
 
 class ChangeTextRequest extends FormRequest implements ValidateRequest
 {
@@ -14,7 +15,7 @@ class ChangeTextRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return \Auth::user();
+        return User::authAsAdmin();
     }
 
     /**

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Collection;
+use Just\Models\System\Route as JustRoute;
 
 /**
  * Description of Useful
@@ -47,7 +48,7 @@ class Useful {
     }
     
     public static function isRouteExists($route) {
-        $routes = \Just\Models\Route::where('route', $route)->first();
+        $routes = JustRoute::where('route', $route)->first();
         
         if(!empty($routes)){
             return true;

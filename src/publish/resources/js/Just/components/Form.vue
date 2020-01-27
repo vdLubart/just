@@ -24,6 +24,7 @@
 <script>
     import Field from './FormField';
     import CreateLayout from './FormLogic/Layout/CreateLayout';
+    import CustomizeBlock from './FormLogic/Block/CustomizeBlock';
     import {eventBus} from "../adminApp";
 
     export default {
@@ -36,7 +37,7 @@
         data() {
             return {
                 logicClass: null,
-                formData: {}
+                formData: new FormData()
             }
         },
 
@@ -61,6 +62,9 @@
                 switch (className){
                     case 'CreateLayout':
                         this.logicClass = new CreateLayout();
+                        break;
+                    case 'CustomizeBlock':
+                        this.logicClass = new CustomizeBlock();
                         break;
                 }
 
@@ -98,8 +102,23 @@
             },
 
             elementValue(element){
-                if(!_.includes(['submit', 'html', 'button'], element.type)){
-                    this.formData[element.name] = element.value;
+                if(!_.includes(['submit', 'html', 'file'], element.type)){
+                    let value = element.value;
+
+                    switch(true){
+                        case _.isNull(element.value):
+                            value = '';
+                            break;
+                        case _.isObject(element.value):
+                            value = JSON.stringify(element.value);
+                            break;
+                    }
+
+                    this.formData.append(element.name, value);
+                }
+
+                if(element.type == 'file' && !_.isNull(element.value)){
+                    this.formData.append(element.name, element.value);
                 }
             }
         }

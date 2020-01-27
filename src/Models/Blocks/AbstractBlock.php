@@ -320,11 +320,22 @@ abstract class AbstractBlock extends Model implements BlockItem
      * @return string full path to the image
      */
     public function image($imageCode, $width=null){
+        return $this->imageSrc($imageCode, $width);
+    }
+
+    /**
+     * Return image URI related to the model
+     *
+     * @param string $imageCode image code
+     * @param int $width specify image size
+     * @return string image uri
+     */
+    public function imageSrc($imageCode, $width=null) {
         if(!in_array($width, $this->imageSizes)){
-            return public_path('storage/'.$this->table.'/'.$imageCode.".png");
+            return '/storage/'.$this->table.'/'.$imageCode.".png";
         }
         else{
-            return public_path('storage/'.$this->table.'/'.$imageCode."_".$width.".png");
+            return '/storage/'.$this->table.'/'.$imageCode."_".$width.".png";
         }
     }
     
@@ -476,43 +487,54 @@ abstract class AbstractBlock extends Model implements BlockItem
     }
     
     protected function addCropSetupGroup(&$form){
-        $photoCropGroup = new FormGroup('cropGroup', __('block.customizations.cropGroup.title'), ['class'=>'col-md-6']);
-        $photoCropGroup->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>__('settings.actions.crop'), 'check'=>($this->parameter('cropPhoto'))]));
+        $photoCropGroup = new FormGroup('cropGroup', __('block.customizations.cropGroup.title'));
+        $photoCropGroup->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>__('settings.actions.crop'), 'check'=>(filter_var($this->parameter('cropPhoto'), FILTER_VALIDATE_BOOLEAN)), 'onchange'=>'CustomizeBlock.checkCropDimensionsVisibility()']));
         $photoCropGroup->add(FormElement::text(['name'=>'cropDimensions', 'label'=>__('block.customizations.cropGroup.cropDimensions'), 'value'=> $this->parameter('cropDimensions') ?? '4:3']));
         $form->addGroup($photoCropGroup);
+
+        $form->applyJS("window.CustomizeBlock = this.getClassInstance('CustomizeBlock');");
     }
     
     protected function addIgnoretCaptionSetupGroup(&$form){
-        $photoFieldsGroup = new FormGroup('fieldsGroup', __('block.customizations.fieldsGroup.title'), ['class'=>'col-md-6']);
-        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => __('block.customizations.fieldsGroup.ignoreCaption'), 'check'=>$this->parameter('ignoreCaption')]));
+        $photoFieldsGroup = new FormGroup('fieldsGroup', __('block.customizations.fieldsGroup.title'));
+        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => __('block.customizations.fieldsGroup.ignoreCaption'), 'check'=>(filter_var($this->parameter('cropPhoto'), FILTER_VALIDATE_BOOLEAN))]));
         $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => __('block.customizations.fieldsGroup.ignoreDescription'), 'check'=>$this->parameter('ignoreDescription')]));
         $form->addGroup($photoFieldsGroup);
     }
     
     protected function addResizePhotoSetupGroup(&$form){
-        $photoSizesGroup = new FormGroup('sizeGroup', __('block.customizations.sizeGroup.title'), ['class'=>'col-md-6']);
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'customSizes', 'label'=> __('block.preferences.sizeGroup.customSizes'), 'check'=>$this->parameter('customSizes') ]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.customizations.sizeGroup.size', 12, ['width'=>'100%', 'cols'=>12]), 'value'=>12, 'check'=>(in_array(12, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.customizations.sizeGroup.size', 9, ['width'=>'75%', 'cols'=>9]), 'value'=>9, 'check'=>(in_array(9, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.customizations.sizeGroup.size', 8, ['width'=>'67%', 'cols'=>8]), 'value'=>8, 'check'=>(in_array(8, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.customizations.sizeGroup.size', 6, ['width'=>'50%', 'cols'=>6]), 'value'=>6, 'check'=>(in_array(6, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.customizations.sizeGroup.size', 4, ['width'=>'33%', 'cols'=>4]), 'value'=>4, 'check'=>(in_array(4, $this->parameter('photoSizes')??[]))]));
-        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes[]', 'label'=>trans_choice('block.customizations.sizeGroup.size', 3, ['width'=>'25%', 'cols'=>3]), 'value'=>3, 'check'=>(in_array(3, $this->parameter('photoSizes')??[]))]));
+        $photoSizesGroup = new FormGroup('sizeGroup', __('block.customizations.sizeGroup.title'));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'customSizes', 'label'=> __('block.customizations.sizeGroup.customSizes'), 'check'=>$this->parameter('customSizes'), 'onchange'=>'CustomizeBlock.checkImageSizesVisibility()' ]));
+        $photoSizesGroup->add(FormElement::html(['name'=>'emptyParagraph', 'value'=>'<p></p>']));
+        $photoSizesGroup->add(FormElement::checkbox(['name'=>'photoSizes', 'value'=>($this->parameter('photoSizes') ?? []), 'options'=>[
+            "12" => trans_choice('block.customizations.sizeGroup.size', 12, ['width'=>'100%', 'cols'=>12]),
+            "9" => trans_choice('block.customizations.sizeGroup.size', 9, ['width'=>'75%', 'cols'=>9]),
+            "8" => trans_choice('block.customizations.sizeGroup.size', 8, ['width'=>'67%', 'cols'=>8]),
+            "6" => trans_choice('block.customizations.sizeGroup.size', 6, ['width'=>'50%', 'cols'=>6]),
+            "4" => trans_choice('block.customizations.sizeGroup.size', 4, ['width'=>'33%', 'cols'=>4]),
+            "3" => trans_choice('block.customizations.sizeGroup.size', 3, ['width'=>'25%', 'cols'=>3])
+        ]]));
         $form->addGroup($photoSizesGroup);
+
+        $form->applyJS("window.CustomizeBlock = this.getClassInstance('CustomizeBlock');");
     }
 
     protected function addItemRouteGroup(&$form){
-        $itemRouteGroup = new FormGroup('itemRoute', __('block.customizations.itemRoute.title'), ['class'=>'col-md-6']);
-        $itemRouteGroup->add(FormElement::text(['name'=>'itemRouteBase', 'label'=>__('block.customizations.itemRoute.base'), 'value'=>(str_singular(str_slug($this->block->type)) ?? str_singular($this->block->name) ?? str_singular($this->block->type))]));
+        $itemRouteGroup = new FormGroup('itemRoute', __('block.customizations.itemRoute.title'));
+        $itemRouteGroup->add(FormElement::text(['name'=>'itemRouteBase', 'label'=>__('block.customizations.itemRoute.base'), 'value'=>$this->parameter('itemRouteBase') ?? (str_singular(str_slug($this->block->type)) ?? str_singular($this->block->name) ?? str_singular($this->block->type))])
+            ->obligatory()
+        );
         $form->addGroup($itemRouteGroup);
     }
 
     protected function addOrderDirection(&$form){
-        $orderDirectionGroup = new FormGroup('orderDirection', __('block.customizations.orderDirection.title'), ['class'=> 'col-md-6']);
+        $orderDirectionGroup = new FormGroup('orderDirection', __('block.customizations.orderDirection.title'));
         $orderDirectionGroup->add(FormElement::radio(['name'=>'orderDirection', 'label'=>__('block.customizations.orderDirection.title'), 'value'=>$this->parameter('orderDirection'), 'options'=>[
             'asc' => __('block.customizations.orderDirection.asc'),
             'desc' => __('block.customizations.orderDirection.desc')
-        ]]));
+        ]])
+            ->obligatory()
+        );
         $form->addGroup($orderDirectionGroup);
     }
 

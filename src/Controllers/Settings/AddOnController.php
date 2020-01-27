@@ -59,6 +59,8 @@ class AddOnController extends SettingsController
      * @return string response in JSON format
      */
     public function setup(ChangePageRequest $request) {
+        $this->decodeRequest($request);
+
         $addOn = AddOn::findOrNew($request->addon_id);
 
         return $this->setupSettingsForm($addOn, $request, $request->addon_id);
