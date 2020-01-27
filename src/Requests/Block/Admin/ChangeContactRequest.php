@@ -1,10 +1,11 @@
 <?php
 
-namespace Just\Requests\Panel\Block\Admin;
+namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Structure\Panel\Block;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Models\Block;
+use Just\Models\User;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 
 class ChangeContactRequest extends FormRequest implements ValidateRequest
 {
@@ -15,7 +16,7 @@ class ChangeContactRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return \Auth::user();
+        return User::authAsAdmin();
     }
 
     /**

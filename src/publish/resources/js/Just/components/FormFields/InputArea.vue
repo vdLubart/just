@@ -5,11 +5,15 @@
             <div v-for="(label, lang) in languages" class="input-text-component__translate-container">
                 <div>{{ label }}</div>
                 <div>
-                    <vue-editor :customModules="customModulesForEditor" :editorOptions="editorSettings" :id="lang" :lang="lang" v-model="content[lang]" :editorToolbar="editorToolbar"></vue-editor>
+                    <vue-editor v-if="richEditor" :customModules="customModulesForEditor" :editorOptions="editorSettings" :id="lang" :lang="lang" v-model="content[lang]" :editorToolbar="editorToolbar"></vue-editor>
+                    <textarea v-else :name="name + '-' + lang" :id="name + '-' + lang" cols="30" rows="10" @input="handleInput" v-bind="parameters">{{ content[lang] }}</textarea>
                 </div>
             </div>
         </fieldset>
-        <vue-editor v-else :customModules="customModulesForEditor" :editorOptions="editorSettings" v-model="content" :editorToolbar="editorToolbar"></vue-editor>
+        <span v-else>
+            <vue-editor v-if="richEditor" :customModules="customModulesForEditor" :editorOptions="editorSettings" v-model="content" :editorToolbar="editorToolbar"></vue-editor>
+            <textarea v-else :name="name" :id="name" cols="30" rows="10" @input="handleInput" v-bind="parameters">{{ content }}</textarea>
+        </span>
     </block>
 
 </template>
@@ -32,7 +36,7 @@
 
         props: {
             parameters: { type: Object },
-            value: {},
+            value: {}
         },
 
         data() {
@@ -68,7 +72,8 @@
                 languages:{
                     en: 'English',
                     uk: 'Українська'
-                }
+                },
+                richEditor: this.parameters.richEditor == undefined ? true : !!this.parameters.richEditor
             };
         },
 

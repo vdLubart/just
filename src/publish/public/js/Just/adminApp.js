@@ -3271,6 +3271,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 
  //import ImageUploader from "quill.imageUploader.js"; // npm install quill-image-uploader --save
@@ -3352,7 +3356,8 @@ __webpack_require__.r(__webpack_exports__);
       languages: {
         en: 'English',
         uk: 'Українська'
-      }
+      },
+      richEditor: this.parameters.richEditor == undefined ? true : !!this.parameters.richEditor
     };
   },
   created: function created() {
@@ -93190,22 +93195,41 @@ var render = function() {
                   _c(
                     "div",
                     [
-                      _c("vue-editor", {
-                        attrs: {
-                          customModules: _vm.customModulesForEditor,
-                          editorOptions: _vm.editorSettings,
-                          id: lang,
-                          lang: lang,
-                          editorToolbar: _vm.editorToolbar
-                        },
-                        model: {
-                          value: _vm.content[lang],
-                          callback: function($$v) {
-                            _vm.$set(_vm.content, lang, $$v)
-                          },
-                          expression: "content[lang]"
-                        }
-                      })
+                      _vm.richEditor
+                        ? _c("vue-editor", {
+                            attrs: {
+                              customModules: _vm.customModulesForEditor,
+                              editorOptions: _vm.editorSettings,
+                              id: lang,
+                              lang: lang,
+                              editorToolbar: _vm.editorToolbar
+                            },
+                            model: {
+                              value: _vm.content[lang],
+                              callback: function($$v) {
+                                _vm.$set(_vm.content, lang, $$v)
+                              },
+                              expression: "content[lang]"
+                            }
+                          })
+                        : _c(
+                            "textarea",
+                            _vm._b(
+                              {
+                                attrs: {
+                                  name: _vm.name + "-" + lang,
+                                  id: _vm.name + "-" + lang,
+                                  cols: "30",
+                                  rows: "10"
+                                },
+                                on: { input: _vm.handleInput }
+                              },
+                              "textarea",
+                              _vm.parameters,
+                              false
+                            ),
+                            [_vm._v(_vm._s(_vm.content[lang]))]
+                          )
                     ],
                     1
                   )
@@ -93214,22 +93238,46 @@ var render = function() {
             }),
             0
           )
-        : _c("vue-editor", {
-            attrs: {
-              customModules: _vm.customModulesForEditor,
-              editorOptions: _vm.editorSettings,
-              editorToolbar: _vm.editorToolbar
-            },
-            model: {
-              value: _vm.content,
-              callback: function($$v) {
-                _vm.content = $$v
-              },
-              expression: "content"
-            }
-          })
-    ],
-    1
+        : _c(
+            "span",
+            [
+              _vm.richEditor
+                ? _c("vue-editor", {
+                    attrs: {
+                      customModules: _vm.customModulesForEditor,
+                      editorOptions: _vm.editorSettings,
+                      editorToolbar: _vm.editorToolbar
+                    },
+                    model: {
+                      value: _vm.content,
+                      callback: function($$v) {
+                        _vm.content = $$v
+                      },
+                      expression: "content"
+                    }
+                  })
+                : _c(
+                    "textarea",
+                    _vm._b(
+                      {
+                        attrs: {
+                          name: _vm.name,
+                          id: _vm.name,
+                          cols: "30",
+                          rows: "10"
+                        },
+                        on: { input: _vm.handleInput }
+                      },
+                      "textarea",
+                      _vm.parameters,
+                      false
+                    ),
+                    [_vm._v(_vm._s(_vm.content))]
+                  )
+            ],
+            1
+          )
+    ]
   )
 }
 var staticRenderFns = []

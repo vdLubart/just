@@ -108,8 +108,6 @@ class Articles extends AbstractBlock
         }
         $this->addItemRouteGroup($form);
 
-        $form->useJSFile('/js/blocks/setupForm.js');
-
         return $form;
     }
 

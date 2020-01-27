@@ -260,10 +260,17 @@ abstract class AbstractBlock extends Model implements BlockItem
      * Get specific block parameter by name
      * 
      * @param string $param parameter name
+     * @param boolean $decode apply json_decode if needed
      * @return mixed
      */
-    public function parameter($param) {
-        return @$this->block->parameters->{$param};
+    public function parameter($param, $decode = false) {
+        $param = @$this->block->parameters->{$param};
+
+        if($decode){
+            return json_decode($param);
+        }
+
+        return $param;
     }
     
     /**

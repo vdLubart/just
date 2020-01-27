@@ -1,10 +1,10 @@
 <?php
 
-namespace Just\Structure\Panel\Block;
+namespace Just\Models\Blocks;
 
 use Lubart\Form\Form;
 use Lubart\Form\FormGroup;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Tools\Useful;
 use Lubart\Form\FormElement;
 use Spatie\Translatable\HasTranslations;
@@ -70,10 +70,12 @@ class Contact extends AbstractBlock
         $this->defaultChannels['fax'] = __('contact.channel.fax');
     }
 
-    public function form() {
+    public function settingsForm(): Form {
         if(is_null($this->form)){
-            return;
+            return new Form();
         }
+
+        $this->identifySettingsForm();
         
         $this->form->add(FormElement::text(['name'=>'title', 'label'=>__('contact.office'), 'value'=>@$this->title]));
 
@@ -85,30 +87,26 @@ class Contact extends AbstractBlock
         
         $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         
-        $this->form->setType('settings');
-        
         return $this->form;
     }
 
-    public function addSetupFormElements(Form &$form){
+    public function addCustomizationFormElements(Form &$form){
 
-        $fieldGroup = new FormGroup('fieldGroup', __('contact.preferences.usingContacts'), ['class'=>'col-md-6']);
+        $fieldGroup = new FormGroup('fieldGroup', __('contact.preferences.usingContacts'));
 
-        foreach($this->defaultChannels() as $icon=> $label){
-            $fieldGroup->add(FormElement::checkbox(['name'=>'channels[]', 'label'=>$label, 'value'=>$icon, 'check'=>(in_array($icon, $this->parameter('channels')??[]))]));
-        }
+        $fieldGroup->add(FormElement::checkbox(['name'=>'channels', 'label'=>__('contact.preferences.usingContacts'), 'value'=>($this->parameter('channels')??[]), 'options'=>$this->defaultChannels()]));
 
         $form->addGroup($fieldGroup);
 
         if(\Auth::user()->role == 'master') {
-            $additionalFieldGroup = new FormGroup('additionalFieldGroup', __('contact.preferences.additionalContact'), ['class' => 'col-md-6']);
-            $additionalFieldGroup->add(FormElement::textarea(['name' => 'additionalFields', 'label' => __('contact.preferences.additionalContactFormat'), 'value' => $this->parameter('additionalFields')]));
+            $additionalFieldGroup = new FormGroup('additionalFieldGroup', __('contact.preferences.additionalContact'));
+            $additionalFieldGroup->add(FormElement::textarea(['name' => 'additionalFields', 'label' => __('contact.preferences.additionalContactFormat'), 'value' => $this->parameter('additionalFields'), 'richEditor'=>false]));
 
             $form->addGroup($additionalFieldGroup);
         }
     }
     
-    public function handleForm(ValidateRequest $request) {
+    public function handleSettingsForm(ValidateRequest $request) {
         if (is_null($request->id)) {
             $contact = new Contact;
             $contact->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->block_id]);
@@ -149,7 +147,7 @@ class Contact extends AbstractBlock
     public function allChannels() {
         $contacts = [];
 
-        foreach($this->parameter('channels')??[] as $channel){
+        foreach($this->parameter('channels', true)??[] as $channel){
             $contacts[$channel] = $this->defaultChannels[$channel];
         }
 
@@ -181,5 +179,9 @@ class Contact extends AbstractBlock
 
     public function contact($channel) {
         return $this->contacts()[$channel]['value'];
+    }
+
+    public function itemCaption(): string {
+        return $this->title;
     }
 }
