@@ -1,10 +1,10 @@
 <div class="thumbnail">
     @if( in_array('image', array_keys($item->getAttributes())) )
     <a href="javascript: openSettings({{ $block->id }}, {{ $item->id }})">
-        @if(file_exists('/storage/'.$block->model()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png'))
-        <img src="{{ '/storage/'.$block->model()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png' }}" />
+        @if(file_exists('/storage/'.$block->item()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png'))
+        <img src="{{ '/storage/'.$block->item()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png' }}" />
         @else
-        <img src="{{ '/storage/'.$block->model()->getTable().'/'. $item->image . '.png' }}" />
+        <img src="{{ '/storage/'.$block->item()->getTable().'/'. $item->image . '.png' }}" />
         @endif
     </a>
     @elseif(isset($item->icon))

@@ -1,4 +1,4 @@
-@if(is_null($block->model()->id))
+@if(is_null($block->item()->id))
 
     <h3>@lang('events.futureEvents')</h3>
 
@@ -15,7 +15,7 @@
         @if(!empty($event->image))
         <div class="col-md-4">
             <a href="{{ url((\Config::get('isAdmin')?'admin/':'') . $block->parameter('itemRouteBase'), ['id'=>$event->slug]) }}">
-                <img src="{{ '/storage/events/'.$event->image."_4.png" }}" />
+                <img src="{{ $event->imageSource(4) }}" />
             </a>
         </div>
         @endif
@@ -33,11 +33,11 @@
 
     <h3>@lang('events.pastEvents')</h3>
 
-    @if($block->model()->pastEvents()->isEmpty())
+    @if($block->item()->pastEvents()->isEmpty())
         @lang('events.noPastEvents')
     @endif
 
-    @foreach($block->model()->pastEvents() as $event)
+    @foreach($block->item()->pastEvents() as $event)
         <div class="col-md-2">
             {{ $event->start_date }} -
             {{ $event->end_date }} at
@@ -46,7 +46,7 @@
         @if(!empty($event->image))
         <div class="col-md-4">
             <a href="{{ url((\Config::get('isAdmin')?'admin/':'') . $block->parameter('itemRouteBase'), ['id'=>$event->slug]) }}">
-                <img src="{{ '/storage/events/'.$event->image."_4.png" }}" />
+                <img src="{{ $event->imageSource(4) }}" />
             </a>
         </div>
         @endif
@@ -65,15 +65,15 @@
 @else
     <div class="col-md-12">
         <div class="thumbnail">
-            @if(!empty($block->model()->image))
-            <a href="{{ url((\Config::get('isAdmin')?'admin/':''). $block->parameter('itemRouteBase'), ['id'=>$block->model()->slug]) }}">
-                <img src="{{ '/storage/events/'.$block->model()->image."_12.png" }}" />
+            @if(!empty($block->item()->image))
+            <a href="{{ url((\Config::get('isAdmin')?'admin/':''). $block->parameter('itemRouteBase'), ['id'=>$block->item()->slug]) }}">
+                <img src="{{ $block->item()->imageSource(12) }}" />
             </a>
             @endif
             <div class="caption">
-                <h3>{{ $block->model()->subject }}</h3>
+                <h3>{{ $block->item()->subject }}</h3>
             </div>
-            {!! $block->model()->text !!}
+            {!! $block->item()->text !!}
         </div>
 
         <div>
@@ -102,7 +102,7 @@
 
                 <a href="#registerForm" id="regButton" onclick="openRegisterForm()" class="btn btn-primary">@lang('events.registerForm.register')</a>
                 <div id="registerForm" style="display: none">
-                    {!!  $block->model()->registerForm() !!}
+                    {!!  $block->item()->registerForm() !!}
                 </div>
 
                 <script>

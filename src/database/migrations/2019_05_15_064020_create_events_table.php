@@ -22,8 +22,8 @@ class CreateEventsTable extends Migration
             $table->json('text');
             $table->string('image');
             $table->dateTime('start_date');
-            $table->dateTime('end_date');
-            $table->json('location');
+            $table->dateTime('end_date')->nullable()->default(null);
+            $table->json('location')->nullable()->default(null);
             $table->boolean('isActive')->default(true);
             $table->timestamps();
 

@@ -101,12 +101,14 @@ Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
             Route::get('settings', "\Just\Controllers\Settings\BlockController@settingsForm");
             Route::get('customization', "\Just\Controllers\Settings\BlockController@customizationForm");
             Route::get('item/{itemId}', "\Just\Controllers\Settings\BlockController@itemSettingsForm")->where(['itemId'=>'\d+']);
+            Route::get('item/{itemId}/cropping', "\Just\Controllers\Settings\BlockController@itemCroppingForm")->where(['itemId'=>'\d+']);
         });
 
         Route::post('setup', '\Just\Controllers\Settings\BlockController@setup');
         Route::post('customize', '\Just\Controllers\Settings\BlockController@customize');
         Route::post('delete', '\Just\Controllers\Settings\BlockController@delete');
         Route::post('item/setup', '\Just\Controllers\Settings\BlockController@itemSetup');
+        Route::post('item/crop', '\Just\Controllers\Settings\BlockController@itemCrop');
     });
 });
 

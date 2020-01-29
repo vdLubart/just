@@ -76,42 +76,42 @@ class JustStructureSeeder extends Seeder
         ]);
         
         // Panels
-        $justPrimaryHeader = Structure\Panel::create([
+        $justPrimaryHeader = Models\Panel::create([
             'location' => 'header',
             'layout_id' => $justPrimaryLayout->id,
             'type' => 'static',
             'orderNo' => 1
         ]);
         
-        $justPrimaryContent = Structure\Panel::create([
+        $justPrimaryContent = Models\Panel::create([
             'location' => 'content',
             'layout_id' => $justPrimaryLayout->id,
             'type' => 'dynamic',
             'orderNo' => 2
         ]);
         
-        $justPrimaryFooter = Structure\Panel::create([
+        $justPrimaryFooter = Models\Panel::create([
             'location' => 'footer',
             'layout_id' => $justPrimaryLayout->id,
             'type' => 'static',
             'orderNo' => 3
         ]);
         
-        $justSpecificHeader = Structure\Panel::create([
+        $justSpecificHeader = Models\Panel::create([
             'location' => 'header',
             'layout_id' => $justSpecificLayout->id,
             'type' => 'static',
             'orderNo' => 1
         ]);
         
-        $justSpecificContent = Structure\Panel::create([
+        $justSpecificContent = Models\Panel::create([
             'location' => 'content',
             'layout_id' => $justSpecificLayout->id,
             'type' => 'dynamic',
             'orderNo' => 2
         ]);
         
-        $justSpecificFooter = Structure\Panel::create([
+        $justSpecificFooter = Models\Panel::create([
             'location' => 'footer',
             'layout_id' => $justSpecificLayout->id,
             'type' => 'static',

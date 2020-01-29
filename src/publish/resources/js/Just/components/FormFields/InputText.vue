@@ -5,22 +5,25 @@
             <div v-for="(label, lang) in languages" class="input-text-component__translate-container">
                 <div>{{ label }}</div>
                 <div>
-                    <input type="text" :name="name + '-' + lang" :id="name + '-' + lang" :lang="lang" class="input-component__text" :placeholder="placeholder" :value="content[lang]" @input="handleInput" v-bind="parameters"/>
+                    <lubart-text :name="name + '-' + lang" :placeholder="placeholder" v-model="content[lang]" @input="handleInput" :no-wrap="true" v-bind="parameters"></lubart-text>
                 </div>
             </div>
         </fieldset>
-        <input v-else type="text" :name="name" :id="name" class="input-component__text" :placeholder="placeholder" :value="content" @input="handleInput" v-bind="parameters"/>
+        <lubart-text v-else :name="name" :placeholder="placeholder" v-model="content" @input="handleInput" :no-wrap="true" v-bind="parameters"></lubart-text>
     </block>
 
 </template>
 
 <script>
+    import { InputText as lubartText} from 'lubart-vue-input-component';
     import InputBase from './InputBase';
 
     export default {
         name: "InputText",
 
         extends: InputBase,
+
+        components: {lubartText},
 
         props: {
             parameters: { type: Object },
@@ -48,13 +51,6 @@
 
         methods: {
             handleInput (e) {
-                if(this.parameters.translate === true){
-                    this.content[e.target.lang] = e.target.value;
-                }
-                else {
-                    this.content = e.target.value;
-                }
-
                 this.$emit('input', this.content);
             }
         }

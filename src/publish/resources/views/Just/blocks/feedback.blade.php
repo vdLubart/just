@@ -9,7 +9,7 @@
     </div>
     @endif
     
-    {!! $block->model()->feedbackForm() !!}
+    {!! $block->item()->feedbackForm() !!}
     
     @foreach($block->content() as $comment)
     <div class="col-md-6">

@@ -1,5 +1,6 @@
 <script>
     import Form from './Form';
+    import Crop from './Crop';
     import List from './List';
     import ItemList from './ItemList';
     import {eventBus} from "../adminApp";
@@ -7,7 +8,7 @@
     export default {
         name: "Content",
 
-        components: {Form, List, ItemList},
+        components: {Form, Crop, List, ItemList},
 
         props:{
             "type": {type: String, default: "list"}     // values: list, form, items
@@ -36,6 +37,7 @@
         render(createElement){
             let inputMap = {
                 'form': Form,
+                'crop': Crop,
                 'list': List,
                 'items': ItemList
             }

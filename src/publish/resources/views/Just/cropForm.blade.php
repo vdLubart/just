@@ -1,12 +1,12 @@
 <a href="javascript:" data-toggle="collapse" data-target="#{{ $block->type }}_settingsForm"><i class="fa fa-cog"></i> Setup form</a>
 
 <div id="{{ $block->type }}_cropForm">
-    <img class='cropper' src='{{ '/storage/'.$block->model()->getTable().'/'.$image.'.png' }}' />
+    <img class='cropper' src='{{ '/storage/'.$block->item()->getTable().'/'.$image.'.png' }}' />
     
     {!! Form::open([ 'url' => '/admin/settings/crop', 'method'=>'post']) !!}
 
     {!! Form::hidden('block_id', $block->id) !!}
-    {!! Form::hidden('id', $block->model()->id) !!}
+    {!! Form::hidden('id', $block->item()->id) !!}
     {!! Form::hidden('x') !!}
     {!! Form::hidden('y') !!}
     {!! Form::hidden('w') !!}

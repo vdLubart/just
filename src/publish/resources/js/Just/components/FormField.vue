@@ -13,11 +13,12 @@
     import HtmlBlock from './FormFields/HtmlBlock';
     import SelectVue from './FormFields/SelectVue';
     import InputFile from './FormFields/InputFile';
+    import InputTime from './FormFields/InputTime';
 
     export default {
         name: "FormField",
 
-        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, CheckboxGroup, InputRadio, RadioGroup, InputButton, InputHidden, SelectVue, HtmlBlock, InputFile},
+        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, CheckboxGroup, InputRadio, RadioGroup, InputButton, InputHidden, SelectVue, HtmlBlock, InputFile, InputTime},
 
         props:{
             "element": {type: Object}
@@ -46,7 +47,7 @@
                 'button': InputButton,
                 'html': HtmlBlock,
                 'date': InputDate,
-                'time': null
+                'time': InputTime
             };
 
             if(inputMap[this.type] === null){

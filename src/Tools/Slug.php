@@ -22,7 +22,7 @@ trait Slug{
         }
 
         // Just append numbers like a savage until we find not used.
-        $this->incrementSlug($slug);
+        return $this->incrementSlug($slug);
     }
 
     protected function getRelatedSlugs($slug){

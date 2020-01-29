@@ -8,7 +8,7 @@
     }
 ?>
 
-@if(is_null($block->model()->id))
+@if(is_null($block->item()->id))
     @include('Just.categoryFilter')
 @endif
 
@@ -26,10 +26,10 @@
             <div class="thumbnail">
                 @if( in_array('image', array_keys($item->getAttributes()))  and !empty($item->image))
                     <a href="javascript: openSettings({{ $block->id }}, {{ $item->id }})">
-                        @if(file_exists('/storage/'.$block->model()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png'))
-                            <img src="{{ '/storage/'.$block->model()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png' }}" />
+                        @if(file_exists('/storage/'.$block->item()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png'))
+                            <img src="{{ '/storage/'.$block->item()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png' }}" />
                         @else
-                            <img src="{{ '/storage/'.$block->model()->getTable().'/'. $item->image . '.png' }}" />
+                            <img src="{{ '/storage/'.$block->item()->getTable().'/'. $item->image . '.png' }}" />
                         @endif
                     </a>
                 @elseif(isset($item->text))
@@ -63,21 +63,21 @@
 
 <h3>Past events</h3>
 
-@if($block->model()->pastEvents()->isEmpty())
+@if($block->item()->pastEvents()->isEmpty())
     There is no event held in the past
 @endif
 
 <div class="dragula-list-container-{{ $zoom }}">
-    @foreach($block->model()->pastEvents() as $item)
+    @foreach($block->item()->pastEvents() as $item)
         <div class="{{ ($block->categories()->first()?@$item->categories->first()->value:"") }}" data-no="{{$item->orderNo}}" data-id="{{$item->id}}">
 
             <div class="thumbnail">
                 @if( in_array('image', array_keys($item->getAttributes())) and !empty($item->image))
                     <a href="javascript: openSettings({{ $block->id }}, {{ $item->id }})">
-                        @if(file_exists('/storage/'.$block->model()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png'))
-                            <img src="{{ '/storage/'.$block->model()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png' }}" />
+                        @if(file_exists('/storage/'.$block->item()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png'))
+                            <img src="{{ '/storage/'.$block->item()->getTable().'/'. $item->image . '_'.round($zoom/100*3).'.png' }}" />
                         @else
-                            <img src="{{ '/storage/'.$block->model()->getTable().'/'. $item->image . '.png' }}" />
+                            <img src="{{ '/storage/'.$block->item()->getTable().'/'. $item->image . '.png' }}" />
                         @endif
                     </a>
                 @elseif(isset($item->text))

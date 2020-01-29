@@ -1,9 +1,10 @@
 <?php
 
-namespace Just\Requests\Panel\Block\Admin;
+namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Models\User;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 
 class ChangeEventRequest extends FormRequest implements ValidateRequest
 {
@@ -14,7 +15,7 @@ class ChangeEventRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return \Auth::check();
+        return User::authAsAdmin();
     }
 
     /**
@@ -31,9 +32,9 @@ class ChangeEventRequest extends FormRequest implements ValidateRequest
             "end_date" => "nullable|date|date_format:Y-m-d|after_or_equal:start_date",
             "start_time" => "nullable|regex:/\d{2}\:\d{2}/",
             "end_time" => "nullable|regex:/\d{2}\:\d{2}/",
-            "location" => "string",
-            "summary" => "string",
-            "text" => "string"
+            "location" => "nullable",
+            "summary" => "nullable",
+            "text" => "required"
         ];
     }
 }

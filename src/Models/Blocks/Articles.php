@@ -13,7 +13,7 @@ use Just\Tools\Slug;
 use Spatie\Translatable\HasTranslations;
 use Lubart\Form\FormGroup;
 
-class Articles extends AbstractBlock
+class Articles extends AbstractItem
 {
    use Slug, HasTranslations;
 
@@ -159,6 +159,6 @@ class Articles extends AbstractBlock
     }
 
     public function itemImage():string {
-        return $this->imageSrc($this->image, 3);
+        return $this->imageSource(3);
     }
 }

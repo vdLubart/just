@@ -15,7 +15,7 @@ use Just\Tools\Useful;
 use Illuminate\Support\Facades\Schema;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 
-abstract class AbstractBlock extends Model implements BlockItem
+abstract class AbstractItem extends Model implements BlockItem
 {   
     /**
      * Block settings form
@@ -197,51 +197,47 @@ abstract class AbstractBlock extends Model implements BlockItem
      * Treat request with image crop data
      * 
      * @param CropRequest $request
-     * @return Image
+     * @return \Intervention\Image\Image
      */
     public function handleCrop(CropRequest $request) {
-        if(file_exists($this->image($request->get('img')."_original"))){
-            $filePath = $this->image($request->get('img')."_original");
-        }
-        else{
-            $filePath = $this->image($request->get('img')); 
-        }
+        $filePath = $this->imagePath("original");
+
         $image = Image::make($filePath);
+
+        $image->save(public_path('/storage/'.$this->table.'/'.$this->image.'_original.png'));
+
+        $image->crop($request->w, $request->h, $request->x, $request->y);
+        $image->save($this->imagePath());
         
-        $image->save($this->image($request->get('img')."_original"));
-        
-        $image->crop($request->get('w'), $request->get('h'), $request->get('x'), $request->get('y'));
-        $image->save($this->image($request->get('img')));
-        
-        $this->multiplicateImage($request->get('img'));
+        $this->multiplicateImage($this->image);
         
         return $image;
     }
     
     /**
-     * Make a copies of the image with different sizes
+     * Make copies of the image with different sizes
      * 
-     * @return type
+     * @return void
      */
     public function multiplicateImage($imageCode) {
         $imageSizes = $this->imageSizes;
         if($this->parameter('customSizes')){
-            $imageSizes = $this->parameter('photoSizes');
+            $imageSizes = $this->parameter('photoSizes', true);
         }
-        
+
         if(!empty($imageSizes)){
             foreach($imageSizes as $size){
-                $image = Image::make($this->image($imageCode));
+                $image = Image::make($this->imagePathByCode($imageCode));
                 $image->resize($this->block->layout()->width*$size/12, null, function ($constraint) {
                     $constraint->aspectRatio();
                 });
-                $image->save(public_path('storage/'.$this->table.'/'. $imageCode."_".$size.".png"));
+                $image->save(public_path('/storage/'.$this->table.'/'.$this->image.'_'.$size.'.png'));
                 $image->destroy();
             }
         }
         else{
-            $image = Image::make($this->image($imageCode));
-            $image->save(public_path('storage/'.$this->table.'/'. $imageCode.".png"));
+            $image = Image::make($this->imagePath());
+            $image->save($this->imagePathByCode($imageCode));
         }
         
         return;
@@ -320,30 +316,67 @@ abstract class AbstractBlock extends Model implements BlockItem
     }
     
     /**
-     * Return image path related to the model
+     * Return image path of the current item
      * 
-     * @param string $imageCode image code
-     * @param int $width specify image size 
-     * @return string full path to the image
+     * @param int $width specify image size
+     * @return string|null full path to the image
      */
-    public function image($imageCode, $width=null){
-        return $this->imageSrc($imageCode, $width);
+    public function imagePath($width=null): ?string{
+        if(empty(@$this->image)){
+            return null;
+        }
+
+        return public_path($this->imageSource($width, $this->image));
+    }
+
+    /**
+     * Return image path by unique code
+     *
+     * @param string $imageCode image code
+     * @param int|null $width smallest image size
+     * @return string
+     */
+    public function imagePathByCode($imageCode, $width=null): string {
+        return public_path($this->imageSource($width, $imageCode));
     }
 
     /**
      * Return image URI related to the model
      *
+     * @param int|null $width smallest image size
      * @param string $imageCode image code
-     * @param int $width specify image size
      * @return string image uri
      */
-    public function imageSrc($imageCode, $width=null) {
-        if(!in_array($width, $this->imageSizes)){
-            return '/storage/'.$this->table.'/'.$imageCode.".png";
+    public function imageSource($width=null, $imageCode=null): string {
+        if(empty($imageCode)){
+            $imageCode = $this->image;
         }
-        else{
-            return '/storage/'.$this->table.'/'.$imageCode."_".$width.".png";
+
+        if(!is_null($width)){
+            if($source = $this->findImage($imageCode, $width)) {
+                return $source;
+            }
+            // if the image with requested size does not exist (due to block customization settings, for example)
+            // next bigger image size is returned
+            else{
+                foreach (array_sort($this->imageSizes) as $size){
+                    if($size > (int)$width and $source = $this->findImage($imageCode, $size)) {
+                        return $source;
+                        break;
+                    }
+                }
+            }
         }
+
+        return '/storage/'.$this->table.'/'.$imageCode.".png";
+    }
+
+    private function findImage($imageCode, $width) {
+        if(file_exists(public_path('/storage/'.$this->table.'/'.$imageCode."_".$width.".png"))) {
+            return '/storage/' . $this->table . '/' . $imageCode . "_" . $width . ".png";
+        }
+
+        return false;
     }
     
     /**

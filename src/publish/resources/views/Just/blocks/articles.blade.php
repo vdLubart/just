@@ -1,4 +1,4 @@
-@if(is_null($block->model()->id))
+@if(is_null($block->item()->id))
     @foreach($block->content() as $article)
     <div class="col-md-12">
         <div class="thumbnail">
@@ -19,13 +19,13 @@
 @else
     <div class="col-md-12">
         <div class="thumbnail">
-            <a href="{{ url((\Config::get('isAdmin')?'admin/':''). $block->parameter('itemRouteBase'), ['id'=>$block->model()->id]) }}">
-                <img src="{{ '/storage/articles/'.$block->model()->image."_12.png" }}" />
+            <a href="{{ url((\Config::get('isAdmin')?'admin/':''). $block->parameter('itemRouteBase'), ['id'=>$block->item()->id]) }}">
+                <img src="{{ '/storage/articles/'.$block->item()->image."_12.png" }}" />
             </a>
             <div class="caption">
-                <h3>{{ $block->model()->subject }}</h3>
+                <h3>{{ $block->item()->subject }}</h3>
             </div>
-            {!! $block->model()->text !!}
+            {!! $block->item()->text !!}
         </div>
     </div>
 @endif

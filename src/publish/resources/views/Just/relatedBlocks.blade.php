@@ -1,5 +1,5 @@
-@if(!empty($block->model()->relatedBlocks))
-    @foreach($block->model()->relatedBlocks as $relBlock)
+@if(!empty($block->item()->relatedBlocks))
+    @foreach($block->item()->relatedBlocks as $relBlock)
     <div class="col-md-{{ $block->width }}">
         <div class="thumbnail">
             <div class="caption">

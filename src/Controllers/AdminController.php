@@ -249,7 +249,7 @@ class AdminController extends Controller
         if(!empty($block)){
             $block->deleteModel();
             
-            Useful::normalizeOrder($block->model()->getTable());
+            Useful::normalizeOrder($block->item()->getTable());
         }
         
         return ['id'=>$block->id, 'panelLocation'=>$block->panelLocation, 'page_id'=>(is_null($block->page_id)?0:$block->page_id), 'parent'=>$block->parent];

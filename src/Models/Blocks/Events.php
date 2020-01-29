@@ -1,6 +1,6 @@
 <?php
 
-namespace Just\Structure\Panel\Block;
+namespace Just\Models\Blocks;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -12,18 +12,17 @@ use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
 use Intervention\Image\ImageManagerStatic as Image;
-use Just\Structure\Panel\Block\Contracts\ContainsPublicForm;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Models\Blocks\Contracts\ContainsPublicForm;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Tools\Useful;
-use Just\Models\Route as JustRoute;
-use Just\Structure\Page;
+use Just\Models\System\Route as JustRoute;
+use Just\Models\Page;
 use Just\Tools\Slug;
 use Spatie\Translatable\HasTranslations;
 
-class Events extends AbstractBlock implements ContainsPublicForm
+class Events extends AbstractItem implements ContainsPublicForm
 {
-    use HasTranslations;
-    use Slug;
+    use HasTranslations, Slug;
     
     /**
      * The attributes that are mass assignable.
@@ -31,7 +30,7 @@ class Events extends AbstractBlock implements ContainsPublicForm
      * @var array
      */
     protected $fillable = [
-        'subject', 'summary', 'text', 'location', 'image', 'date_start', 'date_end'
+        'subject', 'summary', 'slug', 'text', 'location', 'image', 'date_start', 'date_end'
     ];
     
     protected $table = 'events';
@@ -128,70 +127,84 @@ class Events extends AbstractBlock implements ContainsPublicForm
         }
     }
     
-    public function form() {
+    public function settingsForm(): Form {
         if(is_null($this->form)){
-            return;
+            return new Form();
         }
 
-        $topGroup = new FormGroup('topGroup');
+        $this->identifySettingsForm();
 
-        $topGroup->add(FormElement::file(['name'=>'image', 'label'=>__('settings.actions.upload')]));
+        $imageGroup = new FormGroup('topGroup', '__Event Poster', ['class'=>'fullWidth twoColumns']);
+
+        $imageGroup->add($imageField = FormElement::file(['name'=>'image', 'label'=>__('settings.actions.upload')]));
         if(!is_null($this->id) and !empty($this->image)){
             if(file_exists(public_path('storage/'.$this->table.'/'.$this->image.'_3.png'))){
-                $topGroup->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
+                $imageGroup->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
             }
             else{
-                $topGroup->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
+                $imageGroup->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
             }
 
             if(!empty($this->parameter('cropPhoto'))) {
-                $topGroup->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
-                $topGroup->getElement("recrop")->setParameters('javasript:openCropping(' . $this->block_id . ', ' . $this->id . ')', 'onclick');
+                $imageGroup->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
+                $imageGroup->element("recrop")->setParameter('App.navigate(\'/settings/block/' . $this->block_id . '/item/' . $this->id . '/cropping\')', 'onclick');
             }
         }
-        $topGroup->add(FormElement::text(['name'=>'subject', 'label'=>__('settings.common.subject'), 'value'=>$this->subject]));
+        else{
+            $imageField->obligatory();
+        }
 
-        $this->form->addGroup($topGroup);
+        $this->form->addGroup($imageGroup);
 
-        $startDateGroup = new FormGroup('startDate', '', ['class'=>'col-md-6']);
+        $subjectGroup = new FormGroup('subjectGroup', '');
+
+        $subjectGroup->add(FormElement::text(['name'=>'subject', 'label'=>__('settings.common.subject'), 'value'=>$this->getTranslations('subject'), 'translate'=>true])
+            ->obligatory()
+        );
+
+        $this->form->addGroup($subjectGroup);
+
+        $dateGroup = new FormGroup('startDate', '__Date and Location', ['class'=>'fullWidth twoColumns']);
         if(!empty($this->start_date)) {
             $startDate = Carbon::createFromFormat('Y-m-d H:i:s', $this->start_date);
-            $startDateGroup->add(FormElement::date(['name' => 'start_date', 'label' => __('event.form.startDate'), 'value' => $startDate->format('Y-m-d')]));
-            $startDateGroup->add(FormElement::time(['name' => 'start_time', 'label' => __('event.form.startTime'), 'value' => $startDate->format('H:i')]));
+            $dateGroup->add(FormElement::date(['name' => 'start_date', 'label' => __('events.form.startDate'), 'value' => $startDate->format('Y-m-d')])
+                ->obligatory()
+            );
+            $dateGroup->add(FormElement::time(['name' => 'start_time', 'label' => __('events.form.startTime'), 'value' => $startDate->format('H:i')]));
         }
         else{
-            $startDateGroup->add(FormElement::date(['name' => 'start_date', 'label' => __('event.form.startDate')]));
-            $startDateGroup->add(FormElement::time(['name' => 'start_time', 'label' => __('event.form.startTime')]));
+            $dateGroup->add(FormElement::date(['name' => 'start_date', 'label' => __('events.form.startDate')])
+                ->obligatory()
+            );
+            $dateGroup->add(FormElement::time(['name' => 'start_time', 'label' => __('events.form.startTime')]));
         }
 
-        $endDateGroup = new FormGroup('endDate', '', ['class'=>'col-md-6']);
         if(!empty($this->end_date)) {
             $endDate = Carbon::createFromFormat('Y-m-d H:i:s', $this->end_date);
-            $endDateGroup->add(FormElement::date(['name' => 'end_date', 'label' => __('event.form.endDate'), 'value' => $endDate->format('Y-m-d')]));
-            $endDateGroup->add(FormElement::time(['name' => 'end_time', 'label' => __('event.form.endTime'), 'value' => $endDate->format('H:i')]));
+            $dateGroup->add(FormElement::date(['name' => 'end_date', 'label' => __('events.form.endDate'), 'value' => $endDate->format('Y-m-d')]));
+            $dateGroup->add(FormElement::time(['name' => 'end_time', 'label' => __('events.form.endTime'), 'value' => $endDate->format('H:i')]));
         }
         else{
-            $endDateGroup->add(FormElement::date(['name' => 'end_date', 'label' => __('event.form.endDate')]));
-            $endDateGroup->add(FormElement::time(['name' => 'end_time', 'label' => __('event.form.endTime')]));
+            $dateGroup->add(FormElement::date(['name' => 'end_date', 'label' => __('events.form.endDate')]));
+            $dateGroup->add(FormElement::time(['name' => 'end_time', 'label' => __('events.form.endTime')]));
         }
 
-        $this->form->addGroup($startDateGroup);
-        $this->form->addGroup($endDateGroup);
+        $dateGroup->add(FormElement::text(['name'=>'location', 'label'=>__('events.form.location'), 'value'=>$this->getTranslations('location'), 'translate'=>true]));
 
-        $this->form->add(FormElement::text(['name'=>'location', 'label'=>__('events.form.location'), 'value'=>$this->location]));
+        $this->form->addGroup($dateGroup);
 
-        $this->form->add(FormElement::textarea(['name'=>'summary', 'label'=>__('settings.common.summary'), 'value'=>$this->summary]));
-        $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>__('events.form.description'), 'value'=>$this->text]));
+        $descriptionGroup = new FormGroup('descriptionGroup', '__Description');
+
+        $descriptionGroup->add(FormElement::textarea(['name'=>'summary', 'label'=>__('settings.common.summary'), 'value'=>$this->getTranslations('summary'), 'translate'=>true]));
+        $descriptionGroup->add(FormElement::textarea(['name'=>'text', 'label'=>__('events.form.description'), 'value'=>$this->getTranslations('text'), 'translate'=>true])
+            ->obligatory()
+        );
+
+        $this->form->addGroup($descriptionGroup);
 
         $this->includeAddons();
         
         $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
-        
-        $this->form->applyJS("
-$(document).ready(function(){
-    CKEDITOR.replace('summary');
-    CKEDITOR.replace('text');
-});");
         
         return $this->form;
     }
@@ -217,7 +230,7 @@ $(document).ready(function(){
         return $this->publicForm()->render();
     }
 
-    public function addSetupFormElements(Form &$form) {
+    public function addCustomizationFormElements(Form &$form) {
         $this->addCropSetupGroup($form);
 
         if(\Auth::user()->role == "master"){
@@ -231,37 +244,39 @@ $(document).ready(function(){
         $registrationGroup->add(FormElement::checkbox(['name'=>'notify', 'label'=>__('events.preferences.registrationNotification'), 'value'=>1, 'check'=>(@$this->parameter('notify')==1)]));
         $form->addGroup($registrationGroup);
 
-        $form->useJSFile('/js/blocks/setupForm.js');
-
         return $form;
     }
     
-    public function handleForm(ValidateRequest $request) {
+    public function handleSettingsForm(ValidateRequest $request) {
         if(!file_exists(public_path('storage/'.$this->table))){
-            mkdir(public_path('storage/'.$this->table), 0775);
+            mkdir(public_path('storage/'.$this->table), 0775, true);
         }
         
         if(!is_null($request->file('image'))){
             $image = Image::make($request->file('image'));
         }
         
-        if(is_null($request->get('id'))){
+        if(is_null($request->id)){
             $event = new Events;
         }
         else{
-            $event = Events::findOrNew($request->get('id'));
+            $event = Events::findOrNew($request->id);
         }
-        $event->setBlock($request->get('block_id'));
+        $event->setBlock($request->block_id);
         if(!is_null($request->file('image'))){
+            if(!empty($event->image)){
+                $this->deleteImage($event->image);
+            }
+
             $event->image = uniqid();
         }
-        $event->start_date = $request->get('start_date') . ":" . $request->get('start_time');
-        $event->end_date = $request->get('end_date') . ":" . $request->get('end_time');
-        $event->location = $request->get('location');
-        $event->subject = $request->get('subject');
-        $event->slug = $this->createSlug($request->get('subject'));
-        $event->summary = $request->get('summary');
-        $event->text = $request->get('text');
+        $event->start_date = $request->start_date . " " . $request->start_time;
+        $event->end_date = !is_null($request->end_date) ? $request->end_date . " " . $request->end_time : null;
+        $event->location = $request->location;
+        $event->subject = $request->subject;
+        $event->slug = $this->createSlug($request->subject['en']);
+        $event->summary = $request->summary;
+        $event->text = $request->text;
         $event->save();
         
         $this->handleAddons($request, $event);
@@ -307,5 +322,13 @@ $(document).ready(function(){
 
     public function registrations(){
         return $this->hasMany(EventRegistration::class,  'event_id');
+    }
+
+    public function itemCaption(): string {
+        return $this->subject;
+    }
+
+    public function itemImage():string {
+        return $this->imageSource(3);
     }
 }

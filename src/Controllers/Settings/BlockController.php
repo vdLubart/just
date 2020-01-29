@@ -50,7 +50,7 @@ class BlockController extends SettingsController {
         $pageId = $block->page_id;
         $panelLocation = $block->panelLocation;
 
-        $items = $block->model()->content();
+        $items = $block->item()->content();
 
         if(empty($caption)){
             $caption = [
@@ -142,10 +142,72 @@ class BlockController extends SettingsController {
         }
 
         $response = new \stdClass();
-        $response->message = $this->itemTranslation('messages.success.' . ($request->id == 0 ? 'created' : 'updated'));
-        $response->redirect = '/settings/block/' . $request->block_id;
+        if($item->shouldBeCropped){
+            $response->message = 'Image should be cropped';
+            $response->redirect = '/settings/block/'.$block->id.'/item/'.$item->id.'/cropping';
+        }
+        else{
+            $response->message = $this->itemTranslation('messages.success.' . ($request->id == 0 ? 'created' : 'updated'));
+            $response->redirect = '/settings/block/' . $request->block_id;
+        }
 
         return json_encode($response);
+    }
+
+    public function itemCroppingForm($blockId, $itemId) {
+        /**
+         * @var Block $block
+         */
+        $block = Block::find($blockId);
+        $pageId = $block->page_id;
+        $panelLocation = $block->panelLocation;
+
+        $item = $block->specify($itemId)->item();
+
+        if(empty($caption)){
+            $caption = [
+                '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
+                '/settings/block/' . $block->id => $this->itemTranslation('editForm.title', ['title'=>$block->title])
+            ];
+
+            if($item->id > 0){
+                $caption['/settings/block/' . $block->id . '/item/' . $item->id] = $this->itemTranslation('editForm.item');
+            }
+        }
+
+        $response = new \stdClass();
+
+        $response->caption = [
+                '/settings' =>  __('settings.title')
+            ] + $caption;
+        $response->contentType = 'crop';
+
+        $response->parameters = [];
+
+        $parameters = ['blockId'=>$block->id, 'itemId' => $item->id, 'image'=>$item->imageSource('original'), 'imageCode'=>$item->image, 'dimensions'=>$item->parameter('cropDimensions')];
+
+        foreach ($parameters as $key=>$parameter){
+            $response->parameters[$key] = $parameter;
+        }
+
+        return Response::json($response);
+    }
+
+    public function itemCrop(Request $request) {
+        if(empty($block = $this->findBlock($request->block_id))){
+            return redirect()->back();
+        }
+        $block->specify($request->id);
+
+        if(!empty($block)){
+            $block->handleCrop($request);
+        }
+
+        $response = new \stdClass();
+        $response->message = $this->itemTranslation('messages.success.updated');
+        $response->redirect = '/settings/block/'.$block->id;
+
+        return Response::json($response);
     }
 
     public function blockList($pageId, $panelLocation) {
@@ -182,7 +244,7 @@ class BlockController extends SettingsController {
         $pageId = $block->page_id;
         $panelLocation = $block->panelLocation;
 
-        $item = $block->specify($itemId)->model();
+        $item = $block->specify($itemId)->item();
 
         if(empty($caption)){
             $caption = [
@@ -297,7 +359,7 @@ class BlockController extends SettingsController {
             $block->parameters = $parameters;
             $block->save();
 
-            $block->model()->setup();
+            $block->item()->setup();
         }
 
         $response = new \stdClass();

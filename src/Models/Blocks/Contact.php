@@ -9,7 +9,7 @@ use Just\Tools\Useful;
 use Lubart\Form\FormElement;
 use Spatie\Translatable\HasTranslations;
 
-class Contact extends AbstractBlock
+class Contact extends AbstractItem
 {
     use HasTranslations;
     

@@ -8,7 +8,7 @@ use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Tools\Useful;
 use Spatie\Translatable\HasTranslations;
 
-class Text extends AbstractBlock
+class Text extends AbstractItem
 {
     use HasTranslations;
     

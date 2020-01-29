@@ -5,6 +5,7 @@ namespace Just\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Just\Models\Blocks\AbstractItem;
 use Just\Models\Blocks\Contracts\BlockItem;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Models\System\BlockList;
@@ -39,8 +40,13 @@ class Block extends Model implements BlockItem
     public $translatable = ['title', 'description'];
     
     protected $table = 'blocks';
-    
-    protected $model;
+
+    /**
+     * Block item
+     *
+     * @var AbstractItem $item
+     */
+    protected $item;
     
     /**
      * Access parent block from the related block
@@ -59,24 +65,24 @@ class Block extends Model implements BlockItem
      * @throws \Exception
      */
     public function specify($id = null) {
-        $name = $this->modelClassName();
+        $name = $this->itemClassName();
 
         // make sure if string $id parameter is a number
         if((int)$id > 0 and (string)(int)$id == $id){
-            $this->model = $name::findOrNew($id);
+            $this->item = $name::findOrNew($id);
         }
         else{
-            $this->model = new $name;
-            $this->model->setBlock($this->id);
+            $this->item = new $name;
+            $this->item->setBlock($this->id);
 
-            if($this->model->haveSlug() and !is_null($id)){
-                $this->model = $this->model->findBySlug($id) ?? new $name;
+            if($this->item->haveSlug() and !is_null($id)){
+                $this->item = $this->item->findBySlug($id) ?? new $name;
             }
         }
 
-        $this->model->setParameters($this->parameters);
-        $this->model->setBlock($this->id);
-        $this->model->setup();
+        $this->item->setParameters($this->parameters);
+        $this->item->setBlock($this->id);
+        $this->item->setup();
 
         foreach($this->addons as $addon){
             $this->{$addon->name} = AddOn::find($addon->id);
@@ -91,7 +97,7 @@ class Block extends Model implements BlockItem
      * @return $this
      */
     public function unsettle(){
-        $this->model = null;
+        $this->item = null;
         
         return $this->unsettleAddons();
     }
@@ -108,17 +114,17 @@ class Block extends Model implements BlockItem
     }
     
     public function form() {
-        $form = $this->model->form();
+        $form = $this->item->form();
         if(!is_null($form) and is_null($form->getElement('block_id'))){
             $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->id]));
-            $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->model->id]));
+            $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->item->id]));
         }
         
         return $form;
     }
     
     public function relationsForm($relBlock) {
-        $form = $this->model->relationsForm($relBlock);
+        $form = $this->item->relationsForm($relBlock);
         
         return $form;
     }
@@ -185,7 +191,7 @@ class Block extends Model implements BlockItem
     }
     
     public function content() {
-        return $this->model()->content();
+        return $this->item()->content();
     }
     
     /**
@@ -224,7 +230,7 @@ class Block extends Model implements BlockItem
      * @return mixed
      */
     public function parentItem(){
-        $parentBlock = $this->parentBlock()->specify()->model();
+        $parentBlock = $this->parentBlock()->specify()->item();
         
         $itemId = DB::table($parentBlock->getTable()."_blocks")->where("block_id", $this->id)->get(["modelItem_id"]);
         
@@ -301,7 +307,7 @@ class Block extends Model implements BlockItem
             $validatedRequest = $request;
         }
 
-        return $this->model->{$method}($validatedRequest);
+        return $this->item->{$method}($validatedRequest);
     }
 
     public function handleSettingsForm(ValidateRequest $request) {
@@ -325,7 +331,7 @@ class Block extends Model implements BlockItem
     }
 
     public function handleCrop(Request $request) {
-        $reflection = new \ReflectionMethod($this->model, 'handleCrop');
+        $reflection = new \ReflectionMethod($this->item, 'handleCrop');
         $validatorClass = $reflection->getParameters()[0]->getClass()->name;
         
         $validatedRequest = new $validatorClass;
@@ -333,22 +339,23 @@ class Block extends Model implements BlockItem
             $validData = $request->validate($validatedRequest->rules()+['block_id' => "required|integer|min:1"], $validatedRequest->messages());
             foreach($validData as $name=>$param){
                 $validatedRequest->request->set($name, $param);
+                $validatedRequest->query->set($name, $param);
             }
         }
-        
-        return $this->model->handleCrop($validatedRequest);
+
+        return $this->item->handleCrop($validatedRequest);
     }
     
     public function deleteModel() {
         //Delete whole block
-        if(is_null($this->model->id)){
-            $this->deleteImage($this->model);
+        if(is_null($this->item->id)){
+            $this->deleteImage($this->item);
             $this->delete();
         }
         // Delete model item in the block
         else{
-            $this->deleteImage($this->model);
-            $this->model->delete();
+            $this->deleteImage($this->item);
+            $this->item->delete();
         }
     }
     
@@ -381,20 +388,26 @@ class Block extends Model implements BlockItem
         
         return $block->first(); 
     }
-    
-    public function model() {
-        if($this->model === null){
+
+    /**
+     * Return block item
+     *
+     * @return AbstractItem|null
+     * @throws \Exception
+     */
+    public function item() {
+        if($this->item === null){
             $this->specify();
         }
 
-        return $this->model;
+        return $this->item;
     }
     
-    public function models() {
-        return $this->hasMany($this->modelClassName());
+    public function items() {
+        return $this->hasMany($this->itemClassName());
     }
 
-    protected function modelClassName() {
+    protected function itemClassName() {
         $name = "\\App\\Just\\Models\\Blocks\\". ucfirst($this->type);
 
         // looking for a custom block
@@ -410,7 +423,7 @@ class Block extends Model implements BlockItem
     
     public function move($dir) {
         // Move whole block
-        if(is_null($this->model->id)){
+        if(is_null($this->item->id)){
             $where = [
                     'panelLocation' => $this->panelLocation,
                     'page_id' => $this->page_id
@@ -420,13 +433,13 @@ class Block extends Model implements BlockItem
         }
         // Move model item in the block
         else{
-            return $this->model->move($dir);
+            return $this->item->move($dir);
         }
     }
     
     public function moveTo($newPosition) {
         // Move whole block
-        if(is_null($this->model->id)){
+        if(is_null($this->item->id)){
             $where = [
                     'panelLocation' => $this->panelLocation,
                     'page_id' => $this->page_id
@@ -436,16 +449,16 @@ class Block extends Model implements BlockItem
         }
         // Move model item in the block
         else{
-            $this->model->moveTo($newPosition);
+            $this->item->moveTo($newPosition);
         }
     }
     
     public function visibility($visibility) {
-        if(is_null($this->model->id)){
+        if(is_null($this->item->id)){
             $model = $this->unsettle();
         }
         else{
-            $model = $this->model;
+            $model = $this->item;
         }
 
         $model->isActive = $visibility;
@@ -456,7 +469,7 @@ class Block extends Model implements BlockItem
     
     public function isSetted() {
         $isSetted = true;
-        foreach($this->model->neededParameters() as $param){
+        foreach($this->item->neededParameters() as $param){
             if(!isset($this->parameters->{$param})){
                 $isSetted = false;
                 break;
@@ -472,7 +485,7 @@ class Block extends Model implements BlockItem
      * @return mixed
      */
     public function customizationForm() {
-        return $this->model()->customizationForm($this);
+        return $this->item()->customizationForm($this);
     }
     
     public function parameter($param) {

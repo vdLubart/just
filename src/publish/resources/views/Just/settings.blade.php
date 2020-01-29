@@ -7,7 +7,7 @@
 @else
     <div class="container">	
         <ul class="nav nav-pills">
-            @if(empty($block->model()->id))
+            @if(empty($block->item()->id))
             <li class="active">
                 <a href="#{{ $block->type }}_content" data-toggle="tab"><i class="fa fa-list"></i> @lang('block.content')</a>
             </li>
@@ -18,16 +18,16 @@
                 <a href="#{{ $block->type }}_blockSetup" data-toggle="tab"><i class="fa fa-cogs"></i> @lang('block.preferences.title')</a>
             </li>
             @endif
-            <li @if(!empty($block->model()->id) and empty($relBlock)) class="active" @endif>
+            <li @if(!empty($block->item()->id) and empty($relBlock)) class="active" @endif>
                 <a href="#{{ $block->type }}_settingsForm" data-toggle="tab">
-                    @if(empty($block->model()->id))
+                    @if(empty($block->item()->id))
                         <i class="fa fa-plus"></i> @lang('block.create')
                     @else
                         <i class="fa fa-pencil"></i> @lang('block.edit')
                     @endif
                 </a>
             </li>
-            @if(!empty($block->model()->id))
+            @if(!empty($block->item()->id))
                 @if($block->type === 'events')
                 <li>
                     <a href="#{{ $block->type }}_registrations" data-toggle="tab"></i><i class="fa fa-list"></i> @lang('block.registrations')</a>
@@ -45,7 +45,7 @@
             @endif
         </ul>
         <div class="tab-content clearfix">
-            @if(empty($block->model()->id))
+            @if(empty($block->item()->id))
             <div class="tab-pane active" id="{{ $block->type }}_content">
                 @if(!file_exists(resource_path('views/Just/settings/'.$block->type.'.blade.php')))
                     <?php
@@ -58,7 +58,7 @@
                     }
                     ?>
 
-                    @if(is_null($block->model()->id))
+                    @if(is_null($block->item()->id))
                         @include('Just.categoryFilter')
                     @endif
 
@@ -87,10 +87,10 @@
                 @include('Just.setupForm')
             </div>
             @endif
-            <div class="tab-pane @if(!empty($block->model()->id) and empty($relBlock)) active @endif" id="{{ $block->type }}_settingsForm">
+            <div class="tab-pane @if(!empty($block->item()->id) and empty($relBlock)) active @endif" id="{{ $block->type }}_settingsForm">
                 @include('Just.settingsForm')
             </div>
-            @if(!empty($block->model()->id))
+            @if(!empty($block->item()->id))
                 @if($block->type === 'events')
                 <div class="tab-pane" id="{{ $block->type }}_registrations">
                     @include('Just.settings.eventRegistrations')
