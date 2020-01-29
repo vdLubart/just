@@ -346,7 +346,7 @@ class Block extends Model implements BlockItem
         return $this->item->handleCrop($validatedRequest);
     }
     
-    public function deleteModel() {
+    public function deleteItem() {
         //Delete whole block
         if(is_null($this->item->id)){
             $this->deleteImage($this->item);

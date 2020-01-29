@@ -10,8 +10,11 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Response;
 use Just\Controllers\SettingsController;
 use Just\Models\Block;
+use Just\Models\Blocks\Events;
 use Just\Requests\ChangeBlockRequest;
 use Just\Requests\DeleteBlockRequest;
+use Just\Requests\Block\Admin\InitializeItemRequest;
+use Just\Tools\Useful;
 use Just\Validators\ValidatorExtended;
 
 class BlockController extends SettingsController {
@@ -59,7 +62,7 @@ class BlockController extends SettingsController {
             ];
         }
 
-        return $this->response($caption, $items, 'items', ['blockTabs'=>'content', 'blockId'=>$blockId]);
+        return $this->response($caption, $items, 'items', ['blockTabs'=>'content', 'blockId'=>$blockId, 'blockType'=>$block->type]);
     }
 
     /**
@@ -70,6 +73,22 @@ class BlockController extends SettingsController {
      */
     protected function findBlock($blockId) {
         return Block::find($blockId);
+    }
+
+    /**
+     * Specify block
+     *
+     * @param Request $request
+     * @return Block
+     */
+    private function specifyBlock(Request $request) {
+        $block = Block::find($request->block_id);
+
+        if (!empty($block)) {
+            $block->specify($request->id);
+        }
+
+        return $block;
     }
 
     /**
@@ -194,10 +213,9 @@ class BlockController extends SettingsController {
     }
 
     public function itemCrop(Request $request) {
-        if(empty($block = $this->findBlock($request->block_id))){
+        if(empty($block = $this->specifyBlock($request))){
             return redirect()->back();
         }
-        $block->specify($request->id);
 
         if(!empty($block)){
             $block->handleCrop($request);
@@ -209,6 +227,76 @@ class BlockController extends SettingsController {
 
         return Response::json($response);
     }
+
+    public function itemMoveUp(InitializeItemRequest $request) {
+        return $this->move($request, 'up');
+    }
+
+    public function itemMoveDown(InitializeItemRequest $request) {
+        return $this->move($request, 'down');
+    }
+
+    protected function move(InitializeItemRequest $request, $dir) {
+        $block = $this->specifyBlock($request);
+
+        if(!empty($block)){
+            $block->move($dir);
+        }
+
+        $response = new \stdClass();
+        $response->message = $this->itemTranslation('messages.success.item.moved');
+        $response->redirect = '/settings/block/' . $block->id;
+
+        return json_encode($response);
+    }
+
+    public function itemActivate(InitializeItemRequest $request) {
+        return $this->visibility($request, true);
+    }
+
+    public function itemDeactivate(InitializeItemRequest $request) {
+        return $this->visibility($request, false);
+    }
+
+    /**
+     * Change item visibility
+     *
+     * @param InitializeItemRequest $request
+     * @param boolean $visibility
+     * @return type
+     */
+    protected function visibility(InitializeItemRequest $request, $visibility) {
+        $block = $this->specifyBlock($request);
+
+        if(!empty($block)){
+            $block->visibility($visibility);
+        }
+
+        $response = new \stdClass();
+        $response->message = $this->itemTranslation('messages.success.item.' . ($visibility ? 'activated' : 'deactivated'));
+        $response->redirect = '/settings/block/' . $block->id;
+
+        return json_encode($response);
+    }
+
+    public function itemDelete(InitializeItemRequest $request) {
+        $block = $this->specifyBlock($request);
+
+        if(!empty($block)){
+            $block->deleteItem();
+
+            if(!$block->item() instanceof Events) {
+                Useful::normalizeOrder($block->item()->getTable());
+            }
+        }
+
+        $response = new \stdClass();
+        $response->message = $this->itemTranslation('messages.success.item.deleted');
+        $response->redirect = '/settings/block/' . $block->id;
+
+        return json_encode($response);
+    }
+
 
     public function blockList($pageId, $panelLocation) {
         $caption = [
@@ -229,7 +317,8 @@ class BlockController extends SettingsController {
                 'featureIcon' => $item->itemIcon(),
                 'text' => $item->itemText(),
                 'caption' => $item->itemCaption(),
-                'width' => $item->width
+                'width' => $item->width,
+                'isActive' => !!$item->isActive
             ];
         }
 

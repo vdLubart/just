@@ -45,6 +45,7 @@ return [
         'description' => 'Description',
         'name' => "Name",
         'no' => 'No',
-        'yes' => 'Yes'
+        'yes' => 'Yes',
+        'deactivated' => 'Unpublished'
     ]
 ];

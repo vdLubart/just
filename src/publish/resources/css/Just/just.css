@@ -63,10 +63,6 @@ nav.header {
   font-size: 48pt;
 }
 
-.inactive {
-  background-color: #cccccc;
-}
-
 .dragula-list-container-33 {
   display: grid;
   grid-template-columns: 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5% 8.5%;

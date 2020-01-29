@@ -45,6 +45,7 @@ return [
         'description' => 'Опис',
         'name' => "Ім'я",
         'no' => 'Ні',
-        'yes' => 'Так'
+        'yes' => 'Так',
+        'deactivated' => 'Неопублікований'
     ]
 ];

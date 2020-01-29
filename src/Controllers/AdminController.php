@@ -247,7 +247,7 @@ class AdminController extends Controller
         $block = $this->specifyBlock($request);
         
         if(!empty($block)){
-            $block->deleteModel();
+            $block->deleteItem();
             
             Useful::normalizeOrder($block->item()->getTable());
         }

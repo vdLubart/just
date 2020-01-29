@@ -135,7 +135,13 @@ return [
             'created' => 'Block was created successfully',
             'updated' => 'Block was updated successfully',
             'deleted' => 'Block was deleted successfully',
-            'customized' => 'Block parameters were saved successfully'
+            'customized' => 'Block parameters were saved successfully',
+            'item' => [
+                'activated' => 'Block item was published successfully',
+                'deactivated' => 'Block item was unpublished successfully',
+                'moved' => 'Block item was moved successfully',
+                'deleted' => 'Block item was deleted successfully'
+            ]
         ],
 
     ]

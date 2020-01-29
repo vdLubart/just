@@ -38,7 +38,21 @@
         data(){
             return {
                 editUrl: this.url,
+                postData: {
+                    _token: this.$root.csrf
+                },
+                postUri: ""
             }
+        },
+
+        created(){
+            let module = this.url.split('/')[0];
+
+            if(module === 'block'){
+                this.postData.block_id = this.url.split('/')[1];
+            }
+
+            this.postData.id = _.last(this.url.split('/'));
         },
 
         methods:{
@@ -47,33 +61,44 @@
             },
 
             deleteItem(){
-                axios.post('/settings/' + this.$parent.itemName + '/delete', {
-                    _token: this.$root.csrf,
-                    id: _.last(this.editUrl.split('/'))
-                }).then((response) => {
-                    this.$root.navigate(response.data.redirect).then(()=>{
-                        this.$root.$refs.settings.showSuccessMessage(response.data.message);
+                if(this.$parent.itemName === 'block'){
+                    this.postUri = '/settings/' + this.$parent.itemName + '/item/delete';
+                }
+                else {
+                    this.postUri = '/settings/' + this.$parent.itemName + '/delete';
+                }
+                this.fireAction();
+            },
 
-                        setTimeout(this.$root.$refs.settings.resetAlert, 5000);
-                    });
-                })
+            activateItem(){
+                this.postUri = '/settings/block/item/' + (!this.inactive ? 'deactivate':'activate');
+                this.fireAction();
+            },
+
+            moveItemUp(){
+                this.postUri = '/settings/block/item/moveup';
+                this.fireAction();
+            },
+
+            moveItemDown(){
+                this.postUri = '/settings/block/item/movedown';
+                this.fireAction();
+            },
+
+            fireAction(){
+                axios.post(this.postUri, this.postData)
+                    .then((response) => {
+                        this.$root.navigate(response.data.redirect).then(()=>{
+                            this.$root.$refs.settings.showSuccessMessage(response.data.message);
+
+                            setTimeout(this.$root.$refs.settings.resetAlert, 5000);
+                        });
+                    })
                     .catch((error) => {
                         console.log("Cannot receive data.");
                         console.log(error.response);
                         this.$root.$refs.settings.showErrors(error.response.data);
                     });
-            },
-
-            activateItem(){
-
-            },
-
-            moveItemUp(){
-
-            },
-
-            moveItemDown(){
-
             }
         }
     }

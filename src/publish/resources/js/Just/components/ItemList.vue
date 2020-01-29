@@ -4,7 +4,7 @@
         <span v-if="isWaitingData">Loading data...</span>
         <span v-else-if="emptyContent">There are no items found...</span>
         <div v-else class="settings-list-component">
-            <div class="thumbnail" v-for="(item, key) in content" :key="key" :class="'w'+ item.width">
+            <div class="thumbnail" v-for="(item, key) in content" :key="key" :class="'w'+ item.width + (item.isActive?'':' inactive')">
                 <slink v-if="!isEmpty(item.image)" :href="'/settings/' + key">
                     <img :src="item.image" />
                 </slink>
@@ -18,11 +18,12 @@
                 </div>
 
                 <div class="caption">
+                    {{ !item.isActive ? '[' + __('common.deactivated') + ']' : '' }}
                     <slink :href="'/settings/' + key" v-if="!isEmpty(item.caption)">
                         <strong>{{ item.caption }}</strong>
                     </slink><br/>
 
-                    <edit-item :url="key" :activating="activating" :moving="moving"></edit-item>
+                    <edit-item :url="key" :activating="activating" :moving="moving" :inactive="!item.isActive"></edit-item>
                 </div>
             </div>
         </div>
@@ -61,6 +62,10 @@
                 this.itemName = _.first(_.first(Object.keys(this.content)).split('/')),
                 this.activating = !_.includes(['layout', 'page'], this.itemName),
                 this.moving = !_.includes(['layout', 'page'], this.itemName)
+
+                if(this.itemName === 'block' && this.$root.settings.responseParameters.blockType === 'events'){
+                    this.moving = false;
+                }
             }
             else{
                 this.emptyContent = true;
@@ -103,6 +108,10 @@
 
     .settings-list-component > div.w12{
         flex: 1 0 98%;
+    }
+
+    .settings-list-component .inactive{
+        background-color: #ccc;
     }
 
 </style>

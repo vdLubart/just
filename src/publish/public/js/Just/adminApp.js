@@ -3061,20 +3061,51 @@ __webpack_require__.r(__webpack_exports__);
   },
   data: function data() {
     return {
-      editUrl: this.url
+      editUrl: this.url,
+      postData: {
+        _token: this.$root.csrf
+      },
+      postUri: ""
     };
+  },
+  created: function created() {
+    var module = this.url.split('/')[0];
+
+    if (module === 'block') {
+      this.postData.block_id = this.url.split('/')[1];
+    }
+
+    this.postData.id = _.last(this.url.split('/'));
   },
   methods: {
     confirmDeleting: function confirmDeleting() {
       this.$root.$refs.settings.askConfirmation("Do you confirm deleting this item?", this.deleteItem);
     },
     deleteItem: function deleteItem() {
+      if (this.$parent.itemName === 'block') {
+        this.postUri = '/settings/' + this.$parent.itemName + '/item/delete';
+      } else {
+        this.postUri = '/settings/' + this.$parent.itemName + '/delete';
+      }
+
+      this.fireAction();
+    },
+    activateItem: function activateItem() {
+      this.postUri = '/settings/block/item/' + (!this.inactive ? 'deactivate' : 'activate');
+      this.fireAction();
+    },
+    moveItemUp: function moveItemUp() {
+      this.postUri = '/settings/block/item/moveup';
+      this.fireAction();
+    },
+    moveItemDown: function moveItemDown() {
+      this.postUri = '/settings/block/item/movedown';
+      this.fireAction();
+    },
+    fireAction: function fireAction() {
       var _this = this;
 
-      axios.post('/settings/' + this.$parent.itemName + '/delete', {
-        _token: this.$root.csrf,
-        id: _.last(this.editUrl.split('/'))
-      }).then(function (response) {
+      axios.post(this.postUri, this.postData).then(function (response) {
         _this.$root.navigate(response.data.redirect).then(function () {
           _this.$root.$refs.settings.showSuccessMessage(response.data.message);
 
@@ -3086,10 +3117,7 @@ __webpack_require__.r(__webpack_exports__);
 
         _this.$root.$refs.settings.showErrors(error.response.data);
       });
-    },
-    activateItem: function activateItem() {},
-    moveItemUp: function moveItemUp() {},
-    moveItemDown: function moveItemDown() {}
+    }
   }
 });
 
@@ -4281,6 +4309,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -4305,6 +4334,10 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     if (Object.keys(this.content).length) {
       this.itemName = _.first(_.first(Object.keys(this.content)).split('/')), this.activating = !_.includes(['layout', 'page'], this.itemName), this.moving = !_.includes(['layout', 'page'], this.itemName);
+
+      if (this.itemName === 'block' && this.$root.settings.responseParameters.blockType === 'events') {
+        this.moving = false;
+      }
     } else {
       this.emptyContent = true;
     }
@@ -8252,7 +8285,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../../../../node_mod
 
 
 // module
-exports.push([module.i, "\n.settings-list-component{\n    display: -webkit-box;\n    display: flex;\n    flex-wrap: wrap;\n}\n.settings-list-component > div{\n    -webkit-box-flex: 1;\n            flex: 1 0 98%;\n    margin: 1%;\n}\n.settings-list-component > div.w3{\n    -webkit-box-flex: 1;\n            flex: 1 0 23%; /* (100% - 2x4x1%) / 4 = 23% */\n}\n.settings-list-component > div.w4{\n    -webkit-box-flex: 1;\n            flex: 1 0 31%; /* (100% - 2x3x1%) / 3 = 31.3% */\n}\n.settings-list-component > div.w6{\n    -webkit-box-flex: 1;\n            flex: 1 0 48%; /* (100% - 2x2x1%) / 2 = 48% */\n}\n.settings-list-component > div.w8{\n    -webkit-box-flex: 1;\n            flex: 1 0 65%;\n}\n.settings-list-component > div.w9{\n    -webkit-box-flex: 1;\n            flex: 1 0 73%;\n}\n.settings-list-component > div.w12{\n    -webkit-box-flex: 1;\n            flex: 1 0 98%;\n}\n\n", ""]);
+exports.push([module.i, "\n.settings-list-component{\n    display: -webkit-box;\n    display: flex;\n    flex-wrap: wrap;\n}\n.settings-list-component > div{\n    -webkit-box-flex: 1;\n            flex: 1 0 98%;\n    margin: 1%;\n}\n.settings-list-component > div.w3{\n    -webkit-box-flex: 1;\n            flex: 1 0 23%; /* (100% - 2x4x1%) / 4 = 23% */\n}\n.settings-list-component > div.w4{\n    -webkit-box-flex: 1;\n            flex: 1 0 31%; /* (100% - 2x3x1%) / 3 = 31.3% */\n}\n.settings-list-component > div.w6{\n    -webkit-box-flex: 1;\n            flex: 1 0 48%; /* (100% - 2x2x1%) / 2 = 48% */\n}\n.settings-list-component > div.w8{\n    -webkit-box-flex: 1;\n            flex: 1 0 65%;\n}\n.settings-list-component > div.w9{\n    -webkit-box-flex: 1;\n            flex: 1 0 73%;\n}\n.settings-list-component > div.w12{\n    -webkit-box-flex: 1;\n            flex: 1 0 98%;\n}\n.settings-list-component .inactive{\n    background-color: #ccc;\n}\n\n", ""]);
 
 // exports
 
@@ -94653,7 +94686,11 @@ var render = function() {
           _vm._l(_vm.content, function(item, key) {
             return _c(
               "div",
-              { key: key, staticClass: "thumbnail", class: "w" + item.width },
+              {
+                key: key,
+                staticClass: "thumbnail",
+                class: "w" + item.width + (item.isActive ? "" : " inactive")
+              },
               [
                 !_vm.isEmpty(item.image)
                   ? _c("slink", { attrs: { href: "/settings/" + key } }, [
@@ -94685,6 +94722,15 @@ var render = function() {
                   "div",
                   { staticClass: "caption" },
                   [
+                    _vm._v(
+                      "\n                " +
+                        _vm._s(
+                          !item.isActive
+                            ? "[" + _vm.__("common.deactivated") + "]"
+                            : ""
+                        ) +
+                        "\n                "
+                    ),
                     !_vm.isEmpty(item.caption)
                       ? _c("slink", { attrs: { href: "/settings/" + key } }, [
                           _c("strong", [_vm._v(_vm._s(item.caption))])
@@ -94696,7 +94742,8 @@ var render = function() {
                       attrs: {
                         url: key,
                         activating: _vm.activating,
-                        moving: _vm.moving
+                        moving: _vm.moving,
+                        inactive: !item.isActive
                       }
                     })
                   ],
