@@ -9,13 +9,13 @@
     @foreach($block->content() as $event)
         <div class="col-md-2">
             {{ $event->start_date }} -
-            {{ $event->end_date }} at
+            {{ $event->end_date }},
             {{ $event->location }}
         </div>
         @if(!empty($event->image))
         <div class="col-md-4">
             <a href="{{ url((\Config::get('isAdmin')?'admin/':'') . $block->parameter('itemRouteBase'), ['id'=>$event->slug]) }}">
-                <img src="{{ $event->imageSource(4) }}" />
+                <img src="{{ $event->imageSource(4) }}" width="300" />
             </a>
         </div>
         @endif
@@ -30,6 +30,8 @@
             </div>
         </div>
     @endforeach
+
+    <div class="clearfix"></div>
 
     <h3>@lang('events.pastEvents')</h3>
 

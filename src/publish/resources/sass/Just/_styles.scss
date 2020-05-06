@@ -50,3 +50,13 @@ nav.header{
 .dragula-list-container-200{display:grid;grid-template-columns:50% 50%}
 .dragula-list-container-400{display:grid;grid-template-columns:100%}
 .dragula-list-item{margin:5px;-ms-flex-item-align:center;align-self:center}
+
+.flex{
+    display: flex;
+    flex-wrap: wrap;
+
+    .col{
+        flex-grow: 1;
+        flex-basis: 0;
+    }
+}
