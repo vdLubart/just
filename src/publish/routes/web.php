@@ -106,14 +106,21 @@ Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
 
         Route::post('setup', '\Just\Controllers\Settings\BlockController@setup');
         Route::post('customize', '\Just\Controllers\Settings\BlockController@customize');
+        Route::post('moveup', '\Just\Controllers\Settings\BlockController@moveUp');
+        Route::post('movedown', '\Just\Controllers\Settings\BlockController@moveDown');
+        Route::post('activate', '\Just\Controllers\Settings\BlockController@activate');
+        Route::post('deactivate', '\Just\Controllers\Settings\BlockController@deactivate');
         Route::post('delete', '\Just\Controllers\Settings\BlockController@delete');
-        Route::post('item/setup', '\Just\Controllers\Settings\BlockController@itemSetup');
-        Route::post('item/crop', '\Just\Controllers\Settings\BlockController@itemCrop');
-        Route::post('item/moveup', '\Just\Controllers\Settings\BlockController@itemMoveUp');
-        Route::post('item/movedown', '\Just\Controllers\Settings\BlockController@itemMoveDown');
-        Route::post('item/activate', '\Just\Controllers\Settings\BlockController@itemActivate');
-        Route::post('item/deactivate', '\Just\Controllers\Settings\BlockController@itemDeactivate');
-        Route::post('item/delete', '\Just\Controllers\Settings\BlockController@itemDelete');
+
+        Route::prefix('item')->group(function(){
+            Route::post('setup', '\Just\Controllers\Settings\BlockController@itemSetup');
+            Route::post('crop', '\Just\Controllers\Settings\BlockController@itemCrop');
+            Route::post('moveup', '\Just\Controllers\Settings\BlockController@itemMoveUp');
+            Route::post('movedown', '\Just\Controllers\Settings\BlockController@itemMoveDown');
+            Route::post('activate', '\Just\Controllers\Settings\BlockController@itemActivate');
+            Route::post('deactivate', '\Just\Controllers\Settings\BlockController@itemDeactivate');
+            Route::post('delete', '\Just\Controllers\Settings\BlockController@itemDelete');
+        });
     });
 });
 

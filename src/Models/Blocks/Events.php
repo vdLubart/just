@@ -23,7 +23,7 @@ use Spatie\Translatable\HasTranslations;
 class Events extends AbstractItem implements ContainsPublicForm
 {
     use HasTranslations, Slug;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -32,9 +32,9 @@ class Events extends AbstractItem implements ContainsPublicForm
     protected $fillable = [
         'subject', 'summary', 'slug', 'text', 'location', 'image', 'date_start', 'date_end'
     ];
-    
+
     protected $table = 'events';
-    
+
     protected $registerUrl = 'register-event';
 
     public $translatable = ['subject', 'summary', 'text', 'location'];
@@ -91,7 +91,7 @@ class Events extends AbstractItem implements ContainsPublicForm
 
         return $collection;
     }
-    
+
     public function setup() {
         if(!empty($this->block->parameter('itemRouteBase')) and !Useful::isRouteExists($this->block->parameter('itemRouteBase') . "/{id}")){
             JustRoute::where('block_id', $this->block_id)->delete();
@@ -126,8 +126,8 @@ class Events extends AbstractItem implements ContainsPublicForm
             ]);
         }
     }
-    
-    public function settingsForm(): Form {
+
+    public function itemForm(): Form {
         if(is_null($this->form)){
             return new Form();
         }
@@ -203,9 +203,9 @@ class Events extends AbstractItem implements ContainsPublicForm
         $this->form->addGroup($descriptionGroup);
 
         $this->includeAddons();
-        
+
         $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
-        
+
         return $this->form;
     }
 
@@ -246,16 +246,16 @@ class Events extends AbstractItem implements ContainsPublicForm
 
         return $form;
     }
-    
-    public function handleSettingsForm(ValidateRequest $request) {
+
+    public function handleItemForm(ValidateRequest $request) {
         if(!file_exists(public_path('storage/'.$this->table))){
             mkdir(public_path('storage/'.$this->table), 0775, true);
         }
-        
+
         if(!is_null($request->file('image'))){
             $image = Image::make($request->file('image'));
         }
-        
+
         if(is_null($request->id)){
             $event = new Events;
         }
@@ -278,9 +278,9 @@ class Events extends AbstractItem implements ContainsPublicForm
         $event->summary = $request->summary;
         $event->text = $request->text;
         $event->save();
-        
+
         $this->handleAddons($request, $event);
-        
+
         if(!is_null($request->file('image'))){
             $image->encode('png')->save(public_path('storage/'.$this->table.'/'.$event->image.".png"));
 
@@ -291,7 +291,7 @@ class Events extends AbstractItem implements ContainsPublicForm
                 $this->multiplicateImage($event->image);
             }
         }
-        
+
         return $event;
     }
 

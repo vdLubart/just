@@ -33,8 +33,6 @@ class Features extends AbstractItem
 
     protected $table = 'features';
 
-    protected $neededParameters = [ 'itemsInRow' ];
-
     public function setup() {
         if(!Useful::isRouteExists("iconset/{id}/{page?}")){
             JustRoute::create([
@@ -46,7 +44,7 @@ class Features extends AbstractItem
         }
     }
 
-    public function settingsForm(): Form {
+    public function itemForm(): Form {
         if(is_null($this->form)){
             return new Form();
         }
@@ -96,7 +94,7 @@ class Features extends AbstractItem
         return $form;
     }
 
-    public function handleSettingsForm(ValidateRequest $request) {
+    public function handleItemForm(ValidateRequest $request) {
         if(is_null($request->id)){
             $feature = new Features;
             $feature->orderNo = Useful::getMaxNo($this->table, ['block_id'=>$request->block_id]);

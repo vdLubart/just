@@ -9,9 +9,9 @@ use Lubart\Form\Form;
 
 interface BlockItem {
 
-    public function settingsForm(): Form;
+    public function itemForm(): Form;
 
-    public function handleSettingsForm(ValidateRequest $request);
+    public function handleItemForm(ValidateRequest $request);
 
     /**
      * Return image code for the list item

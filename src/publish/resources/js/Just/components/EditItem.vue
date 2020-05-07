@@ -61,8 +61,8 @@
             },
 
             deleteItem(){
-                if(this.$parent.itemName === 'block'){
-                    this.postUri = '/settings/' + this.$parent.itemName + '/item/delete';
+                if(this.$root.settings.responseParameters.blockType){
+                    this.postUri = '/settings/block/item/delete';
                 }
                 else {
                     this.postUri = '/settings/' + this.$parent.itemName + '/delete';
@@ -71,17 +71,32 @@
             },
 
             activateItem(){
-                this.postUri = '/settings/block/item/' + (!this.inactive ? 'deactivate':'activate');
+                if(this.$root.settings.responseParameters.blockType){
+                    this.postUri = '/settings/block/item/' + (!this.inactive ? 'deactivate':'activate');
+                }
+                else {
+                    this.postUri = '/settings/' + this.$parent.itemName + '/' + (!this.inactive ? 'deactivate':'activate');
+                }
                 this.fireAction();
             },
 
             moveItemUp(){
-                this.postUri = '/settings/block/item/moveup';
+                if(this.$root.settings.responseParameters.blockType){
+                    this.postUri = '/settings/block/item/moveup';
+                }
+                else {
+                    this.postUri = '/settings/' + this.$parent.itemName + '/moveup';
+                }
                 this.fireAction();
             },
 
             moveItemDown(){
-                this.postUri = '/settings/block/item/movedown';
+                if(this.$root.settings.responseParameters.blockType){
+                    this.postUri = '/settings/block/item/movedown';
+                }
+                else {
+                    this.postUri = '/settings/' + this.$parent.itemName + '/movedown';
+                }
                 this.fireAction();
             },
 

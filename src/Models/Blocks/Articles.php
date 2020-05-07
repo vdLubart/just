@@ -25,7 +25,7 @@ class Articles extends AbstractItem
     protected $fillable = [
         'subject', 'summary', 'text', 'slug', 'image'
     ];
-    
+
     protected $table = 'articles';
 
     public $translatable = ['subject', 'summary', 'text'];
@@ -51,7 +51,7 @@ class Articles extends AbstractItem
         }
     }
 
-    public function settingsForm(): Form {
+    public function itemForm(): Form {
         if(is_null($this->form)){
             return new Form();
         }
@@ -111,7 +111,7 @@ class Articles extends AbstractItem
         return $form;
     }
 
-    public function handleSettingsForm(ValidateRequest $request) {
+    public function handleItemForm(ValidateRequest $request) {
         if(!file_exists(public_path('storage/'.$this->table))){
             mkdir(public_path('storage/'.$this->table), 0775);
         }

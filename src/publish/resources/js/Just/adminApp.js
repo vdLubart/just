@@ -10,11 +10,13 @@
 import Vue from 'vue';
 import Link from './components/Link';
 import Settings from './components/Settings';
+import IconSet from './components/FormLogic/Block/IconSet';
 
 Vue.config.devtools = true;
 
 Vue.component('slink', Link);
 Vue.component('settings', Settings);
+Vue.component('icon-set', IconSet);
 
 export const eventBus = new Vue();
 

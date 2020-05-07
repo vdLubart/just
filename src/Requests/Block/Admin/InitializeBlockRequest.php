@@ -9,7 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Models\User;
 
-class InitializeItemRequest extends FormRequest implements ValidateRequest{
+class InitializeBlockRequest extends FormRequest implements ValidateRequest{
 
 
     public function authorize() {
@@ -18,8 +18,7 @@ class InitializeItemRequest extends FormRequest implements ValidateRequest{
 
     public function rules() {
         return [
-            'id' => 'required|integer|min:1',
-            'block_id' => 'required|integer|exists:blocks,id',
+            'id' => 'required|integer|exists:blocks',
         ];
     }
 }

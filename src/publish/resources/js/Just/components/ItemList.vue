@@ -9,9 +9,9 @@
                     <img :src="item.image" />
                 </slink>
 
-                <h1 v-if="!isEmpty(item.featureIcon)" class='featureItem'>
-                    {{ item.featureIcon }}
-                </h1>
+                <slink v-if="!isEmpty(item.featureIcon)" :href="'/settings/' + key">
+                    <h1 v-if="!isEmpty(item.featureIcon)" class='featureItem' v-html="item.featureIcon"></h1>
+                </slink>
 
                 <div v-if="!isEmpty(item.text)">
                     {{ item.text }}

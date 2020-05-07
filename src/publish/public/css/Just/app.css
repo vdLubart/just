@@ -13734,6 +13734,18 @@ nav.header {
   align-self: center;
 }
 
+.flex {
+  display: -webkit-box;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex .col {
+  -webkit-box-flex: 1;
+          flex-grow: 1;
+  flex-basis: 0;
+}
+
 .settings-component .settingsContent {
   background-color: white;
   padding: 20px 10px;

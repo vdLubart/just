@@ -19,7 +19,7 @@ class InitializeItemRequest extends FormRequest implements ValidateRequest{
     public function rules() {
         return [
             'id' => 'required|integer|min:1',
-            'block_id' => 'required|integer|min:1',
+            'block_id' => 'required|integer|exists:blocks,id',
         ];
     }
 }

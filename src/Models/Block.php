@@ -38,7 +38,7 @@ class Block extends Model implements BlockItem
     ];
 
     public $translatable = ['title', 'description'];
-    
+
     protected $table = 'blocks';
 
     /**
@@ -47,19 +47,19 @@ class Block extends Model implements BlockItem
      * @var AbstractItem $item
      */
     protected $item;
-    
+
     /**
      * Access parent block from the related block
-     * 
+     *
      * @var Block $parentBlock
      */
     protected $parentBlock = null;
-    
+
     protected $currentCategory = null;
-    
+
     /**
      * Specify model and addons for current block
-     * 
+     *
      * @param int $id
      * @return $this
      * @throws \Exception
@@ -90,15 +90,15 @@ class Block extends Model implements BlockItem
 
         return $this;
     }
-    
+
     /**
      * Unsettle model data
-     * 
+     *
      * @return $this
      */
     public function unsettle(){
         $this->item = null;
-        
+
         return $this->unsettleAddons();
     }
 
@@ -112,20 +112,20 @@ class Block extends Model implements BlockItem
 
         return $this;
     }
-    
+
     public function form() {
         $form = $this->item->form();
         if(!is_null($form) and is_null($form->getElement('block_id'))){
             $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->id]));
             $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->item->id]));
         }
-        
+
         return $form;
     }
-    
+
     public function relationsForm($relBlock) {
         $form = $this->item->relationsForm($relBlock);
-        
+
         return $form;
     }
 
@@ -135,9 +135,9 @@ class Block extends Model implements BlockItem
      * @return Form
      * @throws \Exception
      */
-    public function settingsForm(): Form {
+    public function itemForm(): Form {
         $form = new Form('/settings/block/setup');
-        
+
         if(empty($form->elements())){
             $blockGroup = new FormGroup('blockGroup', __('block.createForm.blockData'), ['class'=>'fullWidth twoColumns']);
             $blockGroup->add(FormElement::hidden(['name'=>'panelLocation', 'value'=>$this->panelLocation]));
@@ -168,41 +168,41 @@ class Block extends Model implements BlockItem
             }
             $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
         }
-        
+
         return $form;
     }
-    
+
     public function blockForm() {
         $form = $this->panelForm();
         $form->setAction('/admin/settings/block/setup');
-        
+
         return $form;
     }
-    
+
     public function allBlocksSelect() {
         $blocks = BlockList::all();
-        
+
         $select = [];
         foreach($blocks as $block){
             $select[$block->block] = __('block.type.'.$block->block.'.title');
         }
-        
+
         return $select;
     }
-    
+
     public function content() {
         return $this->item()->content();
     }
-    
+
     /**
      * Return first item from content
-     * 
+     *
      * @return mixed
      */
     public function firstItem(){
         return $this->content()->first();
     }
-    
+
     /**
      * Return parent block
      * @param boolean $highestLevel is parent of top level should be returned
@@ -211,7 +211,7 @@ class Block extends Model implements BlockItem
     public function parentBlock($highestLevel = false){
         if(!is_null($this->parent)){
             $parentBlock = Block::find($this->parent);
-            
+
             if(!$highestLevel){
                 return $parentBlock;
             }
@@ -223,21 +223,21 @@ class Block extends Model implements BlockItem
             return $this;
         }
     }
-    
+
     /**
      * Return item to which current block is connected
-     * 
+     *
      * @return mixed
      */
     public function parentItem(){
         $parentBlock = $this->parentBlock()->specify()->item();
-        
+
         $itemId = DB::table($parentBlock->getTable()."_blocks")->where("block_id", $this->id)->get(["modelItem_id"]);
-        
+
         if(!$itemId->isEmpty()){
             return $parentBlock::find($itemId->first()->modelItem_id);
         }
-        
+
         return null;
     }
 
@@ -257,10 +257,10 @@ class Block extends Model implements BlockItem
 
         return $validatorClass;
     }
-    
+
     public function handleItemSetupForm(Request $request, $isPublic = false) {
         if(!$isPublic) {
-            $method = 'handleSettingsForm';
+            $method = 'handleItemForm';
 
             // looking for a custom request validator
             $validatorClass = $this->findValidationRequest();
@@ -333,7 +333,7 @@ class Block extends Model implements BlockItem
     public function handleCrop(Request $request) {
         $reflection = new \ReflectionMethod($this->item, 'handleCrop');
         $validatorClass = $reflection->getParameters()[0]->getClass()->name;
-        
+
         $validatedRequest = new $validatorClass;
         if($validatedRequest->authorize()){
             $validData = $request->validate($validatedRequest->rules()+['block_id' => "required|integer|min:1"], $validatedRequest->messages());
@@ -345,7 +345,7 @@ class Block extends Model implements BlockItem
 
         return $this->item->handleCrop($validatedRequest);
     }
-    
+
     public function deleteItem() {
         //Delete whole block
         if(is_null($this->item->id)){
@@ -358,7 +358,7 @@ class Block extends Model implements BlockItem
             $this->item->delete();
         }
     }
-    
+
     protected function deleteImage($model) {
         if(isset($model->getAttributes()['image'])){
             foreach (glob(public_path('storage/'.$model->getTable().'/*').$model->image."*") as $img){
@@ -366,27 +366,27 @@ class Block extends Model implements BlockItem
             }
         }
     }
-    
+
     public static function findModel($blockId, $id) {
         $block = self::find($blockId);
-        
+
         if(!$block){
             return null;
         }
-        
+
         $block->specify($id);
-        
+
         return $block;
     }
-    
+
     public static function findByName($name){
         $block = self::where('name', $name)->get();
-        
+
         if($block->isEmpty()){
             return null;
         }
-        
-        return $block->first(); 
+
+        return $block->first();
     }
 
     /**
@@ -402,7 +402,7 @@ class Block extends Model implements BlockItem
 
         return $this->item;
     }
-    
+
     public function items() {
         return $this->hasMany($this->itemClassName());
     }
@@ -420,7 +420,7 @@ class Block extends Model implements BlockItem
 
         return $name;
     }
-    
+
     public function move($dir) {
         // Move whole block
         if(is_null($this->item->id)){
@@ -428,7 +428,7 @@ class Block extends Model implements BlockItem
                     'panelLocation' => $this->panelLocation,
                     'page_id' => $this->page_id
                 ];
-            
+
             return Useful::moveModel($this->unsettle(), $dir, $where);
         }
         // Move model item in the block
@@ -436,7 +436,7 @@ class Block extends Model implements BlockItem
             return $this->item->move($dir);
         }
     }
-    
+
     public function moveTo($newPosition) {
         // Move whole block
         if(is_null($this->item->id)){
@@ -444,7 +444,7 @@ class Block extends Model implements BlockItem
                     'panelLocation' => $this->panelLocation,
                     'page_id' => $this->page_id
                 ];
-            
+
             return Useful::moveModelTo($this, $newPosition, $where);
         }
         // Move model item in the block
@@ -452,7 +452,7 @@ class Block extends Model implements BlockItem
             $this->item->moveTo($newPosition);
         }
     }
-    
+
     public function visibility($visibility) {
         if(is_null($this->item->id)){
             $model = $this->unsettle();
@@ -466,7 +466,7 @@ class Block extends Model implements BlockItem
 
         return $model;
     }
-    
+
     public function isSetted() {
         $isSetted = true;
         foreach($this->item->neededParameters() as $param){
@@ -487,26 +487,26 @@ class Block extends Model implements BlockItem
     public function customizationForm() {
         return $this->item()->customizationForm($this);
     }
-    
+
     public function parameter($param) {
         return @$this->parameters->{$param};
     }
-    
+
     /**
      * Return current layout
-     * 
+     *
      * @return Layout
      */
     public function layout() {
         $url = trim(str_replace(request()->root()."/admin", '', request()->server('HTTP_REFERER')), '/');
         $route = app('router')->getRoutes()->match(app('request')->create($url));
-        
+
         return @Page::where('route', trim($route->uri, '/'))->first()->layout;
     }
-    
+
     /**
      * Return add-ons related to the current block
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function addons() {
@@ -522,56 +522,56 @@ class Block extends Model implements BlockItem
     public static function addon($name) {
         return AddOn::where('name', $name)->first();
     }
-    
+
     /**
      * Return panel where block is located
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function panel() {
         return $this->belongsTo(Panel::class);
     }
-    
+
     /**
      * Specify block panel
-     * 
+     *
      * @param Panel $panel
      * @return Block
      */
     public function setPanel(Panel $panel) {
         $this->panel_id = $panel->id;
         $this->page_id = is_null($panel->page())?null:$panel->page()->id;
-        
+
         return $this;
     }
-    
+
     public function categories() {
         return $this->addons()->where('type', 'categories');
     }
-    
+
     public function strings() {
         return $this->addons()->where('type', 'strings');
     }
-    
+
     public function images() {
         return $this->addons()->where('type', 'images');
     }
-    
+
     public function paragraphs() {
         return $this->addons()->where('type', 'paragraphs');
     }
-    
+
     public function currentCategory() {
         if(is_null($this->currentCategory)){
             $this->currentCategory = Categories::where('value', request('category'))->first();
         }
-        
+
         return $this->currentCategory;
     }
-    
+
     /**
      * Page belongs to the current block
-     * 
+     *
      * @return type
      */
     public function page() {
@@ -588,20 +588,20 @@ class Block extends Model implements BlockItem
 
         return $page;
     }
-    
+
     /**
      * Create migration for relationship between model and block
-     * 
+     *
      * @param type $modelTable
      */
     public static function createPivotTable($modelTable) {
         if(!Schema::hasTable($modelTable."_blocks")){
             Artisan::call("make:relatedBlockMigration", ["name" => "create_".$modelTable."_blocks_table"]);
-            
+
             Artisan::call("migrate", ["--step" => true]);
         }
     }
-    
+
     public function details(){
         return $this->join('blockList', $this->table.'.type', '=', 'blockList.block')
                 ->where($this->table.'.id', $this->id)

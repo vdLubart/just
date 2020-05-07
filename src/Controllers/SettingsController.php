@@ -91,7 +91,7 @@ abstract class SettingsController extends Controller
 
         switch ($type){
             case 'form':
-                $response->content = $content->settingsForm()->toJson();
+                $response->content = $content->itemForm()->toJson();
                 break;
             case 'items':
                 $response->content = $this->buildItemList($content);
@@ -144,7 +144,7 @@ abstract class SettingsController extends Controller
     }
 
     protected function listView($caption = []) {
-        $items = $this->itemClass()::all();
+        $items = $this->itemClass()::orderBy('orderNo')->get();
 
         if(empty($caption)){
             $caption = [
@@ -158,7 +158,7 @@ abstract class SettingsController extends Controller
 
     protected function addOnListView($addOn) {
         $addOnClass = '\\Just\\Models\\Blocks\\AddOns\\' . ucfirst(Str::plural($addOn));
-        $items = $addOnClass::all();
+        $items = $addOnClass::orderBy('orderNo')->get();
         $caption = [
             '/settings/' . $this->itemKebabName() => $this->itemTranslation('title'),
             '/settings/' . $this->itemKebabName() . '/' . $addOn => $this->itemTranslation($addOn . '.title'),

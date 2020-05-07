@@ -16,10 +16,10 @@ use Illuminate\Support\Facades\Schema;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 
 abstract class AbstractItem extends Model implements BlockItem
-{   
+{
     /**
      * Block settings form
-     * 
+     *
      * @var Form $form
      */
     protected $form;
@@ -30,9 +30,9 @@ abstract class AbstractItem extends Model implements BlockItem
      * @var array $neededParameters
      */
     protected $neededParameters = [];
-    
+
     protected $parameters = [];
-    
+
     protected $imageSizes = [12, 9, 8, 6, 4, 3];
 
     /**
@@ -50,7 +50,7 @@ abstract class AbstractItem extends Model implements BlockItem
      * @var array
      */
     protected $publicRequestValidationMessages = [];
-    
+
     public function __construct() {
         parent::__construct();
 
@@ -58,10 +58,10 @@ abstract class AbstractItem extends Model implements BlockItem
             $this->form = new Form('/settings/block/item/setup');
         }
     }
-    
+
     /**
      * Block content
-     * 
+     *
      * @return mixed
      */
     public function content() {
@@ -131,13 +131,13 @@ abstract class AbstractItem extends Model implements BlockItem
     protected function limitContent(&$content){
         return $content;
     }
-    
+
     /**
      * Return block settings form for admin panel
-     * 
+     *
      * @return SettingsForm
      */
-    abstract public function settingsForm(): Form;
+    abstract public function itemForm(): Form;
 
     /**
      * Return block settings title in the current locale
@@ -154,7 +154,7 @@ abstract class AbstractItem extends Model implements BlockItem
      * @param Contracts\ValidateRequest $request
      * @return mixed
      */
-    abstract public function handleSettingsForm(ValidateRequest $request);
+    abstract public function handleItemForm(ValidateRequest $request);
 
     /**
      * Return parameters should be set before use block
@@ -164,10 +164,10 @@ abstract class AbstractItem extends Model implements BlockItem
     public function neededParameters() {
         return $this->neededParameters;
     }
-    
+
     /**
      * Change an order
-     * 
+     *
      * @param string $dir direction, available values are up, down
      * @param array $where where statement
      */
@@ -175,13 +175,13 @@ abstract class AbstractItem extends Model implements BlockItem
         if(empty($where)){
             $where = ['block_id' => $this->block->id];
         }
-        
+
         Useful::moveModel($this, $dir, $where);
     }
-    
+
     /**
      * Change an order and put model to the specific position
-     * 
+     *
      * @param integer $newPosition new element position
      * @param array $where where statement
      */
@@ -189,13 +189,13 @@ abstract class AbstractItem extends Model implements BlockItem
         if(empty($where)){
             $where = ['block_id' => $this->block->id];
         }
-        
+
         Useful::moveModelTo($this, $newPosition, $where);
     }
-    
+
     /**
      * Treat request with image crop data
-     * 
+     *
      * @param CropRequest $request
      * @return \Intervention\Image\Image
      */
@@ -208,15 +208,15 @@ abstract class AbstractItem extends Model implements BlockItem
 
         $image->crop($request->w, $request->h, $request->x, $request->y);
         $image->save($this->imagePath());
-        
+
         $this->multiplicateImage($this->image);
-        
+
         return $image;
     }
-    
+
     /**
      * Make copies of the image with different sizes
-     * 
+     *
      * @return void
      */
     public function multiplicateImage($imageCode) {
@@ -239,22 +239,22 @@ abstract class AbstractItem extends Model implements BlockItem
             $image = Image::make($this->imagePath());
             $image->save($this->imagePathByCode($imageCode));
         }
-        
+
         return;
     }
-    
+
     /**
      * Set model parameters
-     * 
+     *
      * @param array $parameters
      */
     public function setParameters($parameters) {
         $this->parameters = $parameters;
     }
-    
+
     /**
      * Get specific block parameter by name
-     * 
+     *
      * @param string $param parameter name
      * @param boolean $decode apply json_decode if needed
      * @return mixed
@@ -268,32 +268,32 @@ abstract class AbstractItem extends Model implements BlockItem
 
         return $param;
     }
-    
+
     /**
      * Presetup current block
-     * 
+     *
      * @return void
      */
     public function setup() {
         return;
     }
-    
+
     public function setBlock($block_id) {
         $this->setAttribute('block_id', $block_id);
     }
-    
+
     /**
      * Return current block
-     * 
+     *
      * @return Block
      */
     protected function block() {
         return $this->belongsTo(Block::class);
     }
-    
+
     /**
      * Return setup form for the current block
-     * 
+     *
      * @return Form
      * @throws
      */
@@ -301,7 +301,7 @@ abstract class AbstractItem extends Model implements BlockItem
         $form = new Form('/settings/block/customize');
 
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->block->id]));
-        
+
         $this->addCustomizationFormElements($form);
 
         $this->addOrderDirection($form);
@@ -310,14 +310,14 @@ abstract class AbstractItem extends Model implements BlockItem
 
         return $form;
     }
-    
+
     public function addCustomizationFormElements(Form &$form) {
         return $form;
     }
-    
+
     /**
      * Return image path of the current item
-     * 
+     *
      * @param int $width specify image size
      * @return string|null full path to the image
      */
@@ -378,10 +378,10 @@ abstract class AbstractItem extends Model implements BlockItem
 
         return false;
     }
-    
+
     /**
      * Remove images related to the specific code
-     * 
+     *
      * @param string $imageCode
      */
     public function deleteImage($imageCode){
@@ -392,13 +392,13 @@ abstract class AbstractItem extends Model implements BlockItem
 
     /**
      * Return current layout
-     * 
+     *
      * @return \Just\Structure\Layout;
      */
     public function layout() {
         return $this->block->layout();
     }
-    
+
     /**
      * Include new addon elements related to the addon
      */
@@ -407,10 +407,10 @@ abstract class AbstractItem extends Model implements BlockItem
             $addon->updateForm($this->form, $this->addonValues($addon->id));
         }
     }
-    
+
     /**
      * Include new addon elements related to the addon
-     * 
+     *
      * @param Request $request
      * @param mixed $item Model item
      */
@@ -419,26 +419,26 @@ abstract class AbstractItem extends Model implements BlockItem
             $addon->handleForm($request, $item);
         }
     }
-    
+
     public function addonValues($addonId) {
         $addon = Addon::find($addonId)->addon();
         $addonClass = new $addon;
-        
+
         return $this->belongsToMany($addon, $this->getTable().'_'.$addonClass->getTable(), 'modelItem_id', 'addonItem_id')->where('addon_id', $addonId)->get();
     }
-    
+
     /**
      * Get related addons
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function addons() {
         return $this->block->addons();
     }
-    
+
     /**
      * Get related addon item
-     * 
+     *
      * @param string $name addon name
      * @return addon item
      */
@@ -452,24 +452,24 @@ abstract class AbstractItem extends Model implements BlockItem
     public function categories() {
         return $this->belongsToMany(Addon\Categories::class, $this->getTable().'_categories', 'modelItem_id', 'addonItem_id');
     }
-    
+
     public function strings() {
         return $this->belongsToMany(Addon\Strings::class, $this->getTable().'_strings', 'modelItem_id', 'addonItem_id');
     }
-    
+
     public function images() {
         return $this->belongsToMany(Addon\Images::class, $this->getTable().'_images', 'modelItem_id', 'addonItem_id');
     }
-    
+
     public function paragraphs() {
         return $this->belongsToMany(Addon\Paragraphs::class, $this->getTable().'_paragraphs', 'modelItem_id', 'addonItem_id');
     }
-    
+
     public function relationsForm($relBlock) {
         $form = new Form('/admin/settings/relations/create');
 
         $form->setType('relations');
-        
+
         $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block->id]));
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->id]));
         $form->add(FormElement::select(['name'=>'relatedBlockName', 'label'=>'Related Block Type', 'value'=>(!is_null($relBlock) ? $relBlock->type : ""), 'options'=>$this->block->allBlocksSelect()]));
@@ -477,10 +477,10 @@ abstract class AbstractItem extends Model implements BlockItem
         $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>(!is_null($relBlock) ? $relBlock->description : "")]));
         $form->applyJS("applyCKEditor('#".$this->block->type."_relationsForm #description')");
         $form->add(FormElement::submit(['value'=>'Save']));
-        
+
         return $form;
     }
-    
+
     public function relatedBlocks() {
         if(Schema::hasTable($this->getTable().'_blocks')){
             return $this->belongsToMany(Block::class, $this->getTable().'_blocks', 'modelItem_id', 'block_id');
@@ -490,10 +490,10 @@ abstract class AbstractItem extends Model implements BlockItem
             return $this->belongsTo(Block::class);
         }
     }
-    
+
     /**
      * Return specific related block
-     * 
+     *
      * @param string $type type of related block
      * @param string $name name of related block
      * @param int $id id of related block
@@ -516,16 +516,16 @@ abstract class AbstractItem extends Model implements BlockItem
 
         return $relBlock->specify();
     }
-    
+
     /**
      * Return first item from content
-     * 
+     *
      * @return mixed
      */
     public function firstItem(){
         return $this->content()->first();
     }
-    
+
     protected function addCropSetupGroup(&$form){
         $photoCropGroup = new FormGroup('cropGroup', __('block.customizations.cropGroup.title'));
         $photoCropGroup->add(FormElement::checkbox(['name'=>'cropPhoto', 'label'=>__('settings.actions.crop'), 'check'=>(filter_var($this->parameter('cropPhoto'), FILTER_VALIDATE_BOOLEAN)), 'onchange'=>'CustomizeBlock.checkCropDimensionsVisibility()']));
@@ -534,14 +534,14 @@ abstract class AbstractItem extends Model implements BlockItem
 
         $form->applyJS("window.CustomizeBlock = this.getClassInstance('CustomizeBlock');");
     }
-    
-    protected function addIgnoretCaptionSetupGroup(&$form){
+
+    protected function addIgnoreCaptionSetupGroup(&$form){
         $photoFieldsGroup = new FormGroup('fieldsGroup', __('block.customizations.fieldsGroup.title'));
-        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => __('block.customizations.fieldsGroup.ignoreCaption'), 'check'=>(filter_var($this->parameter('cropPhoto'), FILTER_VALIDATE_BOOLEAN))]));
-        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => __('block.customizations.fieldsGroup.ignoreDescription'), 'check'=>$this->parameter('ignoreDescription')]));
+        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreCaption', 'label' => __('block.customizations.fieldsGroup.ignoreCaption'), 'check'=>$this->parameter('ignoreCaption', true)]));
+        $photoFieldsGroup->add(FormElement::checkbox(['name'=>'ignoreDescription', 'label' => __('block.customizations.fieldsGroup.ignoreDescription'), 'check'=>$this->parameter('ignoreDescription', true)]));
         $form->addGroup($photoFieldsGroup);
     }
-    
+
     protected function addResizePhotoSetupGroup(&$form){
         $photoSizesGroup = new FormGroup('sizeGroup', __('block.customizations.sizeGroup.title'));
         $photoSizesGroup->add(FormElement::checkbox(['name'=>'customSizes', 'label'=> __('block.customizations.sizeGroup.customSizes'), 'check'=>$this->parameter('customSizes'), 'onchange'=>'CustomizeBlock.checkImageSizesVisibility()' ]));

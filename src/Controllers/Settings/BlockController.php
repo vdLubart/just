@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Response;
 use Just\Controllers\SettingsController;
 use Just\Models\Block;
 use Just\Models\Blocks\Events;
+use Just\Requests\Block\Admin\InitializeBlockRequest;
 use Just\Requests\ChangeBlockRequest;
 use Just\Requests\DeleteBlockRequest;
 use Just\Requests\Block\Admin\InitializeItemRequest;
@@ -140,6 +141,57 @@ class BlockController extends SettingsController {
         return $this->setupSettingsForm($block, $request, $request->block_id, '/settings/page/' . $block->page_id . '/panel/' . $block->panelLocation . '/block/list');
     }
 
+    public function moveUp(InitializeBlockRequest $request) {
+        return $this->moveBlock($request, 'up');
+    }
+
+    public function moveDown(InitializeBlockRequest $request) {
+        return $this->moveBlock($request, 'down');
+    }
+
+    protected function moveBlock(InitializeBlockRequest $request, $dir) {
+        $block = $this->specifyBlock($request);
+
+        if(!empty($block)){
+            $block->move($dir);
+        }
+
+        $response = new \stdClass();
+        $response->message = $this->itemTranslation('messages.success.moved');
+        $response->redirect = '/settings/page/' . $block->page_id . '/panel/' . $block->panelLocation . '/block/list';
+
+        return json_encode($response);
+    }
+
+    public function activate(InitializeBlockRequest $request) {
+        return $this->blockVisibility($request, true);
+    }
+
+    public function deactivate(InitializeBlockRequest $request) {
+        return $this->blockVisibility($request, false);
+    }
+
+    /**
+     * Change item visibility
+     *
+     * @param InitializeItemRequest $request
+     * @param boolean $visibility
+     * @return type
+     */
+    protected function blockVisibility(InitializeBlockRequest $request, $visibility) {
+        $block = $this->specifyBlock($request);
+
+        if(!empty($block)){
+            $block->visibility($visibility);
+        }
+
+        $response = new \stdClass();
+        $response->message = $this->itemTranslation('messages.success.' . ($visibility ? 'activated' : 'deactivated'));
+        $response->redirect = '/settings/page/' . $block->page_id . '/panel/' . $block->panelLocation . '/block/list';
+
+        return json_encode($response);
+    }
+
     /**
      * Create new or update existing block item
      *
@@ -229,14 +281,14 @@ class BlockController extends SettingsController {
     }
 
     public function itemMoveUp(InitializeItemRequest $request) {
-        return $this->move($request, 'up');
+        return $this->moveItem($request, 'up');
     }
 
     public function itemMoveDown(InitializeItemRequest $request) {
-        return $this->move($request, 'down');
+        return $this->moveItem($request, 'down');
     }
 
-    protected function move(InitializeItemRequest $request, $dir) {
+    protected function moveItem(InitializeItemRequest $request, $dir) {
         $block = $this->specifyBlock($request);
 
         if(!empty($block)){
@@ -251,11 +303,11 @@ class BlockController extends SettingsController {
     }
 
     public function itemActivate(InitializeItemRequest $request) {
-        return $this->visibility($request, true);
+        return $this->itemVisibility($request, true);
     }
 
     public function itemDeactivate(InitializeItemRequest $request) {
-        return $this->visibility($request, false);
+        return $this->itemVisibility($request, false);
     }
 
     /**
@@ -265,7 +317,7 @@ class BlockController extends SettingsController {
      * @param boolean $visibility
      * @return type
      */
-    protected function visibility(InitializeItemRequest $request, $visibility) {
+    protected function itemVisibility(InitializeItemRequest $request, $visibility) {
         $block = $this->specifyBlock($request);
 
         if(!empty($block)){

@@ -1,6 +1,9 @@
 <template>
 
-    <div :id="name" v-html="content" v-bind="parameters"></div>
+    <div>
+        <component v-if="!!parameters.vueComponent" :is="parameters.vueComponent" v-bind="parameters.vueComponentAttrs"></component>
+        <div v-else :id="name" v-html="content" v-bind="parameters"></div>
+    </div>
 
 </template>
 
@@ -19,6 +22,12 @@
                 content: this.value
             }
         },
+
+        watch:{
+            content(){
+                this.$emit('input', this.content);
+            }
+        }
     }
 </script>
 

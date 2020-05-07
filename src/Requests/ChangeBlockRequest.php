@@ -41,8 +41,7 @@ class ChangeBlockRequest extends FormRequest implements ValidateRequest
             ],
             'panelLocation' => 'nullable|exists:panels,location',
             'page_id' => 'nullable|exists:pages,id',
-            // todo: remove nullable after removing layout type
-            'width' => 'nullable|integer|min:0|max:12', // field is nullable bacause it does not used in grid layouts
+            'width' => 'integer|min:0|max:12'
         ];
     }
 }

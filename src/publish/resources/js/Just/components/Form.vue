@@ -8,17 +8,17 @@
                 <fieldset v-for="group in content.groups" v-bind="group.parameters">
                     <legend>{{ group.label }}</legend>
 
-                    <field v-for="(element, key) in group.elements" :element="element" :key="key"></field>
+                    <field v-for="(element, key) in group.elements" :element="element" :key="key" :ref="element.name"></field>
 
                 </fieldset>
 
-                <field v-for="(element, key) in content.unGrouppedElements" :element="element" :key="key"></field>
+                <field v-for="(element, key) in content.unGrouppedElements" :element="element" :key="key" :ref="element.name"></field>
 
             </form>
         </div>
 
     </div>
-    
+
 </template>
 
 <script>
@@ -71,12 +71,18 @@
                 return this.logicClass;
             },
 
-            submitForm(){
+            collectFormData(){
                 this.content.unGrouppedElements.forEach(element=>this.elementValue(element));
 
                 this.content.groups.forEach(group => {
                     group.elements.forEach(element=>this.elementValue(element))
                 });
+
+                return this.formData;
+            },
+
+            submitForm(){
+                this.collectFormData();
 
                 axios({
                     method: this.content.method,
@@ -102,7 +108,7 @@
             },
 
             elementValue(element){
-                if(!_.includes(['submit', 'html', 'file'], element.type)){
+                if(!_.includes(['submit', 'file'], element.type)){
                     let value = element.value;
 
                     switch(true){

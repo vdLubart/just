@@ -12,7 +12,7 @@ use Spatie\Translatable\HasTranslations;
 class Contact extends AbstractItem
 {
     use HasTranslations;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -27,15 +27,15 @@ class Contact extends AbstractItem
     protected $casts = [
         'channels' => 'object'
     ];
-    
+
     protected $table = 'contacts';
 
     protected $neededParameters = [ 'channels' ];
-    
+
     /**
      * Available contact fields.
      * Structure: <db column> => [<label>, <fa icon>]
-     * 
+     *
      * @var array $fields
      */
     protected $defaultChannels = [
@@ -70,23 +70,23 @@ class Contact extends AbstractItem
         $this->defaultChannels['fax'] = __('contact.channel.fax');
     }
 
-    public function settingsForm(): Form {
+    public function itemForm(): Form {
         if(is_null($this->form)){
             return new Form();
         }
 
         $this->identifySettingsForm();
-        
+
         $this->form->add(FormElement::text(['name'=>'title', 'label'=>__('contact.office'), 'value'=>@$this->title]));
 
         foreach($this->allChannels() as $icon=>$label){
             $this->form->add(FormElement::text(['name'=>$icon, 'label'=>$label, 'value'=>@$this->channels->{$icon}]));
         }
-        
+
         $this->includeAddons();
-        
+
         $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
-        
+
         return $this->form;
     }
 
@@ -105,8 +105,8 @@ class Contact extends AbstractItem
             $form->addGroup($additionalFieldGroup);
         }
     }
-    
-    public function handleSettingsForm(ValidateRequest $request) {
+
+    public function handleItemForm(ValidateRequest $request) {
         if (is_null($request->id)) {
             $contact = new Contact;
             $contact->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->block_id]);
@@ -125,14 +125,14 @@ class Contact extends AbstractItem
         }
 
         $contact->channels = $channels;
-        
+
         $contact->save();
-        
+
         $this->handleAddons($request, $contact);
 
         return $contact;
     }
-    
+
     public static function defaultChannels() {
         $instance = new static;
 

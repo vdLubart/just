@@ -1,6 +1,6 @@
 <?php
 
-namespace Just\Requests\Panel\Block\Visitor;
+namespace Just\Requests\Block\Visitor;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
