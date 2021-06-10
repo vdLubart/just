@@ -3,6 +3,7 @@
 namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 
 abstract class ValidateAuthRequest extends FormRequest implements ValidateRequest
@@ -12,9 +13,8 @@ abstract class ValidateAuthRequest extends FormRequest implements ValidateReques
      *
      * @return bool
      */
-    public function authorize()
-    {
-        return \Auth::check();
+    public function authorize(): bool {
+        return Auth::check();
     }
 
     /**
@@ -22,8 +22,7 @@ abstract class ValidateAuthRequest extends FormRequest implements ValidateReques
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [];
     }
 }

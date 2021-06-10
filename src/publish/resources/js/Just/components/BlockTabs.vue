@@ -22,34 +22,44 @@
         },
 
         data(){
-            return {
-                content: {
-                    content: {
-                        icon: 'list',
-                        url: '/settings/block/' + this.blockId
-                    },
-                    blockSettings: {
-                        icon: 'cogs',
-                        url: '/settings/block/' + this.blockId + '/settings'
-                    },
-                    blockCustomization: {
-                        icon: 'sliders-h',
-                        url: '/settings/block/' + this.blockId + '/customization'
-                    },
-                    createItem: {
-                        icon: 'plus',
-                        url: '/settings/block/' + this.blockId + '/item/0'
-                    }
-                },
-                active: this.tab,
-                id: this.blockId
+            return this.initData();
+        },
 
+        methods:{
+            initData(){
+                return {
+                    content: {
+                        content: {
+                            icon: 'list',
+                            url: '/settings/block/' + this.blockId
+                        },
+                        blockSettings: {
+                            icon: 'cogs',
+                            url: '/settings/block/' + this.blockId + '/settings'
+                        },
+                        blockCustomization: {
+                            icon: 'sliders-h',
+                            url: '/settings/block/' + this.blockId + '/customization'
+                        },
+                        createItem: {
+                            icon: 'plus',
+                            url: '/settings/block/' + this.blockId + '/item/0'
+                        }
+                    },
+                    active: this.tab,
+                    id: this.blockId
+                }
             }
         },
 
         watch:{
-            tab(val){
-                this.active = val;
+            tab(){
+                this.active = this.initData().active;
+            },
+
+            blockId(){
+                this.content = this.initData().content;
+                this.id = this.initData().id;
             }
         }
     }

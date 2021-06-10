@@ -13,7 +13,6 @@ use Just\Models\System\IconSet;
 use Illuminate\Http\Request;
 use Just\Models\System\Route as JustRoute;
 use Just\Models\Blocks\Contracts\ValidateRequest;
-use Just\Models\Block;
 use Spatie\Translatable\HasTranslations;
 
 class Features extends AbstractItem
@@ -49,7 +48,7 @@ class Features extends AbstractItem
             return new Form();
         }
 
-        $this->identifySettingsForm();
+        $this->identifyItemForm();
 
         /**
          * @var Icon $currentIcon
@@ -86,7 +85,11 @@ class Features extends AbstractItem
         return $this->form;
     }
 
-    public function addCustomizationFormElements(Form &$form) {
+    /**
+     * @param Form $form
+     * @return Form
+     */
+    public function addCustomizationFormElements(Form &$form): Form {
         if(\Auth::user()->role == "master"){
             $this->addIgnoreCaptionSetupGroup($form);
         }

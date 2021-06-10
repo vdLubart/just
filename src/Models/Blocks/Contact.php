@@ -2,6 +2,8 @@
 
 namespace Just\Models\Blocks;
 
+use Exception;
+use Illuminate\Support\Facades\Auth;
 use Lubart\Form\Form;
 use Lubart\Form\FormGroup;
 use Just\Models\Blocks\Contracts\ValidateRequest;
@@ -30,7 +32,7 @@ class Contact extends AbstractItem
 
     protected $table = 'contacts';
 
-    protected $neededParameters = [ 'channels' ];
+    protected array $neededParameters = [ 'channels' ];
 
     /**
      * Available contact fields.
@@ -75,7 +77,7 @@ class Contact extends AbstractItem
             return new Form();
         }
 
-        $this->identifySettingsForm();
+        $this->identifyItemForm();
 
         $this->form->add(FormElement::text(['name'=>'title', 'label'=>__('contact.office'), 'value'=>@$this->title]));
 
@@ -90,7 +92,12 @@ class Contact extends AbstractItem
         return $this->form;
     }
 
-    public function addCustomizationFormElements(Form &$form){
+    /**
+     * @param Form $form
+     * @return Form
+     * @throws Exception
+     */
+    public function addCustomizationFormElements(Form &$form): Form{
 
         $fieldGroup = new FormGroup('fieldGroup', __('contact.preferences.usingContacts'));
 
@@ -98,7 +105,7 @@ class Contact extends AbstractItem
 
         $form->addGroup($fieldGroup);
 
-        if(\Auth::user()->role == 'master') {
+        if(Auth::user()->role == 'master') {
             $additionalFieldGroup = new FormGroup('additionalFieldGroup', __('contact.preferences.additionalContact'));
             $additionalFieldGroup->add(FormElement::textarea(['name' => 'additionalFields', 'label' => __('contact.preferences.additionalContactFormat'), 'value' => $this->parameter('additionalFields'), 'richEditor'=>false]));
 

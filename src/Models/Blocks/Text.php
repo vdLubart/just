@@ -21,14 +21,14 @@ class Text extends AbstractItem
         'text', 'orderNo'
     ];
 
-    public $translatable = ['text'];
+    public array $translatable = ['text'];
 
     protected $table = 'texts';
 
     /**
      * Return item form
      *
-     * @return \Lubart\Form\Form
+     * @return Form
      * @throws
      */
     public function itemForm(): Form {
@@ -36,7 +36,7 @@ class Text extends AbstractItem
             return new Form;
         }
 
-        $this->identifySettingsForm();
+        $this->identifyItemForm();
 
         $this->form->add(FormElement::textarea(['name'=>'text', 'label'=>__('text.text'), 'value'=>$this->getTranslations('text'), 'translate'=>true])
             ->obligatory()
@@ -45,8 +45,6 @@ class Text extends AbstractItem
         $this->includeAddons();
 
         $this->form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
-
-        $this->form->useJSFile('/js/blocks/text/settingsForm.js');
 
         return $this->form;
     }

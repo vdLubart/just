@@ -2,6 +2,7 @@
 
 namespace Just\Models\Blocks;
 
+use Exception;
 use Illuminate\Http\Request;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
@@ -35,7 +36,7 @@ class Feedback extends AbstractItem implements ContainsPublicForm
             return new Form();
         }
 
-        $this->identifySettingsForm();
+        $this->identifyItemForm();
 
         $this->form->add(FormElement::text(['name'=>'username', 'label'=>__('settings.common.name'), 'value'=>$this->username]));
         $this->form->add(FormElement::email(['name'=>'email', 'label'=>__('feedback.form.email'), 'value'=>$this->email]));
@@ -43,8 +44,6 @@ class Feedback extends AbstractItem implements ContainsPublicForm
            $this->form->add(FormElement::date(['name'=>'created', 'label'=>__('feedback.form.date'), 'value'=>$this->created_at]));
         }
         $this->form->add(FormElement::textarea(['name'=>'message', 'label'=>__('feedback.form.message'), 'value'=>$this->message]));
-
-        $this->form->add(FormElement::html(['value'=>'<div class="g-recaptcha" data-sitekey="'. env('RE_CAP_SITE') .'"></div>', 'name'=>'recaptcha']));
 
         $this->includeAddons();
 
@@ -63,7 +62,16 @@ class Feedback extends AbstractItem implements ContainsPublicForm
         }
     }
 
-    public function addCustomizationFormElements(Form &$form) {
+    public function neededJavaScripts(): array {
+        return ["https://www.google.com/recaptcha/api.js"];
+    }
+
+    /**
+     * @param Form $form
+     * @return Form
+     * @throws Exception
+     */
+    public function addCustomizationFormElements(Form &$form): Form {
         $feedbackGroup = new FormGroup('feedbackGroup', __('feedback.preferences.title'), ['class'=>'col-nd-6']);
         $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>__('feedback.preferences.noModeration'), 'value'=>1, 'check'=>(@$this->parameter('defaultActivation')==1)]));
         $feedbackGroup->add(FormElement::radio(['name'=>'defaultActivation', 'label'=>__('feedback.preferences.moderation'), 'value'=>0, 'check'=>(@$this->parameter('defaultActivation')==0)]));
@@ -77,7 +85,7 @@ class Feedback extends AbstractItem implements ContainsPublicForm
     /**
      * Handle request from the settings form
      *
-     * @param ChangeFeedbackRequest $request
+     * @param ValidateRequest $request
      * @return Feedback
      */
     public function handleItemForm(ValidateRequest $request) {

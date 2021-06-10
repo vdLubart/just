@@ -31,6 +31,7 @@
         border-width: 0;
         border-radius: 0.25rem;
         margin: 0 0.25rem;
+        align-self: center;
     }
 
     .input-component__button:hover{

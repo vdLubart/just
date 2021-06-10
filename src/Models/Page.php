@@ -8,7 +8,6 @@ use Just\Models\System\Route as JustRoute;
 use Just\Requests\ChangePageRequest;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
-use Illuminate\Http\Request;
 use Spatie\Translatable\HasTranslations;
 use Lubart\Form\FormGroup;
 
@@ -26,9 +25,17 @@ class Page extends Model
     ];
 
     public $translatable = ['title', 'description', 'author', 'copyright'];
-    
+
     protected $table = 'pages';
-    
+
+    /**
+     * Set of custom scripts which are needed only in the specific blocks
+     * These scripts should be loaded before the Vue instance.
+     *
+     * @var array
+     */
+    protected array $blockScripts = [];
+
     public function layout() {
         return $this->belongsTo(Layout::class);
     }
@@ -41,10 +48,10 @@ class Page extends Model
     public function getRoute() {
         return JustRoute::where('route', $this->route)->first();
     }
-    
+
     /**
      * Get page settings form
-     * 
+     *
      * @return Form
      * @throws \Exception
      */
@@ -74,10 +81,10 @@ class Page extends Model
         $form->addGroup($metaData);
 
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
-        
+
         return $form;
     }
-    
+
     public function handleSettingsForm(ChangePageRequest $request) {
         $this->title = $request->title ?? '';
         $this->description = $request->description ?? '';
@@ -85,13 +92,13 @@ class Page extends Model
         $this->author = $request->author ?? '';
         $this->copyright = $request->copyright ?? '';
         $this->layout_id = $request->layout;
-        
+
         if(empty($this->id)){
             JustRoute::insert([
                 'route' => $request->route,
                 'type' => 'page'
             ]);
-            
+
             $this->route = $request->route;
         }
         else{
@@ -100,7 +107,7 @@ class Page extends Model
                         'route' => $request->route
                     ]);
         }
-        
+
         $this->save();
 
         if(isset($request->copyMeta)){
@@ -112,14 +119,14 @@ class Page extends Model
             ]);
         }
     }
-    
+
     private function layoutsArray() {
         $layouts = [];
-        
+
         foreach(Layout::all() as $layout){
             $layouts[$layout->id] = $layout->name . (!empty($layout->class)? ".".$layout->class : "");
         }
-        
+
         return $layouts;
     }
 
@@ -145,5 +152,24 @@ class Page extends Model
      */
     public function itemCaption() {
         return ($this->title === '' ? __('block.untitled') : $this->title);
+    }
+
+    /**
+     * Return the list of the custom block scripts
+     *
+     * @return array
+     */
+    public function blockScripts(): array {
+        return $this->blockScripts;
+    }
+
+    /**
+     * Add the new script URL to the list of custom scripts.
+     * This script will be loaded before the Vue instance.
+     *
+     * @param string $scriptUrl
+     */
+    public function addBlockScript(string $scriptUrl): void {
+        $this->blockScripts[$scriptUrl] = $scriptUrl;
     }
 }

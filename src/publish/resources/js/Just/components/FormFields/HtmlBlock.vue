@@ -13,7 +13,7 @@
 
         props:{
             name: {type: String},
-            value: String,
+            value: {type: [String, Array]},
             parameters: {type: Object}
         },
 

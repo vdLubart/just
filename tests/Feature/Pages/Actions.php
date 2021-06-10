@@ -1,6 +1,6 @@
 <?php
 
-namespace Just\Tests\Feature\Just\Pages;
+namespace Just\Tests\Feature\Pages;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -8,9 +8,9 @@ use Just\Models\Page;
 use Just\Models\System\Route;
 
 class Actions extends TestCase{
-    
+
     use WithFaker;
-    
+
     protected function tearDown(): void{
 
         foreach(Route::all() as $route){
@@ -18,7 +18,7 @@ class Actions extends TestCase{
                 $route->delete();
             }
         }
-        
+
         foreach(Page::all() as $page){
             if($page->id != 1){
                 $page->delete();
@@ -27,7 +27,7 @@ class Actions extends TestCase{
 
         parent::tearDown();
     }
-    
+
     public function setup_current_page($assertion){
         $route = Route::create([
             'route' => $this->faker->word
@@ -36,9 +36,9 @@ class Actions extends TestCase{
             'route' => $route->route,
             'layout_id' => 1
         ]);
-        
+
         $response = $this->get('/settings/page/'.$page->id);
-        
+
         if($assertion){
             $response->assertStatus(200)
                     ->assertSee("Settings :: Page");
@@ -46,7 +46,7 @@ class Actions extends TestCase{
         else{
             $response->assertStatus(302);
         }
-        
+
         $this->post("/settings/page/setup", [
             "page_id" => $page->id,
             "title" => $title = $this->faker->word,
@@ -57,9 +57,9 @@ class Actions extends TestCase{
             "route" => $newRoute = $this->faker->word,
             "layout_id" => 1
         ]);
-        
+
         $newPage = Page::find($page->id);
-        
+
         if($assertion){
             $this->assertEquals($title, $newPage->title);
             $this->assertEquals($description, $newPage->description);
@@ -77,7 +77,7 @@ class Actions extends TestCase{
             $this->assertEquals($route->route, $newPage->route);
         }
     }
-    
+
     public function create_new_page($assertion){
         $response = $this->get('/settings/page/0');
         if($assertion){
@@ -86,7 +86,7 @@ class Actions extends TestCase{
         else{
             $response->assertStatus(302);
         }
-        
+
         $this->post("/settings/page/setup", [
             "page_id" => null,
             "title" => $title = $this->faker->word,
@@ -99,9 +99,9 @@ class Actions extends TestCase{
         ]);
 
         $newPage = Page::where('id', '>', 1)->get()->last();
-        
+
         $route = Route::where('route', $newRoute)->first();
-        
+
         if($assertion){
             $this->assertEquals($title, $newPage->title);
             $this->assertEquals($description, $newPage->description);
@@ -109,16 +109,16 @@ class Actions extends TestCase{
             $this->assertEquals($author, $newPage->author);
             $this->assertEquals($copyright, $newPage->copyright);
             $this->assertEquals($newRoute, $newPage->route);
-            
+
             $this->assertNotNull($route);
         }
         else{
             $this->assertNull($newPage);
-            
+
             $this->assertNull($route);
         }
     }
-    
+
     public function apply_meta_to_all_pages($assertion){
         $route1 = Route::create([
             'route' => $this->faker->word
@@ -135,9 +135,9 @@ class Actions extends TestCase{
             'layout_id' => 1
         ]);
         $homePage = Page::find(1);
-        
+
         $response = $this->get('/settings/page/'.$page1->id);
-        
+
         if($assertion){
             $response->assertStatus(200)
                     ->assertSee("Settings :: Page");
@@ -145,7 +145,7 @@ class Actions extends TestCase{
         else{
             $response->assertStatus(302);
         }
-        
+
         $this->post("/settings/page/setup", [
             "page_id" => $page1->id,
             "title" => $page1->title,
@@ -165,11 +165,11 @@ class Actions extends TestCase{
             $this->assertEquals($keywords, $page1->keywords);
             $this->assertEquals($author, $page1->author);
             $this->assertEquals($copyright, $page1->copyright);
-            
+
             $this->assertEquals($keywords, $page2->keywords);
             $this->assertEquals($author, $page2->author);
             $this->assertEquals($copyright, $page2->copyright);
-            
+
             $this->post("/settings/page/setup", [
             "page_id" => $homePage->id,
             "title" => $homePage->title,
@@ -187,7 +187,7 @@ class Actions extends TestCase{
             $this->assertNotEquals($copyright, $page2->copyright);
         }
     }
-    
+
     public function access_page_list($assertion){
         $response = $this->get('/settings/page/list');
         if($assertion){
@@ -198,7 +198,7 @@ class Actions extends TestCase{
             $response->assertRedirect();
         }
     }
-    
+
     public function edit_specific_page($assertion){
         $route1 = Route::create([
             'route' => $this->faker->word
@@ -208,7 +208,7 @@ class Actions extends TestCase{
             'route' => $route1->route,
             'layout_id' => 1
         ]);
-        
+
         $route2 = Route::create([
             'route' => $this->faker->word
         ]);
@@ -217,7 +217,7 @@ class Actions extends TestCase{
             'route' => $route2->route,
             'layout_id' => 1
         ]);
-        
+
         $response = $this->get('/settings/page/list');
         if($assertion){
             $response->assertSuccessful()
@@ -228,16 +228,16 @@ class Actions extends TestCase{
         else{
             $response->assertRedirect();
         }
-        
+
         $response = $this->get('/settings/page/'.$page1->id);
-        
+
         if($assertion){
             $response->assertSuccessful();
         }
         else{
             $response->assertRedirect();
         }
-        
+
         $this->post("/settings/page/setup", [
             "page_id" => $page1->id,
             "title" => $title = $this->faker->word,
@@ -250,7 +250,7 @@ class Actions extends TestCase{
         ]);
 
         $updatedPage = Page::find($page1->id);
-        
+
         if($assertion){
             $this->assertEquals($title, $updatedPage->title);
             $this->assertEquals($description, $updatedPage->description);
@@ -266,7 +266,7 @@ class Actions extends TestCase{
             $this->assertNotEquals($copyright, $updatedPage->copyright);
         }
     }
-    
+
     public function delete_specific_page($assertion){
         $route = Route::create([
             'route' => $this->faker->word
@@ -276,14 +276,14 @@ class Actions extends TestCase{
             'route' => $route->route,
             'layout_id' => 1
         ]);
-        
+
         $this->post('settings/page/delete', [
             'id' => $page->id
         ]);
 
         $deletedPage = Page::find($page->id);
         $route = Route::findByUrl($route->route);
-        
+
         if($assertion){
             $this->assertNull($deletedPage);
             $this->assertNull($route);

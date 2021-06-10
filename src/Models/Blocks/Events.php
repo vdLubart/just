@@ -2,8 +2,7 @@
 
 namespace Just\Models\Blocks;
 
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Exception;
 use Just\Models\EventRegistration;
 use Just\Models\User;
 use Carbon\Carbon;
@@ -39,7 +38,7 @@ class Events extends AbstractItem implements ContainsPublicForm
 
     public $translatable = ['subject', 'summary', 'text', 'location'];
 
-    protected $neededParameters = [ 'itemRouteBase' ];
+    protected array $neededParameters = [ 'itemRouteBase' ];
 
     /**
      * Order by `start_date` column
@@ -127,12 +126,16 @@ class Events extends AbstractItem implements ContainsPublicForm
         }
     }
 
+    public function neededJavaScripts(): array {
+        return ["https://www.google.com/recaptcha/api.js"];
+    }
+
     public function itemForm(): Form {
         if(is_null($this->form)){
             return new Form();
         }
 
-        $this->identifySettingsForm();
+        $this->identifyItemForm();
 
         $imageGroup = new FormGroup('topGroup', '__Event Poster', ['class'=>'fullWidth twoColumns']);
 
@@ -230,7 +233,12 @@ class Events extends AbstractItem implements ContainsPublicForm
         return $this->publicForm()->render();
     }
 
-    public function addCustomizationFormElements(Form &$form) {
+    /**
+     * @param Form $form
+     * @return Form
+     * @throws Exception
+     */
+    public function addCustomizationFormElements(Form &$form): Form {
         $this->addCropSetupGroup($form);
 
         if(\Auth::user()->role == "master"){

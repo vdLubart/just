@@ -2,6 +2,7 @@
 
 namespace Just\Models\Blocks;
 
+use Illuminate\Support\Facades\Auth;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -30,7 +31,7 @@ class Articles extends AbstractItem
 
     public $translatable = ['subject', 'summary', 'text'];
 
-    protected $neededParameters = [ 'itemRouteBase' ];
+    protected array $neededParameters = [ 'itemRouteBase' ];
 
     public function setup() {
         if(!empty($this->block->parameter('itemRouteBase')) and !Useful::isRouteExists($this->block->parameter('itemRouteBase') . "/{id}")){
@@ -56,11 +57,10 @@ class Articles extends AbstractItem
             return new Form();
         }
 
-        $this->identifySettingsForm();
+        $this->identifyItemForm();
 
         $imageGroup = new FormGroup('imageGroup', __('articles.imageGroup.title'), ['class'=>'twoColumns']);
 
-        $imageGroup->add($imageField = FormElement::file(['name'=>'image', 'label'=>__('settings.actions.upload')]));
         if(!is_null($this->id)){
             if(file_exists(public_path('storage/'.$this->table.'/'.$this->image.'_3.png'))){
                 $imageGroup->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
@@ -71,12 +71,16 @@ class Articles extends AbstractItem
 
             if(!empty($this->parameter('cropPhoto'))){
                 $imageGroup->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
-                $imageGroup->element("recrop")->setParameter('javasript:openCropping(' . $this->block_id . ', ' . $this->id . ')', 'onclick');
+                $imageGroup->element("recrop")->setParameter('window.App.navigate(\'/settings/block/'.$this->block_id.'/item/'.$this->id.'/cropping\')', 'onclick');
             }
         }
-        else{
+
+        $imageGroup->add($imageField = FormElement::file(['name'=>'image', 'label'=>__('settings.actions.upload')]));
+
+        if(empty($this->id)){
             $imageField->obligatory();
         }
+
         $this->form->addGroup($imageGroup);
 
         $textGroup = new FormGroup('textGroup', __('articles.textGroup.title'), ['class'=>'fullWidth']);
@@ -100,10 +104,14 @@ class Articles extends AbstractItem
         return $this->form;
     }
 
-    public function addCustomizationFormElements(Form &$form) {
+    /**
+     * @param Form $form
+     * @return Form
+     */
+    public function addCustomizationFormElements(Form &$form): Form {
         $this->addCropSetupGroup($form);
 
-        if(\Auth::user()->role == "master"){
+        if(Auth::user()->role == "master"){
             $this->addResizePhotoSetupGroup($form);
         }
         $this->addItemRouteGroup($form);
@@ -129,6 +137,7 @@ class Articles extends AbstractItem
         }
         $article->setBlock($request->block_id);
         if(!is_null($request->file('image'))){
+            $this->deleteImage($article->image);
             $article->image = uniqid();
         }
 

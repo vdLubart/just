@@ -2,13 +2,18 @@
 
 namespace Just\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Intervention\Image\Image;
 use Just\Models\Blocks\AbstractItem;
 use Just\Models\Blocks\Contracts\BlockItem;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Models\System\BlockList;
+use ReflectionException;
+use ReflectionMethod;
 use Spatie\Translatable\HasTranslations;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Lubart\Form\FormElement;
@@ -20,7 +25,7 @@ use Illuminate\Support\Facades\Artisan;
 use Lubart\Form\FormGroup;
 use Just\Models\Blocks\AddOns\Categories;
 
-class Block extends Model implements BlockItem
+class Block extends Model
 {
     use HasTranslations;
 
@@ -30,41 +35,41 @@ class Block extends Model implements BlockItem
      * @var array
      */
     protected $fillable = [
-        'type', 'name', 'panelLoation', 'page_id', 'title', 'description', 'width', 'cssClass', 'orderNo', 'isActive', 'parent'
+        'type', 'name', 'panelLoation', 'page_id', 'title', 'description', 'width', 'layoutClass', 'cssClass', 'orderNo', 'isActive', 'parameters', 'parent'
     ];
 
     protected $casts = [
         'parameters' => 'object'
     ];
 
-    public $translatable = ['title', 'description'];
+    public array $translatable = ['title', 'description'];
 
     protected $table = 'blocks';
 
     /**
      * Block item
      *
-     * @var AbstractItem $item
+     * @var ?AbstractItem $item
      */
-    protected $item;
+    protected ?AbstractItem $item = null;
 
     /**
      * Access parent block from the related block
      *
-     * @var Block $parentBlock
+     * @var ?Block $parentBlock
      */
-    protected $parentBlock = null;
+    protected ?Block $parentBlock = null;
 
     protected $currentCategory = null;
 
     /**
      * Specify model and addons for current block
      *
-     * @param int $id
-     * @return $this
-     * @throws \Exception
+     * @param int|string|null $id item id or slug
+     * @return Block
+     * @throws Exception
      */
-    public function specify($id = null) {
+    public function specify($id = null): Block {
         $name = $this->itemClassName();
 
         // make sure if string $id parameter is a number
@@ -73,7 +78,6 @@ class Block extends Model implements BlockItem
         }
         else{
             $this->item = new $name;
-            $this->item->setBlock($this->id);
 
             if($this->item->haveSlug() and !is_null($id)){
                 $this->item = $this->item->findBySlug($id) ?? new $name;
@@ -94,9 +98,9 @@ class Block extends Model implements BlockItem
     /**
      * Unsettle model data
      *
-     * @return $this
+     * @return Block
      */
-    public function unsettle(){
+    public function unsettle(): Block {
         $this->item = null;
 
         return $this->unsettleAddons();
@@ -104,8 +108,10 @@ class Block extends Model implements BlockItem
 
     /**
      * Unsettle all addons from the model
+     *
+     * @return Block
      */
-    public function unsettleAddons() {
+    public function unsettleAddons(): Block {
         foreach($this->addons as $addon){
             unset($this->{$addon->name});
         }
@@ -130,12 +136,22 @@ class Block extends Model implements BlockItem
     }
 
     /**
-     * Return form to create or update new block
+     * Return form to create a new block
      *
      * @return Form
-     * @throws \Exception
+     * @throws Exception
      */
-    public function itemForm(): Form {
+    public function itemForm():Form {
+        return $this->settingsForm();
+    }
+
+    /**
+     * Return form to create a new block or update existing one
+     *
+     * @return Form
+     * @throws Exception
+     */
+    public function settingsForm(): Form {
         $form = new Form('/settings/block/setup');
 
         if(empty($form->elements())){
@@ -228,6 +244,7 @@ class Block extends Model implements BlockItem
      * Return item to which current block is connected
      *
      * @return mixed
+     * @throws Exception
      */
     public function parentItem(){
         $parentBlock = $this->parentBlock()->specify()->item();
@@ -241,7 +258,11 @@ class Block extends Model implements BlockItem
         return null;
     }
 
-    public function findValidationRequest($requestType = 'Change') {
+    /**
+     * @param string $requestType
+     * @return string
+     */
+    public function findValidationRequest(string $requestType = 'Change'): string {
         if($requestType == 'Public'){
             $publicity = 'Visitor';
         }
@@ -330,8 +351,15 @@ class Block extends Model implements BlockItem
         return $this;
     }
 
-    public function handleCrop(Request $request) {
-        $reflection = new \ReflectionMethod($this->item, 'handleCrop');
+    /**
+     * Handle the cropping of the image related to the block
+     *
+     * @param Request $request
+     * @return Image
+     * @throws ReflectionException
+     */
+    public function handleCrop(Request $request): Image {
+        $reflection = new ReflectionMethod($this->item, 'handleCrop');
         $validatorClass = $reflection->getParameters()[0]->getClass()->name;
 
         $validatedRequest = new $validatorClass;
@@ -393,7 +421,7 @@ class Block extends Model implements BlockItem
      * Return block item
      *
      * @return AbstractItem|null
-     * @throws \Exception
+     * @throws Exception
      */
     public function item() {
         if($this->item === null){
@@ -414,7 +442,7 @@ class Block extends Model implements BlockItem
         if(!class_exists($name)){
             $name = "\\Just\\Models\\Blocks\\". ucfirst($this->type);
             if(!class_exists($name)){
-                throw new \Exception("Block class \"".ucfirst($this->type)."\" not found");
+                throw new Exception("Block class \"".ucfirst($this->type)."\" not found");
             }
         }
 
@@ -526,10 +554,10 @@ class Block extends Model implements BlockItem
     /**
      * Return panel where block is located
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
-    public function panel() {
-        return $this->belongsTo(Panel::class);
+    public function panel(): BelongsTo {
+        return $this->belongsTo(Panel::class, 'panelLocation', 'location');
     }
 
     /**
@@ -572,7 +600,7 @@ class Block extends Model implements BlockItem
     /**
      * Page belongs to the current block
      *
-     * @return type
+     *
      */
     public function page() {
         $page = $this->belongsTo(Page::class)->first();

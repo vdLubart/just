@@ -1,6 +1,6 @@
 <?php
 
-namespace Just\Requests\Panel\Block\Admin;
+namespace Just\Requests\Block\Admin;
 
 use Just\Structure\Panel\Block\Contracts\ValidateRequest;
 

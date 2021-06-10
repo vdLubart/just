@@ -184,7 +184,7 @@
         flex-direction: column;
         max-height: calc(100vh - 120px);
         z-index: 100;
-        width:50%;
+        width:80%;
 
     }
 

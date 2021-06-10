@@ -2,8 +2,12 @@
 
 namespace Just\Models\Blocks;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 use Just\Models\Blocks\Contracts\BlockItem;
+use stdClass;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
@@ -22,18 +26,18 @@ abstract class AbstractItem extends Model implements BlockItem
      *
      * @var Form $form
      */
-    protected $form;
+    protected Form $form;
 
     /**
      * Parameters which should be set before use block
      *
      * @var array $neededParameters
      */
-    protected $neededParameters = [];
+    protected array $neededParameters = [];
 
-    protected $parameters = [];
+    protected stdClass $parameters;
 
-    protected $imageSizes = [12, 9, 8, 6, 4, 3];
+    protected array $imageSizes = [12, 9, 8, 6, 4, 3];
 
     /**
      * Validation rules for public request inside a block.
@@ -41,7 +45,7 @@ abstract class AbstractItem extends Model implements BlockItem
      *
      * @var array
      */
-    protected $publicRequestValidationRules = [];
+    protected array $publicRequestValidationRules = [];
 
     /**
      * Validation messages for public request inside a block.
@@ -49,18 +53,18 @@ abstract class AbstractItem extends Model implements BlockItem
      *
      * @var array
      */
-    protected $publicRequestValidationMessages = [];
+    protected array $publicRequestValidationMessages = [];
 
     public function __construct() {
         parent::__construct();
 
-        if(\Auth::id()){
-            $this->form = new Form('/settings/block/item/setup');
+        if(Auth::id()){
+            $this->form = new Form('/settings/block/item/save');
         }
     }
 
     /**
-     * Block content
+     * Block item content
      *
      * @return mixed
      */
@@ -194,12 +198,12 @@ abstract class AbstractItem extends Model implements BlockItem
     }
 
     /**
-     * Treat request with image crop data
+     * Handle the cropping of the image related to the item
      *
      * @param CropRequest $request
      * @return \Intervention\Image\Image
      */
-    public function handleCrop(CropRequest $request) {
+    public function handleCrop(CropRequest $request): \Intervention\Image\Image {
         $filePath = $this->imagePath("original");
 
         $image = Image::make($filePath);
@@ -211,7 +215,23 @@ abstract class AbstractItem extends Model implements BlockItem
 
         $this->multiplicateImage($this->image);
 
+        $this->renameImage();
+
         return $image;
+    }
+
+    /**
+     * Set the new name for the image and rename all related images on the disk
+     */
+    public function renameImage(): void {
+        $oldName = $this->image;
+
+        $this->image = uniqid();
+        $this->save();
+
+        foreach(glob(public_path('/storage/'.$this->table.'/'.$oldName.'*.png')) as $filename){
+            rename($filename, str_replace($oldName, $this->image, $filename));
+        }
     }
 
     /**
@@ -231,7 +251,7 @@ abstract class AbstractItem extends Model implements BlockItem
                 $image->resize($this->block->layout()->width*$size/12, null, function ($constraint) {
                     $constraint->aspectRatio();
                 });
-                $image->save(public_path('/storage/'.$this->table.'/'.$this->image.'_'.$size.'.png'));
+                $image->save(public_path('/storage/'.$this->table.'/'.$imageCode.'_'.$size.'.png'));
                 $image->destroy();
             }
         }
@@ -239,16 +259,14 @@ abstract class AbstractItem extends Model implements BlockItem
             $image = Image::make($this->imagePath());
             $image->save($this->imagePathByCode($imageCode));
         }
-
-        return;
     }
 
     /**
      * Set model parameters
      *
-     * @param array $parameters
+     * @param stdClass $parameters
      */
-    public function setParameters($parameters) {
+    public function setParameters(stdClass $parameters) {
         $this->parameters = $parameters;
     }
 
@@ -270,13 +288,11 @@ abstract class AbstractItem extends Model implements BlockItem
     }
 
     /**
-     * Presetup current block
+     * Pre setup current block
      *
      * @return void
      */
-    public function setup() {
-        return;
-    }
+    public function setup() {}
 
     public function setBlock($block_id) {
         $this->setAttribute('block_id', $block_id);
@@ -285,9 +301,9 @@ abstract class AbstractItem extends Model implements BlockItem
     /**
      * Return current block
      *
-     * @return Block
+     * @return BelongsTo
      */
-    protected function block() {
+    protected function block(): BelongsTo {
         return $this->belongsTo(Block::class);
     }
 
@@ -295,9 +311,9 @@ abstract class AbstractItem extends Model implements BlockItem
      * Return setup form for the current block
      *
      * @return Form
-     * @throws
+     * @throws Exception
      */
-    public function customizationForm() {
+    public function customizationForm(): Form {
         $form = new Form('/settings/block/customize');
 
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->block->id]));
@@ -311,17 +327,17 @@ abstract class AbstractItem extends Model implements BlockItem
         return $form;
     }
 
-    public function addCustomizationFormElements(Form &$form) {
+    public function addCustomizationFormElements(Form &$form): Form {
         return $form;
     }
 
     /**
      * Return image path of the current item
      *
-     * @param int $width specify image size
+     * @param int|string|null $width the image size or "original" string to receive uploaded image
      * @return string|null full path to the image
      */
-    public function imagePath($width=null): ?string{
+    public function imagePath($width = null): ?string{
         if(empty(@$this->image)){
             return null;
         }
@@ -333,21 +349,21 @@ abstract class AbstractItem extends Model implements BlockItem
      * Return image path by unique code
      *
      * @param string $imageCode image code
-     * @param int|null $width smallest image size
+     * @param int|string|null $width smallest image size
      * @return string
      */
-    public function imagePathByCode($imageCode, $width=null): string {
+    public function imagePathByCode(string $imageCode, $width=null): string {
         return public_path($this->imageSource($width, $imageCode));
     }
 
     /**
      * Return image URI related to the model
      *
-     * @param int|null $width smallest image size
-     * @param string $imageCode image code
+     * @param int|string|null $width smallest image size or original image
+     * @param string|null $imageCode image code
      * @return string image uri
      */
-    public function imageSource($width=null, $imageCode=null): string {
+    public function imageSource($width = null, ?string $imageCode = null): string {
         if(empty($imageCode)){
             $imageCode = $this->image;
         }
@@ -360,9 +376,8 @@ abstract class AbstractItem extends Model implements BlockItem
             // next bigger image size is returned
             else{
                 foreach (array_sort($this->imageSizes) as $size){
-                    if($size > (int)$width and $source = $this->findImage($imageCode, $size)) {
+                    if($size > $width and $source = $this->findImage($imageCode, $size)) {
                         return $source;
-                        break;
                     }
                 }
             }
@@ -616,9 +631,18 @@ abstract class AbstractItem extends Model implements BlockItem
         return $form;
     }
 
-    public function identifySettingsForm() {
+    public function identifyItemForm() {
         $this->form->add(FormElement::hidden(['name'=>'id', 'value'=>@$this->id]));
         $this->form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block->id]));
+    }
+
+    /**
+     * Return the list of the needed JavaScripts for the view templates
+     *
+     * @return array
+     */
+    public function neededJavaScripts(): array {
+        return [];
     }
 
     public function itemImage(): ?string {

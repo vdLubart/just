@@ -33,11 +33,11 @@ if (Schema::hasTable('routes')){
             Route::get("admin/".$route->route, "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
             Route::post ($route->route, "\Just\Controllers\AdminController@handleForm")->middleware(['web','auth']);
         }
-        
+
         if($route->type == 'ajax'){
             Route::post($route->route, "\Just\Controllers\JustController@ajax")->middleware('web');
         }
-        
+
         if($route->type == 'post'){
             Route::post($route->route, "\Just\Controllers\JustController@post")->middleware('web');
         }
@@ -113,8 +113,8 @@ Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
         Route::post('delete', '\Just\Controllers\Settings\BlockController@delete');
 
         Route::prefix('item')->group(function(){
-            Route::post('setup', '\Just\Controllers\Settings\BlockController@itemSetup');
-            Route::post('crop', '\Just\Controllers\Settings\BlockController@itemCrop');
+            Route::post('save', '\Just\Controllers\Settings\BlockController@saveItem');
+            Route::post('crop', '\Just\Controllers\Settings\BlockController@cropItem');
             Route::post('moveup', '\Just\Controllers\Settings\BlockController@itemMoveUp');
             Route::post('movedown', '\Just\Controllers\Settings\BlockController@itemMoveDown');
             Route::post('activate', '\Just\Controllers\Settings\BlockController@itemActivate');
@@ -163,9 +163,4 @@ Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){
     Route::post("activate", "\Just\Controllers\AdminController@activate");
     Route::post("deactivate", "\Just\Controllers\AdminController@deactivate");
     Route::post("browseimages", "\Just\Controllers\AdminController@browseimages");
-    Route::post("ajaxuploader", "\Just\Controllers\AdminController@ajaxuploader");
-
-    Route::get("browseimages", "\Just\Controllers\AdminController@browseImages");
-    Route::post("uploadimage", "\Just\Controllers\AdminController@uploadImage");
-
 });

@@ -17,7 +17,7 @@
             </slink>
         </div>
     @endif
-    
+
     @foreach($panel->blocks() as $block)
         <div class="block {{ $block->type }} col-md-{{ $block->width }} @if($block->isActive ==0) inactive @endif {{ $block->cssClass }}">
             @if(\Config::get('isAdmin'))

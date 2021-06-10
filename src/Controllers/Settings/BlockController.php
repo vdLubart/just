@@ -5,6 +5,8 @@
 
 namespace Just\Controllers\Settings;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Response;
@@ -17,6 +19,7 @@ use Just\Requests\DeleteBlockRequest;
 use Just\Requests\Block\Admin\InitializeItemRequest;
 use Just\Tools\Useful;
 use Just\Validators\ValidatorExtended;
+use Throwable;
 
 class BlockController extends SettingsController {
 
@@ -25,8 +28,8 @@ class BlockController extends SettingsController {
      *
      * @param $pageId
      * @param $panelLocation
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Throwable
+     * @return JsonResponse
+     * @throws Throwable
      */
     public function panelActions($pageId, $panelLocation) {
         $items = [
@@ -95,12 +98,12 @@ class BlockController extends SettingsController {
     /**
      * Form to create new block in the panel
      *
-     * @param $pageId
-     * @param $panelLocation
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Throwable
+     * @param string $pageId
+     * @param string $panelLocation
+     * @return JsonResponse
+     * @throws Throwable
      */
-    public function createForm($pageId, $panelLocation) {
+    public function createForm(string $pageId, string $panelLocation): JsonResponse {
         $caption = [
             '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
             '/settings/page/' . $pageId . '/panel/' . $panelLocation . '/block/create' => $this->itemTranslation('createForm.title')
@@ -199,7 +202,7 @@ class BlockController extends SettingsController {
      * @return string response in JSON format
      * @throws
      */
-    public function itemSetup(Request $request) {
+    public function saveItem(Request $request): string {
         $this->decodeRequest($request);
 
         if(empty($block = $this->findBlock($request->block_id))){
@@ -261,10 +264,16 @@ class BlockController extends SettingsController {
             $response->parameters[$key] = $parameter;
         }
 
-        return Response::json($response);
+        return Response::json((array)$response);
     }
 
-    public function itemCrop(Request $request) {
+    /**
+     * [POST] Crop the image in the requested block
+     *
+     * @param Request $request
+     * @return JsonResponse|RedirectResponse
+     */
+    public function cropItem(Request $request) {
         if(empty($block = $this->specifyBlock($request))){
             return redirect()->back();
         }
@@ -277,7 +286,7 @@ class BlockController extends SettingsController {
         $response->message = $this->itemTranslation('messages.success.updated');
         $response->redirect = '/settings/block/'.$block->id;
 
-        return Response::json($response);
+        return Response::json((array)$response);
     }
 
     public function itemMoveUp(InitializeItemRequest $request) {
@@ -405,7 +414,7 @@ class BlockController extends SettingsController {
      * Delete page
      *
      * @param DeleteBlockRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function delete(DeleteBlockRequest $request) {
         $block = Block::find($request->id);
@@ -463,7 +472,7 @@ class BlockController extends SettingsController {
      * @param Request $request
      * @return string response in JSON format
      */
-    public function customize(Request $request) {
+    public function customize(Request $request): string {
         $block = Block::find($request->id)->specify();
         $settingsElements = $block->customizationForm()->names();
 
@@ -490,6 +499,10 @@ class BlockController extends SettingsController {
             foreach($values as $key=>$value){
                 if(is_string($value) and $value === (string)(int)$value){
                     $value = (int)$value;
+                }
+
+                if($block->customizationForm()->getElement($key)->type() == 'checkbox' and in_array($value, ['true', 'false'])){
+                    $value = $value === 'true';
                 }
 
                 if(in_array($key, $settingsElements) or in_array($key."[]", $settingsElements)){

@@ -2,18 +2,22 @@
 
 namespace Just\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use Just\Models\Theme;
+use Throwable;
 
 abstract class SettingsController extends Controller
 {
     public function __construct() {
         parent::__construct();
 
-        \Config::set('isAdmin', true);
+        Config::set('isAdmin', true);
     }
 
     /**
@@ -21,7 +25,7 @@ abstract class SettingsController extends Controller
      *
      * @return string
      */
-    private function itemClass() {
+    private function itemClass(): string {
         return '\\Just\\Models\\' . $this->modelName();
     }
 
@@ -30,7 +34,7 @@ abstract class SettingsController extends Controller
      *
      * @return string
      */
-    private function modelName() {
+    private function modelName(): string {
         return Str::substr(Arr::last(explode('\\', get_class($this))), 0, -10);
     }
 
@@ -39,7 +43,7 @@ abstract class SettingsController extends Controller
      *
      * @return string
      */
-    protected function itemName() {
+    protected function itemName(): string {
         return lcfirst($this->modelName());
     }
 
@@ -72,8 +76,8 @@ abstract class SettingsController extends Controller
      * @param array $caption settings chapter caption
      * @param mixed $content model
      * @param array $parameters additional parameters added to the response
-     * @throws \Throwable
-     * @return \Illuminate\Http\JsonResponse
+     * @throws Throwable
+     * @return JsonResponse
      */
     protected function response(array $caption, $content, $type, $parameters = []) {
         $response = new \stdClass();
@@ -107,14 +111,14 @@ abstract class SettingsController extends Controller
     /**
      * Render view with the settings form
      *
-     * @param integer $id item id
+     * @param int $id item id
      * @param array $itemParams predefined item data
      * @param array $caption predefined captions
      * @param array $responseParameters additional parameters added to the response
-     * @throws \Throwable
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws Throwable
      */
-    protected function settingsFormView($id, $itemParams = [], $caption = [], $responseParameters = []) {
+    protected function settingsFormView(int $id, array $itemParams = [], array $caption = [], array $responseParameters = []): JsonResponse {
         $item = $this->itemClass()::findOrNew($id);
 
         foreach ($itemParams as $key=>$param){
@@ -196,7 +200,7 @@ abstract class SettingsController extends Controller
             ]
         ];
 
-        if(\Auth::user()->role == "master"){
+        if(Auth::user()->role == "master"){
             $items['addon'] = [
                 'label' => __('navbar.addOns.top'),
                 'icon' => 'puzzle-piece'
