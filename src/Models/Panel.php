@@ -31,14 +31,11 @@ class Panel extends Model
      *
      * @return Collection
      */
-    public function blocks() {
+    public function blocks(): Collection {
         $blocks = $this->hasMany(Block::class, "panelLocation", "location")
                 ->orderBy("orderNo");
         if($this->type == "dynamic"){
             $blocks = $blocks->where('page_id', $this->page->id);
-        }
-        else{
-            $blocks = $blocks->whereNull('page_id');
         }
 
         if(!\Config::get('isAdmin')){

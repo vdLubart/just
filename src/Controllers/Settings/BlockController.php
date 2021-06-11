@@ -359,13 +359,19 @@ class BlockController extends SettingsController {
     }
 
 
-    public function blockList($pageId, $panelLocation) {
+    /**
+     * @param int $pageId
+     * @param string $panelLocation
+     * @return JsonResponse
+     * @throws Throwable
+     */
+    public function blockList(int $pageId, string $panelLocation): JsonResponse {
         $caption = [
             '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
             '/settings/' . $this->itemKebabName() . '/list' => $this->itemTranslation('list')
         ];
 
-        return $this->listView($caption);
+        return $this->listView($caption, ['panelLocation' => $panelLocation]);
     }
 
     protected function buildItemList(Collection $items): string {

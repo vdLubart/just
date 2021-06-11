@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use Just\Models\Theme;
+use stdClass;
 use Throwable;
 
 abstract class SettingsController extends Controller
@@ -75,12 +76,12 @@ abstract class SettingsController extends Controller
      *
      * @param array $caption settings chapter caption
      * @param mixed $content model
+     * @param $type
      * @param array $parameters additional parameters added to the response
-     * @throws Throwable
      * @return JsonResponse
      */
-    protected function response(array $caption, $content, $type, $parameters = []) {
-        $response = new \stdClass();
+    protected function response(array $caption, $content, $type, array $parameters = []): JsonResponse {
+        $response = new stdClass();
 
         $response->caption = [
            '/settings' =>  __('settings.title')
@@ -105,7 +106,7 @@ abstract class SettingsController extends Controller
                 break;
         }
 
-        return Response::json($response);
+        return Response::json((array) $response);
     }
 
     /**
@@ -147,8 +148,20 @@ abstract class SettingsController extends Controller
         return $this->response($caption, $item, 'form');
     }
 
-    protected function listView($caption = []) {
-        $items = $this->itemClass()::orderBy('orderNo')->get();
+
+    /**
+     * @param array $caption
+     * @param array $where
+     * @return JsonResponse
+     * @throws Throwable
+     */
+    protected function listView(array $caption = [], array $where = []): JsonResponse {
+        if($this->itemName() === 'block'){
+            $items = $this->itemClass()::where('panelLocation', $where['panelLocation'])->orderBy('orderNo')->get();
+        }
+        else {
+            $items = $this->itemClass()::orderBy('orderNo')->get();
+        }
 
         if(empty($caption)){
             $caption = [
@@ -217,7 +230,7 @@ abstract class SettingsController extends Controller
     protected function setupSettingsForm($item, $request, $id = 0, $redirect = null) {
         $item->handleSettingsForm($request);
 
-        $response = new \stdClass();
+        $response = new stdClass();
         $response->message = $this->itemTranslation('messages.success.' . ($id == 0 ? 'created' : 'updated'));
         $response->redirect = $redirect;
 

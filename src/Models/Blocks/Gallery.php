@@ -60,12 +60,11 @@ class Gallery extends AbstractItem
             $this->form->add(FormElement::file(['name'=>'currentFile', 'label'=>__('settings.actions.upload')]));
 
             if(empty($this->parameter('ignoreCaption'))){
-                $this->form->add(FormElement::text(['name'=>'caption', 'label'=>__('settings.common.caption'), 'value'=>$this->caption]));
+                $this->form->add(FormElement::text(['name'=>'caption', 'label'=>__('settings.common.caption'), 'value'=>$this->getTranslations('caption'), 'translate'=>true]));
             }
             if(empty($this->parameter('ignoreDescription'))){
-                $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>$this->description]));
+                $this->form->add(FormElement::textarea(['name'=>'description', 'label'=>__('settings.common.description'), 'value'=>$this->getTranslations('description'), 'translate'=>true]));
             }
-            $this->form->add(FormElement::submit(['value'=>__('gallery.form.update'), 'name'=>'startUpload']));
         }
 
         return $this->form;
@@ -142,7 +141,7 @@ class Gallery extends AbstractItem
     }
 
     public function itemImage():string {
-        return '/storage/'. $this->table .'/' . $this->image . '.png';
+        return $this->imageSource(3);
     }
 
     public function itemCaption():string {
