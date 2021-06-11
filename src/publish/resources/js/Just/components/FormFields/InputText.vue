@@ -33,6 +33,7 @@
 
         data(){
             return {
+                content: this.value === null ? (this.parameters.translate ? {} : '') : this.value,
                 languages:{
                     en: 'English',
                     uk: 'Українська'
@@ -52,6 +53,12 @@
         methods: {
             handleInput (e) {
                 this.$emit('input', this.content);
+            }
+        },
+
+        watch: {
+            content(val){
+                this.$emit('input', val);
             }
         }
     }

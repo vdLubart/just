@@ -3,7 +3,7 @@
 namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 
 class ChangeFeedbackRequest extends FormRequest implements ValidateRequest
 {

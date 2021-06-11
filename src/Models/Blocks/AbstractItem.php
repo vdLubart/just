@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
+use Just\Models\AddOn;
 use Just\Models\Blocks\Contracts\BlockItem;
 use stdClass;
 use Lubart\Form\Form;
@@ -426,17 +427,17 @@ abstract class AbstractItem extends Model implements BlockItem
     /**
      * Include new addon elements related to the addon
      *
-     * @param Request $request
+     * @param ValidateRequest $request
      * @param mixed $item Model item
      */
-    public function handleAddons(Request $request, $item) {
+    public function handleAddons(ValidateRequest $request, $item) {
         foreach ($this->block->addons as $addon) {
             $addon->handleForm($request, $item);
         }
     }
 
     public function addonValues($addonId) {
-        $addon = Addon::find($addonId)->addon();
+        $addon = AddOn::find($addonId)->addon();
         $addonClass = new $addon;
 
         return $this->belongsToMany($addon, $this->getTable().'_'.$addonClass->getTable(), 'modelItem_id', 'addonItem_id')->where('addon_id', $addonId)->get();

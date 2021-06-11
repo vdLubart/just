@@ -141,7 +141,7 @@ class BlockController extends SettingsController {
 
         $block = Block::findOrNew($request->block_id);
 
-        return $this->setupSettingsForm($block, $request, $request->block_id, '/settings/page/' . $block->page_id . '/panel/' . $block->panelLocation . '/block/list');
+        return $this->setupSettingsForm($block, $request, $request->block_id, '/settings/page/' . $request->page_id . '/panel/' . $request->panelLocation . '/block/list');
     }
 
     public function moveUp(InitializeBlockRequest $request) {

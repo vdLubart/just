@@ -6,10 +6,10 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
 use Just\Models\Blocks\AbstractItem;
-use Just\Models\Blocks\Contracts\BlockItem;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Models\System\BlockList;
 use ReflectionException;
@@ -35,11 +35,13 @@ class Block extends Model
      * @var array
      */
     protected $fillable = [
-        'type', 'name', 'panelLoation', 'page_id', 'title', 'description', 'width', 'layoutClass', 'cssClass', 'orderNo', 'isActive', 'parameters', 'parent'
+        'type', 'name', 'panelLocation', 'page_id', 'title', 'description', 'width', 'layoutClass', 'cssClass', 'orderNo', 'isActive', 'parameters', 'parent'
     ];
 
     protected $casts = [
-        'parameters' => 'object'
+        'parameters' => 'object',
+        'title' => 'object',
+        'description' => 'object'
     ];
 
     public array $translatable = ['title', 'description'];
@@ -175,7 +177,7 @@ class Block extends Model
 
             $form->addGroup($blockGroup);
 
-            if(\Auth::user()->role == "master"){
+            if(Auth::user()->role == "master"){
                 $viewGroup = new FormGroup('viewGroup', __('block.createForm.blockView'), ['class'=>'fullWidth twoColumns']);
 
                 $viewGroup->add(FormElement::text(['name'=>'layoutClass', 'label'=>__('block.createForm.layoutClass'), 'value'=>$this->layoutClass ?? 'primary']));
@@ -331,7 +333,13 @@ class Block extends Model
         return $this->item->{$method}($validatedRequest);
     }
 
-    public function handleSettingsForm(ValidateRequest $request) {
+    /**
+     * Handle the creation or updating settings form
+     *
+     * @param ValidateRequest $request
+     * @return $this
+     */
+    public function handleSettingsForm(ValidateRequest $request): Block {
         if(is_null($this->id)){
             $this->type = $request->type;
         }
@@ -341,9 +349,9 @@ class Block extends Model
         $this->title = $request->title ?? "";
         $this->description = $request->description ?? "";
         $this->width = $request->width ?? ( $this->width ?? 12 );
-        $this->layoutClass = (\Auth::user()->role == "master" ? $request->layoutClass : $this->layoutClass) ?? 'primary';
-        $this->cssClass = (\Auth::user()->role == "master" ?  $request->cssClass : $this->cssClass) ?? '';
-        $this->orderNo = $this->orderNo?$this->orderNo : Useful::getMaxNo($this->table, ['panelLocation' => $request->panelLocation, "page_id"=>$request->page_id]);
+        $this->layoutClass = (Auth::user()->role == "master" ? $request->layoutClass : $this->layoutClass) ?? 'primary';
+        $this->cssClass = (Auth::user()->role == "master" ?  $request->cssClass : $this->cssClass) ?? '';
+        $this->orderNo = $this->orderNo ?? Useful::getMaxNo($this->table, ['panelLocation' => $request->panelLocation, "page_id"=>$request->page_id]);
         $this->parameters = json_decode('{}');
 
         $this->save();

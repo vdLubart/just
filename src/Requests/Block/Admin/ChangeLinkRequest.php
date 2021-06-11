@@ -3,7 +3,8 @@
 namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Illuminate\Support\Facades\Auth;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 
 class ChangeLinkRequest extends FormRequest implements ValidateRequest
 {
@@ -12,9 +13,8 @@ class ChangeLinkRequest extends FormRequest implements ValidateRequest
      *
      * @return bool
      */
-    public function authorize()
-    {
-        return \Auth::check();
+    public function authorize(): bool {
+        return Auth::check();
     }
 
     /**
@@ -22,10 +22,10 @@ class ChangeLinkRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [
-            'block_id' => 'required|integer|min:1',
+            'id' => 'nullable|integer|exists:links',
+            'block_id' => 'required|integer|exists:blocks,id',
             'linkedBlock_id' => 'required|integer|min:1',
         ];
     }
