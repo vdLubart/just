@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Just\Models\Theme;
 use stdClass;
@@ -102,6 +103,7 @@ abstract class SettingsController extends Controller
                 $response->content = $this->buildItemList($content);
                 break;
             case 'list':
+            case 'menu':
                 $response->content = json_encode($content);
                 break;
         }

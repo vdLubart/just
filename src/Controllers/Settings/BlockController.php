@@ -59,6 +59,8 @@ class BlockController extends SettingsController {
 
         $items = $block->item()->content();
 
+        $type = $block->type === 'menu' ? 'menu' : 'items';
+
         if(empty($caption)){
             $caption = [
                 '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
@@ -66,7 +68,7 @@ class BlockController extends SettingsController {
             ];
         }
 
-        return $this->response($caption, $items, 'items', ['blockTabs'=>'content', 'blockId'=>$blockId, 'blockType'=>$block->type]);
+        return $this->response($caption, $items, $type, ['blockTabs'=>'content', 'blockId'=>$blockId, 'blockType'=>$block->type]);
     }
 
     /**
@@ -228,7 +230,7 @@ class BlockController extends SettingsController {
         return json_encode($response);
     }
 
-    public function itemCroppingForm($blockId, $itemId) {
+    public function itemCroppingForm($blockId, $itemId): JsonResponse {
         /**
          * @var Block $block
          */
@@ -324,9 +326,9 @@ class BlockController extends SettingsController {
      *
      * @param InitializeItemRequest $request
      * @param boolean $visibility
-     * @return type
+     * @return false|string
      */
-    protected function itemVisibility(InitializeItemRequest $request, $visibility) {
+    protected function itemVisibility(InitializeItemRequest $request, bool $visibility) {
         $block = $this->specifyBlock($request);
 
         if(!empty($block)){
@@ -405,7 +407,7 @@ class BlockController extends SettingsController {
         if(empty($caption)){
             $caption = [
                 '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
-                '/settings/block/' . $blockId => $this->itemTranslation('editForm.title', ['title'=>$block->title])
+                '/settings/block/' . $blockId => $this->itemTranslation('editForm.title', ['title'=>$block->itemCaption()])
             ];
 
             if($itemId > 0){

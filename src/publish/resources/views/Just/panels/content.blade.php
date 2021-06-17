@@ -3,7 +3,7 @@
         @if(\Config::get('isAdmin'))
         <div class="blockTitle">
             {{ $block->title }}
-            <slink href="javascript:openSettings({{ $block->id }}, {{ $block->item()->id }})">
+            <slink href="/settings/block/{{ $block->id }}/{{ $block->item()->id }}">
                 <i class="fa fa-cog"></i>
             </slink>
         </div>

@@ -17,6 +17,10 @@ module.exports = {
             })
 
             return translation;
+        },
+
+        locale(){
+            return window.settingsTranslations.locale;
         }
     },
 }

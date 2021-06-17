@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Just\Models\AddOn;
 use Just\Models\Blocks\Contracts\BlockItem;
 use stdClass;
@@ -71,7 +72,7 @@ abstract class AbstractItem extends Model implements BlockItem
      */
     public function content() {
         $content = $this->where('block_id', $this->block->id);
-        if(!\Config::get('isAdmin')){
+        if(!Config::get('isAdmin')){
             $content = $content->where('isActive', 1);
         }
 

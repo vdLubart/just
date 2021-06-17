@@ -3,6 +3,7 @@
     import Crop from './Crop';
     import List from './List';
     import ItemList from './ItemList';
+    import Menu from './Menu';
     import {eventBus} from "../adminApp";
 
     export default {
@@ -39,7 +40,8 @@
                 'form': Form,
                 'crop': Crop,
                 'list': List,
-                'items': ItemList
+                'items': ItemList,
+                'menu': Menu
             }
 
             return createElement(inputMap[this.type], {

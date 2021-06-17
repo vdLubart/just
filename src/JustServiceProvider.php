@@ -2,6 +2,7 @@
 
 namespace Just;
 
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider;
 use Just\Validators\ValidatorExtended;
 use Illuminate\Support\Facades\Validator;
@@ -21,11 +22,11 @@ class JustServiceProvider extends ServiceProvider
         include __DIR__.'/publish/routes/web.php';
         include __DIR__.'/publish/routes/console.php';
         include __DIR__.'/Tools/helpers.php';
-        
+
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
-        
+
         $this->app->make(\Illuminate\Database\Eloquent\Factory::class)->load(__DIR__ . '/database/factories');
-        
+
         $this->publishes([
             //__DIR__.'/publish/resources/assets' => base_path('resources/assets'),
             __DIR__.'/publish/resources/views/Just' => base_path('resources/views/Just'),
@@ -36,7 +37,7 @@ class JustServiceProvider extends ServiceProvider
             __DIR__.'/publish/public/fonts' => base_path('public/fonts'),
             __DIR__.'/publish/public/js' => base_path('public/js'),
         ], 'just');
-        
+
         $this->publishes([
             __DIR__.'/publish/resources/views/Just' => base_path('resources/views/Just'),
             __DIR__.'/publish/resources/lang' => base_path('resources/lang'),
@@ -48,25 +49,21 @@ class JustServiceProvider extends ServiceProvider
             __DIR__.'/publish/routes/console_empty.php' => base_path('routes/console.php'),
             __DIR__.'/publish/routes/web_empty.php' => base_path('routes/web.php'),
         ], 'just-public');
-        
+
         Validator::extend(
             'recaptcha',
             'Just\\Validators\\Recaptcha@validate'
         );
-        
+
         $this->app->validator->resolver(function($translator, $data, $rules, $messages){
             return new ValidatorExtended($translator, $data, $rules, $messages);
         });
-        
+
         if (Schema::hasTable('themes')) {
             Config::set('mail.markdown.paths', [resource_path('views/'.(Models\Theme::active()->name ?? 'Just').'/emails/mail')]);
         }
 
         $this->app['router']->aliasMiddleware('master', \Just\Middleware\MasterAccess::class);
-
-        Cache::rememberForever('settings-translations', function() {
-            return array_merge(trans('settings'), ['blockTabs' => trans('block.tabs'), 'itemTabs' => trans('block.itemTabs')]);
-        });
     }
 
     /**
@@ -76,6 +73,6 @@ class JustServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        
+
     }
 }

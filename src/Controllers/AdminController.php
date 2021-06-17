@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Just\Models\Block;
 use Just\Structure\Panel;
 use Just\Tools\Useful;
@@ -31,7 +32,7 @@ class AdminController extends Controller
     public function __construct() {
         parent::__construct();
 
-        \Config::set('isAdmin', true);
+        Config::set('isAdmin', true);
     }
 
     public function settingsForm($blockId, $id) {

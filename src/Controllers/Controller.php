@@ -6,6 +6,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Http\Controllers\Controller as LaravelController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Config;
 use Just\Models\System\Route;
 use Illuminate\Http\Request;
 use Just\Models\Block;
@@ -20,8 +21,7 @@ class Controller extends LaravelController
             parent::__construct();
         }
 
-        \Config::set('isAdmin', false);
-        \App::setLocale(env('DEFAULT_LANG', 'en'));
+        Config::set('isAdmin', false);
     }
 
     public function buildPage(Request $request) {

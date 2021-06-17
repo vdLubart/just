@@ -25,26 +25,36 @@ Route::get('password/reset/{token}', '\Just\Controllers\Auth\ResetPasswordContro
 Route::post('password/reset', '\Just\Controllers\Auth\ResetPasswordController@reset')->middleware('web');
 
 if (Schema::hasTable('routes')){
-    $routes = \Just\Models\System\Route::all();
+    $justRoutes = function() {
+        $routes = \Just\Models\System\Route::all();
 
-    foreach($routes as $route){
-        if($route->type == "page"){
-            Route::get($route->route, "\Just\Controllers\JustController@buildPage")->middleware('web');
-            Route::get("admin/".$route->route, "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-            Route::post ($route->route, "\Just\Controllers\AdminController@handleForm")->middleware(['web','auth']);
-        }
+        foreach($routes as $route){
+            if($route->type == "page"){
+                Route::get($route->route, "\Just\Controllers\JustController@buildPage")->middleware('web');
+                Route::get("admin/".$route->route, "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
+                Route::post ($route->route, "\Just\Controllers\AdminController@handleForm")->middleware(['web','auth']);
+            }
 
-        if($route->type == 'ajax'){
-            Route::post($route->route, "\Just\Controllers\JustController@ajax")->middleware('web');
-        }
+            if($route->type == 'ajax'){
+                Route::post($route->route, "\Just\Controllers\JustController@ajax")->middleware('web');
+            }
 
-        if($route->type == 'post'){
-            Route::post($route->route, "\Just\Controllers\JustController@post")->middleware('web');
+            if($route->type == 'post'){
+                Route::post($route->route, "\Just\Controllers\JustController@post")->middleware('web');
+            }
         }
-    }
+    };
+
+    Route::middleware(['web', \Just\Middleware\SetDefaultLocale::class])
+        ->group($justRoutes);
+
+    Route::prefix('{locale}')
+        ->where(['locale'=>'[a-z]{2}'])
+        ->middleware(['web', \Just\Middleware\SetLocale::class])
+        ->group($justRoutes);
 }
 
-Route::prefix('settings')->middleware(['web', 'auth'])->group(function(){
+Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLocale::class])->group(function(){
 
     Route::get("", "\Just\Controllers\Settings\LayoutController@settingsHome");
     Route::get('noaccess', 'SettingsController@noAccessView')->name('noaccess');

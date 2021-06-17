@@ -3,7 +3,8 @@
 namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Illuminate\Support\Facades\Auth;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 
 class ChangeMenuRequest extends FormRequest implements ValidateRequest
 {
@@ -12,9 +13,8 @@ class ChangeMenuRequest extends FormRequest implements ValidateRequest
      *
      * @return bool
      */
-    public function authorize()
-    {
-        return \Auth::user();
+    public function authorize(): bool {
+        return Auth::check();
     }
 
     /**
@@ -22,8 +22,7 @@ class ChangeMenuRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [
             "id" => "integer|min:1|nullable",
             "item" => "required",

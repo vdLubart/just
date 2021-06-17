@@ -36,7 +36,7 @@
 <div class="col-md-12"><strong>{{"@"}}foreach($block->content() as $photo)</strong></div>
 <div class="col-md-12 margin-bottom-20">
     @foreach($block->content() as $photo)
-        <div class="col-md-6">
+        <div class="col-md-6 @if(!$photo->isActive) inactive @endif">
             <div class="thumbnail">
                 <a href="#">
                     <img src="{{ '/storage/photos/'. $photo->image . '_6.png' }}" />

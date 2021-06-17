@@ -19,7 +19,7 @@
         "lubart/form": "^1.3",
         "laravel/helpers": "^1.0",
         "spatie/laravel-translatable": "^4.2",
-        "laravel-lang/lang": "^8.0",
+        "laravel-lang/lang": "~5.0",
         "ext-json": "*"
     },
     "autoload": {
