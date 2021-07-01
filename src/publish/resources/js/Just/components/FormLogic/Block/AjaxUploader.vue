@@ -119,7 +119,7 @@ export default {
         validateFile(file) {
             let fileExtension = file.name.split('.').pop();
             if (this.settings.allowedExtensions.indexOf(fileExtension) < 0) {
-                this.alerts.error.push(`${fileExtension} is not allowed`);
+                this.alerts.error.push(`${fileExtension} is not allowed. Please choose the file with one of the following extensions: ` + this.settings.allowedExtensions.join(', '));
                 return false;
             }
             if (file.size > this.settings.maxSize) {
@@ -164,6 +164,39 @@ export default {
                 });
             });
         },
+    },
+
+    watch: {
+        maxSize(val){
+            this.settings.maxSize = val;
+        },
+        multiple(val){
+            this.settings.multiple = val;
+        },
+        inputName(val){
+            this.settings.inputName = val;
+        },
+        inputId(val){
+            this.settings.inputId = val;
+        },
+        progressBarColor(val){
+            this.settings.progressBarColor = val;
+        },
+        allowedExtensions(val){
+            this.settings.allowedExtensions = val;
+        },
+        uploadUrl(val){
+            this.settings.uploadUrl = val;
+        },
+        batchSize(val){
+            this.settings.batchSize = val;
+        },
+        inputClass(val){
+            this.settings.inputClass = val;
+        },
+        additionalParameters(val){
+            this.settings.additionalParameters = val;
+        }
     }
 }
 </script>

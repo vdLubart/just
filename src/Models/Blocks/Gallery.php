@@ -38,26 +38,32 @@ class Gallery extends AbstractItem
         $this->includeAddons();
 
         if(empty($this->id)){
-            $this->form->add(FormElement::html(['name'=>'imageUploader', 'value'=>'', 'label'=>'Upload images', "ref"=>"uploader", 'vueComponent'=>'ajax-uploader', 'vueComponentAttrs'=>[
+            $this->form->add(FormElement::html(['name'=>'externalUrl', 'value'=>'', 'label'=>'Upload items', "ref"=>"uploader", 'vueComponent'=>'create-gallery-item', 'vueComponentAttrs'=>[
                 "token"=>csrf_token(),
-                "uploadUrl"=>"/settings/block/item/save",
-                "allowedExtensions" => ['png', 'jpg', 'jpeg'],
                 "additionalParameters" => ['block_id' => $this->block_id]
-                ]]));
+            ]]));
         }
         else{
-            if(file_exists(public_path('storage/'.$this->table.'/'.$this->image.'_3.png'))){
-                $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
-            }
-            else{
-                $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
-            }
-            if(!empty($this->parameter('cropPhoto'))){
-                $this->form->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
-                $this->form->element("recrop")->setParameter('window.App.navigate(\'/settings/block/'.$this->block_id.'/item/'.$this->id.'/cropping\')', 'onclick');
-            }
+            if(!empty($this->image)){
+                if(file_exists(public_path('storage/'.$this->table.'/'.$this->image.'_3.png'))){
+                    $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
+                }
+                else{
+                    $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'.png" width="300" />']));
+                }
+                if(!empty($this->parameter('cropPhoto'))){
+                    $this->form->add(FormElement::button(['name' => 'recrop', 'value' => __('settings.actions.recrop')]));
+                    $this->form->element("recrop")->setParameter('window.App.navigate(\'/settings/block/'.$this->block_id.'/item/'.$this->id.'/cropping\')', 'onclick');
+                }
 
-            $this->form->add(FormElement::file(['name'=>'currentFile', 'label'=>__('settings.actions.upload')]));
+                $this->form->add(FormElement::file(['name'=>'image', 'label'=>__('settings.gallery.form.update')]));
+            }
+            elseif(!empty($this->video)){
+                $this->form->add(FormElement::file(['name'=>'video', 'label'=>__('settings.gallery.form.updateVideo')]));
+            }
+            elseif(!empty($this->externalUrl)){
+                $this->form->add(FormElement::text(['name'=>'externalUrl', 'label'=>__('settings.gallery.form.externalUrl'), 'value'=>$this->externalUrl]));
+            }
 
             if(empty($this->parameter('ignoreCaption'))){
                 $this->form->add(FormElement::text(['name'=>'caption', 'label'=>__('settings.common.caption'), 'value'=>$this->getTranslations('caption'), 'translate'=>true]));
@@ -84,24 +90,18 @@ class Gallery extends AbstractItem
 
     public function handleItemForm(ValidateRequest $request) {
         $parameters = $this->block->parameters;
+        $photo = new Gallery;
 
-        if (isset($request->currentFile)) {
-            if(!file_exists(public_path('storage/'. $this->table))){
-                mkdir(public_path('storage/'. $this->table), 0775);
-            }
+        if (isset($request->image)) {
+            $this->createUploadDirectory();
 
-            $image = Image::make($request->currentFile);
+            $image = Image::make($request->image);
 
-            if (is_null($request->get('id'))) {
-                $photo = new Gallery;
-                $photo->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->get('block_id')]);
-                $photo->setBlock($request->get('block_id'));
-            } else {
-                $photo = Gallery::findOrNew($request->get('id'));
-                $this->deleteImage($photo->image);
-            }
+            $photo = $this->detectPhoto($request);
 
             $photo->image = uniqid();
+            $photo->video = null;
+            $photo->externalUrl = null;
             $photo->caption = $request->caption ?? '';
             $photo->description = $request->description ?? '';
 
@@ -110,29 +110,52 @@ class Gallery extends AbstractItem
 
             $photo->save();
 
-            if (isset($parameters->cropPhoto) and $parameters->cropPhoto) {
-                $photo->shouldBeCropped = true;
-            }
-            else{
-                $photo->shouldBeCropped = false;
-            }
+            $photo->shouldBeCropped = !! ($parameters->cropPhoto ?? false);
+
             $this->multiplicateImage($photo->image);
 
             Useful::normalizeOrder($this->table);
         }
-        elseif(!isset($request->currentFile) and !is_null($request->get('id'))){
-            $photo = Gallery::findOrNew($request->get('id'));
+        elseif (isset($request->video)) {
+            $this->createUploadDirectory();
 
-            $photo->caption = empty($request->caption)?'':$request->caption;
-            $photo->description = empty($request->description)?'':$request->description;
+            $photo = $this->detectPhoto($request);
+
+            $photo->image = null;
+            $photo->video = uniqid();
+            $photo->externalUrl = null;
+            move_uploaded_file($request->video->getRealPath(), public_path('storage/'. $this->table .'/' . $photo->video . ".mp4"));
+            $photo->caption = $request->caption ?? '';
+            $photo->description = $request->description ?? '';
 
             $photo->save();
 
             $photo->shouldBeCropped = false;
+
+            Useful::normalizeOrder($this->table);
         }
-        else{
-            $photo = new Gallery;
+        elseif (!empty($request->externalUrl)) {
+            $photo = $this->detectPhoto($request);
+
+            $photo->image = null;
+            $photo->video = null;
+            $photo->externalUrl = $request->externalUrl;
+            $photo->caption = $request->caption ?? '';
+            $photo->description = $request->description ?? '';
+
+            $photo->save();
+
             $photo->shouldBeCropped = false;
+
+            Useful::normalizeOrder($this->table);
+        }
+        elseif(!is_null($request->id)){
+            $photo = Gallery::findOrNew($request->id);
+
+            $photo->caption = $request->caption ?? '';
+            $photo->description = $request->description ?? '';
+
+            $photo->save();
         }
 
         $this->handleAddons($request, $photo);
@@ -140,12 +163,31 @@ class Gallery extends AbstractItem
         return $photo;
     }
 
-    public function itemImage():string {
-        return $this->imageSource(3);
+    /**
+     * Create new photo instance or find existing if the ID presents in the request
+     *
+     * @param ValidateRequest $request
+     * @return Gallery
+     */
+    private function detectPhoto(ValidateRequest $request): Gallery {
+        if (is_null($request->id)) {
+            $photo = new Gallery;
+            $photo->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->block_id]);
+            $photo->setBlock($request->block_id);
+        } else {
+            $photo = Gallery::findOrNew($request->id);
+            $this->deleteImage($photo->image);
+        }
+
+        return $photo;
+    }
+
+    public function itemImage(): ?string {
+        return $this->image ? $this->imageSource(3) : null;
     }
 
     public function itemCaption():string {
-        return $this->caption;
+        return ($this->video ? '[Video File] ' : ($this->externalUrl ? '['.$this->externalUrl.']' : '') ) . $this->caption;
     }
 
     public function itemText():string {

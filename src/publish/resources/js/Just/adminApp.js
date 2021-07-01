@@ -12,6 +12,7 @@ import Link from './components/Link';
 import Settings from './components/Settings';
 import IconSet from './components/FormLogic/Block/IconSet';
 import AjaxUploader from "./components/FormLogic/Block/AjaxUploader";
+import CreateGalleryItem from "./components/FormLogic/Block/CreateGalleryItem";
 import ModuleComponent from 'lubart-vue-modal-component';
 
 Vue.config.devtools = true;
@@ -20,6 +21,7 @@ Vue.component('slink', Link);
 Vue.component('settings', Settings);
 Vue.component('icon-set', IconSet);
 Vue.component('ajax-uploader', AjaxUploader);
+Vue.component('create-gallery-item', CreateGalleryItem);
 
 ModuleComponent.register(Vue);
 

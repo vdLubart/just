@@ -662,4 +662,10 @@ abstract class AbstractItem extends Model implements BlockItem
     public function itemCaption(): ?string {
         return null;
     }
+
+    protected function createUploadDirectory() {
+        if(!file_exists(public_path('storage/'. $this->table))){
+            mkdir(public_path('storage/'. $this->table), 0775);
+        }
+    }
 }
