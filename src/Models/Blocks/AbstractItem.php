@@ -16,7 +16,6 @@ use Lubart\Form\FormGroup;
 use Just\Requests\CropRequest;
 use Intervention\Image\ImageManagerStatic as Image;
 use Just\Models\Block;
-use Illuminate\Http\Request;
 use Just\Tools\Useful;
 use Illuminate\Support\Facades\Schema;
 use Just\Models\Blocks\Contracts\ValidateRequest;
@@ -310,7 +309,7 @@ abstract class AbstractItem extends Model implements BlockItem
     }
 
     /**
-     * Return setup form for the current block
+     * Return customization form for the current block
      *
      * @return Form
      * @throws Exception
