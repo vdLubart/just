@@ -201,17 +201,17 @@ class JustStructureSeeder extends Seeder
         ]);
 
         DB::table('addonList')->insert([
-            'addon' => 'strings',
-            'table' => 'strings'
+            'addon' => 'phrase',
+            'table' => 'phrases'
         ]);
 
         DB::table('addonList')->insert([
-            'addon' => 'images',
+            'addon' => 'image',
             'table' => 'images'
         ]);
 
         DB::table('addonList')->insert([
-            'addon' => 'paragraphs',
+            'addon' => 'paragraph',
             'table' => 'paragraphs'
         ]);
 

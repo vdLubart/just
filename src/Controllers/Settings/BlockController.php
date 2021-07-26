@@ -77,7 +77,7 @@ class BlockController extends SettingsController {
      * @param $blockId
      * @return Block|null
      */
-    protected function findBlock($blockId) {
+    protected function findBlock($blockId): ?Block {
         return Block::find($blockId);
     }
 
@@ -87,7 +87,7 @@ class BlockController extends SettingsController {
      * @param Request $request
      * @return Block
      */
-    private function specifyBlock(Request $request) {
+    private function specifyBlock(Request $request): Block {
         $block = Block::find($request->block_id);
 
         if (!empty($block)) {
@@ -179,11 +179,11 @@ class BlockController extends SettingsController {
     /**
      * Change item visibility
      *
-     * @param InitializeItemRequest $request
+     * @param InitializeBlockRequest $request
      * @param boolean $visibility
-     * @return type
+     * @return false|string
      */
-    protected function blockVisibility(InitializeBlockRequest $request, $visibility) {
+    protected function blockVisibility(InitializeBlockRequest $request, bool $visibility) {
         $block = $this->specifyBlock($request);
 
         if(!empty($block)){
@@ -419,12 +419,12 @@ class BlockController extends SettingsController {
     }
 
     /**
-     * Delete page
+     * Delete block
      *
      * @param DeleteBlockRequest $request
      * @return JsonResponse
      */
-    public function delete(DeleteBlockRequest $request) {
+    public function delete(DeleteBlockRequest $request): JsonResponse {
         $block = Block::find($request->id);
 
         $response = new \stdClass();
@@ -439,9 +439,13 @@ class BlockController extends SettingsController {
             $response->redirect = '/settings/page/' . $pageId . '/panel/' . $location . '/block/list';
         }
 
-        return json_encode($response);
+        return Response::json(json_encode($response));
     }
 
+    /**
+     * @param $blockId
+     * @return JsonResponse|RedirectResponse
+     */
     public function customizationForm($blockId) {
         $block = Block::find($blockId);
 
@@ -471,7 +475,7 @@ class BlockController extends SettingsController {
 
         $response->content = $block->customizationForm()->toJson();
 
-        return Response::json($response);
+        return Response::json(json_encode($response));
     }
 
     /**

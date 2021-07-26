@@ -13,14 +13,14 @@ class CreateStringsTable extends Migration
      */
     public function up()
     {
-        Schema::create('strings', function (Blueprint $table) {
+        Schema::create('phrases', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            
+
             $table->increments('id');
-            $table->integer('addon_id')->unsigned();
+            $table->integer('add_on_id')->unsigned();
             $table->json('value')->nullable();
             $table->timestamps();
-            
+
             $table->foreign("addon_id")->references("id")->on("addons")->onUpdate('cascade')->onDelete('cascade');
         });
     }
@@ -32,6 +32,6 @@ class CreateStringsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('strings');
+        Schema::dropIfExists('phrases');
     }
 }

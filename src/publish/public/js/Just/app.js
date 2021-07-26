@@ -15654,8 +15654,8 @@ process.umask = function() { return 0; };
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! /home/www/html/Just/just/src/publish/resources/js/Just/app.js */"./just/src/publish/resources/js/Just/app.js");
-module.exports = __webpack_require__(/*! /home/www/html/Just/just/src/publish/resources/sass/Just/app.scss */"./just/src/publish/resources/sass/Just/app.scss");
+__webpack_require__(/*! /home/www/devs/Just/just/src/publish/resources/js/Just/app.js */"./just/src/publish/resources/js/Just/app.js");
+module.exports = __webpack_require__(/*! /home/www/devs/Just/just/src/publish/resources/sass/Just/app.scss */"./just/src/publish/resources/sass/Just/app.scss");
 
 
 /***/ })

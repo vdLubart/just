@@ -93,6 +93,10 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
             Route::get("list", "\Just\Controllers\Settings\AddOnController@addOnList");
 
             Route::post("setup", "\Just\Controllers\Settings\AddOnController@setup");
+            Route::post('moveup', '\Just\Controllers\Settings\AddOnController@moveUp');
+            Route::post('movedown', '\Just\Controllers\Settings\AddOnController@moveDown');
+            Route::post('activate', '\Just\Controllers\Settings\AddOnController@activate');
+            Route::post('deactivate', '\Just\Controllers\Settings\AddOnController@deactivate');
             Route::post("delete", "\Just\Controllers\Settings\AddOnController@delete");
 
             Route::prefix('category')->group(function(){

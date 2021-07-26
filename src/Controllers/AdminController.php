@@ -2,10 +2,8 @@
 
 namespace Just\Controllers;
 
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Just\Models\Block;
@@ -19,10 +17,10 @@ use Just\Requests\UploadImageRequest;
 use Just\Models\User;
 use Just\Requests\ChangePasswordRequest;
 use Just\Validators\ValidatorExtended;
-use Just\Structure\Panel\Block\Addon\Categories;
+use Just\Models\Blocks\AddOns\Categories;
 use Just\Models\Theme;
 use Just\Requests\ChangeCategoryRequest;
-use Just\Requests\AddonChangeRequest;
+use Just\Requests\SaveAddonRequest;
 use Just\Requests\UserChangeRequest;
 use Just\Requests\DeleteUserRequest;
 use Just\Requests\ChangeBlockRequest;
@@ -102,7 +100,7 @@ class AdminController extends Controller
         return view(viewPath(Theme::active()->layout, 'addonSettings'))->with(['addon'=>$addon]);
     }
 
-    public function handleAddonForm(AddonChangeRequest $request) {
+    public function handleAddonForm(SaveAddonRequest $request) {
         $addon = AddOn::findOrNew($request->addon_id);
 
         $addon->handleSettingsForm($request);

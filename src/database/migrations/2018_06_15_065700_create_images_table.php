@@ -15,12 +15,12 @@ class CreateImagesTable extends Migration
     {
         Schema::create('images', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            
+
             $table->increments('id');
-            $table->integer('addon_id')->unsigned();
+            $table->integer('add_on_id')->unsigned();
             $table->string('value')->nullable();
             $table->timestamps();
-            
+
             $table->foreign("addon_id")->references("id")->on("addons")->onUpdate('cascade')->onDelete('cascade');
         });
     }

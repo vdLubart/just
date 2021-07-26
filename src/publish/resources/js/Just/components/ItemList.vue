@@ -23,6 +23,10 @@
                         <strong>{{ item.caption }}</strong>
                     </slink><br/>
 
+                    <div v-if="!isEmpty(item.params)" v-for="(value, param) in item.params">
+                        <strong>{{ param }}</strong>: {{ value }}<br>
+                    </div>
+
                     <edit-item :url="key" :activating="activating" :moving="moving" :inactive="!item.isActive"></edit-item>
                 </div>
             </div>

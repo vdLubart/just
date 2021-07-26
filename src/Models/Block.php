@@ -3,8 +3,10 @@
 namespace Just\Models;
 
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -25,6 +27,11 @@ use Illuminate\Support\Facades\Artisan;
 use Lubart\Form\FormGroup;
 use Just\Models\Blocks\AddOns\Categories;
 
+/**
+ * Class Block
+ * @package Just\Models
+ * @property AddOn[] $addons
+ */
 class Block extends Model
 {
     use HasTranslations;
@@ -519,6 +526,7 @@ class Block extends Model
      * Return form to customize the block
      *
      * @return mixed
+     * @throws Exception
      */
     public function customizationForm() {
         return $this->item()->customizationForm($this);
@@ -543,19 +551,19 @@ class Block extends Model
     /**
      * Return add-ons related to the current block
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return HasMany
      */
-    public function addons() {
-        return $this->hasMany(AddOn::class);
+    public function addons(): HasMany {
+        return $this->hasMany(AddOn::class)->where('isActive', 1);
     }
 
     /**
      * Find related to current block add-on by name
      *
-     * @param $name add-on name
+     * @param string $name add-on name
      * @return mixed
      */
-    public static function addon($name) {
+    public static function addon(string $name) {
         return AddOn::where('name', $name)->first();
     }
 
@@ -581,20 +589,20 @@ class Block extends Model
         return $this;
     }
 
-    public function categories() {
+    public function categories(): Collection {
         return $this->addons()->where('type', 'categories');
     }
 
-    public function strings() {
-        return $this->addons()->where('type', 'strings');
+    public function phrases(): Collection {
+        return $this->addons()->where('type', 'phrase');
     }
 
-    public function images() {
-        return $this->addons()->where('type', 'images');
+    public function images(): Collection {
+        return $this->addons()->where('type', 'image');
     }
 
-    public function paragraphs() {
-        return $this->addons()->where('type', 'paragraphs');
+    public function paragraphs(): Collection {
+        return $this->addons()->where('type', 'paragraph');
     }
 
     public function currentCategory() {

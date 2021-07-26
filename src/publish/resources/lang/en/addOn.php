@@ -6,8 +6,11 @@ return [
         'title' => 'Add Add-On',
         'addOn' => 'Add-On',
         'block' => 'Block',
-        'name' => 'Name (dev variable, [a-z])',
-        'title' => 'User\'s Add-On Title'
+        'name' => 'Name (dev variable, ^[a-z]+[a-zA-Z0-9]*$)',
+        'userTitle' => 'User\'s Add-On Title'
+    ],
+    'editForm' => [
+        'title' => "Add-On ':addOn'"
     ],
     'list' => 'Add-On list',
     'addOns' => [
@@ -15,15 +18,15 @@ return [
             'title' => 'Categories',
             'description' => 'Helps categorize block'
         ],
-        'images' => [
+        'image' => [
             'title' => 'Additional Image',
             'description' => 'Adds an image to the item'
         ],
-        'paragraphs' => [
+        'paragraph' => [
             'title' => 'Additional Text',
             'description' => 'Adds an article to the item'
         ],
-        'strings' => [
+        'phrase' => [
             'title' => 'String Value',
             'description' => 'Adds a string to the item'
         ]

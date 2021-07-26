@@ -8,7 +8,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Just\Models\Theme;
 use stdClass;
@@ -161,6 +160,9 @@ abstract class SettingsController extends Controller
         if($this->itemName() === 'block'){
             $items = $this->itemClass()::where('panelLocation', $where['panelLocation'])->orderBy('orderNo')->get();
         }
+        elseif($this->itemName() === 'addOn'){
+            $items = $this->itemClass()::orderBy('block_id')->orderBy('orderNo')->get();
+        }
         else {
             $items = $this->itemClass()::orderBy('orderNo')->get();
         }
@@ -175,7 +177,11 @@ abstract class SettingsController extends Controller
         return $this->response($caption, $items, 'items');
     }
 
-    protected function addOnListView($addOn) {
+    /**
+     * @param string $addOn
+     * @return JsonResponse
+     */
+    protected function addOnListView(string $addOn): JsonResponse {
         $addOnClass = '\\Just\\Models\\Blocks\\AddOns\\' . ucfirst(Str::plural($addOn));
         $items = $addOnClass::orderBy('orderNo')->get();
         $caption = [
@@ -201,7 +207,7 @@ abstract class SettingsController extends Controller
 
     public function settingsHome() {
         $items = [];
-        if(\Auth::user()->role == "master"){
+        if(Auth::user()->role == "master"){
             $items['layout'] = [
                 'label' => __('navbar.layouts.top'),
                 'icon' => 'paint-brush'
@@ -229,14 +235,21 @@ abstract class SettingsController extends Controller
         return $this->response([], $items, 'list');
     }
 
-    protected function setupSettingsForm($item, $request, $id = 0, $redirect = null) {
+    /**
+     * @param $item
+     * @param $request
+     * @param int $id
+     * @param string|null $redirect
+     * @return JsonResponse
+     */
+    protected function setupSettingsForm($item, $request, int $id = 0, ?string $redirect = null): JsonResponse {
         $item->handleSettingsForm($request);
 
         $response = new stdClass();
         $response->message = $this->itemTranslation('messages.success.' . ($id == 0 ? 'created' : 'updated'));
         $response->redirect = $redirect;
 
-        return json_encode($response);
+        return response()->json(json_encode($response));
     }
 
     protected function decodeRequest(&$request) {

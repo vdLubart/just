@@ -13,8 +13,7 @@ class ChangeTextRequest extends FormRequest implements ValidateRequest
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize(): bool {
         return User::authAsAdmin();
     }
 
@@ -23,8 +22,7 @@ class ChangeTextRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [
             "text" => "required",
             "id" => "integer|min:1|nullable"

@@ -2,6 +2,8 @@
 
 namespace Just\Models\Blocks\AddOns;
 
+use Just\Models\Blocks\Contracts\BlockItem;
+use Just\Models\Blocks\Contracts\ValidateRequest;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Just\Models\AddOn;
@@ -23,20 +25,20 @@ class Categories extends AbstractAddOn
     /**
      * Update existing settings form and add new elements
      *
-     * @param AddOn $addon Addon object
      * @param Form $form Form object
      * @param mixed $values
      *
      * @return Form;
      * @throws \Exception;
      */
-    public static function updateForm(AddOn $addon, Form $form, $values) {
-        $form->add(FormElement::select(['name'=>$addon->name."_".$addon->id, 'label'=>$addon->title, 'options'=>$addon->valuesSelectArray('title'), 'value'=>$values]));
+    public function updateForm(Form $form, $values): Form {
+        $form->add(FormElement::select(['name'=>$this->addon->name."_".$this->addon->id, 'label'=>$this->addon->title, 'options'=>$this->addon->valuesSelectArray('title'), 'value'=>$values]));
 
         return $form;
     }
 
-    public static function handleForm(AddOn $addon, Request $request, $item) {
+    public function handleForm_shouldBeUpdated(ValidateRequest $request, BlockItem $item) {
+        $addon = $this->addon;
         DB::table($item->getTable()."_".$addon->type)
                 ->join($addon->type, $item->getTable()."_".$addon->type.".addonItem_id", "=", $addon->type.".id")
                 ->where('addon_id', $addon->id)
@@ -61,7 +63,7 @@ class Categories extends AbstractAddOn
         }
     }
 
-    public static function validationRules(AddOn $addon) {
+    public function validationRules(AddOn $addon): array {
         return [
             $addon->name."_".$addon->id => "required|integer|min:1",
         ];

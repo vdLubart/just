@@ -2,15 +2,17 @@
 
 namespace Just\Controllers\Settings;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
 use Just\Models\AddOn;
-use Just\Models\Block\AddOns\Categories;
-use Just\Models\Theme;
+use Just\Requests\DeleteAddOnRequest;
+use Just\Requests\InitializeAddOnRequest;
 use Just\Requests\DeletePageRequest;
-use Just\Requests\ChangePageRequest;
 use Just\Models\Page;
 use Just\Models\System\Route as JustRoute;
+use Just\Requests\SaveAddonRequest;
+use Throwable;
 
 class AddOnController extends SettingsController
 {
@@ -18,19 +20,20 @@ class AddOnController extends SettingsController
      * Render view with the add-on settings form
      *
      * @param int $addOnId page id
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Throwable
+     * @return JsonResponse
+     * @throws Throwable
      */
-    public function settingsForm($addOnId) {
+    public function settingsForm(int $addOnId): JsonResponse {
         return $this->settingsFormView($addOnId);
     }
 
     /**
      * Render view with page list
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws Throwable
      */
-    public function addOnList() {
+    public function addOnList(): JsonResponse {
         return $this->listView();
     }
 
@@ -40,12 +43,18 @@ class AddOnController extends SettingsController
      * @param Collection $items
      * @return string
      */
-    protected function buildItemList(Collection $items):string {
+    protected function buildItemList(Collection $items): string {
         $list = [];
 
         foreach($items as $item){
-            $list[$this->itemName() . '/'. $item->id] = [
-                'caption' => $this->caption($item)
+            $list[$this->itemKebabName() . '/'. $item->id] = [
+                'caption' => $item->title,
+                'params' => [
+                    "Type" => $item->type,
+                    "Variable name" => $item->name,
+                    "Block" => "'" . $item->block->title . "' at the '" . $item->block->page()->title . "' page"
+                ],
+                'isActive' => !!$item->isActive
             ];
         }
 
@@ -53,12 +62,12 @@ class AddOnController extends SettingsController
     }
 
     /**
-     * Create new or update existing page
+     * Create new or update existing add-on
      *
-     * @param ChangePageRequest $request
-     * @return string response in JSON format
+     * @param SaveAddonRequest $request
+     * @return false|string response in JSON format
      */
-    public function setup(ChangePageRequest $request) {
+    public function setup(SaveAddonRequest $request) {
         $this->decodeRequest($request);
 
         $addOn = AddOn::findOrNew($request->addon_id);
@@ -67,22 +76,21 @@ class AddOnController extends SettingsController
     }
 
     /**
-     * Delete page
+     * Delete add-on
      *
-     * @param DeletePageRequest $request
+     * @param DeleteAddOnRequest $request
      * @return string response in JSON format
      */
-    public function delete(DeletePageRequest $request) {
-        $page = Page::find($request->id);
-        $route = JustRoute::where('route', $page->route)->first();
+    public function delete(DeleteAddOnRequest $request): string {
+        $addon = AddOn::find($request->id);
 
-        if(!empty($page)){
-            $page->delete();
-            $route->delete();
+        if(!empty($addon)){
+            $addon->delete();
         }
 
         $response = new \stdClass();
-        $response->message = __('page.messages.success.deleted');
+        $response->message = __('addon.messages.success.deleted');
+        $response->redirect = '/settings/add-on/list';
 
         return json_encode($response);
     }
@@ -90,7 +98,7 @@ class AddOnController extends SettingsController
     /**
      * Return list with available actions for the layout
      */
-    public function actions() {
+    public function actions(): JsonResponse {
         $items = [
             $this->itemKebabName() . '/0' => [
                 'label' => __('navbar.addOns.create'),
@@ -108,14 +116,16 @@ class AddOnController extends SettingsController
         return $this->response($caption, $items, 'list');
     }
 
-    public function categorySettingsForm($categoryId){
+    public function categorySettingsForm($categoryId): JsonResponse {
         return $this->addOnSettingsFormView($categoryId, 'category');
     }
 
     /**
      * Return list with available actions for the layout
+     *
+     * @return JsonResponse
      */
-    public function categoryActions() {
+    public function categoryActions(): JsonResponse {
         $items = [
             $this->itemKebabName() . '/category/0' => [
                 'label' => __('navbar.addOns.categories.create'),
@@ -136,9 +146,61 @@ class AddOnController extends SettingsController
     /**
      * Render view with page list
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function categoryList() {
+    public function categoryList(): JsonResponse {
         return $this->addOnListView('category');
+    }
+
+    public function activate(InitializeAddOnRequest $request) {
+        return $this->addOnVisibility($request, true);
+    }
+
+    public function deactivate(InitializeAddOnRequest $request) {
+        return $this->addOnVisibility($request, false);
+    }
+
+    /**
+     * Change item visibility
+     *
+     * @param InitializeAddOnRequest $request
+     * @param boolean $visibility
+     * @return false|string
+     */
+    protected function addOnVisibility(InitializeAddOnRequest $request, bool $visibility) {
+        $addon = AddOn::find($request->id);
+
+        if(!empty($addon)){
+            $addon->isActive = (int)$visibility;
+            $addon->save();
+        }
+
+        $response = new \stdClass();
+        $response->message = $this->itemTranslation('messages.success.' . ($visibility ? 'activated' : 'deactivated'));
+        $response->redirect = '/settings/add-on/list';
+
+        return json_encode($response);
+    }
+
+    public function moveUp(InitializeAddOnRequest $request) {
+        return $this->moveAddOn($request, 'up');
+    }
+
+    public function moveDown(InitializeAddOnRequest $request) {
+        return $this->moveAddOn($request, 'down');
+    }
+
+    protected function moveAddOn(InitializeAddOnRequest $request, $dir) {
+        $addon = AddOn::find($request->id);
+
+        if(!empty($addon)){
+            $addon->move($dir);
+        }
+
+        $response = new \stdClass();
+        $response->message = $this->itemTranslation('messages.success.moved');
+        $response->redirect = '/settings/add-on/list';
+
+        return json_encode($response);
     }
 }

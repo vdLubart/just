@@ -15,13 +15,13 @@ class CreateCategoriesTable extends Migration
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            
+
             $table->increments('id');
-            $table->integer('addon_id')->unsigned();
+            $table->integer('add_on_id')->unsigned();
             $table->json('title');
             $table->string('value')->unique();
             $table->timestamps();
-            
+
             $table->foreign('addon_id')->references('id')->on('addons')->onUpdate('cascade')->onDelete('cascade');
         });
     }

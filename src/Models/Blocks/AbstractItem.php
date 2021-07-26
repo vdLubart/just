@@ -3,10 +3,14 @@
 namespace Just\Models\Blocks;
 
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Str;
 use Just\Models\AddOn;
 use Just\Models\Blocks\Contracts\BlockItem;
 use stdClass;
@@ -20,6 +24,12 @@ use Just\Tools\Useful;
 use Illuminate\Support\Facades\Schema;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 
+/**
+ * Class AbstractItem
+ * @package Just\Models\Blocks
+ *
+ * @property Block $block
+ */
 abstract class AbstractItem extends Model implements BlockItem
 {
     /**
@@ -87,7 +97,7 @@ abstract class AbstractItem extends Model implements BlockItem
 
         $with = [];
         foreach($this->addons as $addon){
-            $with[] = $addon->type;
+            $with[] = Str::plural($addon->type);
         }
 
         $collection = $content->with($with)->get();
@@ -101,7 +111,7 @@ abstract class AbstractItem extends Model implements BlockItem
 
     protected function attachAddons() {
         foreach($this->addons as $addon){
-            $addonItem = $this->{$addon->type}->where('addon_id', $addon->id)->first();
+            $addonItem = $this->addOnItem($addon->type, $addon->id);
             if(!empty($addonItem)){
                 if($addon->type != "categories"){
                     $this->{$addon->name} = $addonItem->value;
@@ -140,7 +150,7 @@ abstract class AbstractItem extends Model implements BlockItem
     /**
      * Return block settings form for admin panel
      *
-     * @return SettingsForm
+     * @return Form
      */
     abstract public function itemForm(): Form;
 
@@ -408,8 +418,6 @@ abstract class AbstractItem extends Model implements BlockItem
 
     /**
      * Return current layout
-     *
-     * @return \Just\Structure\Layout;
      */
     public function layout() {
         return $this->block->layout();
@@ -419,7 +427,7 @@ abstract class AbstractItem extends Model implements BlockItem
      * Include new addon elements related to the addon
      */
     public function includeAddons() {
-        foreach ($this->block->addons as $addon) {
+        foreach ($this->block->addons->sortBy('orderNo') as $addon) {
             $addon->updateForm($this->form, $this->addonValues($addon->id));
         }
     }
@@ -429,6 +437,7 @@ abstract class AbstractItem extends Model implements BlockItem
      *
      * @param ValidateRequest $request
      * @param mixed $item Model item
+     * @throws Exception
      */
     public function handleAddons(ValidateRequest $request, $item) {
         foreach ($this->block->addons as $addon) {
@@ -436,19 +445,23 @@ abstract class AbstractItem extends Model implements BlockItem
         }
     }
 
-    public function addonValues($addonId) {
-        $addon = AddOn::find($addonId)->addon();
-        $addonClass = new $addon;
+    /**
+     * @param int $addonId
+     * @return Collection
+     */
+    public function addonValues(int $addonId): Collection {
+        $addonClass = AddOn::find($addonId)->addonItemClassName();
+        $addon = new $addonClass;
 
-        return $this->belongsToMany($addon, $this->getTable().'_'.$addonClass->getTable(), 'modelItem_id', 'addonItem_id')->where('addon_id', $addonId)->get();
+        return $this->belongsToMany($addonClass, $this->getTable().'_'.$addon->getTable(), 'modelItem_id', 'addonItem_id')->where('add_on_id', $addonId)->get();
     }
 
     /**
      * Get related addons
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return HasMany
      */
-    public function addons() {
+    public function addons(): HasMany {
         return $this->block->addons();
     }
 
@@ -458,30 +471,34 @@ abstract class AbstractItem extends Model implements BlockItem
      * @param string $name addon name
      * @return addon item
      */
-    public function addon($name){
+    public function addon(string $name): AddOn {
         $addon = Addon::where('name', $name)->first();
 
-        return $this->belongsToMany('Just\\Structure\\Panel\\Block\\Addon\\'.ucfirst($addon->type), $this->getTable().'_'.$addon->type, 'modelItem_id', 'addonItem_id')->first();
+        return $this->belongsToMany('Just\\Models\\Blocks\\AddOns\\'.ucfirst($addon->type), $this->getTable().'_'.$addon->type, 'modelItem_id', 'addonItem_id')->first();
     }
 
 
-    public function categories() {
-        return $this->belongsToMany(Addon\Categories::class, $this->getTable().'_categories', 'modelItem_id', 'addonItem_id');
+    public function categories(): BelongsToMany {
+        return $this->belongsToMany(AddOns\Categories::class, $this->getTable().'_categories', 'modelItem_id', 'addonItem_id');
     }
 
-    public function strings() {
-        return $this->belongsToMany(Addon\Strings::class, $this->getTable().'_strings', 'modelItem_id', 'addonItem_id');
+    public function phrases(): BelongsToMany {
+        return $this->belongsToMany(AddOns\Phrase::class, $this->getTable().'_phrases', 'modelItem_id', 'addonItem_id');
     }
 
-    public function images() {
-        return $this->belongsToMany(Addon\Images::class, $this->getTable().'_images', 'modelItem_id', 'addonItem_id');
+    public function images(): BelongsToMany {
+        return $this->belongsToMany(AddOns\Images::class, $this->getTable().'_images', 'modelItem_id', 'addonItem_id');
     }
 
-    public function paragraphs() {
-        return $this->belongsToMany(Addon\Paragraphs::class, $this->getTable().'_paragraphs', 'modelItem_id', 'addonItem_id');
+    public function paragraphs(): BelongsToMany {
+        return $this->belongsToMany(AddOns\Paragraphs::class, $this->getTable().'_paragraphs', 'modelItem_id', 'addonItem_id');
     }
 
-    public function relationsForm($relBlock) {
+    protected function addOnItem(string $name, int $id) {
+        return $this->{Str::plural($name)}()->where('add_on_id', $id)->first();
+    }
+
+    public function relationsForm($relBlock): Form {
         $form = new Form('/admin/settings/relations/create');
 
         $form->setType('relations');
