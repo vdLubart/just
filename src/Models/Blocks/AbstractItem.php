@@ -487,11 +487,11 @@ abstract class AbstractItem extends Model implements BlockItem
     }
 
     public function images(): BelongsToMany {
-        return $this->belongsToMany(AddOns\Images::class, $this->getTable().'_images', 'modelItem_id', 'addonItem_id');
+        return $this->belongsToMany(AddOns\Image::class, $this->getTable().'_images', 'modelItem_id', 'addonItem_id');
     }
 
     public function paragraphs(): BelongsToMany {
-        return $this->belongsToMany(AddOns\Paragraphs::class, $this->getTable().'_paragraphs', 'modelItem_id', 'addonItem_id');
+        return $this->belongsToMany(AddOns\Paragraph::class, $this->getTable().'_paragraphs', 'modelItem_id', 'addonItem_id');
     }
 
     protected function addOnItem(string $name, int $id) {

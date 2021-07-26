@@ -196,7 +196,7 @@ class JustStructureSeeder extends Seeder
 
         // Addons
         DB::table('addonList')->insert([
-            'addon' => 'categories',
+            'addon' => 'category',
             'table' => 'categories'
         ]);
 

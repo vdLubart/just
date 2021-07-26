@@ -238,11 +238,11 @@ abstract class SettingsController extends Controller
     /**
      * @param $item
      * @param $request
-     * @param int $id
+     * @param int|null $id
      * @param string|null $redirect
      * @return JsonResponse
      */
-    protected function setupSettingsForm($item, $request, int $id = 0, ?string $redirect = null): JsonResponse {
+    protected function setupSettingsForm($item, $request, ?int $id = 0, ?string $redirect = null): JsonResponse {
         $item->handleSettingsForm($request);
 
         $response = new stdClass();
