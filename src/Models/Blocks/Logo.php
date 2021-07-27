@@ -10,6 +10,9 @@ use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Tools\Useful;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @mixin IdeHelperLogo
+ */
 class Logo extends AbstractItem
 {
 

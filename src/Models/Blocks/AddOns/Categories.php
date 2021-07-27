@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Translatable\HasTranslations;
 use Lubart\Form\FormGroup;
 
+/**
+ * @mixin IdeHelperCategories
+ */
 class Categories extends AbstractAddOn
 {
     use HasTranslations;

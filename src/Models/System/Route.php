@@ -5,6 +5,9 @@ namespace Just\Models\System;
 use Illuminate\Database\Eloquent\Model;
 use Just\Models\Page;
 
+/**
+ * @mixin IdeHelperRoute
+ */
 class Route extends Model
 {
     /**

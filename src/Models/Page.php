@@ -11,6 +11,9 @@ use Lubart\Form\FormElement;
 use Spatie\Translatable\HasTranslations;
 use Lubart\Form\FormGroup;
 
+/**
+ * @mixin IdeHelperPage
+ */
 class Page extends Model
 {
     use HasTranslations;

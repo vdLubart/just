@@ -4,6 +4,9 @@ namespace Just\Models\System;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperIconSet
+ */
 class IconSet extends Model
 {
     /**

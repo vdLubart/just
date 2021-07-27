@@ -12,6 +12,9 @@ use Just\Requests\UserChangeRequest;
 use App\User as AppUser;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @mixin IdeHelperUser
+ */
 class User extends AppUser
 {
     use Notifiable;

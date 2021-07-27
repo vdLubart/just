@@ -4,6 +4,9 @@ namespace Just\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperTheme
+ */
 class Theme extends Model
 {
     protected $fillable = [

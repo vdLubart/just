@@ -13,8 +13,7 @@ class ChangeArticleRequest extends FormRequest implements ValidateRequest
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize(): bool {
         return User::authAsAdmin();
     }
 
@@ -23,8 +22,7 @@ class ChangeArticleRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [
             "image" => "image|nullable",
             "subject" => "required|max:255",

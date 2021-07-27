@@ -2,12 +2,16 @@
 
 namespace Just\Models\Blocks;
 
+use Exception;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Tools\Useful;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @mixin IdeHelperText
+ */
 class Text extends AbstractItem
 {
     use HasTranslations;
@@ -49,8 +53,11 @@ class Text extends AbstractItem
         return $this->form;
     }
 
+    /**
+     * @throws Exception
+     */
     public function handleItemForm(ValidateRequest $request) {
-        if(is_null($request->request->get('id'))){
+        if(is_null($request->id)){
             $text = new Text;
             $text->orderNo = Useful::getMaxNo($this->table, ['block_id' => $request->block_id]);
             $text->setBlock($request->block_id);

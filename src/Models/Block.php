@@ -30,8 +30,10 @@ use Just\Models\Blocks\AddOns\Categories;
 
 /**
  * Class Block
+ *
  * @package Just\Models
  * @property AddOn[] $addons
+ * @mixin IdeHelperBlock
  */
 class Block extends Model
 {
@@ -447,11 +449,19 @@ class Block extends Model
         return $this->item;
     }
 
-    public function items() {
+    /**
+     * @return HasMany
+     * @throws Exception
+     */
+    public function items(): HasMany {
         return $this->hasMany($this->itemClassName());
     }
 
-    protected function itemClassName() {
+    /**
+     * @return string
+     * @throws Exception
+     */
+    protected function itemClassName(): string {
         $name = "\\App\\Just\\Models\\Blocks\\". ucfirst($this->type);
 
         // looking for a custom block

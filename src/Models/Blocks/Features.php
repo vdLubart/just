@@ -15,6 +15,9 @@ use Just\Models\System\Route as JustRoute;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @mixin IdeHelperFeatures
+ */
 class Features extends AbstractItem
 {
     use HasTranslations;

@@ -2,6 +2,7 @@
 
 namespace Just\Models\Blocks;
 
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
@@ -14,6 +15,11 @@ use Just\Tools\Slug;
 use Spatie\Translatable\HasTranslations;
 use Lubart\Form\FormGroup;
 
+/**
+ * @mixin IdeHelperArticles
+ *
+ * @property string shouldBeCropped
+ */
 class Articles extends AbstractItem
 {
    use Slug, HasTranslations;
@@ -29,10 +35,13 @@ class Articles extends AbstractItem
 
     protected $table = 'articles';
 
-    public $translatable = ['subject', 'summary', 'text'];
+    public array $translatable = ['subject', 'summary', 'text'];
 
     protected array $neededParameters = [ 'itemRouteBase' ];
 
+    /**
+     * @throws Exception
+     */
     public function setup() {
         if(!empty($this->block->parameter('itemRouteBase')) and !Useful::isRouteExists($this->block->parameter('itemRouteBase') . "/{id}")){
             JustRoute::where('block_id', $this->block_id)->delete();
@@ -52,6 +61,9 @@ class Articles extends AbstractItem
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function itemForm(): Form {
         if(is_null($this->form)){
             return new Form();
@@ -119,13 +131,12 @@ class Articles extends AbstractItem
         return $form;
     }
 
+    /**
+     * @throws Exception
+     */
     public function handleItemForm(ValidateRequest $request) {
         if(!file_exists(public_path('storage/'.$this->table))){
             mkdir(public_path('storage/'.$this->table), 0775);
-        }
-
-        if(!is_null($request->file('image'))){
-            $image = Image::make($request->file('image'));
         }
 
         if(is_null($request->id)){
@@ -150,6 +161,7 @@ class Articles extends AbstractItem
         $this->handleAddons($request, $article);
 
         if(!is_null($request->file('image'))){
+            $image = Image::make($request->file('image'));
             $image->encode('png')->save(public_path('storage/'.$this->table.'/'.$article->image.".png"));
 
             if($this->parameter('cropPhoto')) {

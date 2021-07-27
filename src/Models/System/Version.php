@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
  * Description of Version
  *
  * @author lubart
+ * @mixin IdeHelperVersion
  */
 class Version extends Model{
     

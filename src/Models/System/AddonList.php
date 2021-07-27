@@ -4,6 +4,9 @@ namespace Just\Models\System;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperAddonList
+ */
 class AddonList extends Model {
 
     protected $table = 'addonList';

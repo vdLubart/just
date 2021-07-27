@@ -8,6 +8,9 @@ use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Just\Tools\Useful;
 
+/**
+ * @mixin IdeHelperLink
+ */
 class Link extends AbstractItem
 {
 

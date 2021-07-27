@@ -41,4 +41,9 @@ interface BlockItem {
      */
     public function itemCaption(): ?string;
 
+    /**
+     * Return table name for the block item
+     */
+    public function getTable();
+
 }

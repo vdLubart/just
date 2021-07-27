@@ -10,6 +10,9 @@ use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @mixin IdeHelperGallery
+ */
 class Gallery extends AbstractItem
 {
 

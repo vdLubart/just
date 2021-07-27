@@ -2,16 +2,16 @@
 
 namespace Just\Models\Blocks\AddOns;
 
-use Exception;
 use Intervention\Image\ImageManagerStatic;
-use Just\Models\Blocks\AbstractItem;
 use Just\Models\Blocks\Contracts\BlockItem;
 use Just\Models\Blocks\Contracts\ValidateRequest;
-use Just\Structure\Panel\Block\Addon\Images;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Just\Models\AddOn;
 
+/**
+ * @mixin IdeHelperImage
+ */
 class Image extends AbstractAddOn
 {
     protected $table = 'images';
@@ -21,10 +21,8 @@ class Image extends AbstractAddOn
     /**
      * Update existing block form and add new elements
      *
-     * @param Form $form Form object
-     * @param mixed $values
+     * @param BlockItem $blockItem
      * @return Form
-     * @throws Exception
      */
     public function updateForm(BlockItem $blockItem): Form {
         $image = $this->value ?? null;
@@ -68,12 +66,6 @@ class Image extends AbstractAddOn
 
             $request->{$this->addon->name.'_'.$this->addon->id} = $fileName;
             parent::handleForm($request, $blockItem);
-/*
-            $oldImage = Images::where(['add_on_id'=>$this->addon->id])->first();
-            if(!empty($oldImage)){
-                $blockItem->deleteImage($oldImage->value);
-            }
-*/
         }
     }
 }

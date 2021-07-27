@@ -11,6 +11,9 @@ use Just\Tools\Useful;
 use Lubart\Form\FormElement;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @mixin IdeHelperContact
+ */
 class Contact extends AbstractItem
 {
     use HasTranslations;

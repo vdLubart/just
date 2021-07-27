@@ -5,6 +5,9 @@ namespace Just\Models\Blocks;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 
+/**
+ * @mixin IdeHelperHtml
+ */
 class Html extends Text
 {
     public function itemForm(): Form {

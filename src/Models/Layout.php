@@ -10,6 +10,9 @@ use Lubart\Form\FormGroup;
 use Just\Requests\ChangeLayoutRequest;
 use Exception;
 
+/**
+ * @mixin IdeHelperLayout
+ */
 class Layout extends Model
 {
     protected $table = 'layouts';

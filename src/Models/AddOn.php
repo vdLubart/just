@@ -23,9 +23,10 @@ use Spatie\Translatable\HasTranslations;
 
 /**
  * Class AddOn
- * @package Just\Models
  *
+ * @package Just\Models
  * @property AddOnItem $addonItem
+ * @mixin IdeHelperAddOn
  */
 class AddOn extends Model
 {
@@ -67,7 +68,9 @@ class AddOn extends Model
     }
 
     /**
-     *  @throws Exception
+     * @param BlockItem $blockItem
+     * @return AddOnItem
+     * @throws Exception
      */
     public function addonItem(BlockItem $blockItem): AddOnItem {
         return $blockItem->belongsToMany($this->addonItemClassName(), $blockItem->getTable()."_".Str::plural($this->type), 'modelItem_id', 'addonItem_id')->where('add_on_id', $this->id)->first() ?? $this->newAddOnItem();
@@ -127,10 +130,6 @@ class AddOn extends Model
      */
     public function validationRules(): array {
         return $this->newAddOnItem()->validationRules($this);
-    }
-
-    public function values(): HasMany {
-        return $this->hasMany($this->addon());
     }
 
     public function valuesSelectArray($value, $key='id'): array {

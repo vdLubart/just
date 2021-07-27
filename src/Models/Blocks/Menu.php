@@ -12,6 +12,9 @@ use Just\Tools\Useful;
 use Just\Models\System\Route as JustRoute;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @mixin IdeHelperMenu
+ */
 class Menu extends AbstractItem
 {
     use HasTranslations;

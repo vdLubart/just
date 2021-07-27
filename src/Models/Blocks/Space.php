@@ -7,6 +7,9 @@ use Just\Models\Blocks\Contracts\ValidateRequest;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 
+/**
+ * @mixin IdeHelperSpace
+ */
 class Space extends AbstractItem
 {
     protected array $neededParameters = [

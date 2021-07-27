@@ -19,6 +19,9 @@ use Just\Models\Page;
 use Just\Tools\Slug;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @mixin IdeHelperEvents
+ */
 class Events extends AbstractItem implements ContainsPublicForm
 {
     use HasTranslations, Slug;

@@ -8,6 +8,9 @@ use Lubart\Form\FormElement;
 use Just\Models\AddOn;
 use Spatie\Translatable\HasTranslations;
 
+/**
+ * @mixin IdeHelperPhrase
+ */
 class Phrase extends AbstractAddOn
 {
     use HasTranslations;
@@ -16,7 +19,7 @@ class Phrase extends AbstractAddOn
 
     protected $fillable = ['add_on_id', 'value'];
 
-    public $translatable = ['value'];
+    public array $translatable = ['value'];
 
     /**
      * Update existing block form and add new elements

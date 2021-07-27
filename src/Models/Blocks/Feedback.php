@@ -13,6 +13,9 @@ use Just\Tools\Useful;
 use Just\Models\System\Route as JustRoute;
 use Just\Models\User;
 
+/**
+ * @mixin IdeHelperFeedback
+ */
 class Feedback extends AbstractItem implements ContainsPublicForm
 {
 

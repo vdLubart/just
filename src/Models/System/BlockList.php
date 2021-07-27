@@ -4,6 +4,9 @@ namespace Just\Models\System;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperBlockList
+ */
 class BlockList extends Model
 {
     protected $table = 'blockList';
