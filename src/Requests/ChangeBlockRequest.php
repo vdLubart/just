@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Just\Models\Block;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
 class ChangeBlockRequest extends FormRequest implements ValidateRequest
 {

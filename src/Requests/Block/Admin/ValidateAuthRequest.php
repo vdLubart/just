@@ -4,7 +4,7 @@ namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
 abstract class ValidateAuthRequest extends FormRequest implements ValidateRequest
 {

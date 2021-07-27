@@ -4,7 +4,7 @@ namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Just\Models\User;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
 class ChangeArticleRequest extends FormRequest implements ValidateRequest
 {

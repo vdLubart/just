@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
 use Just\Models\Blocks\AbstractItem;
-use Just\Models\Blocks\Contracts\BlockItem;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\BlockItem;
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Models\System\BlockList;
 use ReflectionException;
 use ReflectionMethod;
@@ -32,7 +32,7 @@ use Just\Models\Blocks\AddOns\Categories;
  * Class Block
  *
  * @package Just\Models
- * @property AddOn[] $addons
+ * @property Collection|AddOn[] $addons
  * @mixin IdeHelperBlock
  */
 class Block extends Model

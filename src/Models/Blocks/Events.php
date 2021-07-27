@@ -11,8 +11,8 @@ use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
 use Intervention\Image\ImageManagerStatic as Image;
-use Just\Models\Blocks\Contracts\ContainsPublicForm;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\ContainsPublicForm;
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Tools\Useful;
 use Just\Models\System\Route as JustRoute;
 use Just\Models\Page;
@@ -215,7 +215,7 @@ class Events extends AbstractItem implements ContainsPublicForm
         return $this->form;
     }
 
-    public function publicForm() {
+    public function publicForm(): Form {
         $form = new Form($this->registerUrl);
 
         $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block_id]));

@@ -5,7 +5,7 @@ namespace Just\Requests\Block\Admin;
 use Illuminate\Foundation\Http\FormRequest;
 use Just\Models\Block;
 use Just\Models\User;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
 class ChangeContactRequest extends FormRequest implements ValidateRequest
 {

@@ -2,7 +2,7 @@
 
 namespace Just\Models\Blocks\AddOns;
 
-use Just\Models\Blocks\Contracts\BlockItem;
+use Just\Contracts\BlockItem;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Just\Models\AddOn;

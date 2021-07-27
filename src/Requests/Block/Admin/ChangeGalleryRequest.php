@@ -3,7 +3,7 @@
 namespace Just\Requests\Block\Admin;
 
 use Illuminate\Validation\Rule;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
 class ChangeGalleryRequest extends ValidateAuthRequest implements ValidateRequest {
 

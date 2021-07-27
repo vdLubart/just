@@ -6,7 +6,7 @@
  * Time: 18:27
  */
 
-namespace Just\Models\Blocks\Contracts;
+namespace Just\Contracts;
 
 use Illuminate\Http\Request;
 use Lubart\Form\Form;
@@ -18,13 +18,12 @@ interface ContainsPublicForm {
      *
      * @return Form
      */
-    public function publicForm();
+    public function publicForm(): Form;
 
     /**
      * Handle form from the public side
      *
      * @param Request $request
-     * @return mixed
      */
     public function handlePublicForm(Request $request);
 

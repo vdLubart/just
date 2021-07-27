@@ -13,8 +13,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Models\AddOn;
-use Just\Models\Blocks\Contracts\BlockItem;
+use Just\Contracts\BlockItem;
 use Just\Models\Layout;
 use stdClass;
 use Lubart\Form\Form;
@@ -25,13 +26,13 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Just\Models\Block;
 use Just\Tools\Useful;
 use Illuminate\Support\Facades\Schema;
-use Just\Models\Blocks\Contracts\ValidateRequest;
 
 /**
  * Class AbstractItem
  * @package Just\Models\Blocks
  *
  * @property Block $block
+ * @property Collection|AddOn[] $addons
  */
 abstract class AbstractItem extends Model implements BlockItem
 {
@@ -179,7 +180,7 @@ abstract class AbstractItem extends Model implements BlockItem
     /**
      * Handle request to create/update model item
      *
-     * @param Contracts\ValidateRequest $request
+     * @param ValidateRequest $request
      * @return mixed
      */
     abstract public function handleItemForm(ValidateRequest $request);
@@ -440,6 +441,7 @@ abstract class AbstractItem extends Model implements BlockItem
 
     /**
      * Include new addon elements related to the addon
+     * @throws Exception
      */
     public function includeAddons() {
         foreach ($this->block->addons->sortBy('orderNo') as $addon) {
@@ -463,6 +465,7 @@ abstract class AbstractItem extends Model implements BlockItem
     /**
      * @param int $addonId
      * @return Collection
+     * @throws Exception
      */
     public function addonValues(int $addonId): Collection {
         $addonClass = AddOn::find($addonId)->addonItemClassName();

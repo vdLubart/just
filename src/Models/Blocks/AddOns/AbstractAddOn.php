@@ -4,9 +4,9 @@ namespace Just\Models\Blocks\AddOns;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Just\Models\Blocks\Contracts\AddOnItem;
-use Just\Models\Blocks\Contracts\BlockItem;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\AddOnItem;
+use Just\Contracts\BlockItem;
+use Just\Contracts\Requests\ValidateRequest;
 use Lubart\Form\Form;
 use Just\Models\AddOn;
 use Illuminate\Support\Facades\DB;

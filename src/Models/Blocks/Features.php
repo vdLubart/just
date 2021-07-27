@@ -12,7 +12,7 @@ use Just\Models\System\Icon;
 use Just\Models\System\IconSet;
 use Illuminate\Http\Request;
 use Just\Models\System\Route as JustRoute;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 use Spatie\Translatable\HasTranslations;
 
 /**

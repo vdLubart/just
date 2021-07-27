@@ -6,7 +6,7 @@
 namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Models\User;
 
 class InitializeAddOnRequest extends FormRequest implements ValidateRequest{

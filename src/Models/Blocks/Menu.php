@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Config;
 use stdClass;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Tools\Useful;
 use Just\Models\System\Route as JustRoute;
 use Spatie\Translatable\HasTranslations;

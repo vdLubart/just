@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Lubart\Form\FormElement;
 use Intervention\Image\ImageManagerStatic as Image;
 use Lubart\Form\Form;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Tools\Useful;
 use Spatie\Translatable\HasTranslations;
 

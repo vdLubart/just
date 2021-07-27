@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Lubart\Form\FormGroup;
-use Just\Models\Blocks\Contracts\ContainsPublicForm;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\ContainsPublicForm;
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Tools\Useful;
 use Just\Models\System\Route as JustRoute;
 use Just\Models\User;
@@ -114,7 +114,7 @@ class Feedback extends AbstractItem implements ContainsPublicForm
         return $feedback;
     }
 
-    public function publicForm() {
+    public function publicForm(): Form {
         $form = new Form("/feedback/add");
 
         $form->add(FormElement::hidden(['name'=>"block_id", "value"=>$this->block_id]));

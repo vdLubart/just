@@ -3,7 +3,7 @@
 namespace Just\Models\Blocks;
 
 use Exception;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 

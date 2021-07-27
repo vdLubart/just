@@ -4,10 +4,11 @@ namespace Just\Models\Blocks;
 
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Just\Contracts\Requests\BlockItems\ValidateArticleRequest;
+use Just\Contracts\Requests\ValidateRequest;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Intervention\Image\ImageManagerStatic as Image;
-use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Tools\Useful;
 use Just\Models\System\Route as JustRoute;
 use Just\Models\Page;
@@ -134,7 +135,7 @@ class Articles extends AbstractItem
     /**
      * @throws Exception
      */
-    public function handleItemForm(ValidateRequest $request) {
+    public function handleItemForm(ValidateArticleRequest $request) {
         if(!file_exists(public_path('storage/'.$this->table))){
             mkdir(public_path('storage/'.$this->table), 0775);
         }

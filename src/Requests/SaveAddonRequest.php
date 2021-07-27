@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Just\Models\AddOn;
 use Just\Models\Block;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Models\User;
 
 class SaveAddonRequest extends FormRequest implements ValidateRequest

@@ -2,6 +2,6 @@
 
 namespace Just\Requests\Block\Admin;
 
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
 class ChangeHtmlRequest extends ChangeTextRequest implements ValidateRequest {}

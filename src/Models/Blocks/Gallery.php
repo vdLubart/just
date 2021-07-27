@@ -4,7 +4,7 @@ namespace Just\Models\Blocks;
 
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\ImageManagerStatic as Image;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Tools\Useful;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;

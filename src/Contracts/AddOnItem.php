@@ -3,8 +3,9 @@
  * @author Viacheslav Dymarchuk
  */
 
-namespace Just\Models\Blocks\Contracts;
+namespace Just\Contracts;
 
+use Just\Contracts\Requests\ValidateRequest;
 use Just\Models\AddOn;
 use Lubart\Form\Form;
 

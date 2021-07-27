@@ -4,7 +4,7 @@ namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Just\Models\User;
-use Just\Models\Blocks\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
 class DeleteBlockRequest extends FormRequest implements ValidateRequest
 {
