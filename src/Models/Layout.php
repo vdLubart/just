@@ -7,7 +7,7 @@ use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Illuminate\Support\Facades\DB;
 use Lubart\Form\FormGroup;
-use Just\Requests\ChangeLayoutRequest;
+use Just\Requests\SaveLayoutRequest;
 use Exception;
 
 /**
@@ -16,24 +16,24 @@ use Exception;
 class Layout extends Model
 {
     protected $table = 'layouts';
-    
+
     protected $fillable = ['name', 'class', 'width'];
-    
+
     public function panels() {
         return $this->belongsTo(Panel::class, 'id', 'layout_id')
                 ->orderBy('panels.orderNo')
                 ->get();
     }
-    
+
     /**
      * Get layout settings form
-     * 
+     *
      * @return Form
      * @throws Exception;
      */
     public function settingsForm() {
         $form = new Form('/settings/layout/setup');
-        
+
         $paramsGroup = new FormGroup('paramsGroup', 'Layout Parameters');
 
         $paramsGroup->add(FormElement::hidden(['name'=>'layout_id', 'value'=>(string) $this->id]));
@@ -69,15 +69,15 @@ class Layout extends Model
         $panelGroup->add(FormElement::html(['name'=>'removePanel', 'value'=>'<div id="removePanel"><a href="#" onclick="CreateLayout.removePanel(this)"><i class="fa fa-trash-alt"></i> ' . __('layout.createForm.removePanel') . '</a></div>']));
 
         $form->addGroup($panelGroup);
-        
+
         $form->applyJS("window.CreateLayout = this.getClassInstance('CreateLayout')");
 
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
 
         return $form;
     }
-    
-    public function handleSettingsForm(ChangeLayoutRequest $request) {
+
+    public function handleSettingsForm(SaveLayoutRequest $request) {
         $this->name = $request->name;
         $this->class = $request->class;
         $this->width = $request->width;
@@ -86,9 +86,9 @@ class Layout extends Model
         if(empty($this->id)){
             $createPanels = true;
         }
-        
+
         $this->save();
-        
+
         if($createPanels){
             $panels = [];
             foreach($request->all() as $key=>$val){
@@ -101,19 +101,19 @@ class Layout extends Model
             $orderNo = 1;
             foreach ($panels as $location => $type){
                 $panel = new Panel();
-                
+
                 $panel->location = $location;
                 $panel->layout_id = $this->id;
                 $panel->type = $type;
                 $panel->orderNo = $orderNo++;
-                
+
                 $panel->save();
-                
+
                 if(!file_exists(resource_path('views/'.$request->name.'/panels/'.$location.'.blade.php'))){
                     if(!file_exists(resource_path('views/'.$request->name.'/panels/'))){
                         mkdir(resource_path('views/'.$request->name.'/panels/'), 0775, true);
                     }
-                    
+
                     if($type == 'static'){
                         copy(resource_path('views/Just/panels/header.blade.php'), resource_path('views/'.$request->name.'/panels/'.$location.'.blade.php'));
                     }
@@ -132,24 +132,24 @@ class Layout extends Model
             Page::setLayoutToAllPages($this);
         }
     }
-    
+
     private function panelLocations() {
         $locations = [];
-        
+
         foreach (DB::table('panelLocations')->get() as $loc){
             $locations[$loc->location] = $loc->location;
         }
-        
+
         return $locations;
     }
-    
+
     public static function setDefaultForm(){
         $form = new Form('settings/layout/setdefault');
-        
+
         $form->add(FormElement::select(['name'=>'layout', 'label'=>__('layout.setDefaultForm.defaultLayout'), 'value'=>Theme::active()->name ?? 'Just', 'options'=>Theme::all()->pluck('name', 'name')]));
         $form->add(FormElement::checkbox(['name'=>'change_all', 'label'=>__('layout.setDefaultForm.forAllPages')]));
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
-        
+
         return $form;
     }
 

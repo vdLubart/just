@@ -6,15 +6,14 @@ use Illuminate\Foundation\Http\FormRequest;
 use Just\Models\User;
 use Just\Contracts\Requests\ValidateRequest;
 
-class ChangeEventRequest extends FormRequest implements ValidateRequest
+class SaveEventRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize(): bool {
         return User::authAsAdmin();
     }
 
@@ -23,9 +22,10 @@ class ChangeEventRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [
+            'id' => 'nullable|integer|exists:events',
+            'block_id' => 'required|integer|exists:blocks,id',
             "image" => "image|nullable",
             "subject" => "required",
             "start_date" => "required|date|date_format:Y-m-d",

@@ -3,10 +3,10 @@
 namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 use Just\Contracts\Requests\ValidateRequest;
+use Just\Models\User;
 
-class ChangeLinkRequest extends FormRequest implements ValidateRequest
+class SaveTextRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,7 +14,7 @@ class ChangeLinkRequest extends FormRequest implements ValidateRequest
      * @return bool
      */
     public function authorize(): bool {
-        return Auth::check();
+        return User::authAsAdmin();
     }
 
     /**
@@ -24,9 +24,9 @@ class ChangeLinkRequest extends FormRequest implements ValidateRequest
      */
     public function rules(): array {
         return [
-            'id' => 'nullable|integer|exists:links',
+            'id' => 'nullable|integer|exists:texts',
             'block_id' => 'required|integer|exists:blocks,id',
-            'linkedBlock_id' => 'required|integer|min:1',
+            "text" => "required",
         ];
     }
 }

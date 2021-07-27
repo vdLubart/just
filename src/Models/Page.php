@@ -5,7 +5,7 @@ namespace Just\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
 use Just\Models\System\Route as JustRoute;
-use Just\Requests\ChangePageRequest;
+use Just\Requests\SavePageRequest;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Spatie\Translatable\HasTranslations;
@@ -88,7 +88,7 @@ class Page extends Model
         return $form;
     }
 
-    public function handleSettingsForm(ChangePageRequest $request) {
+    public function handleSettingsForm(SavePageRequest $request) {
         $this->title = $request->title ?? '';
         $this->description = $request->description ?? '';
         $this->keywords = $request->keywords ?? '';

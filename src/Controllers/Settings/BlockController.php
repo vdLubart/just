@@ -5,16 +5,18 @@
 
 namespace Just\Controllers\Settings;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
 use Just\Controllers\SettingsController;
 use Just\Models\Block;
 use Just\Models\Blocks\Events;
 use Just\Requests\Block\Admin\InitializeBlockRequest;
-use Just\Requests\ChangeBlockRequest;
+use Just\Requests\SaveBlockRequest;
 use Just\Requests\DeleteBlockRequest;
 use Just\Requests\Block\Admin\InitializeItemRequest;
 use Just\Tools\Useful;
@@ -114,6 +116,9 @@ class BlockController extends SettingsController {
         return $this->settingsFormView(0, ['page_id'=>$pageId, 'panelLocation' => $panelLocation], $caption);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function settingsForm($blockId) {
         $block = Block::find($blockId);
 
@@ -135,10 +140,10 @@ class BlockController extends SettingsController {
     /**
      * Create new or update existing block
      *
-     * @param ChangeBlockRequest $request
-     * @return string response in JSON format
+     * @param SaveBlockRequest $request
+     * @return JsonResponse
      */
-    public function setup(ChangeBlockRequest $request) {
+    public function setup(SaveBlockRequest $request): JsonResponse {
         $this->decodeRequest($request);
 
         $block = Block::findOrNew($request->block_id);
@@ -201,10 +206,11 @@ class BlockController extends SettingsController {
      * Create new or update existing block item
      *
      * @param Request $request
-     * @return string response in JSON format
-     * @throws
+     * @return array|false|RedirectResponse|string
+     * @throws ValidationException
+     * @throws Exception
      */
-    public function saveItem(Request $request): string {
+    public function saveItem(Request $request) {
         $this->decodeRequest($request);
 
         if(empty($block = $this->findBlock($request->block_id))){

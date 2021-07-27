@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\DB;
  * @package Just\Models\Blocks\AddOns
  *
  * @property AddOn $addon
+ * @property int $id
+ * @property int $add_on_id
+ * @property mixed $value
  */
 abstract class AbstractAddOn extends Model implements AddOnItem
 {

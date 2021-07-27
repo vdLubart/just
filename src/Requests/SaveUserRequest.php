@@ -4,18 +4,18 @@ namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
+use Just\Models\User;
 
-class UserChangeRequest extends FormRequest implements ValidateRequest
+class SaveUserRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
-        return \Auth::user()->role == "master";
+    public function authorize(): bool {
+        return User::authAsMaster();
     }
 
     /**
@@ -23,8 +23,7 @@ class UserChangeRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         if(!$this->user_id){
             return [
                 "name" => "required|string|unique:users,name",

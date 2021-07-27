@@ -4,17 +4,17 @@ namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Illuminate\Validation\Validator;
+use Just\Contracts\Requests\ValidateRequest;
 
-class ChangePasswordRequest extends FormRequest implements ValidateRequest
+class SavePasswordRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize(): bool {
         return true;
     }
 
@@ -23,21 +23,19 @@ class ChangePasswordRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [
             "current_password" => "required",
             "new_password" => "required|string|confirmed"
         ];
     }
-    
+
     /**
      * Configure the validator instance.
      *
-     * @param  \Illuminate\Validation\Validator  $validator
-     * @return void
+     * @param Validator $validator
      */
-    public function withValidator($validator)
+    public function withValidator(Validator $validator)
     {
         // checks user current password
         // before making changes
@@ -46,6 +44,5 @@ class ChangePasswordRequest extends FormRequest implements ValidateRequest
                 $validator->errors()->add('current_password', 'Current password is incorrect.');
             }
         });
-        return;
     }
 }

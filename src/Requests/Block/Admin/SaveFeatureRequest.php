@@ -3,10 +3,10 @@
 namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Contracts\Requests\ValidateRequest;
 use Just\Models\User;
+use Just\Contracts\Requests\ValidateRequest;
 
-class ChangeTextRequest extends FormRequest implements ValidateRequest
+class SaveFeatureRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,12 @@ class ChangeTextRequest extends FormRequest implements ValidateRequest
      */
     public function rules(): array {
         return [
-            "text" => "required",
-            "id" => "integer|min:1|nullable"
+            'id' => 'nullable|integer|exists:features',
+            'block_id' => 'required|integer|exists:blocks,id',
+            "icon" => "required|integer|min:1",
+            "title" => "required",
+            "description" => "nullable",
+            "link" => "nullable|string"
         ];
     }
 }

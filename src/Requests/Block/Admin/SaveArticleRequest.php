@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Just\Models\User;
 use Just\Contracts\Requests\ValidateRequest;
 
-class ChangeArticleRequest extends FormRequest implements ValidateRequest
+class SaveArticleRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,6 +24,8 @@ class ChangeArticleRequest extends FormRequest implements ValidateRequest
      */
     public function rules(): array {
         return [
+            'id' => 'nullable|integer|exists:articles',
+            'block_id' => 'required|integer|exists:blocks,id',
             "image" => "image|nullable",
             "subject" => "required|max:255",
             "summary" => "nullable|max:1000",

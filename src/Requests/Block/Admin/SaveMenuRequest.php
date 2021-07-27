@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Just\Contracts\Requests\ValidateRequest;
 
-class ChangeMenuRequest extends FormRequest implements ValidateRequest
+class SaveMenuRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,8 @@ class ChangeMenuRequest extends FormRequest implements ValidateRequest
      */
     public function rules(): array {
         return [
-            "id" => "integer|min:1|nullable",
+            'id' => 'nullable|integer|exists:menus',
+            'block_id' => 'required|integer|exists:blocks,id',
             "item" => "required",
             "parent" => "integer|min:0",
             "route" => "nullable",

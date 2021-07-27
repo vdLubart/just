@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
 use Just\Models\Theme;
 use Just\Requests\DeletePageRequest;
-use Just\Requests\ChangePageRequest;
+use Just\Requests\SavePageRequest;
 use Just\Models\Page;
 use Just\Models\System\Route as JustRoute;
 
@@ -53,10 +53,10 @@ class PageController extends SettingsController
     /**
      * Create new or update existing page
      *
-     * @param ChangePageRequest $request
+     * @param SavePageRequest $request
      * @return string response in JSON format
      */
-    public function setup(ChangePageRequest $request) {
+    public function setup(SavePageRequest $request) {
         $this->decodeRequest($request);
 
         $page = Page::findOrNew($request->page_id);

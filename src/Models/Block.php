@@ -274,7 +274,7 @@ class Block extends Model
      * @param string $requestType
      * @return string
      */
-    public function findValidationRequest(string $requestType = 'Change'): string {
+    public function findValidationRequest(string $requestType = 'Save'): string {
         if($requestType == 'Public'){
             $publicity = 'Visitor';
         }

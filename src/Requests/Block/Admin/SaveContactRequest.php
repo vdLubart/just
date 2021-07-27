@@ -7,15 +7,14 @@ use Just\Models\Block;
 use Just\Models\User;
 use Just\Contracts\Requests\ValidateRequest;
 
-class ChangeContactRequest extends FormRequest implements ValidateRequest
+class SaveContactRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize(): bool {
         return User::authAsAdmin();
     }
 
@@ -23,13 +22,16 @@ class ChangeContactRequest extends FormRequest implements ValidateRequest
      * Get the validation rules that apply to the request.
      *
      * @return array
+     * @throws \Exception
      */
-    public function rules()
-    {
+    public function rules(): array {
         $contact = Block::find($this->block_id)->specify()->model();
         $channels = $contact->allChannels();
 
-        $rules = [];
+        $rules = [
+            'id' => 'nullable|integer|exists:contacts',
+            'block_id' => 'required|integer|exists:blocks,id',
+        ];
 
         foreach ($channels as $channel=>$label){
             $rules[$channel] = 'string';

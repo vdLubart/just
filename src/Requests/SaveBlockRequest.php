@@ -8,7 +8,18 @@ use Illuminate\Validation\Rule;
 use Just\Models\Block;
 use Just\Contracts\Requests\ValidateRequest;
 
-class ChangeBlockRequest extends FormRequest implements ValidateRequest
+/**
+ * Class SaveBlockRequest
+ * @package Just\Requests
+ *
+ * @property int $block_id
+ * @property string $type
+ * @property string $name
+ * @property string $panelLocation
+ * @property int $page_id
+ * @property int $width
+ */
+class SaveBlockRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.

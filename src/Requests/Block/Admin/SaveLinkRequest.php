@@ -4,17 +4,17 @@ namespace Just\Requests\Block\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Just\Contracts\Requests\ValidateRequest;
+use Just\Models\User;
 
-class ChangeFeedbackRequest extends FormRequest implements ValidateRequest
+class SaveLinkRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
-        return \Auth::user();
+    public function authorize(): bool {
+        return User::authAsAdmin();
     }
 
     /**
@@ -22,13 +22,11 @@ class ChangeFeedbackRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [
-            "username" => "required",
-            "email" => "required|email",
-            "message" => "required|max:1024",
-            "created" => "date"
+            'id' => 'nullable|integer|exists:links',
+            'block_id' => 'required|integer|exists:blocks,id',
+            'linkedBlock_id' => 'required|integer|min:1',
         ];
     }
 }

@@ -5,7 +5,7 @@ namespace Just\Requests\Block\Admin;
 use Illuminate\Validation\Rule;
 use Just\Contracts\Requests\ValidateRequest;
 
-class ChangeGalleryRequest extends ValidateAuthRequest implements ValidateRequest {
+class SaveGalleryRequest extends ValidateAuthRequest implements ValidateRequest {
 
     public function rules(): array {
         return [

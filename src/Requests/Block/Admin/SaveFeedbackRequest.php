@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Just\Contracts\Requests\ValidateRequest;
 use Just\Models\User;
 
-abstract class ValidateAuthRequest extends FormRequest implements ValidateRequest
+class SaveFeedbackRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,6 +23,13 @@ abstract class ValidateAuthRequest extends FormRequest implements ValidateReques
      * @return array
      */
     public function rules(): array {
-        return [];
+        return [
+            'id' => 'nullable|integer|exists:feedbacks',
+            'block_id' => 'required|integer|exists:blocks,id',
+            "username" => "required",
+            "email" => "required|email",
+            "message" => "required|max:1024",
+            "created" => "date"
+        ];
     }
 }

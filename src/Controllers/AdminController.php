@@ -15,15 +15,15 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\DB;
 use Just\Requests\UploadImageRequest;
 use Just\Models\User;
-use Just\Requests\ChangePasswordRequest;
+use Just\Requests\SavePasswordRequest;
 use Just\Validators\ValidatorExtended;
 use Just\Models\Blocks\AddOns\Categories;
 use Just\Models\Theme;
-use Just\Requests\ChangeCategoryRequest;
+use Just\Requests\SaveCategoryRequest;
 use Just\Requests\SaveAddonRequest;
-use Just\Requests\UserChangeRequest;
+use Just\Requests\SaveUserRequest;
 use Just\Requests\DeleteUserRequest;
-use Just\Requests\ChangeBlockRequest;
+use Just\Requests\SaveBlockRequest;
 
 class AdminController extends Controller
 {
@@ -128,7 +128,7 @@ class AdminController extends Controller
         return view(viewPath(Theme::active()->layout, 'userSettings'))->with(['user'=>$user]);
     }
 
-    public function handleUserForm(UserChangeRequest $request) {
+    public function handleUserForm(SaveUserRequest $request) {
         $user = User::findOrNew($request->user_id);
 
         $user->handleSettingsForm($request);
@@ -152,7 +152,7 @@ class AdminController extends Controller
         return view(viewPath(Theme::active()->layout, 'categorySettings'))->with(['category'=>$category]);
     }
 
-    public function handleCategoryForm(ChangeCategoryRequest $request) {
+    public function handleCategoryForm(SaveCategoryRequest $request) {
         $category = Categories::findOrNew($request->category_id);
 
         $category->handleSettingsForm($request);
@@ -185,7 +185,7 @@ class AdminController extends Controller
 
 
 
-    public function handlePanelForm(ChangeBlockRequest $request) {
+    public function handlePanelForm(SaveBlockRequest $request) {
         $block = Block::findOrNew($request->block_id);
 
         $block->handlePanelForm($request);
@@ -456,7 +456,7 @@ class AdminController extends Controller
         return view(viewPath(Theme::active()->layout, 'changePassword'))->with(['form'=>User::changePasswordForm()]);
     }
 
-    public function changePassword(ChangePasswordRequest $request) {
+    public function changePassword(SavePasswordRequest $request) {
         $user = Auth::user();
 
         $user->password = bcrypt($request->new_password);

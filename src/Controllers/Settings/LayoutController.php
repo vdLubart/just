@@ -8,7 +8,7 @@ use Just\Controllers\SettingsController;
 use Just\Models\Layout;
 use Just\Models\Page;
 use Just\Models\Theme;
-use Just\Requests\ChangeLayoutRequest;
+use Just\Requests\SaveLayoutRequest;
 use Just\Requests\DeleteLayoutRequest;
 use Just\Requests\SetDefaultLayoutRequest;
 
@@ -59,10 +59,10 @@ class LayoutController extends SettingsController {
     /**
      * Create new or update existing layout
      *
-     * @param ChangeLayoutRequest $request
+     * @param SaveLayoutRequest $request
      * @return string response in JSON format
      */
-    public function setup(ChangeLayoutRequest $request) {
+    public function setup(SaveLayoutRequest $request) {
         $this->decodeRequest($request);
 
         $layout = Layout::findOrNew($request->layout_id);

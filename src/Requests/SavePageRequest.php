@@ -7,17 +7,16 @@ use Illuminate\Validation\Rule;
 use Just\Models\Page;
 use Just\Models\System\Route;
 use Just\Models\User;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
-class ChangePageRequest extends FormRequest implements ValidateRequest
+class SavePageRequest extends FormRequest implements ValidateRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize(): bool {
         $this->merge(['route' => urlencode(trim(is_null($this->route)?"":$this->route, "/"))]);
 
         return User::authAsAdmin();
@@ -28,8 +27,7 @@ class ChangePageRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         $rules = [
             'layout' => 'required|integer|min:1',
         ];
@@ -54,7 +52,7 @@ class ChangePageRequest extends FormRequest implements ValidateRequest
         return $rules;
     }
 
-    public function messages() {
+    public function messages(): array {
         return [
             'route.required' => __('validation.unique', ['attribute' => 'route'])
         ];

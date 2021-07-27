@@ -8,6 +8,12 @@ namespace Just\Contracts;
 use Just\Contracts\Requests\ValidateRequest;
 use Lubart\Form\Form;
 
+/**
+ * Interface BlockItem
+ * @package Just\Contracts
+ *
+ * @property int $id
+ */
 interface BlockItem {
 
     public function itemForm(): Form;
