@@ -22,12 +22,10 @@ abstract class AbstractAddOn extends Model implements AddOnItem
     /**
      * Update existing block form and add new elements
      *
-     * @param AddOn $addon
-     * @param Form $form Form object
-     * @param $values
+     * @param BlockItem $blockItem
      * @return Form
      */
-    abstract public function updateForm(Form $form, $values): Form;
+    abstract public function updateForm(BlockItem $blockItem): Form;
 
     /**
      * Handle addon values in the existing block form
@@ -37,7 +35,7 @@ abstract class AbstractAddOn extends Model implements AddOnItem
      */
     public function handleForm(ValidateRequest $request, BlockItem $blockItem) {
         $this->add_on_id = $this->addon->id;
-        $this->value = $request->get($this->addon->name."_".$this->addon->id);
+        $this->value = $request->{$this->addon->name."_".$this->addon->id};
 
         $this->save();
 

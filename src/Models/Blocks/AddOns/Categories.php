@@ -25,16 +25,13 @@ class Categories extends AbstractAddOn
     /**
      * Update existing settings form and add new elements
      *
-     * @param Form $form Form object
-     * @param mixed $values
-     *
-     * @return Form;
-     * @throws \Exception;
+     * @param BlockItem $blockItem
+     * @return Form
      */
-    public function updateForm(Form $form, $values): Form {
-        $form->add(FormElement::select(['name'=>$this->addon->name."_".$this->addon->id, 'label'=>$this->addon->title, 'options'=>$this->addon->valuesSelectArray('title'), 'value'=>$values]));
+    public function updateForm(BlockItem $blockItem): Form {
+        $blockItem->form()->add(FormElement::select(['name'=>$this->addon->name."_".$this->addon->id, 'label'=>$this->addon->title, 'options'=>$this->addon->valuesSelectArray('title'), 'value'=>$this->value]));
 
-        return $form;
+        return $blockItem->form();
     }
 
     public function handleForm_shouldBeUpdated(ValidateRequest $request, BlockItem $item) {

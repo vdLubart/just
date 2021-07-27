@@ -52,7 +52,7 @@ trait Slug{
      *
      * @return bool
      */
-    public function haveSlug(){
+    public function haveSlug(): bool {
         return true;
     }
 

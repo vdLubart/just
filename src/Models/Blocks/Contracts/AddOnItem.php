@@ -13,11 +13,10 @@ interface AddOnItem {
     /**
      * Update existing block form and add new elements
      *
-     * @param Form $form
-     * @param $values
+     * @param BlockItem $blockItem
      * @return Form
      */
-    public function updateForm(Form $form, $values): Form;
+    public function updateForm(BlockItem $blockItem): Form;
 
     /**
      * Handle addon values in the existing block form

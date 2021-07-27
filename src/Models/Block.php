@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
 use Just\Models\Blocks\AbstractItem;
+use Just\Models\Blocks\Contracts\BlockItem;
 use Just\Models\Blocks\Contracts\ValidateRequest;
 use Just\Models\System\BlockList;
 use ReflectionException;
@@ -435,10 +436,10 @@ class Block extends Model
     /**
      * Return block item
      *
-     * @return AbstractItem|null
+     * @return BlockItem|null
      * @throws Exception
      */
-    public function item() {
+    public function item(): ?BlockItem {
         if($this->item === null){
             $this->specify();
         }

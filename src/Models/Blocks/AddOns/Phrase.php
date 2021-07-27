@@ -2,7 +2,7 @@
 
 namespace Just\Models\Blocks\AddOns;
 
-use Exception;
+use Just\Models\Blocks\Contracts\BlockItem;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Just\Models\AddOn;
@@ -21,16 +21,13 @@ class Phrase extends AbstractAddOn
     /**
      * Update existing block form and add new elements
      *
-     * @param Form $form Form object
-     * @param mixed $values
+     * @param BlockItem $blockItem
      * @return Form
-     * @throws Exception
      */
-    public function updateForm(Form $form, $values): Form {
-        $values = $values->isEmpty() ? [] : $values->first()->getTranslations('value');
-        $form->add(FormElement::text(['name'=>$this->addon->name."_".$this->addon->id, 'label'=>$this->addon->title, 'value'=>$values, 'translate'=>true]));
+    public function updateForm(BlockItem $blockItem): Form {
+        $blockItem->form()->add(FormElement::text(['name'=>$this->addon->name."_".$this->addon->id, 'label'=>$this->addon->title, 'value'=>$this->getTranslations('value'), 'translate'=>true]));
 
-        return $form;
+        return $blockItem->form();
     }
 
     public function validationRules(AddOn $addon): array {

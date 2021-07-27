@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 use Just\Models\Blocks\AddOns\AbstractAddOn;
 use Just\Models\Blocks\Contracts\AddOnItem;
 use Just\Models\Blocks\Contracts\BlockItem;
@@ -39,7 +40,7 @@ class AddOn extends Model
     /**
      * Class name of the current addon
      *
-     * @return string $addon
+     * @return string
      * @throws Exception
      */
     public function addonItemClassName(): string {
@@ -66,11 +67,10 @@ class AddOn extends Model
     }
 
     /**
-     * @return AbstractAddOn
-     * @throws Exception
+     *  @throws Exception
      */
-    public function addonItem(): AbstractAddOn {
-        return $this->item ?? $this->newAddOnItem();
+    public function addonItem(BlockItem $blockItem): AddOnItem {
+        return $blockItem->belongsToMany($this->addonItemClassName(), $blockItem->getTable()."_".Str::plural($this->type), 'modelItem_id', 'addonItem_id')->where('add_on_id', $this->id)->first() ?? $this->newAddOnItem();
     }
 
     /**
@@ -79,7 +79,7 @@ class AddOn extends Model
      * @return AbstractAddOn
      * @throws Exception
      */
-    protected function newAddOnItem(): AbstractAddOn {
+    protected function newAddOnItem(): AddOnItem {
         $addonItemClass = $this->addonItemClassName();
         $addonItem = new $addonItemClass;
         $addonItem->add_on_id = $this->id;
@@ -99,13 +99,12 @@ class AddOn extends Model
     /**
      * Update existing settings form and add new elements
      *
-     * @param Form $form Form object
-     * @param mixed $values element values
+     * @param BlockItem $blockItem
      * @return Form
      * @throws Exception
      */
-    public function updateForm(Form $form, $values): Form {
-        return  $this->addonItem()->updateForm($form, $values);
+    public function updateForm(BlockItem $blockItem): Form {
+        return  $this->addonItem($blockItem)->updateForm($blockItem);
     }
 
     /**
@@ -117,7 +116,7 @@ class AddOn extends Model
      * @throws Exception
      */
     public function handleForm(ValidateRequest $request, BlockItem $blockItem) {
-        return $this->addonItem()->handleForm($request, $blockItem);
+        return $this->addonItem($blockItem)->handleForm($request, $blockItem);
     }
 
     /**
@@ -127,7 +126,7 @@ class AddOn extends Model
      * @throws Exception
      */
     public function validationRules(): array {
-        return $this->addonItem()->validationRules($this);
+        return $this->newAddOnItem()->validationRules($this);
     }
 
     public function values(): HasMany {

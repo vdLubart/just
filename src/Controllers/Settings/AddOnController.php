@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
 use Just\Models\AddOn;
+use Just\Models\Blocks\AddOns\Image;
 use Just\Requests\DeleteAddOnRequest;
 use Just\Requests\InitializeAddOnRequest;
 use Just\Requests\DeletePageRequest;
@@ -79,12 +80,18 @@ class AddOnController extends SettingsController
      * Delete add-on
      *
      * @param DeleteAddOnRequest $request
-     * @return string response in JSON format
+     * @return JsonResponse
      */
-    public function delete(DeleteAddOnRequest $request): string {
+    public function delete(DeleteAddOnRequest $request): JsonResponse {
         $addon = AddOn::find($request->id);
 
         if(!empty($addon)){
+            if($addon->type === 'image'){
+                foreach(Image::where('add_on_id', $addon->id)->get() as $image){
+                    $addon->block->item()->deleteImage($image->value);
+                }
+            }
+
             $addon->delete();
         }
 
@@ -92,7 +99,7 @@ class AddOnController extends SettingsController
         $response->message = __('addon.messages.success.deleted');
         $response->redirect = '/settings/add-on/list';
 
-        return json_encode($response);
+        return response()->json(json_encode($response));
     }
 
     /**

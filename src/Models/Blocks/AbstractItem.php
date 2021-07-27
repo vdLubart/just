@@ -3,6 +3,8 @@
 namespace Just\Models\Blocks;
 
 use Exception;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +15,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use Just\Models\AddOn;
 use Just\Models\Blocks\Contracts\BlockItem;
+use Just\Models\Layout;
 use stdClass;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
@@ -33,7 +36,7 @@ use Just\Models\Blocks\Contracts\ValidateRequest;
 abstract class AbstractItem extends Model implements BlockItem
 {
     /**
-     * Block settings form
+     * Block item settings form
      *
      * @var Form $form
      */
@@ -129,10 +132,11 @@ abstract class AbstractItem extends Model implements BlockItem
     /**
      * Order content by specific column
      *
+     * @param $content
      * @param string $column
      * @return mixed
      */
-    protected function orderContent(&$content, $column = 'orderNo'){
+    protected function orderContent(&$content, string $column = 'orderNo'){
         return $content->orderBy($column, ( $this->parameter('orderDirection') ?: 'asc'));
     }
 
@@ -148,16 +152,25 @@ abstract class AbstractItem extends Model implements BlockItem
     }
 
     /**
-     * Return block settings form for admin panel
+     * Initialize and describe block item settings form
      *
      * @return Form
      */
     abstract public function itemForm(): Form;
 
     /**
-     * Return block settings title in the current locale
+     * Return block item settings form
      *
-     * @return mixed
+     * @return Form
+     */
+    public function form(): Form {
+        return $this->form;
+    }
+
+    /**
+     * Return block item settings title in the current locale
+     *
+     * @return array|Application|Translator|string|null
      */
     public function settingsTitle() {
         return __($this->block->type . '.title');
@@ -176,7 +189,7 @@ abstract class AbstractItem extends Model implements BlockItem
      *
      * @return array
      */
-    public function neededParameters() {
+    public function neededParameters(): array {
         return $this->neededParameters;
     }
 
@@ -186,7 +199,7 @@ abstract class AbstractItem extends Model implements BlockItem
      * @param string $dir direction, available values are up, down
      * @param array $where where statement
      */
-    public function move($dir, $where = []) {
+    public function move(string $dir, array $where = []) {
         if(empty($where)){
             $where = ['block_id' => $this->block->id];
         }
@@ -200,7 +213,7 @@ abstract class AbstractItem extends Model implements BlockItem
      * @param integer $newPosition new element position
      * @param array $where where statement
      */
-    public function moveTo($newPosition, $where = []) {
+    public function moveTo(int $newPosition, array $where = []) {
         if(empty($where)){
             $where = ['block_id' => $this->block->id];
         }
@@ -288,7 +301,7 @@ abstract class AbstractItem extends Model implements BlockItem
      * @param boolean $decode apply json_decode if needed
      * @return mixed
      */
-    public function parameter($param, $decode = false) {
+    public function parameter(string $param, bool $decode = false) {
         $param = @$this->block->parameters->{$param};
 
         if($decode){
@@ -410,7 +423,7 @@ abstract class AbstractItem extends Model implements BlockItem
      *
      * @param string $imageCode
      */
-    public function deleteImage($imageCode){
+    public function deleteImage(string $imageCode){
         foreach(glob(public_path('storage/'.$this->table.'/'.$imageCode."*")) as $image){
             unlink($image);
         }
@@ -418,8 +431,10 @@ abstract class AbstractItem extends Model implements BlockItem
 
     /**
      * Return current layout
+     *
+     * @return Layout
      */
-    public function layout() {
+    public function layout(): Layout {
         return $this->block->layout();
     }
 
@@ -428,7 +443,7 @@ abstract class AbstractItem extends Model implements BlockItem
      */
     public function includeAddons() {
         foreach ($this->block->addons->sortBy('orderNo') as $addon) {
-            $addon->updateForm($this->form, $this->addonValues($addon->id));
+            $addon->updateForm($this);
         }
     }
 
@@ -498,9 +513,13 @@ abstract class AbstractItem extends Model implements BlockItem
         return $this->{Str::plural($name)}()->where('add_on_id', $id)->first();
     }
 
+    /**
+     * @throws Exception
+     */
     public function relationsForm($relBlock): Form {
         $form = new Form('/admin/settings/relations/create');
 
+        // TODO: Check this method
         $form->setType('relations');
 
         $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block->id]));
@@ -528,11 +547,11 @@ abstract class AbstractItem extends Model implements BlockItem
      * Return specific related block
      *
      * @param string $type type of related block
-     * @param string $name name of related block
-     * @param int $id id of related block
+     * @param string|null $name name of related block
+     * @param int|null $id id of related block
      * @return Block|null
      */
-    public function relatedBlock($type, $name = null, $id = null) {
+    public function relatedBlock(string $type, ?string $name = null, ?int $id = null): ?Block {
         $relBlock = $this->belongsToMany(Block::class, $this->getTable().'_blocks', 'modelItem_id', 'block_id')
                 ->where('type', $type);
         if(!is_null($name)){
@@ -617,7 +636,7 @@ abstract class AbstractItem extends Model implements BlockItem
      *
      * @return bool
      */
-    public function haveSlug(){
+    public function haveSlug(): bool {
         return false;
     }
 
