@@ -3,16 +3,18 @@
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Just\Models\Layout;
+use Just\Models\Panel;
 
 if(!function_exists('viewPath')){
     /**
      * Return path to the view
      *
      * @param Layout $layout
-     * @param string|\Just\Models\Panel|Just\Models\Block $path
-     * @return void
+     * @param string|Panel|Just\Models\Block $path
+     * @return string
+     * @throws Exception
      */
-    function viewPath($layout, $path){
+    function viewPath(Layout $layout, $path): string {
         switch(true){
             case is_string($path):
                 if(file_exists(resource_path('views/'.$layout->name.'/'.str_replace('.', '/', $path).'.blade.php'))){
@@ -22,10 +24,10 @@ if(!function_exists('viewPath')){
                     return viewPath(justLayout(), $path);
                 }
                 else{
-                    return new \Exception("Resource \"Just.".$path."\" does not exists.");
+                    throw new Exception("Resource \"Just.".$path."\" does not exists.");
                 }
                 break;
-            case $path instanceof \Just\Models\Panel:
+            case $path instanceof Panel:
                 if($layout->class != "primary" and
                         file_exists(resource_path('views/'.$layout->name.'/panels/'.$path->location.'_'.$layout->class.'.blade.php'))){
                     return $layout->name.'.panels.'. $path->location . '_' . $layout->class;
@@ -43,7 +45,7 @@ if(!function_exists('viewPath')){
                     return viewPath(justLayout(), $path);
                 }
                 else{
-                    return new \Exception("Resource \"Just.panels.".$path->location."\" does not exists.");
+                    throw new Exception("Resource \"Just.panels.".$path->location."\" does not exists.");
                 }
                 break;
             case $path instanceof Just\Models\Block:
@@ -67,7 +69,7 @@ if(!function_exists('viewPath')){
                     return viewPath(justLayout(), $path);
                 }
                 else{
-                    return new \Exception("Resource \"Just.blocks.".$path->type."\" does not exists.");
+                    throw new Exception("Resource \"Just.blocks.".$path->type."\" does not exists.");
                 }
                 break;
         }
@@ -99,10 +101,23 @@ if(!function_exists('justVersion')){
         $packages = json_decode(file_get_contents(base_path('vendor/composer/installed.json')));
 
         foreach($packages as $package){
-            if($package->name == "lubart/just"){
+            if($package->name == packageName()){
                 return $package->version_normalized;
             }
         }
+    }
+}
+
+if(!function_exists('packageName')){
+    /**
+     * Return the package name mentioned in composer.json
+     *
+     * @return string
+     */
+    function packageName(): string {
+        $composer = json_decode(file_get_contents(__DIR__ . '/../../composer.json'));
+
+        return $composer->name;
     }
 }
 

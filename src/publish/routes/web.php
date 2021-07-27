@@ -57,7 +57,6 @@ if (Schema::hasTable('routes')){
 Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLocale::class])->group(function(){
 
     Route::get("", "\Just\Controllers\Settings\LayoutController@settingsHome");
-    Route::get('noaccess', 'SettingsController@noAccessView')->name('noaccess');
 
     Route::prefix('layout')->middleware(['master'])->group(function(){
         Route::get('', "\Just\Controllers\Settings\LayoutController@actions");
@@ -65,7 +64,8 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
         Route::get("list", "\Just\Controllers\Settings\LayoutController@layoutList");
 
         Route::post("setup", "\Just\Controllers\Settings\LayoutController@setup");
-        Route::post("setdefault", "\Just\Controllers\Settings\LayoutController@setDefault");
+        //TODO: create functionality
+        //Route::post("setdefault", "\Just\Controllers\Settings\LayoutController@setDefault");
         Route::post("delete", "\Just\Controllers\Settings\LayoutController@delete");
     });
 
@@ -152,8 +152,8 @@ Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){
 
         Route::get("crop/{blockId}/{id}", "\Just\Controllers\AdminController@cropForm")->where(['blockId'=>'\d+', 'id'=>'\d+']);
         Route::post("crop", "\Just\Controllers\AdminController@handleCrop");
-
-        Route::get("normalize/{blockId}", "\Just\Controllers\AdminController@normalizeContent")->where(['blockId'=>'\d+']);
+        //TODO: check functionality
+        //Route::get("normalize/{blockId}", "\Just\Controllers\AdminController@normalizeContent")->where(['blockId'=>'\d+']);
 
         Route::post("setup", "\Just\Controllers\AdminController@handleSetup");
 
@@ -161,8 +161,8 @@ Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){
 
         Route::get("password", "\Just\Controllers\AdminController@changePasswordForm");
         Route::post("password/update", "\Just\Controllers\AdminController@changePassword");
-
-        Route::get("lang/list", "AdminController@languageList");
+        //TODO: create functionality
+        //Route::get("lang/list", "AdminController@languageList");
     });
 
 
@@ -176,5 +176,4 @@ Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){
     Route::post("moveto", "\Just\Controllers\AdminController@moveto");
     Route::post("activate", "\Just\Controllers\AdminController@activate");
     Route::post("deactivate", "\Just\Controllers\AdminController@deactivate");
-    Route::post("browseimages", "\Just\Controllers\AdminController@browseimages");
 });
