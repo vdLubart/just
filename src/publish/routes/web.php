@@ -98,14 +98,23 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
             Route::post('activate', '\Just\Controllers\Settings\AddOnController@activate');
             Route::post('deactivate', '\Just\Controllers\Settings\AddOnController@deactivate');
             Route::post("delete", "\Just\Controllers\Settings\AddOnController@delete");
+        });
+    });
 
-            Route::prefix('category')->group(function(){
-                Route::get('', "\Just\Controllers\Settings\AddOnController@categoryActions");
-                Route::get("{categoryId}", "\Just\Controllers\Settings\AddOnController@categorySettingsForm")->where(['categoryId'=>'\d+']);
-                Route::get("list", "\Just\Controllers\Settings\AddOnController@categoryList");
+    Route::prefix('add-on-option/{addOnType}')->where(['addonType' => '(category|tag)'])->group(function(){
+        Route::get('', "\Just\Controllers\Settings\AddOnOptionController@actions"); //+
+        Route::get("{addOnId}", "\Just\Controllers\Settings\AddOnOptionController@optionList")->where(['addOnId'=>'\d+']); //+
+        Route::get("list", "\Just\Controllers\Settings\AddOnOptionController@list"); //+
 
-                Route::post("setup", "\Just\Controllers\AdminController@handleCategoryForm");
-            });
+        Route::prefix('option')->group(function(){
+            Route::get("{optionId}", "\Just\Controllers\Settings\AddOnOptionController@optionForm")->where(['optionId' => '\d+']); //+
+
+            Route::post("setup", "\Just\Controllers\Settings\AddOnOptionController@setup"); //+
+            Route::post('moveup', '\Just\Controllers\Settings\AddOnOptionController@moveUp'); //+
+            Route::post('movedown', '\Just\Controllers\Settings\AddOnOptionController@moveDown'); //+
+            Route::post('activate', '\Just\Controllers\Settings\AddOnOptionController@activate'); //+
+            Route::post('deactivate', '\Just\Controllers\Settings\AddOnOptionController@deactivate'); //+
+            Route::post("delete", "\Just\Controllers\Settings\AddOnOptionController@delete"); //+
         });
     });
 

@@ -5,8 +5,10 @@ namespace Just\Models;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
+use Just\Models\Blocks\AddOns\AddOnOption;
 use Just\Models\Blocks\AddOns\AbstractAddOn;
 use Just\Contracts\AddOnItem;
 use Just\Contracts\BlockItem;
@@ -25,6 +27,7 @@ use Spatie\Translatable\HasTranslations;
  *
  * @package Just\Models
  * @property AddOnItem $addonItem
+ * @property HasMany|AddOnOption[] $options
  * @mixin IdeHelperAddOn
  */
 class AddOn extends Model
@@ -169,11 +172,11 @@ class AddOn extends Model
 
         $addons = [];
         foreach(AddonList::all() as $addon){
-            $addons[$addon->addon] = __('addOn.list.'.$addon->addon.'.title') ." - ".__('addOn.list.'.$addon->addon.'.description');
+            $addons[$addon->addon] = __('addOn.addOns.'.$addon->addon.'.title') ." - ".__('addOn.addOns.'.$addon->addon.'.description');
         }
         $blocks = [];
         foreach(Block::all() as $block){
-            $blocks[$block->id] = $block->title . "(".$block->type.") at ".(is_null($block->page())?$block->panelLocation:$block->page()->title ." page");
+            $blocks[$block->id] = $block->title . " (".$block->type.") at ".(is_null($block->page())?$block->panelLocation:$block->page()->title ." page");
         }
 
         $form->add(FormElement::hidden(['name'=>'addon_id', 'value'=>@$this->id]));
@@ -248,5 +251,12 @@ class AddOn extends Model
         ];
 
         return Useful::moveModelTo($this, $newPosition, $where);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function options(): HasMany {
+        return $this->hasMany(AddOnOption::class)->orderBy('orderNo');
     }
 }

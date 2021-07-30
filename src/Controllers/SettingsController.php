@@ -7,8 +7,10 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use Just\Models\AddOn;
 use Just\Models\Theme;
 use stdClass;
 use Throwable;
@@ -137,19 +139,6 @@ abstract class SettingsController extends Controller
         return $this->response($caption, $item, 'form', $responseParameters);
     }
 
-    protected function addOnSettingsFormView($id, $addOn) {
-        $addOnClass = '\\Just\\Models\\Blocks\\AddOns\\' . ucfirst(Str::plural($addOn));
-        $item = $addOnClass::findOrNew($id);
-        $caption = [
-            '/settings/' . $this->itemKebabName() => $this->itemTranslation('title'),
-            '/settings/' . $this->itemKebabName() . '/' . $addOn => $this->itemTranslation($addOn . '.title'),
-            '/settings/' . $this->itemKebabName() . '/' . $addOn . '/' . $id => $id == 0 ? $this->itemTranslation($addOn . '.createForm.title') : $this->itemTranslation($addOn . '.editForm.title', [$this->itemName() => $item->itemCaption()])
-        ];
-
-        return $this->response($caption, $item, 'form');
-    }
-
-
     /**
      * @param array $caption
      * @param array $where
@@ -173,22 +162,6 @@ abstract class SettingsController extends Controller
                 '/settings/' . $this->itemKebabName() . '/list' => $this->itemTranslation('list')
             ];
         }
-
-        return $this->response($caption, $items, 'items');
-    }
-
-    /**
-     * @param string $addOn
-     * @return JsonResponse
-     */
-    protected function addOnListView(string $addOn): JsonResponse {
-        $addOnClass = '\\Just\\Models\\Blocks\\AddOns\\' . ucfirst(Str::plural($addOn));
-        $items = $addOnClass::orderBy('orderNo')->get();
-        $caption = [
-            '/settings/' . $this->itemKebabName() => $this->itemTranslation('title'),
-            '/settings/' . $this->itemKebabName() . '/' . $addOn => $this->itemTranslation($addOn . '.title'),
-            '/settings/' . $this->itemKebabName() . '/' . $addOn . '/list' => $this->itemTranslation($addOn . '.list')
-        ];
 
         return $this->response($caption, $items, 'items');
     }
@@ -249,7 +222,7 @@ abstract class SettingsController extends Controller
         $response->message = $this->itemTranslation('messages.success.' . ($id == 0 ? 'created' : 'updated'));
         $response->redirect = $redirect;
 
-        return response()->json(json_encode($response));
+        return response()->json($response);
     }
 
     protected function decodeRequest(&$request) {

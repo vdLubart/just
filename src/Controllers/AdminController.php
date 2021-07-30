@@ -17,7 +17,7 @@ use Just\Requests\UploadImageRequest;
 use Just\Models\User;
 use Just\Requests\SavePasswordRequest;
 use Just\Validators\ValidatorExtended;
-use Just\Models\Blocks\AddOns\Categories;
+use Just\Models\Blocks\AddOns\Category;
 use Just\Models\Theme;
 use Just\Requests\SaveCategoryRequest;
 use Just\Requests\SaveAddonRequest;
@@ -137,7 +137,7 @@ class AdminController extends Controller
     }
 
     public function categoryList() {
-        $categories = Categories::join("addons", "categories.addon_id", "=", "addons.id")
+        $categories = Category::join("addons", "categories.addon_id", "=", "addons.id")
                 ->join("blocks", "addons.block_id", "=", "blocks.id")
                 ->select(['categories.*', DB::raw("addons.title->>'$.".(\App::getLocale())."' as addonTitle"), DB::raw("blocks.type as blockType"), DB::raw("blocks.title->>'$.".(\App::getLocale())."' as blockTitle")])
                 ->orderBy("addons.id", "desc")
@@ -147,13 +147,13 @@ class AdminController extends Controller
     }
 
     public function categorySettingsForm($categoryId) {
-        $category = Categories::findOrNew($categoryId);
+        $category = Category::findOrNew($categoryId);
 
         return view(viewPath(Theme::active()->layout, 'categorySettings'))->with(['category'=>$category]);
     }
 
     public function handleCategoryForm(SaveCategoryRequest $request) {
-        $category = Categories::findOrNew($request->category_id);
+        $category = Category::findOrNew($request->category_id);
 
         $category->handleSettingsForm($request);
 
@@ -282,7 +282,7 @@ class AdminController extends Controller
     }
 
     public function deleteCategory(Request $request) {
-        $category = Categories::find($request->id);
+        $category = Category::find($request->id);
 
         if(!empty($category)){
             $category->delete();

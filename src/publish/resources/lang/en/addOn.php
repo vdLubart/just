@@ -14,9 +14,9 @@ return [
     ],
     'list' => 'Add-On list',
     'addOns' => [
-        'categories' => [
-            'title' => 'Categories',
-            'description' => 'Helps categorize block'
+        'category' => [
+            'title' => 'Category',
+            'description' => 'Helps categorize block (single choice)'
         ],
         'image' => [
             'title' => 'Additional Image',
@@ -28,22 +28,17 @@ return [
         ],
         'phrase' => [
             'title' => 'String Value',
-            'description' => 'Adds a string to the item'
+            'description' => 'Adds a single line string to the item'
         ]
     ],
-    'addOnLocation' => ':addOn in :block block at :page page',
-    'category' => [
-        'title' => 'Categories',
-        'createForm' => [
-            'title' => 'Create New Category',
-            'addOnGroup' => 'Choose Add-On',
-            'addOn' => 'Categories Add-On',
-            'pairGroup' => 'Category Pair',
-            'caption' => 'Visible Caption',
-            'value' => 'HTML Value'
-        ],
-        'list' => 'Category List',
-        'emptyList' => 'No category is created yet',
-        'listItem' => ':title on :block'
-    ],
+    'addOnLocation' => ':addOn in the ":block" block at :page page',
+    'messages' => [
+        'success' => [
+            'created' => 'Add-on was created successfully',
+            'updated' => 'Add-on was updated successfully',
+            'activated' => 'Add-on was activated successfully',
+            'deactivated' => 'Add-on was deactivated successfully',
+            'deleted' => 'Add-on was deleted successfully'
+        ]
+    ]
 ];

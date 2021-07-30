@@ -64,6 +64,9 @@
                 if(this.$root.settings.responseParameters.blockType){
                     this.postUri = '/settings/block/item/delete';
                 }
+                else if(this.$root.settings.responseParameters.addonType){
+                    this.postUri = '/settings/add-on-option/' + this.$root.settings.responseParameters.addonType + '/option/delete';
+                }
                 else {
                     this.postUri = '/settings/' + this.$parent.itemName + '/delete';
                 }
@@ -73,6 +76,9 @@
             activateItem(){
                 if(this.$root.settings.responseParameters.blockType){
                     this.postUri = '/settings/block/item/' + (!this.inactive ? 'deactivate':'activate');
+                }
+                else if(this.$root.settings.responseParameters.addonType){
+                    this.postUri = '/settings/add-on-option/' + this.$root.settings.responseParameters.addonType + '/option/' + (!this.inactive ? 'deactivate':'activate');
                 }
                 else {
                     this.postUri = '/settings/' + this.$parent.itemName + '/' + (!this.inactive ? 'deactivate':'activate');
@@ -84,6 +90,9 @@
                 if(this.$root.settings.responseParameters.blockType){
                     this.postUri = '/settings/block/item/moveup';
                 }
+                else if(this.$root.settings.responseParameters.addonType){
+                    this.postUri = '/settings/add-on-option/' + this.$root.settings.responseParameters.addonType + '/option/moveup';
+                }
                 else {
                     this.postUri = '/settings/' + this.$parent.itemName + '/moveup';
                 }
@@ -93,6 +102,9 @@
             moveItemDown(){
                 if(this.$root.settings.responseParameters.blockType){
                     this.postUri = '/settings/block/item/movedown';
+                }
+                else if(this.$root.settings.responseParameters.addonType){
+                    this.postUri = '/settings/add-on-option/' + this.$root.settings.responseParameters.addonType + '/option/movedown';
                 }
                 else {
                     this.postUri = '/settings/' + this.$parent.itemName + '/movedown';

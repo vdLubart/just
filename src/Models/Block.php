@@ -26,7 +26,7 @@ use Just\Tools\Useful;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
 use Lubart\Form\FormGroup;
-use Just\Models\Blocks\AddOns\Categories;
+use Just\Models\Blocks\AddOns\Category;
 
 /**
  * Class Block
@@ -618,7 +618,7 @@ class Block extends Model
 
     public function currentCategory() {
         if(is_null($this->currentCategory)){
-            $this->currentCategory = Categories::where('value', request('category'))->first();
+            $this->currentCategory = Category::where('value', request('category'))->first();
         }
 
         return $this->currentCategory;

@@ -2,6 +2,7 @@
 
 namespace Just\Controllers\Settings;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
@@ -9,9 +10,6 @@ use Just\Models\AddOn;
 use Just\Models\Blocks\AddOns\Image;
 use Just\Requests\DeleteAddOnRequest;
 use Just\Requests\InitializeAddOnRequest;
-use Just\Requests\DeletePageRequest;
-use Just\Models\Page;
-use Just\Models\System\Route as JustRoute;
 use Just\Requests\SaveAddonRequest;
 use Throwable;
 
@@ -66,9 +64,9 @@ class AddOnController extends SettingsController
      * Create new or update existing add-on
      *
      * @param SaveAddonRequest $request
-     * @return false|string response in JSON format
+     * @return JsonResponse response in JSON format
      */
-    public function setup(SaveAddonRequest $request) {
+    public function setup(SaveAddonRequest $request): JsonResponse {
         $this->decodeRequest($request);
 
         $addOn = AddOn::findOrNew($request->addon_id);
@@ -81,6 +79,7 @@ class AddOnController extends SettingsController
      *
      * @param DeleteAddOnRequest $request
      * @return JsonResponse
+     * @throws Exception
      */
     public function delete(DeleteAddOnRequest $request): JsonResponse {
         $addon = AddOn::find($request->id);
@@ -123,42 +122,6 @@ class AddOnController extends SettingsController
         return $this->response($caption, $items, 'list');
     }
 
-    public function categorySettingsForm($categoryId): JsonResponse {
-        return $this->addOnSettingsFormView($categoryId, 'category');
-    }
-
-    /**
-     * Return list with available actions for the layout
-     *
-     * @return JsonResponse
-     */
-    public function categoryActions(): JsonResponse {
-        $items = [
-            $this->itemKebabName() . '/category/0' => [
-                'label' => __('navbar.addOns.categories.create'),
-                'icon' => 'plus'
-            ],
-            $this->itemKebabName() . '/category/list' => [
-                'label' => __('navbar.addOns.categories.list'),
-                'icon' => 'list'
-            ]
-        ];
-        $caption = [
-            '/settings/' . $this->itemKebabName() => $this->itemTranslation('title')
-        ];
-
-        return $this->response($caption, $items, 'list');
-    }
-
-    /**
-     * Render view with page list
-     *
-     * @return JsonResponse
-     */
-    public function categoryList(): JsonResponse {
-        return $this->addOnListView('category');
-    }
-
     public function activate(InitializeAddOnRequest $request) {
         return $this->addOnVisibility($request, true);
     }
@@ -168,7 +131,7 @@ class AddOnController extends SettingsController
     }
 
     /**
-     * Change item visibility
+     * Change add-on visibility
      *
      * @param InitializeAddOnRequest $request
      * @param boolean $visibility

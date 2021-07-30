@@ -34,7 +34,7 @@
                         <i class="fa fa-paint-brush"></i>
                         @lang('navbar.layouts.top') <span class="caret"></span>
                     </a>
-                    
+
                     <ul class="dropdown-menu" role="menu">
                         <li>
                             <slink href="/settings/layout/0">
@@ -62,7 +62,7 @@
                         <i class="fa fa-sitemap"></i>
                         @lang('navbar.pages.top') <span class="caret"></span>
                     </a>
-                    
+
                     <ul class="dropdown-menu" role="menu">
                         <li>
                             <slink href="/settings/page/0">
@@ -89,7 +89,7 @@
                         <i class="fa fa-puzzle-piece"></i>
                         @lang('navbar.addOns.top') <span class="caret"></span>
                     </a>
-                    
+
                     <ul class="dropdown-menu multi-level">
                         @if(\Auth::user()->role == "master")
                         <li>
@@ -106,22 +106,22 @@
                         </li>
                         @endif
                         <li class="dropdown-submenu">
-                            <a href="#">
+                            <slink href="/settings/add-on-option/category">
                                 <i class="fa fa-th-list"></i>
-                                @lang('navbar.addOns.categories.top')
-                            </a>
+                                @lang('navbar.addOns.categoryOptions.top')
+                            </slink>
 
                             <ul class="dropdown-menu">
                                 <li>
-                                    <slink href="/settings/add-on/category/0">
+                                    <slink href="/settings/add-on-option/category/option/0">
                                         <i class="fa fa-plus"></i>
-                                        @lang('navbar.addOns.categories.create')
+                                        @lang('navbar.addOns.categoryOptions.create')
                                     </slink>
                                 </li>
                                 <li>
-                                    <slink href="/settings/add-on/category/list">
+                                    <slink href="/settings/add-on-option/category/list">
                                         <i class="fa fa-list"></i>
-                                        @lang('navbar.addOns.categories.list')
+                                        @lang('navbar.addOns.categoryOptions.list')
                                     </slink>
                                 </li>
                             </ul>
@@ -134,7 +134,7 @@
                         <i class="fa fa-users"></i>
                         @lang('navbar.users.top') <span class="caret"></span>
                     </a>
-                    
+
                     <ul class="dropdown-menu" role="menu">
                         <li>
                             <a href="#"

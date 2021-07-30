@@ -29,9 +29,9 @@ return [
         'top' => 'Add-Ons',
         'create' => 'Add Add-On',
         'list' => 'Add-On List',
-        'categories' => [
-            'top' => 'Categories',
-            'create' => 'Create Category',
+        'categoryOptions' => [
+            'top' => 'Category Options',
+            'create' => 'Add New Option',
             'list' => 'Category List'
         ],
     ],

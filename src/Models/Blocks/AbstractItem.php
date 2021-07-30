@@ -497,7 +497,7 @@ abstract class AbstractItem extends Model implements BlockItem
 
 
     public function categories(): BelongsToMany {
-        return $this->belongsToMany(AddOns\Categories::class, $this->getTable().'_categories', 'modelItem_id', 'addonItem_id');
+        return $this->belongsToMany(AddOns\Category::class, $this->getTable().'_categories', 'modelItem_id', 'addonItem_id');
     }
 
     public function phrases(): BelongsToMany {

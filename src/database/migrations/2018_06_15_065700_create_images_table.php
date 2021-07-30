@@ -21,7 +21,7 @@ class CreateImagesTable extends Migration
             $table->string('value')->nullable();
             $table->timestamps();
 
-            $table->foreign("addon_id")->references("id")->on("addons")->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign("add_on_id")->references("id")->on("addons")->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

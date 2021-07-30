@@ -17,9 +17,8 @@ use Spatie\Translatable\HasTranslations;
 use Lubart\Form\FormGroup;
 
 /**
- * @mixin IdeHelperArticles
- *
  * @property string shouldBeCropped
+ * @mixin IdeHelperArticles
  */
 class Articles extends AbstractItem
 {
