@@ -138,12 +138,12 @@ class Layout extends Model
             Theme::setActive($this->name);
         }
 
-        if(isset($request->applyOnAllPages)){
+        if(isset($request->applyOnAllPages) and !!$request->applyOnAllPages){
             Page::setLayoutToAllPages($this);
         }
     }
 
-    private function panelLocations() {
+    private function panelLocations(): array {
         $locations = [];
 
         foreach (DB::table('panelLocations')->get() as $loc){

@@ -600,19 +600,19 @@ class Block extends Model
         return $this;
     }
 
-    public function categories(): Collection {
+    public function categories(): HasMany {
         return $this->addons()->where('type', 'categories');
     }
 
-    public function phrases(): Collection {
+    public function phrases(): HasMany {
         return $this->addons()->where('type', 'phrase');
     }
 
-    public function images(): Collection {
+    public function images(): HasMany {
         return $this->addons()->where('type', 'image');
     }
 
-    public function paragraphs(): Collection {
+    public function paragraphs(): HasMany {
         return $this->addons()->where('type', 'paragraph');
     }
 

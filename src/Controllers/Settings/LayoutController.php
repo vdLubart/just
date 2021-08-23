@@ -3,6 +3,7 @@
 namespace Just\Controllers\Settings;
 
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
@@ -11,7 +12,6 @@ use Just\Models\Page;
 use Just\Models\Theme;
 use Just\Requests\SaveLayoutRequest;
 use Just\Requests\DeleteLayoutRequest;
-use Just\Requests\SetDefaultLayoutRequest;
 use Throwable;
 
 class LayoutController extends SettingsController {
@@ -61,9 +61,9 @@ class LayoutController extends SettingsController {
      * Create new or update existing layout
      *
      * @param SaveLayoutRequest $request
-     * @return string response in JSON format
+     * @return JsonResponse
      */
-    public function setup(SaveLayoutRequest $request) {
+    public function setup(SaveLayoutRequest $request): JsonResponse {
         $this->decodeRequest($request);
 
         $layout = Layout::findOrNew($request->layout_id);
@@ -75,16 +75,17 @@ class LayoutController extends SettingsController {
      * Delete layout
      *
      * @param DeleteLayoutRequest $request
-     * @return string|void
+     * @return JsonResponse
+     * @throws Exception
      */
-    public function delete(DeleteLayoutRequest $request) {
+    public function delete(DeleteLayoutRequest $request): JsonResponse {
         $layout = Layout::find($request->id);
         $response = new \stdClass();
 
         $pages = Page::where('layout_id', $request->id)->first();
         if(!empty($pages)){
             $response->error = __('layout.messages.error.usedOnPage', ['page' => $pages->first()->title]);
-            return json_encode($response);
+            return response()->json($response);
         }
 
         $layout->delete();
@@ -92,13 +93,13 @@ class LayoutController extends SettingsController {
         $response->message = __('layout.messages.success.deleted');
         $response->redirect = '/settings/layout/list';
 
-        return json_encode($response);
+        return response()->json($response);
     }
 
     /**
      * Return list with available actions for the layout
      */
-    public function actions() {
+    public function actions(): JsonResponse {
         $items = [
             $this->itemName() . '/0' => [
                 'label' => __('navbar.layouts.create'),
