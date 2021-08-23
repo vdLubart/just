@@ -15,7 +15,7 @@ class CreatePagesTable extends Migration
     {
         Schema::create('pages', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            
+
             $table->increments('id');
             $table->json('title')->nullable()->default(null);
             $table->json('description')->nullable()->default(null);
@@ -24,8 +24,9 @@ class CreatePagesTable extends Migration
             $table->json('copyright')->nullable()->default(null);
             $table->string('route');
             $table->integer('layout_id')->unsigned();
+            $table->boolean('isActive')->default(true);
             $table->timestamps();
-            
+
             $table->foreign('route')->references('route')->on('routes')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('layout_id')->references('id')->on('layouts')->onUpdate('cascade')->onDelete('restrict');
         });

@@ -2,13 +2,15 @@
 
 namespace Just\Controllers\Settings;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
-use Just\Models\Theme;
 use Just\Requests\DeletePageRequest;
+use Just\Requests\InitializePageRequest;
 use Just\Requests\SavePageRequest;
 use Just\Models\Page;
 use Just\Models\System\Route as JustRoute;
+use Throwable;
 
 class PageController extends SettingsController
 {
@@ -16,19 +18,20 @@ class PageController extends SettingsController
      * Render view with the page settings form
      *
      * @param int $pageId page id
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Throwable
+     * @return JsonResponse
+     * @throws Throwable
      */
-    public function settingsForm($pageId) {
+    public function settingsForm(int $pageId): JsonResponse {
         return $this->settingsFormView($pageId);
     }
 
     /**
      * Render view with page list
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws Throwable
      */
-    public function pageList() {
+    public function pageList(): JsonResponse {
         return $this->listView();
     }
 
@@ -43,7 +46,8 @@ class PageController extends SettingsController
 
         foreach($items as $item){
             $list[$this->itemName() . '/'. $item->id] = [
-                'caption' => $item->title . ' :: /' . $item->route
+                'caption' => $item->title . ' :: /' . $item->route,
+                'isActive' => $item->isActive
             ];
         }
 
@@ -68,7 +72,7 @@ class PageController extends SettingsController
      * Delete page
      *
      * @param DeletePageRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function delete(DeletePageRequest $request) {
         $page = Page::find($request->id);
@@ -105,5 +109,35 @@ class PageController extends SettingsController
         ];
 
         return $this->response($caption, $items, 'list');
+    }
+
+    public function activate(InitializePageRequest $request) {
+        return $this->pageVisibility($request, true);
+    }
+
+    public function deactivate(InitializePageRequest $request) {
+        return $this->pageVisibility($request, false);
+    }
+
+    /**
+     * Change add-on visibility
+     *
+     * @param InitializePageRequest $request
+     * @param boolean $visibility
+     * @return false|string
+     */
+    protected function pageVisibility(InitializePageRequest $request, bool $visibility) {
+        $page = Page::find($request->id);
+
+        if(!empty($page)){
+            $page->isActive = (int)$visibility;
+            $page->save();
+        }
+
+        $response = new \stdClass();
+        $response->message = $this->itemTranslation('messages.success.' . ($visibility ? 'activated' : 'deactivated'));
+        $response->redirect = '/settings/page/list';
+
+        return json_encode($response);
     }
 }

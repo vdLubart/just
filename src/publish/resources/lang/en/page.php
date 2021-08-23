@@ -21,7 +21,9 @@ return [
         'success' => [
             'created' => 'Page was created successfully',
             'updated' => 'Page was updated successfully',
-            'deleted' => 'Page was deleted successfully'
+            'deleted' => 'Page was deleted successfully',
+            'activated' => 'Page was published successfully',
+            'deactivated' => 'Page was unpublished successfully'
         ]
     ]
 ];

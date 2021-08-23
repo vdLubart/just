@@ -30,9 +30,12 @@ if (Schema::hasTable('routes')){
 
         foreach($routes as $route){
             if($route->type == "page"){
-                Route::get($route->route, "\Just\Controllers\JustController@buildPage")->middleware('web');
+                if(!empty($route->page) and !!$route->page->isActive) {
+                    Route::get($route->route, "\Just\Controllers\JustController@buildPage")->middleware('web');
+                    Route::post($route->route, "\Just\Controllers\AdminController@handleForm")->middleware(['web', 'auth']);
+                }
+
                 Route::get("admin/".$route->route, "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-                Route::post ($route->route, "\Just\Controllers\AdminController@handleForm")->middleware(['web','auth']);
             }
 
             if($route->type == 'ajax'){
@@ -76,6 +79,8 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
 
         Route::post("setup", "\Just\Controllers\Settings\PageController@setup");
         Route::post("delete", "\Just\Controllers\Settings\PageController@delete");
+        Route::post('activate', '\Just\Controllers\Settings\PageController@activate');
+        Route::post('deactivate', '\Just\Controllers\Settings\PageController@deactivate');
 
         Route::prefix('{pageId}/panel/{panelLocation}')->where(['pageId'=>'\d+', 'panelLocation'=>'[a-zA-Z]+'])->group(function(){
             Route::get('', "\Just\Controllers\Settings\BlockController@panelActions");

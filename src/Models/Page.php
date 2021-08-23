@@ -2,6 +2,7 @@
 
 namespace Just\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
 use Just\Models\System\Route as JustRoute;
@@ -24,10 +25,10 @@ class Page extends Model
      * @var array
      */
     protected $fillable = [
-        'title',  'description', 'keywords', 'author', 'copyright', 'route', 'layout_id'
+        'title',  'description', 'keywords', 'author', 'copyright', 'route', 'layout_id', 'isActive'
     ];
 
-    public $translatable = ['title', 'description', 'author', 'copyright'];
+    public array $translatable = ['title', 'description', 'author', 'copyright'];
 
     protected $table = 'pages';
 
@@ -53,12 +54,22 @@ class Page extends Model
     }
 
     /**
+     * Return form to create a new page
+     *
+     * @return Form
+     * @throws Exception
+     */
+    public function itemForm(): Form {
+        return $this->settingsForm();
+    }
+
+    /**
      * Get page settings form
      *
      * @return Form
-     * @throws \Exception
+     * @throws Exception
      */
-    public function settingsForm() {
+    public function settingsForm(): Form {
         $form = new Form('/settings/page/setup');
 
         $pageSettings = new FormGroup('pageSettings', 'Page Settings');
@@ -113,12 +124,12 @@ class Page extends Model
 
         $this->save();
 
-        if(isset($request->copyMeta)){
+        if(!!$request->copyMeta){
             Page::query()->update([
-                'description' => json_encode([\App::getLocale() =>$request->description ?? '']),
+                'description' => $request->description,
                 'keywords' => $request->keywords ?? '',
-                'author' => json_encode([\App::getLocale() => $request->author ?? '']),
-                'copyright' => json_encode([\App::getLocale() => $request->copyright ?? '']),
+                'author' => $request->author,
+                'copyright' => $request->copyright,
             ]);
         }
     }

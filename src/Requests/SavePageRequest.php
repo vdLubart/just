@@ -36,6 +36,10 @@ class SavePageRequest extends FormRequest implements ValidateRequest
             $rules['route'] = [
                 Rule::unique('routes', 'route')
             ];
+
+            if(!empty(Route::where('route', '')->first())){
+                $rules['route'][] = 'required';
+            }
         }
         else{
             $pageRoute = Page::find($this->page_id)->getRoute();
@@ -43,10 +47,6 @@ class SavePageRequest extends FormRequest implements ValidateRequest
             $rules['route'] = [
                 Rule::unique('routes', 'route')->ignore($pageRoute->id)
             ];
-        }
-
-        if(!empty(Route::where('route', '')->first())){
-            $rules['route'][] = 'required';
         }
 
         return $rules;
