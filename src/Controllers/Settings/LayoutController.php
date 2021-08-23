@@ -3,6 +3,7 @@
 namespace Just\Controllers\Settings;
 
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
 use Just\Models\Layout;
@@ -11,6 +12,7 @@ use Just\Models\Theme;
 use Just\Requests\SaveLayoutRequest;
 use Just\Requests\DeleteLayoutRequest;
 use Just\Requests\SetDefaultLayoutRequest;
+use Throwable;
 
 class LayoutController extends SettingsController {
 
@@ -18,19 +20,20 @@ class LayoutController extends SettingsController {
      * Generate settings form data
      *
      * @param int $layoutId layout id
-     * @throws \Throwable
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws Throwable
      */
-    public function settingsForm($layoutId) {
+    public function settingsForm(int $layoutId): JsonResponse {
         return $this->settingsFormView($layoutId);
     }
 
     /**
      * Generate list data
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws Throwable
      */
-    public function layoutList() {
+    public function layoutList(): JsonResponse {
         return $this->listView();
     }
 
@@ -45,10 +48,8 @@ class LayoutController extends SettingsController {
 
         foreach($items as $item){
             $list[$this->itemName() . '/'. $item->id] = [
-                'image' => null,
-                'featureIcon' => null,
-                'text' => null,
                 'caption' => $item->itemCaption(),
+                'isActive' => true, // all layouts are active
                 'width' => $item->width
             ];
         }

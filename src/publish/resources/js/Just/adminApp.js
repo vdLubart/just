@@ -57,7 +57,7 @@ window.App = new Vue({
                 .catch((response) => {
                     console.error("Cannot receive data.");
                     console.error(response.response);
-                    this.$refs.settings.showErrors(response.response.data);
+                    this.$refs.settings.showErrors(response.response.data, response.response.status);
                 });
 
 

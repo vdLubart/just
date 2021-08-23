@@ -2,6 +2,7 @@
 
 namespace Just\Controllers\Settings;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
@@ -58,9 +59,9 @@ class PageController extends SettingsController
      * Create new or update existing page
      *
      * @param SavePageRequest $request
-     * @return string response in JSON format
+     * @return JsonResponse
      */
-    public function setup(SavePageRequest $request) {
+    public function setup(SavePageRequest $request): JsonResponse {
         $this->decodeRequest($request);
 
         $page = Page::findOrNew($request->page_id);
@@ -73,8 +74,9 @@ class PageController extends SettingsController
      *
      * @param DeletePageRequest $request
      * @return JsonResponse
+     * @throws Exception
      */
-    public function delete(DeletePageRequest $request) {
+    public function delete(DeletePageRequest $request): JsonResponse {
         $page = Page::find($request->id);
         $route = JustRoute::where('route', $page->route)->first();
 
@@ -87,13 +89,15 @@ class PageController extends SettingsController
         $response->message = __('page.messages.success.deleted');
         $response->redirect = '/settings/page/list';
 
-        return json_encode($response);
+        return response()->json($response);
     }
 
     /**
      * Return list with available actions for the layout
+     *
+     * @return JsonResponse
      */
-    public function actions() {
+    public function actions(): JsonResponse {
         $items = [
             $this->itemName() . '/0' => [
                 'label' => __('navbar.pages.create'),

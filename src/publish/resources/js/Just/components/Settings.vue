@@ -77,7 +77,7 @@
                 eventBus.$emit('submitForm');
             },
 
-            showErrors(errorData){
+            showErrors(errorData, status){
                 this.resetAlert();
                 this.alertType = "danger";
 
@@ -88,6 +88,13 @@
                             this.alertNotes[field+"_"+index] = error;
                         });
                     });
+                }
+                else if(status === 401){
+                    this.alertRenderHtml = true;
+                    let htmlError = '<h2>Unauthenticated</h2>';
+                    htmlError += '<h4>Please <a href="/login">log in</a> to access admin panel.</h4>';
+
+                    this.alertNotes.exception = htmlError;
                 }
                 else{
                     this.alertRenderHtml = true;

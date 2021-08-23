@@ -26,12 +26,22 @@ class Layout extends Model
     }
 
     /**
+     * Return form to create a new layout
+     *
+     * @return Form
+     * @throws Exception
+     */
+    public function itemForm(): Form {
+        return $this->settingsForm();
+    }
+
+    /**
      * Get layout settings form
      *
      * @return Form
      * @throws Exception;
      */
-    public function settingsForm() {
+    public function settingsForm(): Form {
         $form = new Form('/settings/layout/setup');
 
         $paramsGroup = new FormGroup('paramsGroup', 'Layout Parameters');
