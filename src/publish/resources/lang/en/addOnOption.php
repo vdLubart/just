@@ -1,21 +1,24 @@
 <?php
 
 return [
-    'title' => 'Add-Ons',
-    'category' => [
-        'title' => 'Category Options',
-        'createForm' => [
-            'title' => 'Create New Category Option',
-            'addOns' => 'Category Add-Ons',
-            'option' => 'Option Title'
-        ],
-        'editForm' => [
-            'title' => 'Edit Category Option',
-        ],
-        'list' => 'Category List',
-        'emptyList' => 'No category is created yet',
-        'listItem' => ':title on :block'
+    'title' => 'Add-On Options',
+    'createForm' => [
+        'title' => 'Create New Option',
+        'addOn' => 'Choose Add-On',
+        'option' => 'Option Title'
     ],
+    'editForm' => [
+        'title' => 'Edit Option',
+    ],
+    'category' => [
+        'list' => 'Category List',
+        'emptyList' => 'No category is created yet'
+    ],
+    'tag' => [
+        'list' => 'Tag List',
+        'emptyList' => 'No tag is created yet',
+    ],
+    'listItem' => ':title in :block',
     'messages' => [
         'success' => [
             'created' => 'Option was created successfully',

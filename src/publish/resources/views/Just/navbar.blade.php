@@ -106,22 +106,28 @@
                         </li>
                         @endif
                         <li class="dropdown-submenu">
-                            <slink href="/settings/add-on-option/category">
+                            <slink href="/settings/add-on-option">
                                 <i class="fa fa-th-list"></i>
-                                @lang('navbar.addOns.categoryOptions.top')
+                                @lang('navbar.addOns.options.top')
                             </slink>
 
                             <ul class="dropdown-menu">
                                 <li>
                                     <slink href="/settings/add-on-option/category/option/0">
                                         <i class="fa fa-plus"></i>
-                                        @lang('navbar.addOns.categoryOptions.create')
+                                        @lang('navbar.addOns.options.create')
                                     </slink>
                                 </li>
                                 <li>
                                     <slink href="/settings/add-on-option/category/list">
                                         <i class="fa fa-list"></i>
-                                        @lang('navbar.addOns.categoryOptions.list')
+                                        @lang('navbar.addOns.options.categoryList')
+                                    </slink>
+                                </li>
+                                <li>
+                                    <slink href="/settings/add-on-option/tag/list">
+                                        <i class="fa fa-list"></i>
+                                        @lang('navbar.addOns.options.tagList')
                                     </slink>
                                 </li>
                             </ul>

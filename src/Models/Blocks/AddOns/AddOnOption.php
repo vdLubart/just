@@ -32,15 +32,15 @@ class AddOnOption extends Model
         $form->add(FormElement::hidden(['name'=>'id', 'value'=>@$this->id]));
 
         $categories = [];
-        foreach(AddOn::where('type', 'category')->get() as $addon){
+        foreach(AddOn::whereIn('type', ['category', 'tag'])->get() as $addon){
             $categories[$addon->id] = __('addOn.addOnLocation', ['addOn' => $addon->title, 'block' => $addon->block->title, 'page' => $addon->block->page()->title]);
         }
 
-        $form->add(FormElement::select(['name'=>'add_on_id', 'label'=>__('addOnOption.category.createForm.addOns'), 'options'=>$categories, 'value'=>@$this->add_on_id])
+        $form->add(FormElement::select(['name'=>'add_on_id', 'label'=>__('addOnOption.createForm.addOn'), 'options'=>$categories, 'value'=>@$this->add_on_id])
             ->obligatory()
         );
 
-        $form->add(FormElement::text(['name'=>'option', 'label'=>__('addOnOption.category.createForm.option'), 'value'=>$this->getTranslations('option'), 'translate'=>true])
+        $form->add(FormElement::text(['name'=>'option', 'label'=>__('addOnOption.createForm.option'), 'value'=>$this->getTranslations('option'), 'translate'=>true])
             ->obligatory()
         );
 

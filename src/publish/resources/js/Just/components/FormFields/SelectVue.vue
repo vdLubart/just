@@ -1,6 +1,6 @@
 <template>
     <block :no-wrap="noWrap" :id="name" :required="required" :label="label" :withoutLabel="withoutLabel">
-        <v-select :value="{'label': options[content], 'value':content}" :options="labeledOptions" v-bind="parameters" :multiple="multiple" :placeholder="placeholder" @input="handleInput"></v-select>
+        <v-select :value="selectValue" :options="labeledOptions" :multiple="isMultiple" :placeholder="placeholder" v-bind="parameters" @input="handleInput"></v-select>
     </block>
 
 </template>
@@ -29,6 +29,8 @@
         data(){
             return {
                 content: this.value,
+                isMultiple: this.multiple || this.parameters.multiple,
+                selectValue: null,
                 options: this.$parent.element.options,
                 labeledOptions: []
             }
@@ -36,7 +38,17 @@
 
         methods:{
             handleInput (e) {
-                this.content = e.value;
+                if(this.isMultiple){
+                    this.selectValue = e;
+                    this.content = [];
+                    e.forEach(val => {
+                        this.content.push(parseInt(val.value));
+                    });
+                }
+                else {
+                    this.selectValue = {'label': this.options[e.value], 'value':e.value};
+                    this.content = e.value;
+                }
 
                 this.$emit('input', this.content);
             }
@@ -46,6 +58,19 @@
             Object.keys(this.options).forEach(key => {
                 this.labeledOptions.push({'label': this.options[key], 'value':key});
             });
+
+            if(this.isMultiple){
+                this.selectValue = [];
+
+                if(!_.isEmpty(this.content)) {
+                    Object.values(this.content).forEach(key => {
+                        this.selectValue.push({'label': this.options[key], 'value': key});
+                    });
+                }
+            }
+            else{
+                this.selectValue = {'label': this.options[this.content], 'value':this.content};
+            }
         }
     }
 </script>

@@ -71,7 +71,7 @@ class AddOnController extends SettingsController
 
         $addOn = AddOn::findOrNew($request->addon_id);
 
-        return $this->setupSettingsForm($addOn, $request, $request->addon_id);
+        return $this->setupSettingsForm($addOn, $request, $request->addon_id, '/settings/add-on/list');
     }
 
     /**

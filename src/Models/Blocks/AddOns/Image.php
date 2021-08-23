@@ -38,7 +38,7 @@ class Image extends AbstractAddOn
 
     public function validationRules(AddOn $addon): array {
         return [
-            $addon->name."_".$addon->id => "mimetypes:image/jpeg,image/png",
+            $addon->name."_".$addon->id => ($addon->isRequired?"required|":"nullable") . "|mimetypes:image/jpeg,image/png",
         ];
     }
 

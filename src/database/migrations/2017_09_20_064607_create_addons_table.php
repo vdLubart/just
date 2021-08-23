@@ -15,7 +15,7 @@ class CreateAddonsTable extends Migration
     {
         Schema::create('addons', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            
+
             $table->increments('id');
             $table->integer('block_id')->unsigned();
             $table->string('type');
@@ -24,9 +24,10 @@ class CreateAddonsTable extends Migration
             $table->json('description')->nullable();
             $table->integer('orderNo')->unsigned();
             $table->boolean('isActive')->default(true);
+            $table->boolean('isRequired')->default(false);
             $table->string('parameters')->default('{}');
             $table->timestamps();
-            
+
             $table->foreign('type')->references('addon')->on('addonList')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('block_id')->references('id')->on('blocks')->onUpdate('cascade')->onDelete('cascade');
         });

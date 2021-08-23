@@ -29,10 +29,11 @@ return [
         'top' => 'Add-Ons',
         'create' => 'Add Add-On',
         'list' => 'Add-On List',
-        'categoryOptions' => [
-            'top' => 'Category Options',
+        'options' => [
+            'top' => 'Add-On Options',
             'create' => 'Add New Option',
-            'list' => 'Category List'
+            'categoryList' => 'Category List',
+            'tagList' => 'Tag List'
         ],
     ],
     'users' => [

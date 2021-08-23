@@ -63,6 +63,7 @@ class SaveAddonRequest extends FormRequest implements ValidateRequest
                 Rule::notIn( $usedNames )
                 ],
             "title" => "required|string",
+            "isRequired" => "nullable",
             "description" => "nullable"
         ];
 

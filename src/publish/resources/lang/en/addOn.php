@@ -7,7 +7,8 @@ return [
         'addOn' => 'Add-On',
         'block' => 'Block',
         'name' => 'Name (dev variable, ^[a-z]+[a-zA-Z0-9]*$)',
-        'userTitle' => 'User\'s Add-On Title'
+        'userTitle' => 'User\'s Add-On Title',
+        'isRequired' => 'Make Add-On Field Required'
     ],
     'editForm' => [
         'title' => "Add-On ':addOn'"

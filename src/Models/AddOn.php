@@ -36,7 +36,7 @@ class AddOn extends Model
 
     protected $table = 'addons';
 
-    protected $fillable = ['block_id', 'type', 'name', 'title', 'description', 'orderNo', 'isActive', 'parameters'];
+    protected $fillable = ['block_id', 'type', 'name', 'title', 'description', 'orderNo', 'isActive', 'isRequired', 'parameters'];
 
     public $translatable = ['title', 'description'];
 
@@ -189,6 +189,7 @@ class AddOn extends Model
         $form->add(FormElement::select(['name'=>'block_id', 'label'=>__('addOn.createForm.block'), 'value'=>@$this->block_id, 'options'=>$blocks])
             ->obligatory()
         );
+        $form->add(FormElement::checkbox(['name'=>'isRequired', 'label'=>__('addOn.createForm.isRequired'), 'value'=>'1', 'check'=>!!$this->isRequired]));
         if(!is_null($this->id)){
             $form->element("type")->setParameter("disabled", "disabled");
             $form->element("block_id")->setParameter("disabled", "disabled");
@@ -207,6 +208,7 @@ class AddOn extends Model
         $this->title = $request->title;
         $this->description = $request->description;
         $this->name = $request->name;
+        $this->isRequired = $request->isRequired;
 
         if(is_null($this->id)){
             $this->block_id = $request->block_id;

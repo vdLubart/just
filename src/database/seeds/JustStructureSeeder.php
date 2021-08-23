@@ -201,6 +201,11 @@ class JustStructureSeeder extends Seeder
         ]);
 
         DB::table('addonList')->insert([
+            'addon' => 'tag',
+            'table' => 'tags'
+        ]);
+
+        DB::table('addonList')->insert([
             'addon' => 'phrase',
             'table' => 'phrases'
         ]);

@@ -35,7 +35,7 @@ class Phrase extends AbstractAddOn
 
     public function validationRules(AddOn $addon): array {
         return [
-            $addon->name."_".$addon->id => "required|array",
+            $addon->name."_".$addon->id => ($addon->isRequired?"required":"nullable") . "|array",
         ];
     }
 }

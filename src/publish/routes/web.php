@@ -101,12 +101,12 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
         });
     });
 
-    Route::prefix('add-on-option/{addOnType}')->where(['addonType' => '(category|tag)'])->group(function(){
+    Route::prefix('add-on-option')->group(function(){
         Route::get('', "\Just\Controllers\Settings\AddOnOptionController@actions"); //+
         Route::get("{addOnId}", "\Just\Controllers\Settings\AddOnOptionController@optionList")->where(['addOnId'=>'\d+']); //+
-        Route::get("list", "\Just\Controllers\Settings\AddOnOptionController@list"); //+
+        Route::get("{addOnType}/list", "\Just\Controllers\Settings\AddOnOptionController@list")->where(['addonType' => '(category|tag)']); //+
 
-        Route::prefix('option')->group(function(){
+        Route::prefix('{addOnType}/option')->where(['addonType' => '(category|tag)'])->group(function(){
             Route::get("{optionId}", "\Just\Controllers\Settings\AddOnOptionController@optionForm")->where(['optionId' => '\d+']); //+
 
             Route::post("setup", "\Just\Controllers\Settings\AddOnOptionController@setup"); //+

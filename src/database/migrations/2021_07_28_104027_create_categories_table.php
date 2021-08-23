@@ -22,7 +22,7 @@ class CreateCategoriesTable extends Migration
             $table->timestamps();
 
             $table->foreign('add_on_id')->references('id')->on('addons')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('value')->references('id')->on('categoryValues')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('value')->references('id')->on('addonOptions')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

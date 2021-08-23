@@ -24,17 +24,21 @@ class AddOnOptionController extends SettingsController {
     public function actions(): JsonResponse {
         $items = [
             $this->itemKebabName() . '/category/option/0' => [
-                'label' => __('navbar.addOns.categoryOptions.create'),
+                'label' => __('navbar.addOns.options.create'),
                 'icon' => 'plus'
             ],
             $this->itemKebabName() . '/category/list' => [
-                'label' => __('navbar.addOns.categoryOptions.list'),
+                'label' => __('navbar.addOns.options.categoryList'),
+                'icon' => 'list'
+            ],
+            $this->itemKebabName() . '/tag/list' => [
+                'label' => __('navbar.addOns.options.tagList'),
                 'icon' => 'list'
             ]
         ];
         $caption = [
             '/settings/add-on' => $this->itemTranslation('title'),
-            '/settings/' . $this->itemKebabName() . '/category' => $this->itemTranslation('category.title')
+            '/settings/' . $this->itemKebabName() => $this->itemTranslation('category.title')
         ];
 
         return $this->response($caption, $items, 'list');
@@ -50,31 +54,31 @@ class AddOnOptionController extends SettingsController {
         $addOns = AddOn::where('type', $addOnType)->get();
         $items = [];
         foreach ($addOns as $addOn){
-            $items['add-on-option/' . $addOnType . '/' . $addOn->id] = [
+            $items['add-on-option/' . $addOn->id] = [
                 'icon' => 'list',
                 'label' => __('addOn.addOnLocation', ['addOn' => $addOn->title, 'block' => $addOn->block->title, 'page' => $addOn->block->page()->title])
             ];
         }
         $caption = [
+            '/settings/add-on' => __('addOn.title'),
             '/settings/' . $this->itemKebabName() => $this->itemTranslation('title'),
-            '/settings/' . $this->itemKebabName() . '/' . $addOnType => $this->itemTranslation($addOnType . '.title'),
             '/settings/' . $this->itemKebabName() . '/' . $addOnType . '/list' => $this->itemTranslation($addOnType . '.list')
         ];
 
         return $this->response($caption, $items, 'list');
     }
 
-    public function optionList(string $addOnType, int $addOnId): JsonResponse {
+    public function optionList(int $addOnId): JsonResponse {
         $addOn = AddOn::find($addOnId);
         $items = $addOn->options;
 
         $caption = [
+            '/settings/add-on' => __('addOn.title'),
             '/settings/' . $this->itemKebabName() => $this->itemTranslation('title'),
-            '/settings/' . $this->itemKebabName() . '/' . $addOn->type => $this->itemTranslation($addOn->type . '.title'),
-            '/settings/' . $this->itemKebabName() . '/' . $addOn->type . '/' . $addOn->id => $addOn->id == 0 ? $this->itemTranslation($addOn->type . '.createForm.title') : $this->itemTranslation($addOn->type . '.editForm.title')
+            '/settings/' . $this->itemKebabName() . '/' . $addOn->id => $addOn->id == 0 ? $this->itemTranslation('createForm.title') : $this->itemTranslation('editForm.title')
         ];
 
-        return $this->response($caption, $items, 'items', ['addonType' => $addOnType]);
+        return $this->response($caption, $items, 'items', ['addonType' => $addOn->type]);
     }
 
     /**
@@ -86,9 +90,9 @@ class AddOnOptionController extends SettingsController {
         $option = AddOnOption::findOrNew($optionId);
 
         $caption = [
+            '/settings/add-on' => __('addOn.title'),
             '/settings/' . $this->itemKebabName() => $this->itemTranslation('title'),
-            '/settings/' . $this->itemKebabName() . '/' . $addOnType => $this->itemTranslation($addOnType . '.title'),
-            '/settings/' . $this->itemKebabName() . '/' . $addOnType . '/option/' . $optionId => $this->itemTranslation($addOnType . '.' . ($optionId == 0 ? 'create' : 'edit') . 'Form.title')
+            '/settings/' . $this->itemKebabName() . '/' . $addOnType . '/option/' . $optionId => $this->itemTranslation( ($optionId == 0 ? 'create' : 'edit') . 'Form.title')
         ];
 
         return $this->response($caption, $option, 'form');
@@ -104,7 +108,7 @@ class AddOnOptionController extends SettingsController {
         $categoryOption = AddonOption::findOrNew($request->id);
         $addon = AddOn::find($request->add_on_id);
 
-        return $this->setupSettingsForm($categoryOption, $request, $request->add_on_id, '/settings/add-on-option/' . $addon->type . '/' . $addon->id);
+        return $this->setupSettingsForm($categoryOption, $request, $request->add_on_id, '/settings/add-on-option/' . $addon->id);
     }
 
     protected function buildItemList(Collection $items): string {
