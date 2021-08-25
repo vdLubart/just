@@ -65,7 +65,7 @@
             if(Object.keys(this.content).length){
                 this.itemName = _.first(_.first(Object.keys(this.content)).split('/')),
                 this.activating = !_.includes(['layout'], this.itemName),
-                this.moving = !_.includes(['layout', 'page'], this.itemName)
+                this.moving = !_.includes(['layout', 'page', 'user'], this.itemName)
 
                 if(this.itemName === 'block' && this.$root.settings.responseParameters.blockType === 'events'){
                     this.moving = false;

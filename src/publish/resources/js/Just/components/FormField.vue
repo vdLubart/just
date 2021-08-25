@@ -14,11 +14,12 @@
     import SelectVue from './FormFields/SelectVue';
     import InputFile from './FormFields/InputFile';
     import InputTime from './FormFields/InputTime';
+    import InputPassword from './FormFields/InputPassword';
 
     export default {
         name: "FormField",
 
-        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, CheckboxGroup, InputRadio, RadioGroup, InputButton, InputHidden, SelectVue, HtmlBlock, InputFile, InputTime},
+        components: {InputText, InputNumber, InputEmail, InputArea, InputDate, InputCheckbox, CheckboxGroup, InputRadio, RadioGroup, InputButton, InputHidden, SelectVue, HtmlBlock, InputFile, InputTime, InputPassword},
 
         props:{
             "element": {type: Object}
@@ -34,7 +35,7 @@
             let inputMap = {
                 'text': InputText,
                 'textarea': InputArea,
-                'password': null,
+                'password': InputPassword,
                 'email': InputEmail,
                 'file': InputFile,
                 'checkbox': _.isEmpty(this.element.options) ? InputCheckbox : CheckboxGroup,

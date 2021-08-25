@@ -5,6 +5,7 @@ namespace Just;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Support\ServiceProvider;
+use Just\Middleware\IsActiveUser;
 use Just\Middleware\MasterAccess;
 use Just\Validators\ValidatorExtended;
 use Illuminate\Support\Facades\Validator;
@@ -82,6 +83,7 @@ class JustServiceProvider extends ServiceProvider
         }
 
         $this->app['router']->aliasMiddleware('master', MasterAccess::class);
+        $this->app['router']->aliasMiddleware('isActiveUser', IsActiveUser::class);
     }
 
     /**

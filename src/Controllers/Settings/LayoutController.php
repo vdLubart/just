@@ -11,7 +11,7 @@ use Just\Models\Layout;
 use Just\Models\Page;
 use Just\Models\Theme;
 use Just\Requests\SaveLayoutRequest;
-use Just\Requests\DeleteLayoutRequest;
+use Just\Requests\InitializeLayoutRequest;
 use Throwable;
 
 class LayoutController extends SettingsController {
@@ -74,11 +74,11 @@ class LayoutController extends SettingsController {
     /**
      * Delete layout
      *
-     * @param DeleteLayoutRequest $request
+     * @param InitializeLayoutRequest $request
      * @return JsonResponse
      * @throws Exception
      */
-    public function delete(DeleteLayoutRequest $request): JsonResponse {
+    public function delete(InitializeLayoutRequest $request): JsonResponse {
         $layout = Layout::find($request->id);
         $response = new \stdClass();
 

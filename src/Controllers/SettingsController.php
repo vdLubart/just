@@ -152,7 +152,7 @@ abstract class SettingsController extends Controller
         elseif($this->itemName() === 'addOn'){
             $items = $this->itemClass()::orderBy('block_id')->orderBy('orderNo')->get();
         }
-        elseif(in_array($this->itemName(), ['page', 'layout'])){
+        elseif(in_array($this->itemName(), ['page', 'layout', 'user'])){
             $items = $this->itemClass()::get();
         }
         else {

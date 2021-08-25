@@ -2,6 +2,7 @@
 
 namespace Just\Models;
 
+use Exception;
 use Illuminate\Notifications\Notifiable;
 use Just\Notifications\NewRegistration;
 use Just\Notifications\PasswordReset;
@@ -47,32 +48,61 @@ class User extends AppUser
     }
 
     public static function changePasswordForm() {
-        $form = new Form('/admin/settings/password/update');
+        $form = new Form('/settings/user/password/update');
 
-        $form->add(FormElement::password(['name'=>'current_password', 'label'=>__('user.changePasswordForm.currentPassword')]));
-        $form->add(FormElement::password(['name'=>'new_password', 'label'=>__('user.changePasswordForm.newPassword')]));
-        $form->add(FormElement::password(['name'=>'new_password_confirmation', 'label'=>__('user.changePasswordForm.confirmNewPassword')]));
+        $form->add(FormElement::password(['name'=>'current_password', 'label'=>__('user.changePasswordForm.currentPassword')])
+            ->obligatory()
+        );
+        $form->add(FormElement::password(['name'=>'new_password', 'label'=>__('user.changePasswordForm.newPassword')])
+            ->obligatory()
+        );
+        $form->add(FormElement::password(['name'=>'new_password_confirmation', 'label'=>__('user.changePasswordForm.confirmNewPassword')])
+            ->obligatory()
+        );
         $form->add(FormElement::submit(['value'=>__('user.changePasswordForm.action')]));
 
         return $form;
     }
 
     /**
+     * Return form to create a new page
+     *
+     * @return Form
+     * @throws Exception
+     */
+    public function itemForm(): Form {
+        return $this->settingsForm();
+    }
+
+    /**
      * Get page settings form
      *
      * @return Form
+     * @throws Exception
      */
-    public function settingsForm() {
-        $form = new Form('admin/settings/user/setup');
+    public function settingsForm(): Form {
+        $form = new Form('settings/user/setup');
 
-        $form->add(FormElement::hidden(['name'=>'user_id', 'value'=>@$this->id]));
-        $form->add(FormElement::email(['name'=>'email', 'label'=>__('user.createForm.login'), 'value'=>@$this->email]));
-        $form->add(FormElement::text(['name'=>'name', 'label'=>__('user.createForm.name'), 'value'=>@$this->name]));
-        $form->add(FormElement::select(['name'=>'role', 'label'=>__('user.createForm.role'), 'options'=>['master'=>'master', 'admin'=>'admin'], 'value'=>@$this->role]));
+        $form->add(FormElement::hidden(['name'=>'user_id', 'value'=>@$this->id])
+            ->obligatory()
+        );
+        $form->add(FormElement::email(['name'=>'email', 'label'=>__('user.createForm.login'), 'value'=>@$this->email])
+            ->obligatory()
+        );
+        $form->add(FormElement::text(['name'=>'name', 'label'=>__('user.createForm.name'), 'value'=>@$this->name])
+            ->obligatory()
+        );
         if(!$this->id){
-            $form->add(FormElement::password(['name'=>'password', 'label'=>__('user.createForm.password')]));
-            $form->add(FormElement::password(['name'=>'password_confirmation', 'label'=>__('user.createForm.confirmPassword')]));
+            $form->add(FormElement::password(['name'=>'password', 'label'=>__('user.createForm.password')])
+                ->obligatory()
+            );
+            $form->add(FormElement::password(['name'=>'password_confirmation', 'label'=>__('user.createForm.confirmPassword')])
+                ->obligatory()
+            );
         }
+        $form->add(FormElement::select(['name'=>'role', 'label'=>__('user.createForm.role'), 'options'=>['master'=>'master', 'admin'=>'admin'], 'value'=>@$this->role])
+            ->obligatory()
+        );
         $form->add(FormElement::submit(['value'=>__('settings.actions.save')]));
 
         return $form;
@@ -113,5 +143,14 @@ class User extends AppUser
 
     public static function authAsMaster(){
         return Auth::check() and User::find(Auth::id())->isMaster();
+    }
+
+    /**
+     * Return caption for page item in the page list
+     *
+     * @return string
+     */
+    public function itemCaption() {
+        return ($this->name === '' ? __('block.untitled') : $this->name);
     }
 }

@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
-use Just\Requests\DeletePageRequest;
 use Just\Requests\InitializePageRequest;
 use Just\Requests\SavePageRequest;
 use Just\Models\Page;
@@ -72,11 +71,11 @@ class PageController extends SettingsController
     /**
      * Delete page
      *
-     * @param DeletePageRequest $request
+     * @param InitializePageRequest $request
      * @return JsonResponse
      * @throws Exception
      */
-    public function delete(DeletePageRequest $request): JsonResponse {
+    public function delete(InitializePageRequest $request): JsonResponse {
         $page = Page::find($request->id);
         $route = JustRoute::where('route', $page->route)->first();
 

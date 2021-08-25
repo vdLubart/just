@@ -17,7 +17,6 @@ use Just\Models\Block;
 use Just\Models\Blocks\Events;
 use Just\Requests\Block\Admin\InitializeBlockRequest;
 use Just\Requests\SaveBlockRequest;
-use Just\Requests\DeleteBlockRequest;
 use Just\Requests\Block\Admin\InitializeItemRequest;
 use Just\Tools\Useful;
 use Just\Validators\ValidatorExtended;
@@ -427,10 +426,10 @@ class BlockController extends SettingsController {
     /**
      * Delete block
      *
-     * @param DeleteBlockRequest $request
+     * @param InitializeBlockRequest $request
      * @return JsonResponse
      */
-    public function delete(DeleteBlockRequest $request): JsonResponse {
+    public function delete(InitializeBlockRequest $request): JsonResponse {
         $block = Block::find($request->id);
 
         $response = new \stdClass();

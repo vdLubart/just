@@ -3,6 +3,7 @@
 namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Validator;
 use Just\Contracts\Requests\ValidateRequest;
@@ -15,7 +16,7 @@ class SavePasswordRequest extends FormRequest implements ValidateRequest
      * @return bool
      */
     public function authorize(): bool {
-        return true;
+        return Auth::check();
     }
 
     /**

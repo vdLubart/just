@@ -12,7 +12,7 @@ use Just\Models\User;
 class InitializeAddOnRequest extends FormRequest implements ValidateRequest{
 
     public function authorize(): bool {
-        return User::authAsAdmin();
+        return User::authAsMaster();
     }
 
     public function rules(): array {

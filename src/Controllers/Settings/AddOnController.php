@@ -8,7 +8,6 @@ use Illuminate\Support\Collection;
 use Just\Controllers\SettingsController;
 use Just\Models\AddOn;
 use Just\Models\Blocks\AddOns\Image;
-use Just\Requests\DeleteAddOnRequest;
 use Just\Requests\InitializeAddOnRequest;
 use Just\Requests\SaveAddonRequest;
 use Throwable;
@@ -77,11 +76,11 @@ class AddOnController extends SettingsController
     /**
      * Delete add-on
      *
-     * @param DeleteAddOnRequest $request
+     * @param InitializeAddOnRequest $request
      * @return JsonResponse
      * @throws Exception
      */
-    public function delete(DeleteAddOnRequest $request): JsonResponse {
+    public function delete(InitializeAddOnRequest $request): JsonResponse {
         $addon = AddOn::find($request->id);
 
         if(!empty($addon)){

@@ -143,20 +143,16 @@
 
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a href="#"
-                               onclick="event.preventDefault();
-                                                    openSettings('user', 0);">
+                            <slink href="/settings/user/0">
                                 <i class="fa fa-plus"></i>
                                 @lang('navbar.users.add')
-                            </a>
+                            </slink>
                         </li>
                         <li>
-                            <a href="#"
-                               onclick="event.preventDefault();
-                                                    openList('user');">
+                            <slink href="/settings/user/list">
                                 <i class="fa fa-list"></i>
                                 @lang('navbar.users.list')
-                            </a>
+                            </slink>
                         </li>
                     </ul>
                 </li>
@@ -169,12 +165,10 @@
 
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a href="#"
-                               onclick="event.preventDefault();
-                                                    openChangePassword();">
+                            <slink href="/settings/user/password">
                                 <i class="fa fa-lock"></i>
                                 @lang('navbar.user.changePassword')
-                            </a>
+                            </slink>
                         </li>
                         <li>
                             <a href="{{ route('logout') }}"

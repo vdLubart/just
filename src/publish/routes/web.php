@@ -91,6 +91,20 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
         });
     });
 
+    Route::prefix('user')->middleware(['master'])->group(function(){
+        Route::get('', "\Just\Controllers\Settings\UserController@actions");
+        Route::get("{userId}", "\Just\Controllers\Settings\UserController@settingsForm")->where(['userId'=>'\d+']);
+        Route::get("list", "\Just\Controllers\Settings\UserController@userList");
+
+        Route::post("setup", "\Just\Controllers\Settings\UserController@setup");
+        Route::post('activate', '\Just\Controllers\Settings\UserController@activate');
+        Route::post('deactivate', '\Just\Controllers\Settings\UserController@deactivate');
+        Route::post("delete", "\Just\Controllers\Settings\UserController@delete");
+
+        Route::get("password", "\Just\Controllers\Settings\UserController@changePasswordForm");
+        Route::post("password/update", "\Just\Controllers\Settings\UserController@changePassword");
+    });
+
     Route::prefix('add-on')->group(function(){
         Route::middleware(['master'])->group(function(){
             Route::get('', "\Just\Controllers\Settings\AddOnController@actions");
@@ -160,10 +174,6 @@ Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){
         Route::get("panel/{pageId}/{panelLocation}/{blockId?}", "\Just\Controllers\AdminController@panelSettingsForm")->where(['pageId'=>'\d+', 'blockId'=>'\d+']);
         Route::post("panel/setup", "\Just\Controllers\AdminController@handlePanelForm");
 
-        Route::get("user/list", "\Just\Controllers\AdminController@userList");
-        Route::get("user/{userId}", "\Just\Controllers\AdminController@userSettingsForm")->where(['userId'=>'\d+']);
-        Route::post("user/setup", "\Just\Controllers\AdminController@handleUserForm");
-
         Route::get("crop/{blockId}/{id}", "\Just\Controllers\AdminController@cropForm")->where(['blockId'=>'\d+', 'id'=>'\d+']);
         Route::post("crop", "\Just\Controllers\AdminController@handleCrop");
         //TODO: check functionality
@@ -178,16 +188,4 @@ Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){
         //TODO: create functionality
         //Route::get("lang/list", "AdminController@languageList");
     });
-
-
-    Route::post("addon/delete", "\Just\Controllers\AdminController@deleteAddon");
-    Route::post("user/delete", "\Just\Controllers\AdminController@deleteUser");
-    Route::post("category/delete", "\Just\Controllers\AdminController@deleteCategory");
-
-    Route::post("delete", "\Just\Controllers\AdminController@delete");
-    Route::post("moveup", "\Just\Controllers\AdminController@moveup");
-    Route::post("movedown", "\Just\Controllers\AdminController@movedown");
-    Route::post("moveto", "\Just\Controllers\AdminController@moveto");
-    Route::post("activate", "\Just\Controllers\AdminController@activate");
-    Route::post("deactivate", "\Just\Controllers\AdminController@deactivate");
 });

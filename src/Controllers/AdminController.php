@@ -451,15 +451,4 @@ class AdminController extends Controller
 
         return redirect()->back();
     }
-
-    public function changePasswordForm() {
-        return view(viewPath(Theme::active()->layout, 'changePassword'))->with(['form'=>User::changePasswordForm()]);
-    }
-
-    public function changePassword(SavePasswordRequest $request) {
-        $user = Auth::user();
-
-        $user->password = bcrypt($request->new_password);
-        $user->save();
-    }
 }

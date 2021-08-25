@@ -2,6 +2,10 @@
 
 namespace Just\Controllers\Auth;
 
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Just\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Just\Models\Theme;
@@ -38,15 +42,25 @@ class LoginController extends Controller
         parent::__construct();
         $this->middleware('guest')->except('logout');
     }
-    
+
     /**
      * Show the application's login form.
      *
      * @override
-     * @return \Illuminate\Http\Response
+     * @return Application|Factory|View
      */
     public function showLoginForm()
     {
         return view(Theme::active()->name.'.system.auth.login');
+    }
+
+    /**
+     * Get the needed authorization credentials from the request.
+     *
+     * @param Request $request
+     * @return array
+     */
+    protected function credentials(Request $request): array {
+        return $request->only($this->username(), 'password') + ['isActive' => 1];
     }
 }

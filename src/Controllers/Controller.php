@@ -21,6 +21,7 @@ class Controller extends LaravelController
             parent::__construct();
         }
 
+        $this->middleware('isActiveUser');
         Config::set('isAdmin', false);
     }
 
