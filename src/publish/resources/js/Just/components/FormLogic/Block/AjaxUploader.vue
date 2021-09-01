@@ -149,8 +149,9 @@ export default {
                 if (res.data.success && typeof res.data.success === 'string') {
                     vm.alerts.success.push(res.data.success);
                 } else {
-                    vm.alerts.success.push(`${file.name} has been successfully uploaded ans stored. You crop and edit the image in the 'Block Content' tab.`);
+                    vm.alerts.success.push(`${file.name} has been successfully uploaded and stored. Navigate to the 'Block Content' tab to crop and edit the item.`);
                 }
+                vm.$parent.handleInput('uploaded');
             })
             .catch(e => {
                 if (e.response.data.error && typeof e.response.data.error === 'string') {

@@ -3,7 +3,6 @@
 namespace Just\Database\Seeds;
 
 use Illuminate\Database\Seeder;
-use Just\Structure;
 use Just\Models;
 use Illuminate\Support\Facades\DB;
 use Just\Models\Layout;

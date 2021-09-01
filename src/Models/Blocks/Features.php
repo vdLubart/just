@@ -67,7 +67,7 @@ class Features extends AbstractItem
 
         $titleGroup = new FormGroup('titleGroup', __('settings.common.description'), ['class'=>'fullWidth twoColumns']);
 
-        if(!$this->parameter('ignoreCaption', true)){
+        if(!$this->parameter('ignoreCaption')){
             $titleGroup->add(FormElement::text(['name'=>'title', 'label'=>__('settings.common.title'), 'value'=>$this->getTranslations('title'), 'translate'=>true])
                 ->obligatory()
             );

@@ -4,7 +4,6 @@ namespace Just\Database\Seeds;
 
 use Illuminate\Database\Seeder;
 use Just\Models;
-use Just\Models\System\Version;
 
 class JustDataSeeder extends Seeder
 {

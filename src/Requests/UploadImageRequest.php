@@ -3,7 +3,8 @@
 namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Illuminate\Support\Facades\Auth;
+use Just\Contracts\Requests\ValidateRequest;
 
 class UploadImageRequest extends FormRequest implements ValidateRequest
 {
@@ -12,9 +13,8 @@ class UploadImageRequest extends FormRequest implements ValidateRequest
      *
      * @return bool
      */
-    public function authorize()
-    {
-        return \Auth::user();
+    public function authorize(): bool {
+        return Auth::check();
     }
 
     /**
@@ -22,8 +22,7 @@ class UploadImageRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [
             'image' => 'required|file|image'
         ];

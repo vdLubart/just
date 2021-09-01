@@ -26,7 +26,7 @@ class MasterAccessTest extends Actions
 
     /** @test */
     function master_can_create_new_master(){
-        $this->create_new_admin(true);
+        $this->create_new_master(true);
     }
 
     /** @test */

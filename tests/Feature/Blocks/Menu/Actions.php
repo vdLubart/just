@@ -2,44 +2,54 @@
 
 namespace Just\Tests\Feature\Blocks\Menu;
 
+use Illuminate\Support\Facades\Auth;
+use Just\Models\Blocks\Menu;
+use Just\Models\Page;
+use Just\Models\User;
 use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Just\Structure\Panel\Block;
-use Just\Models\Route;
+use Just\Models\Block;
+use Just\Models\System\Route;
 
 class Actions extends LocationBlock {
-    
+
     use WithFaker;
 
     protected $type = 'menu';
-    
+
     protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }
-        
+
         foreach(Route::where('route', '<>', '')->get() as $route){
             $route->delete();
         }
-        
+
         parent::tearDown();
     }
-    
+
     public function access_item_form($assertion){
         $block = $this->setupBlock();
-        
-        $response = $this->get("admin/settings/".$block->id."/0");
-        
-        $response->{($assertion?'assertSee':'assertDontSee')}('input name="item"');
-        $response->{($assertion?'assertSee':'assertDontSee')}('select name="parent"');
-        $response->{($assertion?'assertSee':'assertDontSee')}('select name="route"');
-        $response->{($assertion?'assertSee':'assertDontSee')}('input name="url"');
+
+        $response = $this->get("settings/block/".$block->id."/item/0");
+
+        if($assertion){
+            $form = $block->form();
+            $this->assertEquals(2, $form->count());
+            $this->assertEquals(['block_id', 'id'], array_keys($form->elements()));
+        }
+        else{
+            $response->assertRedirect('login');
+
+            $this->assertEquals(0, $block->item()->itemForm()->count());
+        }
     }
-    
+
     public function access_edit_item_form($assertion){
         $block = $this->setupBlock();
 
-        $item = new Block\Menu();
+        $item = new Menu();
         $item->block_id = $block->id;
         $item->item = $menuItem = $this->faker->word;
         $item->parent = null;
@@ -48,26 +58,26 @@ class Actions extends LocationBlock {
 
         $item->save();
 
-        $item = Block\Menu::all()->last();
-        
+        $item = Menu::all()->last();
+
         if($assertion){
-            $form = $item->form();
-            $this->assertEquals(5, $form->count());
-            $this->assertEquals(['item', 'parent', 'route', 'url', 'submit'], array_keys($form->getElements()));
-            $this->assertEquals($menuItem, $form->getElement('item')->value());
+            $form = $item->itemForm();
+            $this->assertEquals(7, $form->count());
+            $this->assertEquals(['id', 'block_id', 'item', 'parent', 'route', 'url', 'submit'], array_keys($form->getElements()));
+            $this->assertEquals($menuItem, $form->getElement('item')->value()['en']);
             $this->assertNull($form->getElement('parent')->value());
             $this->assertEquals(1, $form->getElement('route')->value());
             $this->assertEquals('', $form->getElement('url')->value());
         }
         else{
-            $this->assertNull($item->form());
+            $this->assertEquals(0, $item->itemForm()->count());
         }
     }
 
     public function create_new_item_in_block($assertion){
         $block = $this->setupBlock();
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'item' => $menuItem = $this->faker->word,
@@ -75,29 +85,28 @@ class Actions extends LocationBlock {
             'route' => 1,
             'url' => ''
         ]);
-        
-        $item = Block\Menu::all()->last();
-        
+
+        $item = Menu::all()->last();
+
         if($assertion){
             $this->assertNotNull($item);
-            $firstItem = array_first($block->content())['item'];
-            
-            $this->assertEquals($menuItem, $firstItem->item);
-            $this->assertNull($firstItem->parent);
-            $this->assertEquals('', $firstItem->route);
-            $this->assertNull($firstItem->url);
+            $menu = $block->content();
+            $firstItem = $menu->{'block/'.$block->id.'/item/'.$item->id}->item;
+
+            $this->assertEquals($menuItem, $firstItem->title);
+            $this->assertEquals('admin/', $firstItem->url);
         }
         else{
             $this->assertNull($item);
         }
     }
-    
-    public function receive_an_error_on_sending_incompleate_create_item_form(){
+
+    public function receive_an_error_on_sending_incomplete_create_item_form(){
         $block = $this->setupBlock();
-        
+
         $this->get("admin/settings/".$block->id."/0");
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'parent' => 0,
@@ -105,27 +114,27 @@ class Actions extends LocationBlock {
         ])
             ->assertSessionHasErrors('item')
             ->assertRedirect();
-        
-        $item = Block\Menu::all()->last();
-        
+
+        $item = Menu::all()->last();
+
         $this->assertNull($item);
     }
-    
+
     public function create_new_item_with_link_to_another_page($assertion){
         $block = $this->setupBlock();
-        
-        $route = \Just\Models\Route::create([
+
+        $route = \Just\Models\System\Route::create([
             'route' => $this->faker->word,
             'type' => 'page'
         ]);
-        
-        \Just\Structure\Page::create([
+
+        Page::create([
             'title' => $this->faker->word,
             'route' => $route->route,
             'layout_id' => 1
         ]);
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'item' => $menuItem = $this->faker->word,
@@ -133,27 +142,26 @@ class Actions extends LocationBlock {
             'route' => $route->id,
             'url' => ''
         ]);
-        
-        $item = Block\Menu::all()->last();
-        
+
+        $item = Menu::all()->last();
+
         if($assertion){
             $this->assertNotNull($item);
-            $firstItem = array_first($block->content())['item'];
-            
-            $this->assertEquals($menuItem, $firstItem->item);
-            $this->assertNull($firstItem->parent);
-            $this->assertEquals($route->route, $firstItem->route);
-            $this->assertNull($firstItem->url);
+            $menu = $block->content();
+            $firstItem = $menu->{'block/'.$block->id.'/item/'.$item->id}->item;
+
+            $this->assertEquals($menuItem, $firstItem->title);
+            $this->assertEquals('admin/'.$route->route, $firstItem->url);
         }
         else{
             $this->assertNull($item);
         }
     }
-    
+
     public function create_new_item_with_custom_url($assertion){
         $block = $this->setupBlock();
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'item' => $menuItem = $this->faker->word,
@@ -161,32 +169,31 @@ class Actions extends LocationBlock {
             'route' => 1,
             'url' => $url = $this->faker->word
         ]);
-        
-        $item = Block\Menu::all()->last();
-        
+
+        $item = Menu::all()->last();
+
         if($assertion){
             $this->assertNotNull($item);
-            $firstItem = array_first($block->content())['item'];
-            
-            $this->assertEquals($menuItem, $firstItem->item);
-            $this->assertNull($firstItem->parent);
-            $this->assertEquals('', $firstItem->route);
+            $menu = $block->content();
+            $firstItem = $menu->{'block/'.$block->id.'/item/'.$item->id}->item;
+
+            $this->assertEquals($menuItem, $firstItem->title);
             $this->assertEquals($url, $firstItem->url);
         }
         else{
             $this->assertNull($item);
         }
     }
-    
+
     public function create_few_items_in_block($assertion){
         $block = $this->setupBlock();
-        
+
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
             $this->actingAs($user);
         }
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'item' => $firstItem = $this->faker->word,
@@ -194,14 +201,14 @@ class Actions extends LocationBlock {
             'route' => 1,
             'url' => $url1 = $this->faker->url
         ]);
-        
+
         if(!$assertion){
-            \Auth::logout();
+            Auth::logout();
         }
-       
-        $item1 = Block\Menu::all()->last();
-        
-        $this->post("", [
+
+        $item1 = Menu::all()->last();
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'item' => $secondItem = $this->faker->word,
@@ -209,8 +216,8 @@ class Actions extends LocationBlock {
             'route' => 1,
             'url' => $url2 = $this->faker->url
         ]);
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'item' => $thirdItem = $this->faker->word,
@@ -218,7 +225,7 @@ class Actions extends LocationBlock {
             'route' => 1,
             'url' => $url3 = $this->faker->url
         ]);
-        
+
         if($assertion){
             $this->get('')
                     ->assertSee($firstItem)
@@ -227,8 +234,8 @@ class Actions extends LocationBlock {
                     ->assertSee($url1)
                     ->assertSee($url2)
                     ->assertSee($url3)
-                    ->assertSee('<li><a href="'.$url1.'">'.$firstItem.'</a><ul><li><a href="'.$url3.'">'.$thirdItem.'</a></li></ul></li>');
-            
+                    ->assertSee('<li class=\'\'><a href="'.$url1.'">'.$firstItem.'</a><ul><li class=\'\'><a href="'.$url3.'">'.$thirdItem.'</a><ul></ul></li></ul></li>');
+
             $this->get('')
                     ->assertSee($firstItem)
                     ->assertSee($secondItem)
@@ -236,7 +243,7 @@ class Actions extends LocationBlock {
                     ->assertSee($url1)
                     ->assertSee($url2)
                     ->assertSee($url3)
-                    ->assertSee('<li><a href="'.$url1.'">'.$firstItem.'</a><ul><li><a href="'.$url3.'">'.$thirdItem.'</a></li></ul></li>');
+                    ->assertSee('<li class=\'\'><a href="'.$url1.'">'.$firstItem.'</a><ul><li class=\'\'><a href="'.$url3.'">'.$thirdItem.'</a><ul></ul></li></ul></li>');
         }
         else{
             $this->get('admin')
@@ -246,8 +253,8 @@ class Actions extends LocationBlock {
                     ->assertSee($url1)
                     ->assertDontSee($url2)
                     ->assertDontSee($url3)
-                    ->assertDontSee('<li><a href="'.$url1.'">'.$firstItem.'</a><ul><li><a href="'.$url3.'">'.$thirdItem.'</a></li></ul></li>');
-            
+                    ->assertDontSee('<li class=\'\'><a href="'.$url1.'">'.$firstItem.'</a><ul><li class=\'\'><a href="'.$url3.'">'.$thirdItem.'</a><ul></ul></li></ul></li>');
+
             $this->get('')
                     ->assertSee($firstItem)
                     ->assertDontSee($secondItem)
@@ -258,11 +265,11 @@ class Actions extends LocationBlock {
                     ->assertDontSee('<li><a href="'.$url1.'">'.$firstItem.'</a><ul><li><a href="'.$url3.'">'.$thirdItem.'</a></li></ul></li>');
         }
     }
-    
+
     public function edit_existing_item_in_the_block($assertion){
         $block = $this->setupBlock();
 
-        $item = new Block\Menu();
+        $item = new Menu();
         $item->block_id = $block->id;
         $item->item = $menuItem = $this->faker->word;
         $item->parent = null;
@@ -270,10 +277,10 @@ class Actions extends LocationBlock {
         $item->url = '';
 
         $item->save();
-        
-        $item = Block\Menu::all()->last();
-        
-        $this->post("", [
+
+        $item = Menu::all()->last();
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => $item->id,
             'item' => $updatedItem = $this->faker->word,
@@ -281,9 +288,9 @@ class Actions extends LocationBlock {
             'route' => 1,
             'url' => ''
         ]);
-        
-        $item = Block\Menu::all()->last();
-        
+
+        $item = Menu::all()->last();
+
         if($assertion){
             $this->assertEquals($updatedItem, $item->item);
         }
@@ -291,37 +298,38 @@ class Actions extends LocationBlock {
             $this->assertNotEquals($updatedItem, $item->item);
         }
     }
-    
-    public function edit_block_settings($assertion){
-        $block = $this->setupBlock();
-        
-        $response = $this->get('admin/settings/'.$block->id.'/0');
-        
-        if($assertion){
-            $response->assertStatus(200)
-                    ->assertSee('Settings View');
-            
-            $this->assertCount(3, $block->setupForm()->groups());
-            
-            $this->assertEquals(['id', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
 
-            $this->post('admin/settings/setup', [
+    public function customize_block($assertion){
+        $block = $this->setupBlock();
+
+        $response = $this->get('settings/block/'.$block->id.'/customization');
+
+        if($assertion){
+            $response->assertStatus(200);
+
+            $form = $block->customizationForm();
+
+            $this->assertCount(1, $form->groups());
+
+            $this->assertEquals(['id', 'orderDirection', 'submit'], $form->names());
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100"
+                "orderDirection" => "asc"
             ]);
-            
+
             $block = Block::find($block->id);
 
-            $this->assertEquals(100, $block->parameters->settingsScale);
+            $this->assertEquals('asc', $block->parameters->orderDirection);
         }
         else{
             $response->assertStatus(302);
-            
-            $this->post('admin/settings/setup', [
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100"
+                "orderDirection" => "asc"
             ]);
-            
+
             $block = Block::find($block->id);
 
             $this->assertEmpty((array) $block->parameters);
@@ -331,7 +339,7 @@ class Actions extends LocationBlock {
     public function change_items_order_in_the_block($assertion){
         $block = $this->setupBlock();
 
-        $item = new Block\Menu();
+        $item = new Menu();
         $item->block_id = $block->id;
         $item->item = $this->faker->word;
         $item->parent = null;
@@ -341,7 +349,7 @@ class Actions extends LocationBlock {
 
         $item->save();
 
-        $item = new Block\Menu();
+        $item = new Menu();
         $item->block_id = $block->id;
         $item->item = $this->faker->word;
         $item->parent = null;
@@ -351,11 +359,11 @@ class Actions extends LocationBlock {
 
         $item->save();
 
-        $items = Block\Menu::where('block_id', $block->id)->get();
+        $items = Menu::where('block_id', $block->id)->get();
         $firstItem = $items->first();
         $secondItem = $items->last();
 
-        $item = new Block\Menu();
+        $item = new Menu();
         $item->block_id = $block->id;
         $item->item = $this->faker->word;
         $item->parent = $secondItem->id;
@@ -365,7 +373,7 @@ class Actions extends LocationBlock {
 
         $item->save();
 
-        $item = new Block\Menu();
+        $item = new Menu();
         $item->block_id = $block->id;
         $item->item = $this->faker->word;
         $item->parent = $secondItem->id;
@@ -375,11 +383,11 @@ class Actions extends LocationBlock {
 
         $item->save();
 
-        $secondItems = Block\Menu::where('block_id', $block->id)->where('parent', $secondItem->id)->get();
+        $secondItems = Menu::where('block_id', $block->id)->where('parent', $secondItem->id)->get();
         $second_firstItem = $secondItems->first();
         $second_secondItem = $secondItems->last();
 
-        $item = new Block\Menu();
+        $item = new Menu();
         $item->block_id = $block->id;
         $item->item = $this->faker->word;
         $item->parent = null;
@@ -389,85 +397,59 @@ class Actions extends LocationBlock {
 
         $item->save();
 
-        $items = Block\Menu::where('block_id', $block->id)->get();
+        $items = Menu::where('block_id', $block->id)->get();
         $thirdItem = $items->last();
 
         // test moving item up
-        $this->post('admin/moveup', [
+        $this->post('settings/block/item/moveup', [
             'block_id' => $block->id,
             'id' => $thirdItem->id
         ]);
 
-        $thirdItem = Block\Menu::find($thirdItem->id);
+        $thirdItem = Menu::find($thirdItem->id);
 
         $this->assertEquals($assertion ? 2 : 3, $thirdItem->orderNo);
 
         // test minimum order value on moving up
-        $this->post('admin/moveup', [
+        $this->post('settings/block/item/moveup', [
             'block_id' => $block->id,
             'id' => $firstItem->id
         ]);
 
-        $firstItem = Block\Menu::find($firstItem->id);
+        $firstItem = Menu::find($firstItem->id);
 
         $this->assertEquals(1, $firstItem->orderNo);
 
         // test moving item down
-        $this->post('admin/movedown', [
+        $this->post('settings/block/item/movedown', [
             'block_id' => $block->id,
             'id' => $thirdItem->id
         ]);
 
-        $thirdItem = Block\Menu::find($thirdItem->id);
+        $thirdItem = Menu::find($thirdItem->id);
 
         $this->assertEquals(3, $thirdItem->orderNo);
 
         // test maximum order value on moving down
-        $this->post('admin/movedown', [
+        $this->post('settings/block/item/movedown', [
             'block_id' => $block->id,
             'id' => $thirdItem->id
         ]);
 
-        $thirdItem = Block\Menu::find($thirdItem->id);
+        $thirdItem = Menu::find($thirdItem->id);
 
         $this->assertEquals(3, $thirdItem->orderNo);
 
         // test moving up in submenu
-        $this->post('admin/moveup', [
+        $this->post('settings/block/item/moveup', [
             'block_id' => $block->id,
             'id' => $second_secondItem->id
         ]);
 
-        $second_secondItem = Block\Menu::find($second_secondItem->id);
-        $second_firstItem = Block\Menu::find($second_firstItem->id);
+        $second_secondItem = Menu::find($second_secondItem->id);
+        $second_firstItem = Menu::find($second_firstItem->id);
 
         $this->assertEquals(1, $second_secondItem->orderNo);
         $this->assertEquals(2, $second_firstItem->orderNo);
-
-        // test drop item to some position
-        $this->post('admin/moveto', [
-            'newPosition' => 1,
-            'block_id' => $block->id,
-            'id' => $thirdItem->id
-        ]);
-
-        $thirdItem = Block\Menu::find($thirdItem->id);
-        $firstItem = Block\Menu::find($firstItem->id);
-
-        $this->assertEquals($assertion ? 1 : 3, $thirdItem->orderNo);
-        $this->assertEquals($assertion ? 2 : 1, $firstItem->orderNo);
-
-        // test drop item to some position
-        $this->post('admin/moveto', [
-            'newPosition' => 3,
-            'block_id' => $block->id,
-            'id' => $thirdItem->id
-        ]);
-
-        $thirdItem = Block\Menu::find($thirdItem->id);
-        $firstItem = Block\Menu::find($firstItem->id);
-
-        $this->assertEquals(3, $thirdItem->orderNo);
-        $this->assertEquals(1, $firstItem->orderNo);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Just\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -271,16 +272,6 @@ class AdminController extends Controller
         return ;
     }
 
-    public function deleteUser(DeleteUserRequest $request) {
-        $user = User::find($request->id);
-
-        if(!empty($user) and \Auth::id() != $user->id){
-            $user->delete();
-        }
-
-        return ;
-    }
-
     public function deleteCategory(Request $request) {
         $category = Category::find($request->id);
 
@@ -359,10 +350,10 @@ class AdminController extends Controller
      * Change item visibility
      *
      * @param Request $request
-     * @param type $visibility
-     * @return type
+     * @param $visibility
+     * @return array
      */
-    protected function visibility(Request $request, $visibility) {
+    protected function visibility(Request $request, $visibility): array {
         $block = $this->specifyBlock($request);
 
         if(!empty($block)){
@@ -376,9 +367,9 @@ class AdminController extends Controller
      * Make item visible ob the page
      *
      * @param Request $request
-     * @return type
+     * @return array
      */
-    public function activate(Request $request) {
+    public function activate(Request $request): array {
         return $this->visibility($request, 1);
     }
 
@@ -386,13 +377,13 @@ class AdminController extends Controller
      * Make item invisible on the page
      *
      * @param Request $request
-     * @return type
+     * @return array
      */
-    public function deactivate(Request $request) {
+    public function deactivate(Request $request): array {
         return $this->visibility($request, 0);
     }
 
-    public function uploadImage(UploadImageRequest $request) {
+    public function uploadImage(UploadImageRequest $request): JsonResponse {
         $image = Image::make($request->file('image'));
         $pieces = explode(".", $request->image->getClientOriginalName());
         array_pop($pieces);
@@ -416,7 +407,7 @@ class AdminController extends Controller
 
         $image->encode('png')->save(public_path($url));
 
-        return json_encode(["url"=>$url]);
+        return response()->json(["url"=>$url]);
     }
 
     /**

@@ -114,6 +114,8 @@ class Contact extends AbstractItem
 
             $form->addGroup($additionalFieldGroup);
         }
+
+        return $form;
     }
 
     public function handleItemForm(ValidateRequest $request) {
@@ -157,7 +159,7 @@ class Contact extends AbstractItem
     public function allChannels() {
         $contacts = [];
 
-        foreach($this->parameter('channels', true)??[] as $channel){
+        foreach($this->parameter('channels')?:[] as $channel){
             $contacts[$channel] = $this->defaultChannels[$channel];
         }
 

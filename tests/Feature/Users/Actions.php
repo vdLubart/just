@@ -2,6 +2,7 @@
 
 namespace Just\Tests\Feature\Users;
 
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Just\Models\User;
@@ -25,15 +26,14 @@ class Actions extends TestCase{
     }
 
     public function see_user_list($assertion){
-        $response = $this->get('admin/settings/user/list');
+        $response = $this->get('settings/user/list');
 
         if($assertion){
-            $response->assertSuccessful()
-                    ->assertSee("Settings :: Users");
+            $response->assertSuccessful();
         }
         else{
-            if(\Auth::id()){
-                $this->followRedirects($response)->assertSee("You do not have permitions for that action");
+            if(Auth::id()){
+                $response->assertRedirect('settings/noaccess');
             }
             else{
                 $response->assertRedirect('/login');
@@ -42,22 +42,21 @@ class Actions extends TestCase{
     }
 
     public function create_new_admin($assertion){
-        $response = $this->get('admin/settings/user/0');
+        $response = $this->get('settings/user/0');
 
         if($assertion){
-            $response->assertSuccessful()
-                    ->assertSee("Settings :: User");
+            $response->assertSuccessful();
         }
         else{
-            if(\Auth::id()){
-                $this->followRedirects($response)->assertSee("You do not have permitions for that action");
+            if(Auth::id()){
+                $response->assertRedirect('settings/noaccess');
             }
             else{
                 $response->assertRedirect('/login');
             }
         }
 
-        $this->post('admin/settings/user/setup', [
+        $this->post('settings/user/setup', [
             "user_id" => null,
             "email" => $email = $this->faker->email,
             "name" => $name = $this->faker->name,
@@ -79,22 +78,21 @@ class Actions extends TestCase{
     }
 
     public function create_new_master($assertion){
-        $response = $this->get('admin/settings/user/0');
+        $response = $this->get('settings/user/0');
 
         if($assertion){
-            $response->assertSuccessful()
-                    ->assertSee("Settings :: User");
+            $response->assertSuccessful();
         }
         else{
-            if(\Auth::id()){
-                $this->followRedirects($response)->assertSee("You do not have permitions for that action");
+            if(Auth::id()){
+                $response->assertRedirect('settings/noaccess');
             }
             else{
                 $response->assertRedirect('/login');
             }
         }
 
-        $this->post('admin/settings/user/setup', [
+        $this->post('settings/user/setup', [
             "user_id" => null,
             "email" => $email = $this->faker->email,
             "name" => $name = $this->faker->name,
@@ -123,22 +121,21 @@ class Actions extends TestCase{
             "password" => bcrypt($this->faker->word),
         ]);
 
-        $response = $this->get('admin/settings/user/'.$user->id);
+        $response = $this->get('settings/user/'.$user->id);
 
         if($assertion){
-            $response->assertSuccessful()
-                    ->assertSee("Settings :: User");
+            $response->assertSuccessful();
         }
         else{
-            if(\Auth::id()){
-                $this->followRedirects($response)->assertSee("You do not have permitions for that action");
+            if(Auth::id()){
+                $response->assertRedirect('settings/noaccess');
             }
             else{
                 $response->assertRedirect('/login');
             }
         }
 
-        $this->post('admin/settings/user/setup', [
+        $this->post('settings/user/setup', [
             "user_id" => $user->id,
             "email" => $email = $this->faker->email,
             "name" => $name = $this->faker->name,
@@ -158,15 +155,14 @@ class Actions extends TestCase{
     }
 
     public function change_own_password($assertion){
-        $response = $this->get('admin/settings/password');
+        $response = $this->get('settings/user/password');
 
         if($assertion){
-            $response->assertSuccessful()
-                    ->assertSee("Settings :: User ".\Auth::user()->name." :: Change Password");
+            $response->assertSuccessful();
 
-            $user = \Auth::user();
+            $user = Auth::user();
 
-            $this->post('admin/settings/password/update', [
+            $this->post('settings/user/password/update', [
                 "current_password" => $user->role, // password is same as role name
                 "new_password" => $newPass = $this->faker->word,
                 "new_password_confirmation" => $newPass
@@ -177,8 +173,8 @@ class Actions extends TestCase{
                 "password" => $newPass
             ]);
 
-            $this->assertTrue(\Auth::check());
-            $this->assertEquals($user->email, \Auth::user()->email);
+            $this->assertTrue(Auth::check());
+            $this->assertEquals($user->email, Auth::user()->email);
 
             $user->password = $user->role;
             $user->save();
@@ -189,20 +185,12 @@ class Actions extends TestCase{
     }
 
     public function cannot_change_own_password_without_current_one(){
-        $response = $this->get('admin/settings/password');
-
-        $response->assertSuccessful()
-                ->assertSee("Settings :: User ".\Auth::user()->name." :: Change Password");
-
-        $user = \Auth::user();
-
-        $response = $this->post('admin/settings/password/update', [
+        $this->post('settings/user/password/update', [
             "current_password" => 'wrong',
             "new_password" => $newPass = $this->faker->word,
             "new_password_confirmation" => $newPass
-        ]);
-
-        $this->followRedirects($response)->assertSee('Current password is incorrect');
+        ])
+            ->assertSessionHasErrorsIn("current_password");
     }
 
 
@@ -214,7 +202,7 @@ class Actions extends TestCase{
             "password" => bcrypt($this->faker->word),
         ]);
 
-        $this->post('admin/user/delete', [
+        $this->post('settings/user/delete', [
             'id' => $user->id
         ]);
 
@@ -229,11 +217,11 @@ class Actions extends TestCase{
     }
 
     public function delete_yourself($assertion){
-        $this->post('admin/user/delete', [
-            'id' => \Auth::id()
+        $this->post('settings/user/delete', [
+            'id' => Auth::id()
         ]);
 
-        $deletedUser = User::find(\Auth::id());
+        $deletedUser = User::find(Auth::id());
 
         if($assertion){
             $this->assertNull($deletedUser);

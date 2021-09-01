@@ -3,88 +3,79 @@
 namespace Just\Tests\Feature\Blocks\Events;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Just\Models\Blocks\Events;
+use Just\Models\System\Route;
 use Just\Models\User;
 use Just\Notifications\NewRegistration;
 use Just\Tests\Feature\Blocks\LocationBlock;
 use Just\Tests\Feature\Helper;
 use Illuminate\Foundation\Testing\WithFaker;
-use Just\Structure\Panel\Block;
+use Just\Models\Block;
 use Illuminate\Http\UploadedFile;
 
 class Actions extends LocationBlock {
-    
+
     use WithFaker;
     use Helper;
 
     protected $type = 'events';
-    
+
     protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }
-        
+
         if(file_exists(public_path('storage/events'))){
             exec('rm -rf ' . public_path('storage/events'));
         }
-        
+
         parent::tearDown();
     }
-    
-    public function access_item_form_without_initial_data($assertion){
-        $block = $this->setupBlock();
-        
-        $response = $this->get("admin/settings/".$block->id."/0");
-        
-        $response->assertDontSee('input name="subject"');
-        
-        $response->{($assertion?'assertDontSee':'assertSee')}('Item Route');
-        $response->{($assertion?'assertDontSee':'assertSee')}('Settings View Scale');
-        
-        $this->post('admin/settings/setup', [
-            "id" => $block->id,
-            "cropPhoto" =>	"on",
-            "cropDimensions" => "4:3",
-            "itemRouteBase" => "event",
-            "settingsScale" => "100",
-            "orderDirection" =>	"desc"
-        ])
-                ->assertStatus(200);
-        
-        $block = Block::find($block->id);
 
-        if(\Auth::id()){
-            $this->assertTrue($block->parameters->cropPhoto);
-            $this->assertEquals("4:3", $block->parameters->cropDimensions);
-            $this->assertEquals("event", $block->parameters->itemRouteBase);
-            $this->assertEquals("100", $block->parameters->settingsScale);
-            $this->assertEquals("desc", $block->parameters->orderDirection);
+    public function access_item_form($assertion){
+        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
+
+        $response = $this->get("settings/block/".$block->id."/item/0");
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $form = $block->item()->itemForm();
+            $this->assertEquals(12, $form->count());
+            $this->assertEquals([
+                "id",
+                "block_id",
+                "submit",
+                "image",
+                "subject",
+                "start_date",
+                "start_time",
+                "end_date",
+                "end_time",
+                "location",
+                "summary",
+                "text",
+            ], array_keys($form->elements()));
         }
         else{
-            $this->assertEmpty($block->parameters);
+            $response->assertRedirect('login');
+
+            $this->assertEquals(0, $block->item()->itemForm()->count());
         }
-        
-    }
-    
-    public function access_item_form_when_block_is_setted_up($assertion){
-        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
-        
-        $response = $this->get("admin/settings/".$block->id."/0");
-        
-        $response->{($assertion ? 'assertSee' : 'assertDontSee')}('input name="image"');
-        $response->{($assertion ? 'assertSee' : 'assertDontSee')}('input name="subject"');
     }
 
     public function access_edit_item_form($assertion){
         $block = $this->setupBlock();
-        
+
         $subject = $this->faker->sentence;
         $summary = $this->faker->text;
         $text = $this->faker->text;
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -97,51 +88,68 @@ class Actions extends LocationBlock {
 
         $event->save();
 
-        $item = Block\Events::all()->last();
-        
-        if($assertion){
-            $form = $item->form();
-            $this->assertEquals(11, $form->count());
-            $this->assertEquals(['topGroup', 'startDate', 'endDate'], array_keys($form->groups()));
-            $this->assertEquals(['image', 'imagePreview_'.$item->id, 'subject'], array_keys($form->group('topGroup')->getElements()));
-            $this->assertEquals(['location', 'summary', 'text', 'submit', 'image', 'imagePreview_'.$item->id, 'subject', 'start_date', 'start_time', 'end_date', 'end_time'], array_keys($form->elements()));
-            $this->assertEquals($text, $form->getElement('text')->value());
+        $item = Events::all()->last();
 
-            $this->post('admin/settings/setup', [
+        if($assertion){
+            $form = $item->itemForm();
+            $this->assertEquals(13, $form->count());
+            $this->assertEquals(['topGroup', 'subjectGroup', 'startDate', 'descriptionGroup'], array_keys($form->groups()));
+            $this->assertEquals([
+                "image",
+                "imagePreview_".$item->id,
+            ], array_keys($form->group('topGroup')->elements()));
+            $this->assertEquals([
+                "id",
+                "block_id",
+                "submit",
+                "image",
+                "imagePreview_".$item->id,
+                "subject",
+                "start_date",
+                "start_time",
+                "end_date",
+                "end_time",
+                "location",
+                "summary",
+                "text"
+            ], array_keys($form->elements()));
+            $this->assertEquals($text, $form->element('text')->value()['en']);
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
                 "cropPhoto" =>	"on",
                 "cropDimensions" => "4:3",
                 "itemRouteBase" => "event",
-                "settingsScale" => "100",
                 "orderDirection" =>	"desc"
-            ]);
+            ])
+                ->assertSuccessful();
 
-            $item = Block\Events::all()->last();
+            $item = Events::all()->last();
 
-            $form = $item->form();
-            $this->assertEquals(12, $form->count());
-            $this->assertEquals(['image', 'imagePreview_'.$item->id, 'recrop', 'subject'], array_keys($form->group('topGroup')->getElements()));
-            $this->assertEquals($text, $form->getElement('text')->value());
+            $form = $item->itemForm();
+            $this->assertEquals(14, $form->count());
+            $this->assertEquals(['image', 'imagePreview_'.$item->id, 'recrop'], array_keys($form->group('topGroup')->elements()));
+            $this->assertEquals($text, $form->getElement('text')->value()['en']);
         }
         else{
-            $this->assertNull($item->form());
+            $this->assertEquals(0, $item->itemForm()->count());
         }
     }
 
     public function create_new_item_in_block($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
-        $response = $this->post("", [
+        $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
-            'subject' => $subject = $this->faker->sentence,
+            'subject' => '{"en":"'.($subject = $this->faker->sentence).'"}',
             'start_date' => Carbon::today()->format("Y-m-d"),
             'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
-            'summary' => $summary = $this->faker->text,
-            'text' => $text = $this->faker->text,
+            'location' => '{"en":"'.($location = str_replace("\n", "", $this->faker->address)).'"}',
+            'summary' => '{"en":"'.($summary = $this->faker->text).'"}',
+            'text' => '{"en":"'.($text = $this->faker->text).'"}',
             'image' => UploadedFile::fake()->image('photo.jpg')
         ]);
 
@@ -152,10 +160,10 @@ class Actions extends LocationBlock {
             $response->assertRedirect();
         }
 
-        $eventRoute = \Just\Models\Route::where('route', 'event/{id}')->first();
+        $eventRoute = Route::where('route', 'event/{id}')->first();
         $this->assertNotNull($eventRoute);
-        
-        $item = Block\Events::all()->last();
+
+        $item = Events::all()->last();
 
         if($assertion){
             $this->assertNotNull($item);
@@ -183,37 +191,35 @@ class Actions extends LocationBlock {
         }
         else{
             $this->assertNull($item);
-            
+
             $this->get('admin')
                     ->assertDontSee($subject)
                     ->assertDontSee($summary);
-            
+
             $this->get('')
                     ->assertDontSee($subject)
                     ->assertDontSee($summary);
         }
 
-        if(\Auth::check()){
-            $form = $item->form();
+        if(Auth::check()){
+            $form = $item->itemForm();
 
-            $this->assertEquals('<img src="/storage/events/'.$item->image.'_3.png" />', $form->group('topGroup')->getElement('imagePreview'.'_'.$item->id)->value());
+            $this->assertEquals('<img src="/storage/events/'.$item->image.'_3.png" />', $form->group('topGroup')->element('imagePreview'.'_'.$item->id)->value());
         }
     }
-    
-    public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
+
+    public function receive_an_error_on_sending_incomplete_create_item_form($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
-        
-        $this->get("admin/settings/".$block->id."/0");
-        
-        $response = $this->post("", [
+
+        $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null
         ]);
-        
-        $item = Block\Articles::all()->last();
-        
+
+        $item = Events::all()->last();
+
         $this->assertNull($item);
-        
+
         if($assertion){
             $response->assertSessionHasErrors(['subject', 'start_date']);
         }
@@ -225,19 +231,17 @@ class Actions extends LocationBlock {
     public function receive_an_error_on_wrong_date_and_time_format($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
-        $this->get("admin/settings/".$block->id."/0");
-
-        $response = $this->post("", [
+        $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
-            'subject' => $this->faker->sentence,
+            'subject' => '{"en":"'.($this->faker->sentence).'"}',
             'start_date' => $this->faker->word,
             'start_time' => $this->faker->word,
             'end_date' => $this->faker->word,
             'end_time' => $this->faker->word
         ]);
 
-        $item = Block\Articles::all()->last();
+        $item = Events::all()->last();
 
         $this->assertNull($item);
 
@@ -258,7 +262,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -270,24 +274,24 @@ class Actions extends LocationBlock {
         $event->image = $image;
 
         $event->save();
-        
-        $item = Block\Events::all()->last();
 
-        $this->post("", [
+        $item = Events::all()->last();
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => $item->id,
-            'subject' => $newSubject = $this->faker->sentence,
+            'subject' => '{"en":"'.($newSubject = $this->faker->sentence).'"}',
             'start_date' => Carbon::today()->format("Y-m-d"),
             'start_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+6 hours")->format("H:i"),
-            'location' => $newLocation = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
-            'summary' => $newSummary = $this->faker->text,
-            'text' => $newText = $this->faker->text,
+            'location' => '{"en":"'.($newLocation = str_replace("\n", "", $this->faker->address)).'"}',
+            'summary' => '{"en":"'.($newSummary = $this->faker->text).'"}',
+            'text' => '{"en":"'.($newText = $this->faker->text).'"}',
         ]);
-        
-        $item = Block\Events::all()->last();
-        
+
+        $item = Events::all()->last();
+
         if($assertion){
             $this->assertEventBlockCreatedSuccessfully($item, $newSubject, $newSummary, $newText, $newLocation, "+4 hours", "+6 hours");
         }
@@ -295,7 +299,7 @@ class Actions extends LocationBlock {
             $this->assertNotEquals($newText, $item->text);
         }
     }
-    
+
     public function access_created_item($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
@@ -305,7 +309,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -317,56 +321,75 @@ class Actions extends LocationBlock {
         $event->image = $image;
 
         $event->save();
-        
+
         $this->app['router']->get('event/{id}', "\Just\Controllers\JustController@buildPage")->middleware('web');
         $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
-        
-        $item = Block\Events::all()->last();
+
+        $item = Events::all()->last();
 
         if($assertion){
-            if(\Auth::id()){
+            if(Auth::id()){
                 $this->get('admin/event/'.$item->id)
+                    ->assertSuccessful();
+
+                $this->get('admin/event/'.$item->slug)
                     ->assertSuccessful();
             }
             else{
                 $this->get('admin/event/'.$item->id)
                         ->assertStatus(302);
+
+                $this->get('admin/event/'.$item->slug)
+                    ->assertStatus(302);
             }
 
             $this->get('event/'.$item->id)
+                ->assertSuccessful();
+
+            $this->get('event/'.$item->slug)
                 ->assertSuccessful();
         }
         else{
             $this->get('event/'.$item->id)
                     ->assertStatus(404);
+
+            $this->get('event/'.$item->slug)
+                ->assertStatus(404);
         }
     }
-    
-    public function edit_block_settings($assertion){
+
+    public function customize_block($assertion){
         $block = $this->setupBlock();
-        
-        $response = $this->get('admin/settings/'.$block->id.'/0');
-        
+
+        $response = $this->get('settings/block/'.$block->id.'/customization');
+
         if($assertion){
-            $response->assertStatus(200)
-                    ->assertSee('Settings View')
-                    ->assertSee('Image Cropping')
-                    ->assertSee('Sorting');
+            $response->assertStatus(200);
+
+            $form = $block->customizationForm();
 
             if(\Auth::user()->role == 'admin'){
-                $this->assertCount(6, $block->setupForm()->groups());
+                $this->assertCount(4, $form->groups());
 
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimensions', 'itemRouteBase', 'successText', 'notify', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
+                $this->assertEquals([
+                    "id",
+                    "cropPhoto",
+                    "cropDimensions",
+                    "itemRouteBase",
+                    "successText",
+                    "notify",
+                    "orderDirection",
+                    "submit",
+                ], $form->names());
 
-                $this->post('admin/settings/setup', [
+                $this->post('settings/block/customize', [
                     "id" => $block->id,
                     "cropPhoto" => "on",
                     "cropDimensions" => "4:3",
                     "itemRouteBase" => "event",
-                    "settingsScale" => "100",
                     "orderDirection" => "desc",
                     "customSizes" => "on",
-                    "photoSizes[]" => ["8", "6"],
+                    "photoSizes" => ["8", "6"],
                 ]);
 
                 $block = Block::find($block->id);
@@ -374,7 +397,6 @@ class Actions extends LocationBlock {
                 $this->assertTrue($block->parameters->cropPhoto);
                 $this->assertEquals("4:3", $block->parameters->cropDimensions);
                 $this->assertEquals("event", $block->parameters->itemRouteBase);
-                $this->assertEquals("100", $block->parameters->settingsScale);
                 $this->assertEquals("desc", $block->parameters->orderDirection);
                 $this->assertNull(@$block->parameters->customSizes);
                 $this->assertNull(@$block->parameters->photoSizes);
@@ -383,19 +405,30 @@ class Actions extends LocationBlock {
                 $response->assertSee('Resize Images')
                     ->assertSee('Item Route');
 
-                $this->assertCount(7, $block->setupForm()->groups());
+                $this->assertCount(5, $form->groups());
 
-                $this->assertEquals(['id', 'cropPhoto', 'cropDimensions', 'customSizes', 'photoSizes[]', 'itemRouteBase', 'successText', 'notify', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
+                $this->assertEquals([
+                    "id",
+                    "cropPhoto",
+                    "cropDimensions",
+                    "customSizes",
+                    "emptyParagraph",
+                    "photoSizes",
+                    "itemRouteBase",
+                    "successText",
+                    "notify",
+                    "orderDirection",
+                    "submit"
+                ], $form->names());
 
-                $this->post('admin/settings/setup', [
+                $this->post('settings/block/customize', [
                     "id" => $block->id,
                     "cropPhoto" => "on",
                     "cropDimensions" => "4:3",
                     "itemRouteBase" => "event",
-                    "settingsScale" => "100",
                     "orderDirection" => "desc",
                     "customSizes" => "on",
-                    "photoSizes[]" => ["8", "6"],
+                    "photoSizes" => ["8", "6"],
                 ]);
 
                 $block = Block::find($block->id);
@@ -403,7 +436,6 @@ class Actions extends LocationBlock {
                 $this->assertTrue($block->parameters->cropPhoto);
                 $this->assertEquals("4:3", $block->parameters->cropDimensions);
                 $this->assertEquals("event", $block->parameters->itemRouteBase);
-                $this->assertEquals("100", $block->parameters->settingsScale);
                 $this->assertEquals("desc", $block->parameters->orderDirection);
                 $this->assertTrue($block->parameters->customSizes);
                 $this->assertEquals(["8", "6"], $block->parameters->photoSizes);
@@ -411,146 +443,38 @@ class Actions extends LocationBlock {
         }
         else{
             $response->assertStatus(302);
-            
-            $this->post('admin/settings/setup', [
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
                 "cropPhoto" =>	"1",
                 "cropDimensions" => "4:3",
-                "settingsScale" => "100",
                 "orderDirection" =>	"desc"
             ]);
-            
+
             $block = Block::find($block->id);
 
             $this->assertEmpty((array)$block->parameters);
         }
     }
 
-    public function create_event_with_addon($assertion) {
-        $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
-        $addon = factory(Block\Addon::class)->create(['block_id'=>$block->id, 'type'=>'strings', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
-        $addonItem = $addon->addon();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->model()->getTable(), $addonTable);
-
-        $response = $this->post("", [
-            'block_id' => $block->id,
-            'id' => null,
-            'subject' => $subject = $this->faker->sentence,
-            'start_date' => Carbon::today()->format("Y-m-d"),
-            'start_time' => Carbon::now()->modify("-4 hours")->format("H:i"),
-            'end_date' => Carbon::today()->format("Y-m-d"),
-            'end_time' => Carbon::now()->modify("-2 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
-            'summary' => $summary = $this->faker->text,
-            'text' => $text = $this->faker->text,
-            'image' => UploadedFile::fake()->image('photo.jpg'),
-            $name."_".$addon->id => $string = $this->faker->word
-        ]);
-
-        if($assertion){
-            $response->assertSuccessful();
-        }
-        else{
-            $response->assertRedirect();
-        }
-
-        $eventRoute = \Just\Models\Route::where('route', 'event/{id}')->first();
-        $this->assertNotNull($eventRoute);
-
-        $item = Block\Events::all()->last();
-
-        if($assertion){
-            $this->assertNotNull($item);
-
-            $this->assertEquals($string, $item->pastEvents()->first()->{$name});
-        }
-        else{
-            $this->assertNull($item);
-        }
-    }
-
-    public function get_events_from_the_current_category() {
-        $block = $this->setupBlock(['parameters'=>'{"cropPhoto":"1","cropDimensions":"4:3","itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}']);
-
-        $addon = factory(Block\Addon::class)->create(['block_id'=>$block->id, 'type'=>'categories', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addon();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->model()->getTable(), $addonTable);
-
-        $firstCategory = Block\Addon\Categories::create([
-            'addon_id' => $addon->id,
-            'name' => $this->faker->word,
-            'value' => $this->faker->word
-        ]);
-
-        $secondCategory = Block\Addon\Categories::create([
-            'addon_id' => $addon->id,
-            'name' => $categoryName = $this->faker->word,
-            'value' => $categoryValue = $this->faker->word
-        ]);
-
-        $this->post("", [
-            'block_id' => $block->id,
-            'id' => null,
-            'subject' => $subject1 = $this->faker->sentence,
-            'start_date' => Carbon::today()->format("Y-m-d"),
-            'start_time' => Carbon::now()->modify("-4 hours")->format("H:i"),
-            'end_date' => Carbon::today()->format("Y-m-d"),
-            'end_time' => Carbon::now()->modify("-2 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
-            'summary' => $summary = $this->faker->text,
-            'text' => $text = $this->faker->text,
-            'image' => UploadedFile::fake()->image('photo.jpg'),
-            $name."_".$addon->id => $firstCategory->id
-        ]);
-
-        $this->post("", [
-            'block_id' => $block->id,
-            'id' => null,
-            'subject' => $subject2 = $this->faker->sentence,
-            'start_date' => Carbon::today()->format("Y-m-d"),
-            'start_time' => Carbon::now()->modify("-4 hours")->format("H:i"),
-            'end_date' => Carbon::today()->format("Y-m-d"),
-            'end_time' => Carbon::now()->modify("-2 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
-            'summary' => $summary = $this->faker->text,
-            'text' => $text = $this->faker->text,
-            'image' => UploadedFile::fake()->image('photo.jpg'),
-            $name."_".$addon->id => $secondCategory->id
-        ]);
-
-        $this->get("/?category=".$firstCategory->value)
-            ->assertSee($subject1)
-            ->assertDontSee($subject2);
-
-        $this->get("/?category=".$secondCategory->value)
-            ->assertSee($subject2)
-            ->assertDontSee($subject1);
-
-
-    }
-
     public function create_item_with_standard_image_sizes() {
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
-        $this->post("", [
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
-            'subject' => $subject = $this->faker->sentence,
+            'subject' => '{"en":"'.($subject = $this->faker->sentence).'"}',
             'start_date' => Carbon::today()->format("Y-m-d"),
             'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
-            'summary' => $summary = $this->faker->text,
-            'text' => $text = $this->faker->text,
+            'location' => '{"en":"'.($location = str_replace("\n", "", $this->faker->address)).'"}',
+            'summary' => '{"en":"'.($summary = $this->faker->text).'"}',
+            'text' => '{"en":"'.($text = $this->faker->text).'"}',
             'image' => UploadedFile::fake()->image('photo.jpg')
         ]);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->assertEventBlockCreatedSuccessfully($item, $subject, $summary, $text, $location);
 
@@ -563,21 +487,21 @@ class Actions extends LocationBlock {
     public function create_item_with_custom_image_sizes() {
         $block = $this->setupBlock(['parameters'=>json_decode('{"customSizes":1,"photoSizes":["6","3"],"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
-        $this->post("", [
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
-            'subject' => $subject = $this->faker->sentence,
+            'subject' => '{"en":"'.($subject = $this->faker->sentence).'"}',
             'start_date' => Carbon::today()->format("Y-m-d"),
             'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
-            'summary' => $summary = $this->faker->text,
-            'text' => $text = $this->faker->text,
+            'location' => '{"en":"'.($location = str_replace("\n", "", $this->faker->address)).'"}',
+            'summary' => '{"en":"'.($summary = $this->faker->text).'"}',
+            'text' => '{"en":"'.($text = $this->faker->text).'"}',
             'image' => UploadedFile::fake()->image('photo.jpg')
         ]);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->assertEventBlockCreatedSuccessfully($item, $subject, $summary, $text, $location);
 
@@ -586,34 +510,34 @@ class Actions extends LocationBlock {
             $this->assertFileExists(public_path('storage/events/' . $item->image . '_'.$size.'.png'));
         }
         foreach ([12, 9, 8, 4] as $size) {
-            $this->assertFileNotExists(public_path('storageeventss/' . $item->image . '_'.$size.'.png'));
+            $this->assertFileDoesNotExist(public_path('storageeventss/' . $item->image . '_'.$size.'.png'));
         }
     }
 
     public function create_item_with_empty_custom_image_sizes() {
         $block = $this->setupBlock(['parameters'=>json_decode('{"customSizes":1,"itemRouteBase":"event","settingsScale":"100","orderDirection":"desc"}')]);
 
-        $this->post("", [
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
-            'subject' => $subject = $this->faker->sentence,
+            'subject' => '{"en":"'.($subject = $this->faker->sentence).'"}',
             'start_date' => Carbon::today()->format("Y-m-d"),
             'start_time' => Carbon::now()->modify("+2 hours")->format("H:i"),
             'end_date' => Carbon::today()->format("Y-m-d"),
             'end_time' => Carbon::now()->modify("+4 hours")->format("H:i"),
-            'location' => $location = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES)),
-            'summary' => $summary = $this->faker->text,
-            'text' => $text = $this->faker->text,
+            'location' => '{"en":"'.($location = str_replace("\n", "", $this->faker->address)).'"}',
+            'summary' => '{"en":"'.($summary = $this->faker->text).'"}',
+            'text' => '{"en":"'.($text = $this->faker->text).'"}',
             'image' => UploadedFile::fake()->image('photo.jpg')
         ]);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->assertEventBlockCreatedSuccessfully($item, $subject, $summary, $text, $location);
 
         $this->assertFileExists(public_path('storage/events/'.$item->image.'.png'));
         foreach ([12, 9, 8, 6, 4, 3] as $size) {
-            $this->assertFileNotExists(public_path('storage/events/' . $item->image . '_'.$size.'.png'));
+            $this->assertFileDoesNotExist(public_path('storage/events/' . $item->image . '_'.$size.'.png'));
         }
     }
 
@@ -639,7 +563,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -656,7 +580,7 @@ class Actions extends LocationBlock {
         $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->get("/event/".str_slug($subject))
             ->assertSuccessful();
@@ -694,7 +618,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -711,7 +635,7 @@ class Actions extends LocationBlock {
         $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->get("/event/".str_slug($subject))
             ->assertSuccessful();
@@ -748,7 +672,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -765,7 +689,7 @@ class Actions extends LocationBlock {
         $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->get("/event/".str_slug($subject))
             ->assertSuccessful();
@@ -801,7 +725,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -818,7 +742,7 @@ class Actions extends LocationBlock {
         $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
         $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->get("/event/".str_slug($subject))
             ->assertSuccessful();
@@ -844,7 +768,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -861,7 +785,7 @@ class Actions extends LocationBlock {
         $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web', 'auth']);
         $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->get("/event/".str_slug($subject))
             ->assertSuccessful();
@@ -896,7 +820,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -913,7 +837,7 @@ class Actions extends LocationBlock {
         $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->get("/event/".str_slug($subject))
             ->assertSuccessful();
@@ -959,7 +883,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -976,7 +900,7 @@ class Actions extends LocationBlock {
         $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->get("/event/".str_slug($subject))
             ->assertSuccessful();
@@ -1027,7 +951,7 @@ class Actions extends LocationBlock {
         $address = str_replace("\n", "", htmlspecialchars($this->faker->address, ENT_QUOTES));
         $image = uniqid();
 
-        $event = new Block\Events();
+        $event = new Events();
         $event->block_id = $block->id;
         $event->subject = $subject;
         $event->slug = str_slug($subject);
@@ -1044,7 +968,7 @@ class Actions extends LocationBlock {
         $this->app['router']->get('admin/event/{id}', "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
         $this->app['router']->post('register-event', "\Just\Controllers\JustController@post")->middleware(['web']);
 
-        $item = Block\Events::all()->last();
+        $item = Events::all()->last();
 
         $this->post('/register-event', [
             'block_id' => $block->id,
@@ -1055,9 +979,5 @@ class Actions extends LocationBlock {
             'g-recaptcha-response' => true
         ])
             ->assertSessionHas('successMessageFromEvents'.$block->id);
-
-        $this->get("admin/settings/".$block->id."/".$item->id)
-            ->assertSee($userName)
-            ->assertSee($userEmail);
     }
 }

@@ -7,125 +7,115 @@ use Just\Tests\Feature\Helper;
 class AdminAccessTest extends Actions
 {
     use Helper;
-    
+
     protected function setUp(): void {
         parent::setUp();
-        
+
         $this->actingAsAdmin();
     }
-    
+
+    /** @test - admin_cannot_access_create_addon_form */
+    function admin_cannot_access_create_addon_form() {
+        $this->access_create_addon_form(false);
+    }
+
     /** @test */
     function admin_cannot_add_string_addon_to_the_block(){
-        $this->add_string_addon_to_the_block(false);
+        $this->add_phrase_addon_to_the_block(false);
     }
-    
+
     /** @test */
     function admin_cannot_add_paragraph_addon_to_the_block(){
         $this->add_paragraph_addon_to_the_block(false);
     }
-    
+
     /** @test */
     function admin_cannot_add_image_addon_to_the_block(){
         $this->add_image_addon_to_the_block(false);
     }
-    
+
     /** @test */
     function admin_cannot_add_categories_addon_to_the_block(){
-        $this->add_categories_addon_to_the_block(false);
+        $this->add_category_addon_to_the_block(false);
     }
-    
+
     /** @test */
     function admin_cannot_edit_existing_string_addon(){
-        $this->edit_existing_string_addon(false);
+        $this->edit_existing_phrase_addon(false);
     }
-    
+
     /** @test */
     function admin_cannot_edit_existing_paragraph_addon(){
         $this->edit_existing_paragraph_addon(false);
     }
-    
+
     /** @test */
     function admin_cannot_edit_existing_image_addon(){
         $this->edit_existing_image_addon(false);
     }
-    
+
     /** @test */
     function admin_cannot_edit_existing_categories_addon(){
-        $this->edit_existing_categories_addon(false);
+        $this->edit_existing_category_addon(false);
     }
-    
+
     /** @test */
     function admin_cannot_delete_existing_string_addon(){
-        $this->delete_existing_string_addon(false);
+        $this->delete_existing_phrase_addon(false);
     }
-    
+
     /** @test */
     function admin_cannot_delete_existing_paragraph_addon(){
         $this->delete_existing_paragraph_addon(false);
     }
-    
+
     /** @test */
     function admin_cannot_delete_existing_image_addon(){
         $this->delete_existing_image_addon(false);
     }
-    
+
     /** @test */
     function admin_cannot_delete_existing_categories_addon(){
-        $this->delete_existing_categories_addon(false);
+        $this->delete_existing_category_addon(false);
     }
-    
-    /** @test */
-    function admin_can_delete_existing_category_value(){
-        $this->delete_existing_category_value(true);
-    }
-    
+
     /** @test */
     function admin_can_create_item_with_string_addon_in_the_block(){
-        $this->create_new_item_with_string_addon(true);
+        $this->create_new_item_with_phrase_addon(true);
     }
-    
+
     /** @test */
     function admin_can_create_item_with_paragraph_addon_in_the_block(){
         $this->create_new_item_with_paragraph_addon(true);
     }
-    
+
     /** @test */
     function admin_can_create_item_with_image_addon_in_the_block(){
         $this->create_new_item_with_image_addon(true);
     }
-    
+
     /** @test */
     function admin_can_create_item_with_categories_addon_in_the_block(){
-        $this->create_new_item_with_categories_addon(true);
+        $this->create_new_item_with_category_addon(true);
     }
-    
+
     /** @test */
     function admin_can_edit_item_with_string_addon_in_the_block(){
-        $this->edit_item_with_string_addon(true);
+        $this->edit_item_with_phrase_addon(true);
     }
-    
+
     /** @test */
     function admin_can_edit_item_with_paragraph_addon_in_the_block(){
         $this->edit_item_with_paragraph_addon(true);
     }
-    
+
     /** @test */
     function admin_can_edit_item_with_image_addon_in_the_block(){
         $this->edit_item_with_image_addon(true);
     }
-    
+
     /** @test */
     function admin_can_edit_item_with_categories_addon_in_the_block(){
-        $this->edit_item_with_categories_addon(true);
-    }
-    
-    /** @test */
-    function admin_can_save_settings_for_block_with_addon(){
-        $this->save_settings_for_block_with_addon(true);
-    }
-    
-    /** @test */
-    function admin_can_move_block_with_addon(){
-        $this->move_block_with_addon(true);
+        $this->edit_item_with_category_addon(true);
     }
 }

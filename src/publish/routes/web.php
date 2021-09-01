@@ -32,7 +32,6 @@ if (Schema::hasTable('routes')){
             if($route->type == "page"){
                 if(!empty($route->page) and !!$route->page->isActive) {
                     Route::get($route->route, "\Just\Controllers\JustController@buildPage")->middleware('web');
-                    Route::post($route->route, "\Just\Controllers\AdminController@handleForm")->middleware(['web', 'auth']);
                 }
 
                 Route::get("admin/".$route->route, "\Just\Controllers\AdminController@buildPage")->middleware(['web','auth']);
@@ -91,15 +90,17 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
         });
     });
 
-    Route::prefix('user')->middleware(['master'])->group(function(){
-        Route::get('', "\Just\Controllers\Settings\UserController@actions");
-        Route::get("{userId}", "\Just\Controllers\Settings\UserController@settingsForm")->where(['userId'=>'\d+']);
-        Route::get("list", "\Just\Controllers\Settings\UserController@userList");
+    Route::prefix('user')->group(function(){
+        Route::middleware(['master'])->group(function(){
+            Route::get('', "\Just\Controllers\Settings\UserController@actions");
+            Route::get("{userId}", "\Just\Controllers\Settings\UserController@settingsForm")->where(['userId'=>'\d+']);
+            Route::get("list", "\Just\Controllers\Settings\UserController@userList");
 
-        Route::post("setup", "\Just\Controllers\Settings\UserController@setup");
-        Route::post('activate', '\Just\Controllers\Settings\UserController@activate');
-        Route::post('deactivate', '\Just\Controllers\Settings\UserController@deactivate');
-        Route::post("delete", "\Just\Controllers\Settings\UserController@delete");
+            Route::post("setup", "\Just\Controllers\Settings\UserController@setup");
+            Route::post('activate', '\Just\Controllers\Settings\UserController@activate');
+            Route::post('deactivate', '\Just\Controllers\Settings\UserController@deactivate');
+            Route::post("delete", "\Just\Controllers\Settings\UserController@delete");
+        });
 
         Route::get("password", "\Just\Controllers\Settings\UserController@changePasswordForm");
         Route::post("password/update", "\Just\Controllers\Settings\UserController@changePassword");
@@ -164,6 +165,8 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
             Route::post('delete', '\Just\Controllers\Settings\BlockController@itemDelete');
         });
     });
+
+    Route::post('upload-image', "\Just\Controllers\AdminController@uploadImage");
 });
 
 Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){

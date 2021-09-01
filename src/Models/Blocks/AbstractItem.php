@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
+use Just\Contracts\AddOnItem;
 use Just\Contracts\Requests\ValidateRequest;
 use Just\Models\AddOn;
 use Just\Contracts\BlockItem;
@@ -39,9 +40,9 @@ abstract class AbstractItem extends Model implements BlockItem
     /**
      * Block item settings form
      *
-     * @var Form $form
+     * @var ?Form $form
      */
-    protected Form $form;
+    protected ?Form $form;
 
     /**
      * Parameters which should be set before use block
@@ -75,6 +76,9 @@ abstract class AbstractItem extends Model implements BlockItem
 
         if(Auth::id()){
             $this->form = new Form('/settings/block/item/save');
+        }
+        else{
+            $this->form = null;
         }
     }
 
@@ -267,7 +271,7 @@ abstract class AbstractItem extends Model implements BlockItem
     public function multiplicateImage($imageCode) {
         $imageSizes = $this->imageSizes;
         if($this->parameter('customSizes')){
-            $imageSizes = $this->parameter('photoSizes', true);
+            $imageSizes = $this->parameter('photoSizes');
         }
 
         if(!empty($imageSizes)){
@@ -279,10 +283,6 @@ abstract class AbstractItem extends Model implements BlockItem
                 $image->save(public_path('/storage/'.$this->table.'/'.$imageCode.'_'.$size.'.png'));
                 $image->destroy();
             }
-        }
-        else{
-            $image = Image::make($this->imagePath());
-            $image->save($this->imagePathByCode($imageCode));
         }
     }
 
@@ -399,7 +399,7 @@ abstract class AbstractItem extends Model implements BlockItem
             }
             // if the image with requested size does not exist (due to block customization settings, for example)
             // next bigger image size is returned
-            else{
+            elseif(is_int($width)){
                 foreach (array_sort($this->imageSizes) as $size){
                     if($size > $width and $source = $this->findImage($imageCode, $size)) {
                         return $source;
@@ -487,12 +487,12 @@ abstract class AbstractItem extends Model implements BlockItem
      * Get related addon item
      *
      * @param string $name addon name
-     * @return addon item
+     * @return AddOnItem
      */
-    public function addon(string $name): AddOn {
+    public function addon(string $name): AddOnItem {
         $addon = Addon::where('name', $name)->first();
 
-        return $this->belongsToMany('Just\\Models\\Blocks\\AddOns\\'.ucfirst($addon->type), $this->getTable().'_'.$addon->type, 'modelItem_id', 'addonItem_id')->first();
+        return $this->belongsToMany('Just\\Models\\Blocks\\AddOns\\'.ucfirst($addon->type), $this->getTable().'_'.Str::plural($addon->type), 'modelItem_id', 'addonItem_id')->first();
     }
 
 

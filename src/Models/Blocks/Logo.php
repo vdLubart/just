@@ -96,7 +96,9 @@ class Logo extends AbstractItem
         }
         $logo->setBlock($request->block_id);
         if(!is_null($request->file('image'))){
-            $this->deleteImage($logo->image);
+            if(!empty($logo->image)) {
+                $this->deleteImage($logo->image);
+            }
             $logo->image = uniqid();
         }
 

@@ -79,10 +79,10 @@ class LayoutController extends SettingsController {
      * @throws Exception
      */
     public function delete(InitializeLayoutRequest $request): JsonResponse {
-        $layout = Layout::find($request->id);
+        $layout = Layout::find($request->layout_id);
         $response = new \stdClass();
 
-        $pages = Page::where('layout_id', $request->id)->first();
+        $pages = Page::where('layout_id', $request->layout_id)->first();
         if(!empty($pages)){
             $response->error = __('layout.messages.error.usedOnPage', ['page' => $pages->first()->title]);
             return response()->json($response);

@@ -2,74 +2,87 @@
 
 namespace Just\Tests\Feature\Blocks\Html;
 
+use Just\Models\Blocks\Html;
+use Just\Models\Blocks\Text;
 use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Just\Structure\Panel\Block;
+use Just\Models\Block;
 
 class Actions extends LocationBlock {
-    
+
     use WithFaker;
 
     protected $type = 'html';
-    
+
     protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }
-        
+
         parent::tearDown();
     }
-    
+
     public function access_item_form($assertion){
         $block = $this->setupBlock();
-        
-        $response = $this->get("admin/settings/".$block->id."/0");
-        
-        $response->{($assertion?'assertSee':'assertDontSee')}('textarea name="text"');
+
+        $response = $this->get("settings/block/".$block->id."/item/0");
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $form = $block->item()->itemForm();
+            $this->assertEquals(4, $form->count());
+            $this->assertEquals(['id', 'block_id', 'text', 'submit'], array_keys($form->elements()));
+        }
+        else{
+            $response->assertRedirect('login');
+
+            $this->assertEquals(0, $block->item()->itemForm()->count());
+        }
     }
-    
+
     public function access_edit_item_form($assertion){
         $block = $this->setupBlock();
-        
-        $htmlItem = new Block\Text();
+
+        $htmlItem = new Text();
         $htmlItem->block_id = $block->id;
         $htmlItem->text = $text = $this->faker->paragraph;
 
         $htmlItem->save();
 
         if($assertion){
-            $form = $htmlItem->form();
-            $this->assertEquals(2, $form->count());
-            $this->assertEquals(['text', 'submit'], array_keys($form->getElements()));
-            $this->assertEquals($text, $form->getElement('text')->value());
+            $form = $htmlItem->itemForm();
+            $this->assertEquals(4, $form->count());
+            $this->assertEquals(['id', 'block_id', 'text', 'submit'], array_keys($form->elements()));
+            $this->assertEquals($text, $form->element('text')->value()['en']);
         }
         else{
-            $this->assertNull($htmlItem->form());
+            $this->assertEquals(0, $htmlItem->itemForm()->count());
         }
     }
 
     public function create_new_item_in_block($assertion){
         $block = $this->setupBlock();
-        
+
         $text = $this->faker->paragraph;
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'text' => $text
         ]);
-        
-        $item = Block\Html::where('block_id', $block->id)->first();
-        
+
+        $item = Html::where('block_id', $block->id)->first();
+
         if($assertion){
             $this->assertNotNull($item);
-            
+
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($text, $block->firstItem()->text);
-            
+
             $this->get('admin')
                     ->assertSuccessful();
-            
+
             $this->get('')
                     ->assertSuccessful();
         }
@@ -77,13 +90,13 @@ class Actions extends LocationBlock {
             $this->assertNull($item);
         }
     }
-    
+
     public function receive_an_error_on_sending_incomplete_create_item_form($assertion){
         $block = $this->setupBlock();
 
         $this->get("admin/settings/".$block->id."/0");
-        
-        $response = $this->post("", [
+
+        $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null
         ])
@@ -93,42 +106,42 @@ class Actions extends LocationBlock {
             $response->assertSessionHasErrors('text');
         }
 
-        $item = Block\Html::where('block_id', $block->id)->first();
+        $item = Html::where('block_id', $block->id)->first();
 
         $this->assertNull($item);
     }
-    
+
     public function create_few_items_in_block($assertion){
         $block = $this->setupBlock();
-        
+
         $firstText = $this->faker->paragraph;
         $secondText = $this->faker->paragraph;
         $thirdText = $this->faker->paragraph;
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'text' => $firstText
         ]);
 
-        $firstItem = Block\Html::all()->last();
-        
-        $this->post("", [
+        $firstItem = Html::all()->last();
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'text' => $secondText
         ]);
 
-        $secondItem = Block\Html::all()->last();
-        
-        $this->post("", [
+        $secondItem = Html::all()->last();
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'text' => $thirdText
         ]);
 
-        $thirdItem = Block\Html::all()->last();
-        
+        $thirdItem = Html::all()->last();
+
         if($assertion){
             $this->assertEquals($firstText, $firstItem->text);
             $this->assertEquals($secondText, $secondItem->text);
@@ -140,26 +153,26 @@ class Actions extends LocationBlock {
             $this->assertNull($thirdItem);
         }
     }
-    
+
     public function edit_existing_item_in_the_block($assertion){
         $block = $this->setupBlock();
 
-        $htmlItem = new Block\Text();
+        $htmlItem = new Text();
         $htmlItem->block_id = $block->id;
         $htmlItem->text = $this->faker->paragraph;
 
         $htmlItem->save();
 
         $text = $this->faker->paragraph;
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => $htmlItem->id,
             'text' => $text
         ]);
-        
-        $htmlItem = Block\Html::all()->last();
-        
+
+        $htmlItem = Html::all()->last();
+
         if($assertion){
             $this->assertEquals($text, $htmlItem->text);
         }
@@ -167,37 +180,38 @@ class Actions extends LocationBlock {
             $this->assertNotEquals($text, $htmlItem->text);
         }
     }
-    
-    public function edit_block_settings($assertion){
+
+    public function customize_block($assertion){
         $block = $this->setupBlock();
-        
-        $response = $this->get('admin/settings/'.$block->id.'/0');
-        
+
+        $response = $this->get('settings/block/'.$block->id.'/customization');
+
         if($assertion){
-            $response->assertStatus(200)
-                    ->assertSee('Settings View');
-            
-            $this->assertCount(3, $block->setupForm()->groups());
-            
-            $this->assertEquals(['id', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
-            
-            $this->post('admin/settings/setup', [
+            $response->assertStatus(200);
+
+            $form = $block->customizationForm();
+
+            $this->assertCount(1, $form->groups());
+
+            $this->assertEquals(['id', 'orderDirection', 'submit'], $form->names());
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100"
+                'orderDirection' => 'asc'
             ]);
-            
+
             $block = Block::find($block->id);
 
-            $this->assertEquals(100, $block->parameters->settingsScale);
+            $this->assertEquals('asc', $block->parameters->orderDirection);
         }
         else{
             $response->assertStatus(302);
-            
-            $this->post('admin/settings/setup', [
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100"
+                'orderDirection' => 'asc'
             ]);
-            
+
             $block = Block::find($block->id);
 
             $this->assertEmpty((array)$block->parameters);

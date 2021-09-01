@@ -40,8 +40,7 @@ class Actions extends TestCase{
         $response = $this->get('/settings/page/'.$page->id);
 
         if($assertion){
-            $response->assertStatus(200)
-                    ->assertSee("Settings :: Page");
+            $response->assertStatus(200);
         }
         else{
             $response->assertStatus(302);
@@ -49,13 +48,13 @@ class Actions extends TestCase{
 
         $this->post("/settings/page/setup", [
             "page_id" => $page->id,
-            "title" => $title = $this->faker->word,
-            "description" => $description = $this->faker->paragraph,
+            "title" => '{"en":"'.($title = $this->faker->word).'"}',
+            "description" => '{"en":"'.($description = $this->faker->paragraph).'"}',
             "keywords" => $keywords = $this->faker->word,
             "author" => $author = $this->faker->name,
             "copyright" => $copyright = $this->faker->sentence,
             "route" => $newRoute = $this->faker->word,
-            "layout_id" => 1
+            "layout" => 1
         ]);
 
         $newPage = Page::find($page->id);
@@ -87,15 +86,15 @@ class Actions extends TestCase{
             $response->assertStatus(302);
         }
 
-        $this->post("/settings/page/setup", [
+        $response = $this->post("/settings/page/setup", [
             "page_id" => null,
-            "title" => $title = $this->faker->word,
-            "description" => $description = $this->faker->paragraph,
+            "title" => '{"en":"'.($title = $this->faker->word).'"}',
+            "description" => '{"en":"'.($description = $this->faker->paragraph).'"}',
             "keywords" => $keywords = $this->faker->word,
             "author" => $author = $this->faker->name,
             "copyright" => $copyright = $this->faker->sentence,
             "route" => $newRoute = $this->faker->word,
-            "layout_id" => 1
+            "layout" => 1
         ]);
 
         $newPage = Page::where('id', '>', 1)->get()->last();
@@ -103,6 +102,7 @@ class Actions extends TestCase{
         $route = Route::where('route', $newRoute)->first();
 
         if($assertion){
+            $response->assertSuccessful();
             $this->assertEquals($title, $newPage->title);
             $this->assertEquals($description, $newPage->description);
             $this->assertEquals($keywords, $newPage->keywords);
@@ -113,6 +113,7 @@ class Actions extends TestCase{
             $this->assertNotNull($route);
         }
         else{
+            $response->assertRedirect();
             $this->assertNull($newPage);
 
             $this->assertNull($route);
@@ -139,8 +140,7 @@ class Actions extends TestCase{
         $response = $this->get('/settings/page/'.$page1->id);
 
         if($assertion){
-            $response->assertStatus(200)
-                    ->assertSee("Settings :: Page");
+            $response->assertStatus(200);
         }
         else{
             $response->assertStatus(302);
@@ -151,11 +151,11 @@ class Actions extends TestCase{
             "title" => $page1->title,
             "description" => $page1->description,
             "keywords" => $keywords = $this->faker->word,
-            "author" => $author = $this->faker->name,
-            "copyright" => $copyright = $this->faker->sentence,
+            "author" => '{"en":"'.($author = $this->faker->name).'"}',
+            "copyright" => '{"en":"'.($copyright = $this->faker->sentence).'"}',
             "copyMeta" => 'on',
             "route" => $page1->route,
-            "layout_id" => 1
+            "layout" => 1
         ]);
 
         $page1 = Page::find($page1->id);
@@ -171,15 +171,15 @@ class Actions extends TestCase{
             $this->assertEquals($copyright, $page2->copyright);
 
             $this->post("/settings/page/setup", [
-            "page_id" => $homePage->id,
-            "title" => $homePage->title,
-            "description" => $homePage->description,
-            "keywords" => $homePage->keywords,
-            "author" => $homePage->author,
-            "copyright" => $homePage->copyright,
-            "route" => '',
-            "layout_id" => 1
-        ]);
+                "page_id" => $homePage->id,
+                "title" => $homePage->title,
+                "description" => $homePage->description,
+                "keywords" => $homePage->keywords,
+                "author" => $homePage->author,
+                "copyright" => $homePage->copyright,
+                "route" => '',
+                "layout_id" => 1
+            ]);
         }
         else{
             $this->assertNotEquals($keywords, $page2->keywords);
@@ -191,8 +191,7 @@ class Actions extends TestCase{
     public function access_page_list($assertion){
         $response = $this->get('/settings/page/list');
         if($assertion){
-            $response->assertSuccessful()
-                    ->assertSee("Settings :: Pages");
+            $response->assertSuccessful();
         }
         else{
             $response->assertRedirect();
@@ -220,10 +219,7 @@ class Actions extends TestCase{
 
         $response = $this->get('/settings/page/list');
         if($assertion){
-            $response->assertSuccessful()
-                    ->assertSee("Settings :: Pages")
-                    ->assertSee($title1)
-                    ->assertSee($title2);
+            $response->assertSuccessful();
         }
         else{
             $response->assertRedirect();
@@ -246,7 +242,7 @@ class Actions extends TestCase{
             "author" => $author = $this->faker->name,
             "copyright" => $copyright = $this->faker->sentence,
             "route" => $route1->route,
-            "layout_id" => 1
+            "layout" => 1
         ]);
 
         $updatedPage = Page::find($page1->id);

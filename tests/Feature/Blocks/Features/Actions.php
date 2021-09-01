@@ -2,69 +2,62 @@
 
 namespace Just\Tests\Feature\Blocks\Features;
 
+use Illuminate\Support\Facades\Auth;
+use Just\Models\Blocks\Features;
 use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Just\Structure\Panel\Block;
+use Just\Models\Block;
 use Just\Tools\Useful;
 
 class Actions extends LocationBlock {
-    
+
     use WithFaker;
 
     protected $type = 'features';
-    
+
     protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }
-        
+
         if(file_exists(public_path('storage/articles'))){
             exec('rm -rf ' . public_path('storage/articles'));
         }
-        
+
         parent::tearDown();
     }
-    
-    public function access_item_form_without_initial_data($assertion){
+
+    public function access_item_form($assertion){
         $block = $this->setupBlock();
-        
-        $response = $this->get("admin/settings/".$block->id."/0");
 
-        $response->assertDontSee('input name="title"');
-        
-        $response->{($assertion?'assertDontSee':'assertSee')}('Items amount in single row');
-        
-        $this->post('admin/settings/setup', [
-            'id' => $block->id,
-            'itemsInRow' => "4"
-        ])
-                ->assertStatus(200);
+        $response = $this->get("settings/block/".$block->id."/item/0");
 
-        $block = Block::find($block->id);
-        $this->assertEquals(4, $block->parameters->itemsInRow);
-        if(\Auth::user()->role == 'master') {
-            $this->assertFalse($block->parameters->ignoreCaption);
-            $this->assertFalse($block->parameters->ignoreDescription);
+        if($assertion){
+            $response->assertSuccessful();
+
+            $form = $block->item()->itemForm();
+            $this->assertEquals(7, $form->count());
+            $this->assertEquals([
+                "id",
+                "block_id",
+                "description",
+                "submit",
+                "icon",
+                "title",
+                "link"
+            ], array_keys($form->elements()));
         }
         else{
-            $this->assertNull(@$block->parameters->ignoreCaption);
-            $this->assertNull(@$block->parameters->ignoreDescription);
+            $response->assertRedirect('login');
+
+            $this->assertEquals(0, $block->item()->itemForm()->count());
         }
-    }
-    
-    public function access_item_form_when_block_is_setted_up($assertion){
-        $block = $this->setupBlock(['parameters'=>json_decode('{"itemsInRow":"4"}')]);
-        
-        $response = $this->get("admin/settings/".$block->id."/0");
-        
-        $response->{($assertion ? 'assertSee' : 'assertDontSee')}('select name="iconSet"');
-        $response->{($assertion ? 'assertSee' : 'assertDontSee')}('input name="title"');
     }
 
     public function access_edit_item_form($assertion){
         $block = $this->setupBlock();
 
-        $feature = new Block\Features();
+        $feature = new Features();
         $feature->block_id = $block->id;
         $feature->icon_id = 1;
         $feature->title = $title = $this->faker->sentence;
@@ -72,34 +65,34 @@ class Actions extends LocationBlock {
         $feature->link = $link = $this->faker->url;
 
         $feature->save();
-        
+
         $this->assertTrue(Useful::isRouteExists("iconset/{id}/{page?}"));
 
         $this->app['router']->get('iconset/{id}/{page?}', "\Just\Controllers\JustController@ajax")->middleware('web');
-        
+
         $this->get("iconset/1")
                 ->assertStatus(200);
-        
-        $item = Block\Features::all()->last();
-        
+
+        $item = Features::all()->last();
+
         if($assertion){
-            $form = $item->form();
-            $this->assertEquals(8, $form->count());
-            $this->assertEquals(['currentIcon', 'iconSet', 'divicon', 'icon', 'title', 'description', 'link', 'submit'], array_keys($form->getElements()));
-            $this->assertEquals(1, $form->getElement('icon')->value());
-            $this->assertEquals($title, $form->getElement('title')->value());
-            $this->assertEquals($description, $form->getElement('description')->value());
-            $this->assertEquals($link, $form->getElement('link')->value());
+            $form = $item->itemForm();
+            $this->assertEquals(7, $form->count());
+            $this->assertEquals(['id', 'block_id', 'description', 'submit', 'icon', 'title', 'link'], array_keys($form->elements()));
+            $this->assertEquals(1, $form->element('icon')->parameter('vueComponentAttrs')['value']->id);
+            $this->assertEquals($title, $form->element('title')->value()['en']);
+            $this->assertEquals($description, $form->element('description')->value()['en']);
+            $this->assertEquals($link, $form->element('link')->value());
         }
         else{
-            $this->assertNull($item->form());
+            $this->assertEquals(0, $item->itemForm()->count());
         }
     }
 
     public function create_new_item_in_block($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemsInRow":"4"}')]);
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'iconSet' => 1,
@@ -108,23 +101,23 @@ class Actions extends LocationBlock {
             'description' => $description = $this->faker->paragraph,
             'link' => $link = $this->faker->url
         ]);
-        
+
         $this->assertTrue(Useful::isRouteExists("iconset/{id}/{page?}"));
-        
-        $item = Block\Features::all()->last();
-        
+
+        $item = Features::all()->last();
+
         if($assertion){
             $this->assertNotNull($item);
-            
+
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals(1, $block->firstItem()->icon_id);
             $this->assertEquals($title, $block->firstItem()->title);
             $this->assertEquals($description, $block->firstItem()->description);
             $this->assertEquals($link, $block->firstItem()->link);
-            
+
             $this->get('admin')
                 ->assertSuccessful();
-            
+
             $this->get('')
                 ->assertSuccessful();
         }
@@ -132,22 +125,22 @@ class Actions extends LocationBlock {
             $this->assertNull($item);
         }
     }
-    
+
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemsInRow":"4"}')]);
-        
+
         $this->get("admin/settings/".$block->id."/0");
-        
-        $response = $this->post("", [
+
+        $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'iconSet' => 1
         ]);
-        
-        $item = Block\Features::all()->last();
-        
+
+        $item = Features::all()->last();
+
         $this->assertNull($item);
-        
+
         if($assertion){
             $response->assertSessionHasErrors(['icon', 'title']);
         }
@@ -155,11 +148,11 @@ class Actions extends LocationBlock {
             $response->assertRedirect('/login');
         }
     }
-    
+
     public function edit_existing_item_in_the_block($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"itemsInRow":"4"}')]);
 
-        $feature = new Block\Features();
+        $feature = new Features();
         $feature->block_id = $block->id;
         $feature->icon_id = 1;
         $feature->title = $title = $this->faker->sentence;
@@ -167,10 +160,10 @@ class Actions extends LocationBlock {
         $feature->link = $link = $this->faker->url;
 
         $feature->save();
-        
-        $item = Block\Features::all()->last();
-        
-        $this->post("", [
+
+        $item = Features::all()->last();
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => $item->id,
             'iconSet' => 1,
@@ -179,9 +172,9 @@ class Actions extends LocationBlock {
             'description' => $description = $this->faker->paragraph,
             'link' => $link
         ]);
-        
-        $item = Block\Features::all()->last();
-        
+
+        $item = Features::all()->last();
+
         if($assertion){
             $this->assertEquals($title, $item->title);
             $this->assertEquals($description, $item->description);
@@ -191,89 +184,89 @@ class Actions extends LocationBlock {
             $this->assertNotEquals($title, $item->title);
         }
     }
-    
-    public function edit_block_settings($assertion){
+
+    public function customize_block($assertion){
         $block = $this->setupBlock();
-        
-        $response = $this->get('admin/settings/'.$block->id.'/0');
-        
+
+        $response = $this->get('settings/block/'.$block->id.'/customization');
+
         if($assertion){
-            $response->assertStatus(200)
-                    ->assertSee('Settings View');
-            if(\Auth::user()->role == 'master'){
-                $response->assertSee('Item Fields');
-                
-                $this->assertCount(3, $block->setupForm()->groups());
-            
-                $this->assertEquals(['id', 'itemsInRow', 'ignoreCaption', 'ignoreDescription', 'submit'], $block->setupForm()->names());
+            $response->assertStatus(200);
+
+            $form = $block->customizationForm();
+
+            if(Auth::user()->role == 'master'){
+
+                $this->assertCount(2, $form->groups());
+
+                $this->assertEquals(['id', 'ignoreCaption', 'ignoreDescription', 'orderDirection', 'submit'], $form->names());
             }
             else{
-                $response->assertDontSee('Item Fields');
-                
-                $this->assertCount(2, $block->setupForm()->groups());
-            
-                $this->assertEquals(['id', 'itemsInRow', 'submit'], $block->setupForm()->names());
+                $this->assertCount(1, $form->groups());
+
+                $this->assertEquals(['id', 'orderDirection', 'submit'], $form->names());
             }
-            
-            $this->post('admin/settings/setup', [
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "itemsInRow" => "4",
+                "orderDirection" => "asc",
                 "ignoreCaption" => "on"
-            ]);
-            
+            ])
+                ->assertSuccessful();
+
             $block = Block::find($block->id)->specify();
-            
-            $form = $block->form();
+
+            $form = $block->item()->itemForm();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals(4, $block->parameters->itemsInRow);
+                $this->assertEquals('asc', $block->parameters->orderDirection);
                 $this->assertTrue($block->parameters->ignoreCaption);
                 $this->assertFalse($block->parameters->ignoreDescription);
-                $this->assertNull($form->getElement('title'));
-                $this->assertNotNull($form->getElement('description'));
+                $this->assertNull($form->element('title'));
+                $this->assertNotNull($form->element('description'));
             }
             else{
-                $this->assertEquals(4, $block->parameters->itemsInRow);
+                $this->assertEquals('asc', $block->parameters->orderDirection);
                 $this->assertNull(@$block->parameters->ignoreCaption);
                 $this->assertNull(@$block->parameters->ignoreDescription);
-                $this->assertNotNull($form->getElement('title'));
-                $this->assertNotNull($form->getElement('description'));
+                $this->assertNotNull($form->element('title'));
+                $this->assertNotNull($form->element('description'));
             }
-            
-            $this->post('admin/settings/setup', [
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "itemsInRow" => "4",
+                "orderDirection" => "asc",
                 "ignoreDescription" => "on"
             ]);
-            
+
             $block = Block::find($block->id)->specify();
-            
-            $form = $block->form();
+
+            $form = $block->item()->itemForm();
             if(\Auth::user()->role == 'master'){
-                $this->assertEquals(4, $block->parameters->itemsInRow);
+                $this->assertEquals('asc', $block->parameters->orderDirection);
                 $this->assertFalse($block->parameters->ignoreCaption);
                 $this->assertTrue($block->parameters->ignoreDescription);
-                $this->assertNotNull($form->getElement('title'));
-                $this->assertNull($form->getElement('description'));
+                $this->assertNotNull($form->element('title'));
+                $this->assertNull($form->element('description'));
             }
             else{
-                $this->assertEquals(4, $block->parameters->itemsInRow);
+                $this->assertEquals('asc', $block->parameters->orderDirection);
                 $this->assertNull(@$block->parameters->ignoreCaption);
                 $this->assertNull(@$block->parameters->ignoreDescription);
-                $this->assertNotNull($form->getElement('title'));
-                $this->assertNotNull($form->getElement('description'));
+                $this->assertNotNull($form->element('title'));
+                $this->assertNotNull($form->element('description'));
             }
         }
         else{
             $response->assertStatus(302);
-            
-            $this->post('admin/settings/setup', [
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100"
+                "orderDirection" => "asc",
             ]);
-            
+
             $block = Block::find($block->id);
-            
-            $this->assertNotEquals(json_decode('{"settingsScale":"100"}'), $block->parameters);
+
+            $this->assertNotEquals(json_decode('{"orderDirection":"asc"}'), $block->parameters);
         }
     }
 }

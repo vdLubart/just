@@ -82,7 +82,7 @@ class UserController extends SettingsController
     public function delete(InitializeUserRequest $request): JsonResponse {
         $user = User::find($request->id);
 
-        if(!empty($user)){
+        if(!empty($user) and Auth::id() != $user->id){
             $user->delete();
         }
 

@@ -13,10 +13,10 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(\Just\Structure\Panel\Block\Addon::class, function (Faker $faker){
+$factory->define(\Just\Models\AddOn::class, function (Faker $faker){
     return [
         'block_id' => 1,
-        'type' => 'strings',
+        'type' => 'phrase',
         'name' => 'string',
         'title' => $faker->name,
         'description' => $faker->sentence,

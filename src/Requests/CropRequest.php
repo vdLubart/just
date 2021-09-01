@@ -3,7 +3,8 @@
 namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Illuminate\Support\Facades\Auth;
+use Just\Contracts\Requests\ValidateRequest;
 
 class CropRequest extends FormRequest implements ValidateRequest
 {
@@ -14,7 +15,7 @@ class CropRequest extends FormRequest implements ValidateRequest
      */
     public function authorize()
     {
-        return \Auth::user();
+        return Auth::check();
     }
 
     /**

@@ -25,7 +25,7 @@ class SaveContactRequest extends FormRequest implements ValidateRequest
      * @throws \Exception
      */
     public function rules(): array {
-        $contact = Block::find($this->block_id)->specify()->model();
+        $contact = Block::find($this->block_id)->specify()->item();
         $channels = $contact->allChannels();
 
         $rules = [

@@ -97,7 +97,7 @@
                 formData.append("image", file);
 
                 axios({
-                    url: "/admin/upload-image",
+                    url: "/settings/upload-image",
                     method: "POST",
                     data: formData
                 })

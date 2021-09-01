@@ -2,25 +2,26 @@
 
 namespace Just\Tests\Feature\Layouts;
 
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Just\Models\Page;
 use Just\Models\System\Route;
 use Just\Models\Layout;
 use Just\Models\Theme;
-use Just\Structure\Panel;
+use Just\Models\Panel;
 
 class Actions extends TestCase{
-    
+
     use WithFaker;
-    
+
     protected function tearDown(): void{
         foreach(Route::all() as $route){
             if($route->route != ""){
                 $route->delete();
             }
         }
-        
+
         foreach(Page::all() as $page){
             if($page->id != 1){
                 $page->delete();
@@ -30,13 +31,13 @@ class Actions extends TestCase{
                 $page->save();
             }
         }
-        
+
         foreach (Layout::all() as $layout){
             if($layout->id > 2){
                 $layout->delete();
             }
         }
-        
+
         foreach (Theme::all() as $theme){
             if($theme->name != "Just"){
                 $theme->where('name', $theme->name)->delete();
@@ -45,31 +46,33 @@ class Actions extends TestCase{
                 $theme->update(['isActive'=>1]);
             }
         }
-        
+
         parent::tearDown();
     }
-    
-    
+
+
     public function cannot_change_default_layout(){
         $this->get('/settings/layout/1');
-        
-        $response = $this->post("/settings/layout/setup", [
+
+        $response = $this->post("settings/layout/setup", [
             'layout_id' => 1,
-            'width'=> $this->faker->numberBetween(),
+            'width'=> $width = $this->faker->numberBetween(980, 1920),
         ]);
-        
-        $content = $this->followRedirects($response);
-        if(!\Auth::id()){
+
+        if(!Auth::id()){
             $response->assertRedirect('/login');
         }
-        elseif(\Auth::user()->role == 'master'){
-            $content->assertSee("This layout is default and cannot be changed");
+        elseif(Auth::user()->role == 'master'){
+            $response->assertSessionHasErrors('layout_id');
         }
         else{
-            $content->assertSee("This action is unauthorized");
+            $response->assertRedirect('settings/noaccess');
         }
+
+        $layout = Layout::find(1);
+        $this->assertNotEquals($width, $layout->width);
     }
-    
+
     public function create_new_layout($assertion){
         $newTheme = Theme::create([
             'name' => $this->faker->word
@@ -83,7 +86,7 @@ class Actions extends TestCase{
         else{
             $response->assertRedirect();
         }
-        
+
         $response = $this->post("/settings/layout/setup", [
             "layout_id" => null,
             "name" => $newTheme->name,
@@ -96,32 +99,32 @@ class Actions extends TestCase{
         ]);
 
         $layout = Layout::where('name', $newTheme->name)->first();
-        
+
         if($assertion){
             $this->assertNotNull($layout);
-            
+
             $this->assertEquals($width, $layout->width);
-            
+
             $this->assertFileExists(resource_path('views/'.$newTheme->name.'/panels/content.blade.php'));
             $this->assertFileExists(resource_path('views/'.$newTheme->name.'/panels/header.blade.php'));
-            
+
             if(file_exists(resource_path('views/'.$newTheme->name))){
                 exec('rm -rf ' . resource_path('views/'.$newTheme->name));
             }
         }
         else{
-            if(\Auth::id()){
-                $this->followRedirects($response)->assertSee("This action is unauthorized");
+            if(Auth::id()){
+                $response->assertRedirect('settings/noaccess');
             }
             else{
                 $response->assertRedirect('/login');
             }
         }
     }
-    
+
     public function cannot_create_layout_with_existing_class(){
         $this->get('/settings/layout/0');
-        
+
         $response = $this->post("/settings/layout/setup", [
             "layout_id" => null,
             "name" => "Just",
@@ -131,29 +134,30 @@ class Actions extends TestCase{
             "panelType_1" => "dynamic"
         ]);
 
-        $content = $this->followRedirects($response);
         if(!\Auth::id()){
             $response->assertRedirect('/login');
         }
         elseif(\Auth::user()->role == 'master'){
-            $content->assertSee("Class &quot;specific&quot; already used in &quot;Just&quot; layout");
+            $response->assertSessionHasErrors('class');
         }
         else{
-            $content->assertSee("This action is unauthorized");
+            $response->assertRedirect('settings/noaccess');
         }
     }
-    
+
     public function choose_default_layout($assertion){
+        $this->addWarning('Create default layout functionality is not implemented');
+        /*
         $newTheme = Theme::create([
             'name' => $this->faker->word
         ]);
-        
+
         $newLayout = Layout::create([
             "name" => $newTheme->name,
             "class" => "primary",
             "width" => $width = $this->faker->numberBetween(980, 1920),
         ]);
-        
+
         $route = Route::create([
             'route' => $this->faker->word
         ]);
@@ -161,17 +165,17 @@ class Actions extends TestCase{
             'route' => $route->route,
             'layout_id' => 1
         ]);
-        
+
         $response = $this->post("/settings/layout/setdefault", [
             "layout" => $newLayout->name,
             "change_all" => "on"
         ]);
 
         $page = Page::find($page->id);
-        
+
         if($assertion){
             $this->assertEquals($newLayout->id, $page->layout_id);
-            
+
             $this->get('/settings/layout/default')
                     ->assertSuccessful();
 
@@ -180,67 +184,61 @@ class Actions extends TestCase{
         }
         else{
             if(\Auth::id()){
-                $this->followRedirects($response)->assertSee("This action is unauthorized");
-                
+                $response->assertRedirect('settings/noaccess');
+
                 $this->get('/settings/layout/default')
                     ->assertRedirect('settings/noaccess');
             }
             else{
                 $response->assertRedirect('/login');
-                
+
                 $this->get('/settings/layout/default')
                     ->assertRedirect('login');
             }
         }
+        */
     }
-    
+
     public function access_layout_list($assertion){
         $response = $this->get('/settings/layout/list');
 
         if($assertion){
-            $response->assertSuccessful()
-                    ->assertSee("Settings :: Layouts");
+            $response->assertSuccessful();
         }
         else{
             if(\Auth::id()){
-                $this->followRedirects($response)->assertSee("You do not have permitions for that action");
-                
-                $this->get('/settings/layout/default')
-                    ->assertRedirect('settings/noaccess');
+                $response->assertRedirect('settings/noaccess');
             }
             else{
                 $response->assertRedirect('/login');
-                
-                $this->get('/settings/layout/default')
-                    ->assertRedirect('login');
             }
         }
     }
-    
+
     public function delete_layout($assertion){
         $newTheme = Theme::create([
             'name' => $this->faker->word
         ]);
-        
+
         $layout = Layout::create([
             "name" => $newTheme->name,
             "class" => $class = "primary",
             "width" => $this->faker->numberBetween(980, 1920),
         ]);
-        
+
         $panel = Panel::create([
             "location" => "content",
             "layout_id" => $layout->id,
             "type" => "dynamic"
         ]);
-        
-        $r = $this->post('settings/layout/delete', [
+
+        $this->post('settings/layout/delete', [
             'layout_id' => $layout->id
         ]);
 
         $layout = Layout::find($layout->id);
         $panel = Panel::find($panel->id);
-        
+
         if($assertion){
             $this->assertNull($layout);
             $this->assertNull($panel);

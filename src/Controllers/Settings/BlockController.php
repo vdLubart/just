@@ -480,7 +480,7 @@ class BlockController extends SettingsController {
 
         $response->content = $block->customizationForm()->toJson();
 
-        return Response::json(json_encode($response));
+        return Response::json((array) $response);
     }
 
     /**
@@ -514,17 +514,19 @@ class BlockController extends SettingsController {
             unset($values['submit']);
 
             foreach($values as $key=>$value){
+                if(!in_array($key, $settingsElements) and !in_array($key."[]", $settingsElements)){
+                    continue;
+                }
+
                 if(is_string($value) and $value === (string)(int)$value){
                     $value = (int)$value;
                 }
 
-                if($block->customizationForm()->getElement($key)->type() == 'checkbox' and in_array($value, ['true', 'false'])){
+                if($block->customizationForm()->element($key)->type() == 'checkbox' and in_array($value, ['true', 'false'])){
                     $value = $value === 'true';
                 }
 
-                if(in_array($key, $settingsElements) or in_array($key."[]", $settingsElements)){
-                    $parameters->{trim($key, "[]")} = ($value == 'on' and $block->customizationForm()->getElement($key)->type() == 'checkbox') ? true : $value;
-                }
+                $parameters->{trim($key, "[]")} = ($value == 'on' and $block->customizationForm()->element($key)->type() == 'checkbox') ? true : $value;
             }
 
             $block->parameters = $parameters;

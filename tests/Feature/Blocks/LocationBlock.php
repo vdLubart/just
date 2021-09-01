@@ -10,8 +10,8 @@ namespace Just\Tests\Feature\Blocks;
 
 
 use Illuminate\Support\Facades\DB;
-use Just\Structure\Panel\Block;
-use Just\Structure\Panel\Block\Text;
+use Just\Models\Block;
+use Just\Models\Blocks\Text;
 use Tests\TestCase;
 
 class LocationBlock extends TestCase {
@@ -33,7 +33,7 @@ class LocationBlock extends TestCase {
     public function relatedBlock() {
         $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
 
-        $textBlock = new Block\Text();
+        $textBlock = new Text();
         $textBlock->block_id = $block->id;
         $textBlock->text = $this->faker->paragraph;
 

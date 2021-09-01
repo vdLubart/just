@@ -2,94 +2,103 @@
 
 namespace Just\Tests\Feature\Blocks\Feedback;
 
+use Just\Models\Blocks\Feedback;
 use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
-use Just\Structure\Panel\Block;
+use Just\Models\Block;
 use Just\Models\User;
 use Illuminate\Support\Facades\Notification;
 use Just\Notifications\NewFeedback;
 
 class Actions extends LocationBlock {
-    
+
     use WithFaker;
 
     protected $type = 'feedback';
-    
+
     protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }
-        
+
         parent::tearDown();
     }
-    
+
     public function access_item_form($assertion){
         $block = $this->setupBlock();
-        
-        $response = $this->get("admin/settings/".$block->id."/0");
-        
-        $response->{($assertion?'assertSee':'assertDontSee')}('input name="username"');
-        $response->{($assertion?'assertSee':'assertDontSee')}('input name="email"');
-        $response->{($assertion?'assertSee':'assertDontSee')}('textarea name="message"');
-        $response->assertDontSee('div class="g-recaptcha"');
-        
+
+        $response = $this->get("settings/block/".$block->id."/item/0");
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $form = $block->item()->itemForm();
+            $this->assertEquals(6, $form->count());
+            $this->assertEquals(['id', 'block_id', 'username', 'email', 'message', 'submit'], array_keys($form->elements()));
+        }
+        else{
+            $response->assertRedirect('login');
+
+            $this->assertEquals(0, $block->item()->itemForm()->count());
+        }
+
         $response = $this->get("");
-        
+
         $response->assertSee('input name="username"');
         $response->assertSee('input name="email"');
         $response->assertSee('textarea name="message"');
         $response->assertSee('div class="g-recaptcha"');
     }
-    
+
     public function access_edit_item_form($assertion){
         $block = $this->setupBlock();
-        
-        Block\Feedback::insert([
+
+        Feedback::insert([
             'block_id' => $block->id,
             'username' => $name = $this->faker->name,
             'email' => $email = $this->faker->email,
             'message' => $message = $this->faker->paragraph,
         ]);
-        
-        $item = Block\Feedback::all()->last();
-        
+
+        $item = Feedback::all()->last();
+
         if($assertion){
-            $form = $item->form();
-            $this->assertEquals(5, $form->count());
-            $this->assertEquals(['username', 'email', 'created', 'message', 'submit'], array_keys($form->getElements()));
+            $form = $item->itemForm();
+            $this->assertEquals(7, $form->count());
+            $this->assertEquals(['id', 'block_id', 'username', 'email', 'created', 'message', 'submit'], array_keys($form->getElements()));
             $this->assertEquals($name, $form->getElement('username')->value());
             $this->assertEquals($email, $form->getElement('email')->value());
             $this->assertEquals($message, $form->getElement('message')->value());
         }
         else{
-            $this->assertNull($item->form());
+            $this->assertEquals(0, $item->itemForm()->count());
         }
     }
 
     public function create_new_item_in_block($assertion){
         $block = $this->setupBlock();
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'username' => $name = $this->faker->name,
             'email' => $email = $this->faker->email,
             'message' => $message = $this->faker->paragraph
         ]);
-        
-        $item = Block\Feedback::all()->last();
-        
+
+        $item = Feedback::all()->last();
+
         if($assertion){
             $this->assertNotNull($item);
-            
+
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($name, $block->firstItem()->username);
             $this->assertEquals($email, $block->firstItem()->email);
             $this->assertEquals($message, $block->firstItem()->message);
-            
+
             $this->get('admin')
                     ->assertSuccessful();
-            
+
             $this->get('')
                     ->assertSuccessful();
         }
@@ -97,21 +106,21 @@ class Actions extends LocationBlock {
             $this->assertNull($item);
         }
     }
-    
+
     public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
         $block = $this->setupBlock();
-        
+
         $this->get("admin/settings/".$block->id."/0");
-        
-        $response = $this->post("", [
+
+        $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null
         ]);
-        
-        $item = Block\Feedback::all()->last();
-        
+
+        $item = Feedback::all()->last();
+
         $this->assertNull($item);
-        
+
         if($assertion){
             $response->assertSessionHasErrors(['username', 'email', 'message']);
         }
@@ -119,12 +128,12 @@ class Actions extends LocationBlock {
             $response->assertRedirect('/login');
         }
     }
-    
+
     public function leave_feedback_from_the_website($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}')]);
-        
+
         $this->app['router']->post('feedback/add', "\Just\Controllers\JustController@post")->middleware('web');
-        
+
         $client = \Mockery::mock(\GuzzleHttp\Client::class);
         \Just\Validators\Recaptcha::setClient($client);
 
@@ -137,9 +146,9 @@ class Actions extends LocationBlock {
         $response->shouldReceive('getBody')
             ->once()
             ->andReturn('{"success":true}');
-        
+
         $note = Notification::fake();
-        
+
         $this->post("feedback/add", [
             'block_id' => $block->id,
             'username' => $name = $this->faker->name,
@@ -150,17 +159,17 @@ class Actions extends LocationBlock {
             ->assertSessionHas('successMessageFromFeedback'.$block->id);
 
         $note->assertSentTo(User::where('role', 'admin')->first(), NewFeedback::class);
-        
-        $item = Block\Feedback::all()->last();
-        
+
+        $item = Feedback::all()->last();
+
         if($assertion){
             $this->assertNotNull($item);
-            
+
             $this->assertEquals($block->id, $block->firstItem()->block_id);
             $this->assertEquals($name, $block->firstItem()->username);
             $this->assertEquals($email, $block->firstItem()->email);
             $this->assertEquals($message, $block->firstItem()->message);
-            
+
             $this->get('')
                     ->assertSuccessful();
         }
@@ -168,14 +177,14 @@ class Actions extends LocationBlock {
             $this->assertNull($item);
         }
     }
-    
+
     public function receive_an_error_on_sending_incompleate_feedback_on_the_website(){
-        $block = $this->setupBlock(['parameters'=>'{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}']);
-        
+        $block = $this->setupBlock(['parameters'=>json_decode('{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}')]);
+
         $this->app['router']->post('feedback/add', "\Just\Controllers\JustController@post")->middleware('web');
-        
+
         $note = Notification::fake();
-        
+
         $this->post("feedback/add", [
             'block_id' => $block->id
         ])
@@ -184,38 +193,38 @@ class Actions extends LocationBlock {
 
         $note->assertNotSentTo(User::where('role', 'admin')->first(), NewFeedback::class);
 
-        $item = Block\Feedback::all()->last();
-        
+        $item = Feedback::all()->last();
+
         $this->assertNull($item);
     }
-    
+
     public function create_few_items_in_block($assertion){
         $block = $this->setupBlock();
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'username' => $this->faker->name,
             'email' => $this->faker->email,
             'message' => $firstMessage = $this->faker->paragraph
         ]);
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'username' => $this->faker->name,
             'email' => $this->faker->email,
             'message' => $secondMessage = $this->faker->paragraph
         ]);
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'username' => $this->faker->name,
             'email' => $this->faker->email,
             'message' => $thirdMessage = $this->faker->paragraph
         ]);
-        
+
         if($assertion){
             $this->assertDatabaseHas('feedbacks', ['message'=>$firstMessage])
                 ->assertDatabaseHas('feedbacks', ['message'=>$secondMessage])
@@ -227,32 +236,32 @@ class Actions extends LocationBlock {
                 ->assertDatabaseMissing('feedbacks', ['message'=>$thirdMessage]);
         }
     }
-    
+
     public function edit_existing_item_in_the_block($assertion){
         $block = $this->setupBlock();
-        
+
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
             $this->actingAs($user);
         }
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'username' => $name = $this->faker->name,
             'email' => $email = $this->faker->email,
             'message' => $this->faker->paragraph,
         ]);
-        
+
         if(!$assertion){
             \Auth::logout();
         }
-        
-        $item = Block\Feedback::all()->last();
-        
+
+        $item = Feedback::all()->last();
+
         $date = $item->created_at;
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => $item->id,
             'username' => $name,
@@ -260,9 +269,9 @@ class Actions extends LocationBlock {
             'message' => $updatedMessage = $this->faker->paragraph,
             'created' => $date = $this->faker->date('Y-m-d')
         ]);
-        
-        $item = Block\Feedback::all()->last();
-        
+
+        $item = Feedback::all()->last();
+
         if($assertion){
             $this->assertEquals($updatedMessage, $item->message);
             $this->assertNotEquals($date, $item->created_at);
@@ -271,39 +280,40 @@ class Actions extends LocationBlock {
             $this->assertNotEquals($updatedMessage, $item->text);
         }
     }
-    
-    public function edit_block_settings($assertion){
+
+    public function customize_block($assertion){
         $block = $this->setupBlock();
-        
-        $response = $this->get('admin/settings/'.$block->id.'/0');
-        
+
+        $response = $this->get('settings/block/'.$block->id.'/customization');
+
         if($assertion){
-            $response->assertStatus(200)
-                    ->assertSee('Settings View');
-            
-            $this->assertCount(4, $block->setupForm()->groups());
-            
-            $this->assertEquals(['id', 'defaultActivation', 'successText', 'notify', 'settingsScale', 'orderDirection', 'submit'], $block->setupForm()->names());
-            
-            $this->post('admin/settings/setup', [
+            $response->assertStatus(200);
+
+            $form = $block->customizationForm();
+
+            $this->assertCount(2, $form->groups());
+
+            $this->assertEquals(['id', 'defaultActivation', 'successText', 'notify', 'orderDirection', 'submit'], $form->names());
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100"
+                "orderDirection" => "asc",
             ]);
-            
+
             $block = Block::find($block->id);
 
-            $this->assertEquals(100, $block->parameters->settingsScale);
+            $this->assertEquals('asc', $block->parameters->orderDirection);
         }
         else{
             $response->assertStatus(302);
-            
-            $this->post('admin/settings/setup', [
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100"
+                "orderDirection" => "asc",
             ]);
-            
+
             $block = Block::find($block->id);
-            
+
             $this->assertEmpty((array)$block->parameters);
         }
     }

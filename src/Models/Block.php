@@ -378,7 +378,7 @@ class Block extends Model
      */
     public function handleCrop(Request $request): Image {
         $reflection = new ReflectionMethod($this->item, 'handleCrop');
-        $validatorClass = $reflection->getParameters()[0]->getClass()->name;
+        $validatorClass = $reflection->getParameters()[0]->getType()->getName();
 
         $validatedRequest = new $validatorClass;
         if($validatedRequest->authorize()){

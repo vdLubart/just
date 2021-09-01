@@ -2,91 +2,94 @@
 
 namespace Just\Tests\Feature\Blocks\Contact;
 
+use Illuminate\Support\Facades\Auth;
+use Just\Models\Blocks\Contact;
 use Just\Tests\Feature\Blocks\LocationBlock;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Just\Structure\Panel\Block;
+use Just\Models\Block;
 
 class Actions extends LocationBlock {
-    
+
     use WithFaker;
 
     protected $blockParams = [];
 
     protected $type = 'contact';
-    
+
     protected function tearDown(): void{
         foreach(Block::all() as $block){
             $block->delete();
         }
-        
+
         if(file_exists(public_path('storage/articles'))){
             exec('rm -rf ' . public_path('storage/articles'));
         }
-        
+
         parent::tearDown();
     }
-    
+
     public function access_item_form($assertion){
-        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}')]);
-        
-        $response = $this->get("admin/settings/".$block->id."/0");
-        
-        $response->{($assertion ? 'assertSee' : 'assertDontSee')}('input name="title"');
-        $response->{($assertion ? 'assertSee' : 'assertDontSee')}('input name="envelope"');
-        $response->{($assertion ? 'assertSee' : 'assertDontSee')}('input name="phone"');
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null}')]);
+
+        $response = $this->get("settings/block/".$block->id."/item/0");
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $form = $block->item()->itemForm();
+            $this->assertEquals(7, $form->count());
+            $this->assertEquals(['id', 'block_id', 'title', 'envelope', 'phone', 'at', 'submit'], array_keys($form->elements()));
+        }
+        else{
+            $response->assertRedirect('login');
+
+            $this->assertEquals(0, $block->item()->itemForm()->count());
+        }
     }
 
     public function access_edit_item_form($assertion){
-        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}')]);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null}')]);
 
         $envelope = str_replace("\n", ", ", $this->faker->address);
         $phone = $this->faker->phoneNumber;
         $at = $this->faker->email;
-        
-        Block\Contact::insert([
+
+        Contact::insert([
             'block_id' => $block->id,
             'channels' => '{"envelope":"'.$envelope.'","phone":"'.$phone.'","at":"'.$at.'"}'
         ]);
-        
-        $item = Block\Contact::all()->last();
-        $item->title = $title = $this->faker->sentence;
+
+        $item = Contact::all()->last();
+        $item->title = '{"en":"'.($title = $this->faker->sentence).'"}';
         $item->save();
 
         if($assertion){
-            $form = $item->form();
-            $this->assertEquals(5, $form->count());
-            $this->assertEquals([
-                    'title',
-                    'envelope',
-                    'phone',
-                    'at',
-                    'submit'
-                ], array_keys($form->getElements()));
+            $form = $item->itemForm();
+            $this->assertEquals(7, $form->count());
+            $this->assertEquals(['id', 'block_id', 'title', 'envelope', 'phone', 'at', 'submit'], array_keys($form->elements()));
 
-            $this->assertEquals($title, $form->getElement('title')->value());
-            $this->assertEquals($envelope, $form->getElement('envelope')->value());
-            $this->assertEquals($phone, $form->getElement('phone')->value());
-            $this->assertEquals($at, $form->getElement('at')->value());
+            $this->assertEquals($title, json_decode($form->element('title')->value())->en);
+            $this->assertEquals($envelope, $form->element('envelope')->value());
+            $this->assertEquals($phone, $form->element('phone')->value());
+            $this->assertEquals($at, $form->element('at')->value());
         }
         else{
-            $this->assertNull($item->form());
+            $this->assertEquals(0, $item->itemForm()->count());
         }
     }
 
     public function create_new_item_in_block($assertion){
-        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}')]);
-        
-        $response = $this->post("", [
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null}')]);
+        $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
-            'title' => $title = $this->faker->sentence,
+            'title' => '{"en":"'.($title = $this->faker->sentence).'"}',
             'envelope' => $address = $envelope = str_replace(["\n","'"], [", ", ""], $this->faker->address),
             'phone' => $phone = $this->faker->phoneNumber,
             'at' => $email = $this->faker->email
         ]);
 
-        $item = Block\Contact::all()->last();
+        $item = Contact::all()->last();
 
         if($assertion){
             $response->assertSuccessful();
@@ -97,12 +100,20 @@ class Actions extends LocationBlock {
             $this->assertEquals($address, $block->firstItem()->contact('envelope'));
             $this->assertEquals($phone, $block->firstItem()->contact('phone'));
             $this->assertEquals($email, $block->firstItem()->contact('at'));
-            
+
             $this->get('admin')
-                ->assertSuccessful();
-            
+                ->assertSuccessful()
+                ->assertSee($envelope)
+                ->assertSee($phone)
+                ->assertSee($email)
+                ->assertSee($title);
+
             $this->get('')
-                ->assertSuccessful();
+                ->assertSuccessful()
+                ->assertSee($envelope)
+                ->assertSee($phone)
+                ->assertSee($email)
+                ->assertSee($title);
         }
         else{
             $response->assertRedirect('/login');
@@ -111,12 +122,12 @@ class Actions extends LocationBlock {
     }
 
     public function create_new_item_with_a_lot_of_data($assertion){
-        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","facebook","github", "youtube", "instagram", "pinterest", "soundcloud"],"additionalFields":null,"settingsScale":"100"}')]);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","facebook","github", "youtube", "instagram", "pinterest", "soundcloud"],"additionalFields":null}')]);
 
-        $response = $this->post("", [
+        $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
-            'title' => $title = $this->faker->sentence,
+            'title' => '{"en":"'.($title = $this->faker->sentence).'"}',
             'envelope' => $address = $envelope = str_replace(["\n","'"], [", ", ""], $this->faker->address),
             'facebook' => $facebook = $this->faker->url,
             'github' => $github = $this->faker->url,
@@ -126,7 +137,7 @@ class Actions extends LocationBlock {
             'soundcloud' => $soundcloud = $this->faker->url
         ]);
 
-        $item = Block\Contact::all()->last();
+        $item = Contact::all()->last();
 
         if($assertion){
             $response->assertSuccessful();
@@ -143,10 +154,26 @@ class Actions extends LocationBlock {
             $this->assertEquals($soundcloud, $block->firstItem()->contact('soundcloud'));
 
             $this->get('admin')
-                ->assertSuccessful();
+                ->assertSuccessful()
+                ->assertSee($envelope)
+                ->assertSee($facebook)
+                ->assertSee($github)
+                ->assertSee($title)
+                ->assertSee($youtube)
+                ->assertSee($instagram)
+                ->assertSee($pinterest)
+                ->assertSee($soundcloud);
 
             $this->get('')
-                ->assertSuccessful();
+                ->assertSuccessful()
+                ->assertSee($envelope)
+                ->assertSee($facebook)
+                ->assertSee($github)
+                ->assertSee($title)
+                ->assertSee($youtube)
+                ->assertSee($instagram)
+                ->assertSee($pinterest)
+                ->assertSee($soundcloud);
         }
         else{
             $response->assertRedirect('/login');
@@ -155,9 +182,9 @@ class Actions extends LocationBlock {
     }
 
     public function receive_errors_on_creating_item_with_wrong_data() {
-        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at","facebook"],"additionalFields":null,"settingsScale":"100"}')]);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at","facebook"],"additionalFields":null}')]);
 
-        $this->post("", [
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,
             'at' => $email = $this->faker->word,
@@ -165,19 +192,17 @@ class Actions extends LocationBlock {
         ])
             ->assertSessionHasErrors(['at', 'facebook']);
     }
-    
-    public function dont_receive_an_error_on_sending_incompleate_create_item_form($assertion){
-        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope"],"additionalFields":null,"settingsScale":"100"}')]);
-        
-        $this->get("admin/settings/".$block->id."/0");
-        
-        $response = $this->post("", [
+
+    public function dont_receive_an_error_on_sending_incomplete_create_item_form($assertion){
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope"],"additionalFields":null}')]);
+
+        $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null
         ]);
 
-        $item = Block\Contact::all()->last();
-        
+        $item = Contact::all()->last();
+
         if($assertion){
             $this->assertNotNull($item);
             $response->assertSuccessful();
@@ -187,24 +212,24 @@ class Actions extends LocationBlock {
             $response->assertRedirect();
         }
     }
-    
+
     public function edit_existing_item_in_the_block($assertion){
-        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":"100"}')]);
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null}')]);
 
         $envelope = $envelope = str_replace("\n", ", ", $this->faker->address);
         $phone = $this->faker->phoneNumber;
         $at = $this->faker->email;
 
-        Block\Contact::insert([
+        Contact::insert([
             'block_id' => $block->id,
             'channels' => '{"envelope":"'.$envelope.'","phone":"'.$phone.'","at":"'.$at.'"}'
         ]);
-        
-        $item = Block\Contact::all()->last();
+
+        $item = Contact::all()->last();
         $item->title = $title = $this->faker->sentence;
         $item->save();
-        
-        $this->post("", [
+
+        $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => $item->id,
             'title' => $title,
@@ -212,9 +237,9 @@ class Actions extends LocationBlock {
             'phone' => $phone,
             'at' => $email = $this->faker->email
         ]);
-        
-        $item = Block\Contact::all()->last();
-        
+
+        $item = Contact::all()->last();
+
         if($assertion){
             $this->assertEquals($title, $item->title);
             $this->assertEquals($address, $item->contact('envelope'));
@@ -228,44 +253,45 @@ class Actions extends LocationBlock {
             $this->assertNotEquals($email, $item->contact('at'));
         }
     }
-    
-    public function edit_block_settings($assertion){
+
+    public function customize_block($assertion){
         $block = $this->setupBlock();
 
-        $response = $this->get('admin/settings/'.$block->id.'/0');
-        
+        $response = $this->get('settings/block/'.$block->id.'/customization');
+
         if($assertion){
-            $response->assertStatus(200)
-                    ->assertSee('Settings View');
-            
-            $this->assertCount(\Auth::user()->role == 'master' ? 5 : 4, $block->setupForm()->groups());
+            $response->assertStatus(200);
+
+            $form = $block->customizationForm();
+
+            $this->assertCount(Auth::user()->role == 'master' ? 5 : 4, $form->names());
 
             if(\Auth::user()->role == 'master'){
-                $fields = ['id', 'channels[]', 'additionalFields', 'settingsScale', 'orderDirection', 'submit'];
+                $fields = ['id', 'channels', 'additionalFields', 'orderDirection', 'submit'];
             }
             else{
-                $fields = ['id', 'channels[]', 'settingsScale', 'orderDirection', 'submit'];
+                $fields = ['id', 'channels', 'orderDirection', 'submit'];
             }
-            
-            $this->assertEquals($fields, $block->setupForm()->names());
-            
-            $this->post('admin/settings/setup', [
+
+            $this->assertEquals($fields, $form->names());
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100"
+                "orderDirection" => "asc"
             ]);
-            
+
             $block = Block::find($block->id);
 
-            $this->assertEquals(100, $block->parameters->settingsScale);
+            $this->assertEquals('asc', $block->parameters->orderDirection);
         }
         else{
             $response->assertStatus(302);
-            
-            $this->post('admin/settings/setup', [
+
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100"
+                "orderDirection" => "asc"
             ]);
-            
+
             $block = Block::find($block->id);
 
             $this->assertEmpty((array)$block->parameters);
@@ -275,9 +301,7 @@ class Actions extends LocationBlock {
     public function add_custom_contact_channel($assertion) {
         $block = $this->setupBlock();
 
-        $this->get('admin/settings/'.$block->id.'/0');
-
-        $this->post('admin/settings/setup', [
+        $this->post('settings/block/customize', [
             "id" => $block->id,
             "additionalFields" => "custom=>field"
         ]);
@@ -287,13 +311,15 @@ class Actions extends LocationBlock {
         if($assertion){
             $this->assertEquals("custom=>field", $block->parameters->additionalFields);
 
-            $form = $block->specify()->model()->form();
-            $this->assertEquals(3, $form->count());
+            $form = $block->item()->itemForm();
+            $this->assertEquals(5, $form->count());
             $this->assertEquals([
+                'id',
+                'block_id',
                 'title',
                 'custom',
                 'submit'
-            ], array_keys($form->getElements()));
+            ], array_keys($form->elements()));
         }
         else{
             $this->assertNull(@$block->parameters->additionalFields);
@@ -303,9 +329,7 @@ class Actions extends LocationBlock {
     public function add_few_custom_contact_channels($assertion) {
         $block = $this->setupBlock();
 
-        $this->get('admin/settings/'.$block->id.'/0');
-
-        $this->post('admin/settings/setup', [
+        $response = $this->post('settings/block/customize', [
             "id" => $block->id,
             "additionalFields" => "custom=>field
 newField=>New Field"
@@ -314,14 +338,17 @@ newField=>New Field"
         $block = Block::find($block->id);
 
         if($assertion){
-            $form = $block->specify()->model()->form();
-            $this->assertEquals(4, $form->count());
+            $response->assertSuccessful();
+            $form = $block->item()->itemForm();
+            $this->assertEquals(6, $form->count());
             $this->assertEquals([
+                'id',
+                'block_id',
                 'title',
                 'custom',
                 'newField',
                 'submit'
-            ], array_keys($form->getElements()));
+            ], array_keys($form->elements()));
         }
         else{
             $this->assertNull(@$block->parameters->additionalFields);
@@ -329,37 +356,31 @@ newField=>New Field"
     }
 
     public function change_contact_channels($assertion) {
-        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope"],"additionalFields":null,"settingsScale":"100"}')]);
-
-        $response = $this->get('admin/settings/'.$block->id.'/0');
+        $block = $this->setupBlock(['parameters'=>json_decode('{"channels":["envelope"],"additionalFields":null}')]);
 
         if($assertion){
-            $response->assertStatus(200);
-
-            $this->post('admin/settings/setup', [
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100",
                 "channels" => ['phone']
             ])
                 ->assertSuccessful();
 
-            $this->post("", [
+            $this->post("settings/block/item/save", [
                 'block_id' => $block->id,
                 'id' => null,
-                'title' => $title = $this->faker->sentence,
-                'envelope' => str_replace(["\n","'"], [", ", ""], $this->faker->address),
+                'title' => '{"en":"'.($title = $this->faker->sentence).'"}',
+                'envelope' => $address= str_replace(["\n","'"], [", ", ""], $this->faker->address),
             ])
                 ->assertSuccessful();
 
             $this->get('')
+                ->assertSee($title)
+                ->assertDontSee($address)
                 ->assertSuccessful();
         }
         else{
-            $response->assertStatus(302);
-
-            $this->post('admin/settings/setup', [
+            $this->post('settings/block/customize', [
                 "id" => $block->id,
-                "settingsScale" => "100",
                 "phone" => 'on'
             ])
                 ->assertRedirect('/login');

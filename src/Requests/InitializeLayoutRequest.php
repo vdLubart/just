@@ -4,7 +4,7 @@ namespace Just\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Just\Models\User;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
 class InitializeLayoutRequest extends FormRequest implements ValidateRequest
 {

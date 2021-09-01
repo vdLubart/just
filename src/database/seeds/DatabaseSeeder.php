@@ -17,6 +17,6 @@ class DatabaseSeeder extends Seeder
         $this->call('JustIconSeeder');
         $this->call('JustDataSeeder');
 
-        $this->command->info('Data Just! seeded!');
+        $this->command->info('The Just! data are seeded!');
     }
 }

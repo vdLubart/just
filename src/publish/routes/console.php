@@ -19,61 +19,61 @@ Artisan::command('just:install', function () {
     Artisan::call("vendor:publish", ["--tag" => "just-public", "--force" => true]);
     exec("ln -s ". base_path('storage/app/public')." ". public_path('storage'));
     updateMixManifest();
-    
+
     mkdir(app_path('Just'), 0775);
     mkdir(app_path('Just/Panel'), 0775);
     mkdir(app_path('Just/Panel/Block'), 0775);
     mkdir(app_path('Just/Panel/Block/Addon'), 0775);
-    
+
     $this->info('Public files were updated!');
-    
+
     // Migrate database
     Artisan::call("migrate", ["--step" => false]);
-    
+
     $this->info('Database structure was created!');
-    
+
     // Seed data
     Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustStructureSeeder"]);
     Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustIconSeeder"]);
     Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustDataSeeder"]);
-    
+
     Version::create(['version' => Version::inComposer()]);
-    
+
     $this->info('Data Just! seeded!');
-    
+
 })->describe('Install Just! CRM');
 
 Artisan::command('just:update', function () {
     // Publish public files
     Artisan::call("vendor:publish", ["--tag" => "just-public", "--force" => true]);
     updateMixManifest();
-    
+
     $this->info('Public files were updated!');
-    
+
     // Migrate database
     Artisan::call("migrate");
 
     $this->info('Database structure was updated!');
-    
+
     if(Version::shouldBeUpdated()){
         Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustUpdateSeeder"]);
-        
+
         $this->info('New data seeded to the database!');
-        
+
         Version::create(['version' => Version::inComposer()]);
     }
-    
+
 })->describe('Update Just! CRM');
 
 Artisan::command('just:seed', function () {
-    // Seed Just! data
+    // Seed the Just! data
     Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustStructureSeeder"]);
     Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustIconSeeder"]);
     Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustDataSeeder"]);
-    
+
     // Seed project data
     Artisan::call("db:seed");
-    
+
     $this->info('Data were seeded!');
 })->describe('Seed data related to Just! and current project');
 
@@ -83,7 +83,7 @@ Artisan::command('just:version', function () {
 })->describe('Return version of the Just! CRM');
 
 if(!function_exists('updateMixManifest')){
-    
+
     function updateMixManifest(){
         $justManifest = json_decode(file_get_contents(__DIR__.'/../public/mix-manifest.json'));
         if(file_exists(public_path('mix-manifest.json'))){
@@ -99,7 +99,7 @@ if(!function_exists('updateMixManifest')){
 
         file_put_contents(public_path('mix-manifest.json'), json_encode($publicManifest));
     }
-    
+
 }
 
 Artisan::command('make:addonMigration {name}', function () {
@@ -200,7 +200,7 @@ Artisan::command('make:relatedBlockMigration {name}', function () {
 Artisan::command('just:makeBlock {className}', function () {
     $className = ucfirst($this->argument("className"));
     $table = $this->ask('Enter block\'s database table');
-    
+
     $lines = [];
     $lines[] = "<?php";
     $lines[] = "";
@@ -230,28 +230,28 @@ Artisan::command('just:makeBlock {className}', function () {
     $lines[] = "}";
 
     file_put_contents(app_path('Just/Panel/Block/' . $className . ".php"), implode("\n", $lines));
-    
+
     foreach(Just\Models\Theme::all() as $theme){
         file_put_contents(base_path('resources/views/'.$theme->name.'/blocks/' . lcfirst($className) . '.blade.php'), '<div>'.$className.' content</div>');
         file_put_contents(base_path('resources/views/'.$theme->name.'/settings/' . lcfirst($className) . '.blade.php'), "<?php\n/*\nStandard list potentially can be used\n\n@include('Just.settings.list')\n*/\n?>");
     }
-    
+
     \Just\Models\BlockList::insert([
         'block' => lcfirst($className),
         'table' => $table
     ]);
-    
+
     $this->info('Block was created successfully!');
     $this->info('Please update your language pack and add title and description for this block');
-    
+
 })->describe('Create custom block');
 
 
 Artisan::command('just:createTheme {themeName}', function () {
     $theme = ucfirst($this->argument("themeName"));
-    
+
     $isExists = !! \Just\Models\Theme::where('name', $theme)->first();
-    
+
     if($isExists){
         $error = 'Theme "'.$theme.'" already exists! Create layout for it with master user.';
         $emptyLine = "    ";
@@ -265,30 +265,30 @@ Artisan::command('just:createTheme {themeName}', function () {
         $this->error("");
         return;
     }
-    
+
     \Just\Models\Theme::create([
         'name' => $theme
     ]);
-     
+
     mkdir(public_path('css/'.$theme), 0775);
     mkdir(public_path('js/'.$theme), 0775);
     mkdir(base_path('resources/views/'.$theme), 0775);
     mkdir(base_path('resources/assets/js/'.$theme), 0775);
     mkdir(base_path('resources/assets/sass/'.$theme), 0775);
-    
+
     $this->info('Theme was created successfully!');
     $this->comment("");
     $this->comment('In order to use this theme related layout should be created!');
     $this->comment('To create new layout do as master user Layout > Create Layout');
     $this->comment("");
-    
+
 })->describe('Create custom theme');
 
 
 Artisan::command('just:makeAddon {className}', function () {
     $className = ucfirst($this->argument("className"));
     $table = $this->ask('Enter addon\'s database table');
-    
+
     $lines = [];
     $lines[] = "<?php";
     $lines[] = "";
@@ -327,13 +327,13 @@ Artisan::command('just:makeAddon {className}', function () {
     $lines[] = "}";
 
     file_put_contents(app_path('Just/Panel/Block/Addon/' . $className . ".php"), implode("\n", $lines));
-    
+
     \Just\Models\AddonList::insert([
         'addon' => lcfirst($className),
         'table' => $table
     ]);
-    
+
     $this->info('Addon was created successfully!');
     $this->info('Please update your language pack and add title and description for this addon');
-    
+
 })->describe('Create custom addon');

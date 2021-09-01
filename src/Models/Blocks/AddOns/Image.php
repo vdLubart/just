@@ -54,7 +54,9 @@ class Image extends AbstractAddOn
                 mkdir(public_path('storage/'.$blockItem->getTable()), 0775);
             }
 
-            $blockItem->deleteImage($this->value);
+            if(!is_null($this->value)) {
+                $blockItem->deleteImage($this->value);
+            }
 
             $imageFile = ImageManagerStatic::make($request->file($this->addon->name.'_'.$this->addon->id));
 

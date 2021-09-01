@@ -5,7 +5,6 @@ namespace Just\Models\Blocks;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Just\Contracts\Requests\BlockItems\ValidateArticleRequest;
-use Just\Contracts\Requests\ValidateRequest;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -148,7 +147,9 @@ class Articles extends AbstractItem
         }
         $article->setBlock($request->block_id);
         if(!is_null($request->file('image'))){
-            $this->deleteImage($article->image);
+            if(!empty($article->image)) {
+                $this->deleteImage($article->image);
+            }
             $article->image = uniqid();
         }
 

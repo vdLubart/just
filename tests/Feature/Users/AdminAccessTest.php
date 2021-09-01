@@ -26,7 +26,7 @@ class AdminAccessTest extends Actions
 
     /** @test */
     function admin_cannot_create_new_master(){
-        $this->create_new_admin(false);
+        $this->create_new_master(false);
     }
 
     /** @test */

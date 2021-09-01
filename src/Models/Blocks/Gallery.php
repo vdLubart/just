@@ -38,8 +38,6 @@ class Gallery extends AbstractItem
 
         $this->identifyItemForm();
 
-        $this->includeAddons();
-
         if(empty($this->id)){
             $this->form->add(FormElement::html(['name'=>'externalUrl', 'value'=>'', 'label'=>'Upload items', "ref"=>"uploader", 'vueComponent'=>'create-gallery-item', 'vueComponentAttrs'=>[
                 "token"=>csrf_token(),
@@ -47,6 +45,8 @@ class Gallery extends AbstractItem
             ]]));
         }
         else{
+            $this->includeAddons();
+
             if(!empty($this->image)){
                 if(file_exists(public_path('storage/'.$this->table.'/'.$this->image.'_3.png'))){
                     $this->form->add(FormElement::html(['name'=>'imagePreview'.'_'.$this->block_id, 'value'=>'<img src="/storage/'.$this->table.'/'.$this->image.'_3.png" />']));
@@ -59,13 +59,13 @@ class Gallery extends AbstractItem
                     $this->form->element("recrop")->setParameter('window.App.navigate(\'/settings/block/'.$this->block_id.'/item/'.$this->id.'/cropping\')', 'onclick');
                 }
 
-                $this->form->add(FormElement::file(['name'=>'image', 'label'=>__('settings.gallery.form.update')]));
+                $this->form->add(FormElement::file(['name'=>'image', 'label'=>__('gallery.form.update')]));
             }
             elseif(!empty($this->video)){
-                $this->form->add(FormElement::file(['name'=>'video', 'label'=>__('settings.gallery.form.updateVideo')]));
+                $this->form->add(FormElement::file(['name'=>'video', 'label'=>__('gallery.form.updateVideo')]));
             }
             elseif(!empty($this->externalUrl)){
-                $this->form->add(FormElement::text(['name'=>'externalUrl', 'label'=>__('settings.gallery.form.externalUrl'), 'value'=>$this->externalUrl]));
+                $this->form->add(FormElement::text(['name'=>'externalUrl', 'label'=>__('gallery.form.externalUrl'), 'value'=>$this->externalUrl]));
             }
 
             if(empty($this->parameter('ignoreCaption'))){
@@ -137,7 +137,7 @@ class Gallery extends AbstractItem
 
             Useful::normalizeOrder($this->table);
         }
-        elseif (!empty($request->externalUrl)) {
+        elseif (!empty($request->externalUrl) and $request->externalUrl !== 'uploaded') {
             $photo = $this->detectPhoto($request);
 
             $photo->image = null;
@@ -161,7 +161,9 @@ class Gallery extends AbstractItem
             $photo->save();
         }
 
-        $this->handleAddons($request, $photo);
+        if (empty($request->externalUrl) or $request->externalUrl !== 'uploaded') {
+            $this->handleAddons($request, $photo);
+        }
 
         return $photo;
     }

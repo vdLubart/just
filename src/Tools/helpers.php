@@ -101,8 +101,10 @@ if(!function_exists('justVersion')){
         $packages = json_decode(file_get_contents(base_path('vendor/composer/installed.json')));
 
         foreach($packages as $package){
-            if($package->name == packageName()){
-                return $package->version_normalized;
+            foreach ($package as $pack) {
+                if ($pack->name == packageName()) {
+                    return $pack->version_normalized;
+                }
             }
         }
     }

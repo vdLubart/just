@@ -3,8 +3,7 @@
 namespace Just\Requests\Block\Visitor;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-use Just\Structure\Panel\Block\Contracts\ValidateRequest;
+use Just\Contracts\Requests\ValidateRequest;
 
 class PublicFeedbackRequest extends FormRequest implements ValidateRequest
 {

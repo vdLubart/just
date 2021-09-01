@@ -13,7 +13,7 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(Just\Models\Route::class, function (Faker $faker){
+$factory->define(\Just\Models\System\Route::class, function (Faker $faker){
     return [
         'route' => $faker->name,
         'type' => 'page'

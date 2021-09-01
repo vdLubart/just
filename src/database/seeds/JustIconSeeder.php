@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Just\Database\Seeds;
 
 use Illuminate\Database\Seeder;
@@ -18,23 +12,23 @@ use Just\Models\System\Icon;
  * @author lubart
  */
 class JustIconSeeder extends Seeder {
-    
-    
+
+
     public function run(){
-        
+
         // Icons
         $faIconSet = IconSet::create([
             'title' => 'Font Awesome',
             'tag' => 'i',
             'class' => 'fa'
         ]);
-        
+
         $fabIconSet = IconSet::create([
             'title' => 'Font Awesome Brands',
             'tag' => 'i',
             'class' => 'fab'
         ]);
-        
+
         Icon::insert(
             array(
                 array('icon_set_id' => $faIconSet->id, 'class' => 'fa-ad'),
@@ -954,7 +948,7 @@ class JustIconSeeder extends Seeder {
                     array('icon_set_id' => $faIconSet->id, 'class' => 'fa-yin-yang'),
                 )
         );
-        
+
         Icon::insert(
             array(
                 array('icon_set_id' => $fabIconSet->id, 'class' => 'fa-500px'),
@@ -1374,6 +1368,6 @@ class JustIconSeeder extends Seeder {
                     array('icon_set_id' => $fabIconSet->id, 'class' => 'fa-zhihu'),
                 )
         );
-        
+
     }
 }

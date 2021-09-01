@@ -13,7 +13,7 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(Just\Structure\Panel::class, function (Faker $faker){
+$factory->define(\Just\Models\Panel::class, function (Faker $faker){
     return [
         'location' => 'content',
         'layout_id' => $faker->name,
