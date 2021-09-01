@@ -104,8 +104,6 @@ class Actions extends LocationBlock {
     public function receive_an_error_on_sending_incomplete_create_item_form(){
         $block = $this->setupBlock();
 
-        $this->get("admin/settings/".$block->id."/0");
-
         $this->post("settings/block/item/save", [
             'block_id' => $block->id,
             'id' => null,

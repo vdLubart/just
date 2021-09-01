@@ -26,10 +26,6 @@ class Actions extends LocationBlock {
 
         $this->assertEmpty($block->content());
 
-        $response = $this->get("admin/settings/".$block->id."/0");
-
-        $response->{($assertion?'assertSee':'assertDontSee')}('form');
-
         $space = new Space();
 
         if($assertion){

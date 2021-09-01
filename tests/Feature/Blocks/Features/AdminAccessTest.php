@@ -37,8 +37,8 @@ class AdminAccessTest extends Actions
 
     /** @test */
     function admin_receives_an_error_on_sending_incomplete_create_item_form(){
-        $this->inContent()->receive_an_error_on_sending_incompleate_create_item_form(true);
-        $this->inHeader()->receive_an_error_on_sending_incompleate_create_item_form(true);
+        $this->inContent()->receive_an_error_on_sending_incomplete_create_item_form(true);
+        $this->inHeader()->receive_an_error_on_sending_incomplete_create_item_form(true);
         //$this->relatedBlock()->receive_an_error_on_sending_incomplete_create_item_form(true);
     }
 

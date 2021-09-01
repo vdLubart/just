@@ -170,7 +170,7 @@ class Actions extends LocationBlock {
     public function crop_photo($assertion){
         $block = $this->setupBlock(['parameters'=>json_decode('{"cropPhoto":true}')]);
 
-        $this->post("/admin/settings/setup", [
+        $this->post("settings/block/customize", [
             'cropPhoto' => 'on',
             'cropDimensions' => '4:3'
         ]);

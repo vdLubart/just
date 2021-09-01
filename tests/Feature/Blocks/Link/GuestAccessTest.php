@@ -27,9 +27,9 @@ class GuestAccessTest extends Actions
     }
 
     /** @test */
-    function guest_cannot_recieve_an_error_on_sending_incompleate_create_item_form(){
-        $this->inContent()->receive_an_error_on_sending_incompleate_create_item_form(false);
-        $this->inHeader()->receive_an_error_on_sending_incompleate_create_item_form(false);
+    function guest_cannot_receive_an_error_on_sending_incomplete_create_item_form(){
+        $this->inContent()->receive_an_error_on_sending_incomplete_create_item_form(false);
+        $this->inHeader()->receive_an_error_on_sending_incomplete_create_item_form(false);
         //$this->relatedBlock()->receive_an_error_on_sending_incomplete_create_item_form(false);
     }
 

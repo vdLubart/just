@@ -172,17 +172,8 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
 Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){
 
     Route::prefix('settings')->group(function(){
-        Route::get("{blockId}/{id}/{subid?}", "\Just\Controllers\AdminController@settingsForm")->where(['blockId'=>'\d+', 'id'=>'\d+', 'subId'=>'\d+']);
-
-        Route::get("panel/{pageId}/{panelLocation}/{blockId?}", "\Just\Controllers\AdminController@panelSettingsForm")->where(['pageId'=>'\d+', 'blockId'=>'\d+']);
-        Route::post("panel/setup", "\Just\Controllers\AdminController@handlePanelForm");
-
-        Route::get("crop/{blockId}/{id}", "\Just\Controllers\AdminController@cropForm")->where(['blockId'=>'\d+', 'id'=>'\d+']);
-        Route::post("crop", "\Just\Controllers\AdminController@handleCrop");
         //TODO: check functionality
         //Route::get("normalize/{blockId}", "\Just\Controllers\AdminController@normalizeContent")->where(['blockId'=>'\d+']);
-
-        Route::post("setup", "\Just\Controllers\AdminController@handleSetup");
 
         Route::post("relations/create", "\Just\Controllers\AdminController@createRelation");
 

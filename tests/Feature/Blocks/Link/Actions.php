@@ -117,10 +117,8 @@ class Actions extends LocationBlock {
         }
     }
 
-    public function receive_an_error_on_sending_incompleate_create_item_form($assertion){
+    public function receive_an_error_on_sending_incomplete_create_item_form($assertion){
         $block = $this->setupBlock();
-
-        $this->get("admin/settings/".$block->id."/0");
 
         $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
@@ -134,12 +132,10 @@ class Actions extends LocationBlock {
         $this->assertNull($item);
 
         if($assertion){
-            $this->followRedirects($response)
-                ->assertSee("The linked block id field is required");
+            $response->assertSessionHasErrors('linkedBlock_id');
         }
         else{
-            $this->followRedirects($response)
-                ->assertDontSee("The linked block id field is required");
+            $response->assertRedirect('login');
         }
     }
 

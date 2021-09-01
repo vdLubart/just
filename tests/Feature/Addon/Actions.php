@@ -2,12 +2,10 @@
 
 namespace Just\Tests\Feature\Addon;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Just\Models\AddOn;
 use Just\Models\Blocks\AddOns\AddOnOption;
 use Just\Models\Blocks\AddOns\Category;
-use Just\Models\Blocks\AddOns\IdeHelperCategoryOption;
 use Just\Models\Blocks\Text;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;

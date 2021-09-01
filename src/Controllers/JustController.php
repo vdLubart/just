@@ -2,7 +2,4 @@
 
 namespace Just\Controllers;
 
-class JustController extends Controller
-{
-    
-}
+class JustController extends Controller {}

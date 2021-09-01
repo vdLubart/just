@@ -36,9 +36,9 @@ class MasterAccessTest extends Actions
     }
 
     /** @test */
-    function master_recieves_an_error_on_sending_incompleate_create_item_form(){
-        $this->inContent()->receive_an_error_on_sending_incompleate_create_item_form(true);
-        $this->inHeader()->receive_an_error_on_sending_incompleate_create_item_form(true);
+    function master_receives_an_error_on_sending_incomplete_create_item_form(){
+        $this->inContent()->receive_an_error_on_sending_incomplete_create_item_form(true);
+        $this->inHeader()->receive_an_error_on_sending_incomplete_create_item_form(true);
         //$this->relatedBlock()->receive_an_error_on_sending_incomplete_create_item_form(true);
     }
 

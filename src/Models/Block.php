@@ -200,13 +200,6 @@ class Block extends Model
         return $form;
     }
 
-    public function blockForm() {
-        $form = $this->panelForm();
-        $form->setAction('/admin/settings/block/setup');
-
-        return $form;
-    }
-
     public function allBlocksSelect() {
         $blocks = BlockList::all();
 

@@ -6,18 +6,18 @@ use Illuminate\Support\Facades\Auth;
 use Just\Models\AddOn;
 use Just\Models\Block;
 use Just\Models\Blocks\AddOns\AddOnOption;
-use Just\Models\Blocks\AddOns\Category;
 use Just\Models\Blocks\Gallery;
 use Just\Models\Blocks\Text;
+use Just\Tests\Feature\Helper;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Just\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class Actions extends TestCase{
 
     use WithFaker;
+    use Helper;
 
     protected function tearDown(): void{
         foreach(Block::all() as $block){
@@ -656,8 +656,6 @@ class Actions extends TestCase{
     public function cannot_create_block_with_existing_name(){
         factory(Block::class)->create(['name'=>$name = $this->faker->word]);
 
-        $this->get('admin/settings/panel/1/content/');
-
         $request = [
             'panel_id' => 2, // default content
             'block_id' => null,
@@ -669,13 +667,13 @@ class Actions extends TestCase{
             'width' => 12
         ];
 
-        $response = $this->post('admin/settings/panel/setup', $request);
+        $response = $this->post('settings/block/setup', $request);
 
         $this->assertCount(1, Block::all());
 
         if(Auth::check()){
-            $this->followRedirects($response)
-                    ->assertSee('The name has already been taken');
+            $response->assertSessionHasErrors('name')
+                ->assertRedirect();
         }
     }
 
