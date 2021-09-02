@@ -232,7 +232,7 @@ class Actions extends LocationBlock {
                     ->assertSee($url1)
                     ->assertSee($url2)
                     ->assertSee($url3)
-                    ->assertSee('<li class=\'\'><a href="'.$url1.'">'.$firstItem.'</a><ul><li class=\'\'><a href="'.$url3.'">'.$thirdItem.'</a><ul></ul></li></ul></li>');
+                    ->assertSee('<li class=\'\'><a href="'.$url1.'">'.$firstItem.'</a><ul><li class=\'\'><a href="'.$url3.'">'.$thirdItem.'</a><ul></ul></li></ul></li>', false);
 
             $this->get('')
                     ->assertSee($firstItem)
@@ -241,7 +241,7 @@ class Actions extends LocationBlock {
                     ->assertSee($url1)
                     ->assertSee($url2)
                     ->assertSee($url3)
-                    ->assertSee('<li class=\'\'><a href="'.$url1.'">'.$firstItem.'</a><ul><li class=\'\'><a href="'.$url3.'">'.$thirdItem.'</a><ul></ul></li></ul></li>');
+                    ->assertSee('<li class=\'\'><a href="'.$url1.'">'.$firstItem.'</a><ul><li class=\'\'><a href="'.$url3.'">'.$thirdItem.'</a><ul></ul></li></ul></li>', false);
         }
         else{
             $this->get('admin')
@@ -251,7 +251,7 @@ class Actions extends LocationBlock {
                     ->assertSee($url1)
                     ->assertDontSee($url2)
                     ->assertDontSee($url3)
-                    ->assertDontSee('<li class=\'\'><a href="'.$url1.'">'.$firstItem.'</a><ul><li class=\'\'><a href="'.$url3.'">'.$thirdItem.'</a><ul></ul></li></ul></li>');
+                    ->assertDontSee('<li class=\'\'><a href="'.$url1.'">'.$firstItem.'</a><ul><li class=\'\'><a href="'.$url3.'">'.$thirdItem.'</a><ul></ul></li></ul></li>', false);
 
             $this->get('')
                     ->assertSee($firstItem)
@@ -260,7 +260,7 @@ class Actions extends LocationBlock {
                     ->assertSee($url1)
                     ->assertDontSee($url2)
                     ->assertDontSee($url3)
-                    ->assertDontSee('<li><a href="'.$url1.'">'.$firstItem.'</a><ul><li><a href="'.$url3.'">'.$thirdItem.'</a></li></ul></li>');
+                    ->assertDontSee('<li><a href="'.$url1.'">'.$firstItem.'</a><ul><li><a href="'.$url3.'">'.$thirdItem.'</a></li></ul></li>', false);
         }
     }
 

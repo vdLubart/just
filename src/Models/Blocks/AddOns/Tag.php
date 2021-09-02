@@ -8,15 +8,12 @@ use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Just\Models\AddOn;
 use Illuminate\Support\Facades\DB;
-use Spatie\Translatable\HasTranslations;
 
 /**
  * @mixin IdeHelperCategory
  */
 class Tag extends AbstractAddOn
 {
-    use HasTranslations;
-
     protected $table = 'tags';
 
     protected $fillable = ['addon_id', 'value'];

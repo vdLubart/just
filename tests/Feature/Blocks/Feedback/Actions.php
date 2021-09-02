@@ -44,10 +44,10 @@ class Actions extends LocationBlock {
 
         $response = $this->get("");
 
-        $response->assertSee('input name="username"');
-        $response->assertSee('input name="email"');
-        $response->assertSee('textarea name="message"');
-        $response->assertSee('div class="g-recaptcha"');
+        $response->assertSee('input name="username"', false);
+        $response->assertSee('input name="email"', false);
+        $response->assertSee('textarea name="message"', false);
+        $response->assertSee('div class="g-recaptcha"', false);
     }
 
     public function access_edit_item_form($assertion){

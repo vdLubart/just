@@ -3,22 +3,15 @@
 namespace Just\Models\Blocks\AddOns;
 
 use Just\Contracts\BlockItem;
-use Just\Contracts\Requests\ValidateRequest;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
 use Just\Models\AddOn;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Spatie\Translatable\HasTranslations;
-use Lubart\Form\FormGroup;
 
 /**
  * @mixin IdeHelperCategory
  */
 class Category extends AbstractAddOn
 {
-    use HasTranslations;
-
     protected $table = 'categories';
 
     protected $fillable = ['addon_id', 'value'];

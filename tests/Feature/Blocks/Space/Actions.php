@@ -33,12 +33,12 @@ class Actions extends LocationBlock {
             $this->assertEquals(['submit'], array_keys($form->elements()));
 
             $this->get('admin')
-                    ->assertSee('<div id="space_'.$block->id.'"')
-                    ->assertSee('<div style="height: 200px"></div>');
+                    ->assertSee('<div id="space_'.$block->id.'"', false)
+                    ->assertSee('<div style="height: 200px"></div>', false);
 
             $this->get('')
-                    ->assertSee('<div id="space_'.$block->id.'"')
-                    ->assertSee('<div style="height: 200px"></div>');
+                    ->assertSee('<div id="space_'.$block->id.'"', false)
+                    ->assertSee('<div style="height: 200px"></div>', false);
         }
         else{
             $this->assertEquals(0, $space->itemForm()->count());
@@ -47,8 +47,8 @@ class Actions extends LocationBlock {
                     ->assertRedirect('/login');
 
             $this->get('')
-                    ->assertSee('<div id="space_'.$block->id.'"')
-                    ->assertSee('<div style="height: 200px"></div>');
+                    ->assertSee('<div id="space_'.$block->id.'"', false)
+                    ->assertSee('<div style="height: 200px"></div>', false);
         }
     }
 

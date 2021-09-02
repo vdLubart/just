@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Just\Models\System\Version;
 
 /*
@@ -236,7 +237,7 @@ Artisan::command('just:makeBlock {className}', function () {
         file_put_contents(base_path('resources/views/'.$theme->name.'/settings/' . lcfirst($className) . '.blade.php'), "<?php\n/*\nStandard list potentially can be used\n\n@include('Just.settings.list')\n*/\n?>");
     }
 
-    \Just\Models\BlockList::insert([
+    DB::table('blockList')->insert([
         'block' => lcfirst($className),
         'table' => $table
     ]);
@@ -328,7 +329,7 @@ Artisan::command('just:makeAddon {className}', function () {
 
     file_put_contents(app_path('Just/Panel/Block/Addon/' . $className . ".php"), implode("\n", $lines));
 
-    \Just\Models\AddonList::insert([
+    DB::table('addonList')->insert([
         'addon' => lcfirst($className),
         'table' => $table
     ]);

@@ -76,12 +76,12 @@ class Actions extends TestCase{
             $this->assertEquals('', $block->cssClass);
 
             $this->get('admin')
-                ->assertSee('div class="block text col-md-12  ">')
+                ->assertSee('div class="block text col-md-12  ">', false)
                 ->assertSee($title)
                 ->assertSee($description);
 
             $this->get('')
-                ->assertSee('div class="block text col-md-12  ">')
+                ->assertSee('div class="block text col-md-12  ">', false)
                 ->assertSee($title)
                 ->assertSee($description);
 
@@ -91,12 +91,12 @@ class Actions extends TestCase{
             $this->assertNull($block);
 
             $this->get('admin')
-                ->assertDontSee('div class="block text col-md-12  >')
+                ->assertDontSee('div class="block text col-md-12  >', false)
                 ->assertDontSee($title)
                 ->assertDontSee($description);
 
             $this->get('')
-                ->assertDontSee('div class="block text col-md-12  >')
+                ->assertDontSee('div class="block text col-md-12  >', false)
                 ->assertDontSee($title)
                 ->assertDontSee($description);
         }

@@ -213,7 +213,7 @@ class Actions extends LocationBlock {
         }
         else{
             $response->assertRedirect();
-            $this->get("admin/settings/".$block->id."/".$item->id)
+            $this->get("settings/block/".$block->id."/item/".$item->id)
                 ->assertRedirect('/login');
 
             $this->assertNotEquals($text, $item->text);
