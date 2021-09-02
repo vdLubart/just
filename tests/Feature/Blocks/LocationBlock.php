@@ -9,12 +9,14 @@
 namespace Just\Tests\Feature\Blocks;
 
 
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\DB;
 use Just\Models\Block;
 use Just\Models\Blocks\Text;
 use Tests\TestCase;
 
 class LocationBlock extends TestCase {
+    use WithFaker;
 
     protected $blockParams = [];
 
@@ -31,7 +33,7 @@ class LocationBlock extends TestCase {
     }
 
     public function relatedBlock() {
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()->create();
 
         $textBlock = new Text();
         $textBlock->block_id = $block->id;
@@ -46,10 +48,10 @@ class LocationBlock extends TestCase {
 
     protected function setupBlock($blockAttrib = []) {
         if(!is_null($this->blockParams['panelLocation'])) {
-            return factory(Block::class)->create($blockAttrib + $this->blockParams)->specify();
+            return Block::factory()->create($blockAttrib + $this->blockParams)->specify();
         }
         else{
-            $relatedBlock = factory(Block::class)->create($blockAttrib + $this->blockParams)->specify();
+            $relatedBlock = Block::factory()->create($blockAttrib + $this->blockParams)->specify();
 
             $item = Text::all()->last();
 

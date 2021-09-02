@@ -3,11 +3,14 @@
 namespace Just\Models;
 
 use Exception;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
+use Just\Database\Factories\AddonFactory;
 use Just\Models\Blocks\AddOns\AddOnOption;
 use Just\Models\Blocks\AddOns\AbstractAddOn;
 use Just\Contracts\AddOnItem;
@@ -33,6 +36,7 @@ use Spatie\Translatable\HasTranslations;
 class AddOn extends Model
 {
     use HasTranslations;
+    use HasFactory;
 
     protected $table = 'addons';
 
@@ -260,5 +264,9 @@ class AddOn extends Model
      */
     public function options(): HasMany {
         return $this->hasMany(AddOnOption::class)->orderBy('orderNo');
+    }
+
+    protected static function newFactory(): Factory {
+        return AddonFactory::new();
     }
 }

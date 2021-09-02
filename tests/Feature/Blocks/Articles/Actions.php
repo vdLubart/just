@@ -3,6 +3,7 @@
 namespace Just\Tests\Feature\Blocks\Articles;
 
 use App\User;
+use Illuminate\Support\Facades\Auth;
 use Just\Models\Blocks\Articles;
 use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;

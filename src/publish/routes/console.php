@@ -34,9 +34,9 @@ Artisan::command('just:install', function () {
     $this->info('Database structure was created!');
 
     // Seed data
-    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustStructureSeeder"]);
-    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustIconSeeder"]);
-    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustDataSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeders\\JustStructureSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeders\\JustIconSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeders\\JustDataSeeder"]);
 
     Version::create(['version' => Version::inComposer()]);
 
@@ -57,7 +57,7 @@ Artisan::command('just:update', function () {
     $this->info('Database structure was updated!');
 
     if(Version::shouldBeUpdated()){
-        Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustUpdateSeeder"]);
+        Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeders\\JustUpdateSeeder"]);
 
         $this->info('New data seeded to the database!');
 
@@ -68,9 +68,9 @@ Artisan::command('just:update', function () {
 
 Artisan::command('just:seed', function () {
     // Seed the Just! data
-    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustStructureSeeder"]);
-    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustIconSeeder"]);
-    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeds\\JustDataSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeders\\JustStructureSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeders\\JustIconSeeder"]);
+    Artisan::call("db:seed", ["--class" => "Just\\Database\\Seeders\\JustDataSeeder"]);
 
     // Seed project data
     Artisan::call("db:seed");

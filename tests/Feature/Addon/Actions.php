@@ -54,7 +54,7 @@ class Actions extends TestCase{
     }
 
     public function add_phrase_addon_to_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()->create();
 
         $response = $this->post('settings/add-on/setup', [
                 'addon_id' => null,
@@ -100,7 +100,7 @@ class Actions extends TestCase{
     }
 
     public function add_paragraph_addon_to_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()->create();
 
         $response = $this->post('settings/add-on/setup', [
                 'addon_id' => null,
@@ -146,7 +146,7 @@ class Actions extends TestCase{
     }
 
     public function add_image_addon_to_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()->create();
 
         $response = $this->post('settings/add-on/setup', [
                 'addon_id' => null,
@@ -192,7 +192,7 @@ class Actions extends TestCase{
     }
 
     public function add_category_addon_to_the_block($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()->create();
 
         $this->post('settings/add-on/setup', [
                 'addon_id' => null,
@@ -239,11 +239,9 @@ class Actions extends TestCase{
                     'name' => $name = $this->faker->word,
                     'title' => $title = $this->faker->word
                 ]);
-                $addonItem = $addon->addonItemClassName();
-                $addonTable = (new $addonItem)->getTable();
+                $this->createPivotTable($block, $addon);
 
                 $revertPivot = true;
-                $this->createPivotTable($block->item()->getTable(), $addonTable);
             }
 
             $this->get('settings/add-on-option/category/option/0')
@@ -282,7 +280,7 @@ class Actions extends TestCase{
             $this->assertEquals([$lastOption->id=>$catTitle], $form->element($name."_".$addon->id)->options());
 
             if($revertPivot){
-                $this->removePivotTable($block->item()->getTable(), $addonTable);
+                $this->removePivotTable($block, $addon);
             }
             else{
                 Artisan::call('migrate:rollback');
@@ -317,13 +315,12 @@ class Actions extends TestCase{
     }
 
     public function edit_existing_phrase_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'title'=>$blockTitle = $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('phrase'))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'phrase', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         if($assertion){
             $this->get('settings/add-on/list')
@@ -367,16 +364,17 @@ class Actions extends TestCase{
             $this->assertNotEquals($newTitle, $addon->title);
             $this->assertNotEquals($description, $addon->description);
         }
+
+        $this->removePivotTable($block, $addon);
     }
 
     public function edit_existing_paragraph_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'title'=>$blockTitle = $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('paragraph'))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'paragraph', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         if($assertion){
             $this->get('settings/add-on/list')
@@ -420,16 +418,17 @@ class Actions extends TestCase{
             $this->assertNotEquals($newTitle, $addon->title);
             $this->assertNotEquals($description, $addon->description);
         }
+
+        $this->removePivotTable($block, $addon);
     }
 
     public function edit_existing_image_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'title'=>$blockTitle = $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('image'))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'image', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         if($assertion){
             $this->get('settings/add-on/list')
@@ -473,16 +472,17 @@ class Actions extends TestCase{
             $this->assertNotEquals($newTitle, $addon->title);
             $this->assertNotEquals($description, $addon->description);
         }
+
+        $this->removePivotTable($block, $addon);
     }
 
     public function edit_existing_category_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'title'=>$blockTitle = $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('category'))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'category', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         if($assertion){
             $this->get('settings/add-on/list')
@@ -526,16 +526,17 @@ class Actions extends TestCase{
             $this->assertNotEquals($newTitle, $addon->title);
             $this->assertNotEquals($description, $addon->description);
         }
+
+        $this->removePivotTable($block, $addon);
     }
 
     public function delete_existing_phrase_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'title'=>$blockTitle = $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('phrase'))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'phrase', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $response = $this->post('settings/add-on/delete', [
                 'id' => $addon->id
@@ -552,17 +553,16 @@ class Actions extends TestCase{
             $this->assertNotNull($addon);
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $block->addons->first());
     }
 
     public function delete_existing_paragraph_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'title'=>$blockTitle = $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('paragraph'))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'paragraph', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $response = $this->post('settings/add-on/delete', [
                 'id' => $addon->id
@@ -579,17 +579,16 @@ class Actions extends TestCase{
             $this->assertNotNull($addon);
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $block->addons->first());
     }
 
     public function delete_existing_image_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'title'=>$blockTitle = $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('image')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'image', 'name'=>$name = $this->faker->word, 'title'=> $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
@@ -631,17 +630,16 @@ class Actions extends TestCase{
             $this->assertFileExists(public_path('storage/texts/'.$image.'.png'));
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $block->addons->first());
     }
 
     public function delete_existing_category_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'title'=>$blockTitle = $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('category'))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'category', 'name'=>$name = $this->faker->word, 'title'=> $title = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $option = AddOnOption::create([
             'add_on_id' => $addon->id,
@@ -666,17 +664,16 @@ class Actions extends TestCase{
             $this->assertNotNull($option);
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $block->addons->first());
     }
 
     public function create_new_item_with_phrase_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('phrase')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'phrase', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
@@ -700,17 +697,16 @@ class Actions extends TestCase{
             $this->assertNull($element);
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     public function create_new_item_with_paragraph_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('paragraph')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'paragraph', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
@@ -734,17 +730,16 @@ class Actions extends TestCase{
             $this->assertNull($element);
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     public function create_new_item_with_image_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('image')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'image', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $response = $this->post("settings/block/item/save", [
             'block_id' => $block->id,
@@ -770,17 +765,16 @@ class Actions extends TestCase{
             $this->assertNull($item);
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     public function create_new_item_with_category_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('category')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'category', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $firstOption = AddOnOption::create([
             'add_on_id' => $addon->id,
@@ -812,17 +806,16 @@ class Actions extends TestCase{
             $this->assertNull($item);
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     public function edit_item_with_phrase_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('phrase')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'phrase', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
@@ -865,17 +858,16 @@ class Actions extends TestCase{
             $this->assertNotEquals($updatedString, $block->firstItem()->{$name});
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     public function edit_item_with_paragraph_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('paragraph')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'paragraph', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
@@ -918,17 +910,16 @@ class Actions extends TestCase{
             $this->assertNotEquals($updatedString, $item->{$name});
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     public function edit_item_with_image_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('image')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'image', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
@@ -980,17 +971,16 @@ class Actions extends TestCase{
             $this->assertEquals($imageName, $updatedImageName);
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     public function edit_item_with_category_addon($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('category')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'category', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
@@ -1043,6 +1033,6 @@ class Actions extends TestCase{
             $this->assertNotEquals($secondOption->id, $item->{$name});
         }
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 }

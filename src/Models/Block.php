@@ -4,6 +4,8 @@ namespace Just\Models;
 
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
+use Just\Database\Factories\BlockFactory;
 use Just\Models\Blocks\AbstractItem;
 use Just\Contracts\BlockItem;
 use Just\Contracts\Requests\ValidateRequest;
@@ -38,6 +41,7 @@ use Just\Models\Blocks\AddOns\Category;
 class Block extends Model
 {
     use HasTranslations;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -675,5 +679,9 @@ class Block extends Model
      */
     public function itemCaption(): string {
         return ($this->title == '' ? __('block.untitled') : $this->title) . ' (' . $this->type . ')';
+    }
+
+    protected static function newFactory(): Factory {
+        return BlockFactory::new();
     }
 }

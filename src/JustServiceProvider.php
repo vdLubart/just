@@ -3,7 +3,6 @@
 namespace Just;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Factory;
 use Illuminate\Support\ServiceProvider;
 use Just\Middleware\IsActiveUser;
 use Just\Middleware\MasterAccess;
@@ -18,16 +17,13 @@ class JustServiceProvider extends ServiceProvider
      * Bootstrap the application services.
      *
      * @return void
-     * @throws BindingResolutionException
      */
     public function boot()
     {
         include __DIR__.'/publish/routes/console.php';
         include __DIR__.'/Tools/helpers.php';
 
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
-
-        $this->app->make(Factory::class)->load(__DIR__ . '/database/factories');
+        $this->loadMigrationsFrom(__DIR__.'/Database/migrations');
 
         $this->publishes([
             __DIR__.'/publish/resources/views/Just' => base_path('resources/views/Just'),

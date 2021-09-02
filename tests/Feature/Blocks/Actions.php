@@ -103,9 +103,9 @@ class Actions extends TestCase{
     }
 
     public function change_blocks_order($assertion){
-        $htmlBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html', 'orderNo'=>1]);
-        $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text', 'orderNo'=>2]);
-        $spaceBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'space', 'orderNo'=>3]);
+        $htmlBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'html', 'orderNo'=>1]);
+        $textBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text', 'orderNo'=>2]);
+        $spaceBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'space', 'orderNo'=>3]);
 
         $response = $this->post("settings/block/moveup", [
             "block_id" => $spaceBlock->id,
@@ -151,7 +151,7 @@ class Actions extends TestCase{
     }
 
     public function deactivate_block($assertion){
-        $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text'])->specify();
+        $textBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text'])->specify();
 
         $block = new Text();
         $block->block_id = $textBlock->id;
@@ -185,7 +185,7 @@ class Actions extends TestCase{
     }
 
     public function activate_block($assertion){
-        $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text', 'isActive'=>0])->specify();
+        $textBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text', 'isActive'=>0])->specify();
 
         $block = new Text();
         $block->block_id = $textBlock->id;
@@ -218,7 +218,7 @@ class Actions extends TestCase{
     }
 
     public function delete_block($assertion){
-        $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text'])->specify();
+        $textBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'text'])->specify();
 
         $block = new Text();
         $block->block_id = $textBlock->id;
@@ -242,7 +242,7 @@ class Actions extends TestCase{
     }
 
     public function change_items_order_in_the_block($assertion){
-        $block = factory(Block::class)->create();
+        $block = Block::factory()->create();
 
         $items = function() use ($block){
             $items = [];
@@ -308,7 +308,7 @@ class Actions extends TestCase{
     }
 
     public function deactivate_item_in_the_block($assertion){
-        $block = factory(Block::class)->create();
+        $block = Block::factory()->create();
 
         $textBlock = new Text();
         $textBlock->block_id = $block->id;
@@ -349,7 +349,7 @@ class Actions extends TestCase{
     }
 
     public function delete_item_in_the_block($assertion){
-        $block = factory(Block::class)->create();
+        $block = Block::factory()->create();
 
         $textBlock = new Text();
         $textBlock->block_id = $block->id;
@@ -368,7 +368,7 @@ class Actions extends TestCase{
     }
 
     public function delete_item_in_the_block_with_image($assertion){
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'gallery']);
+        $block = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'gallery']);
 
         if(!$assertion){
             $user = User::where('role', 'admin')->first();
@@ -412,7 +412,7 @@ class Actions extends TestCase{
     public function add_related_block_to_the_item($assertion){
         $this->addWarning('Related blocks are not implemented yet');
 /*
-        $block = factory(Block::class)->create()->specify();
+        $block = Block::factory()->create()->specify();
 
         $textblock = new Text();
         $textblock->block_id = $block->id;
@@ -448,7 +448,7 @@ class Actions extends TestCase{
     public function add_item_to_related_block($assertion){
         $this->addWarning('Related blocks are not implemented yet');
         /*
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
 
         $textblock = new Block\Text();
         $textblock->block_id = $block->id;
@@ -502,7 +502,7 @@ class Actions extends TestCase{
     public function access_data_from_related_block(){
         $this->addWarning('Related blocks are not implemented yet');
         /*
-        $block = factory(Block::class)->create()->specify();
+        $block = Block::factory()->create()->specify();
 
         $textblock = new Block\Text();
         $textblock->block_id = $block->id;
@@ -534,7 +534,7 @@ class Actions extends TestCase{
     public function access_parent_block_from_the_related_one(){
         $this->addWarning('Related blocks are not implemented yet');
         /*
-        $block = factory(Block::class)->create()->specify();
+        $block = Block::factory()->create()->specify();
 
         $textblock = new Text();
         $textblock->block_id = $block->id;
@@ -566,7 +566,7 @@ class Actions extends TestCase{
     }
 
     public function update_block_settings($assertion){
-        $block = factory(Block::class)->create();
+        $block = Block::factory()->create();
 
         $this->post('settings/block/setup', [
             'block_id' => $block->id,
@@ -602,7 +602,7 @@ class Actions extends TestCase{
     }
 
     public function update_block_unique_name($assertion){
-        $block = factory(Block::class)->create();
+        $block = Block::factory()->create();
 
         $this->post('settings/block/setup', [
             'block_id' => $block->id,
@@ -654,7 +654,7 @@ class Actions extends TestCase{
     }
 
     public function cannot_create_block_with_existing_name(){
-        factory(Block::class)->create(['name'=>$name = $this->faker->word]);
+        Block::factory()->create(['name'=>$name = $this->faker->word]);
 
         $request = [
             'panel_id' => 2, // default content
@@ -678,8 +678,8 @@ class Actions extends TestCase{
     }
 
     public function cannot_update_block_name_if_it_exists(){
-        $block = factory(Block::class)->create();
-        factory(Block::class)->create(['name'=>$name = $this->faker->word]);
+        $block = Block::factory()->create();
+        Block::factory()->create(['name'=>$name = $this->faker->word]);
 
         $response = $this->post('settings/block/setup', [
             'block_id' => $block->id,
@@ -698,7 +698,7 @@ class Actions extends TestCase{
     }
 
     public function update_block_with_keeping_name_value($assertion){
-        $block = factory(Block::class)->create(['name'=>$name = $this->faker->word]);
+        $block = Block::factory()->create(['name'=>$name = $this->faker->word]);
 
         $this->post('settings/block/setup', [
             'block_id' => $block->id,
@@ -721,13 +721,12 @@ class Actions extends TestCase{
     }
 
     public function get_items_from_the_current_category() {
-        $block = factory(Block::class)->create(['name'=>$name = $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('category')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(Addon::class)->create(['block_id'=>$block->id, 'type'=>'category', 'name'=>$name = $this->faker->word]);
-        $addonItemClassName = $addon->addonItemClassName();
-        $addonTable = (new $addonItemClassName)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $firstOption = AddOnOption::create([
             'add_on_id' => $addon->id,
@@ -761,17 +760,16 @@ class Actions extends TestCase{
             ->assertSee($text2)
             ->assertDontSee($text1);
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     public function get_nullable_value_on_empty_addon_string() {
-        $block = factory(Block::class)->create(['name'=> $this->faker->word])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('phrase')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'phrase', 'name'=>$name = $this->faker->word]);
-        $addonItemClassName = $addon->addonItemClassName();
-        $addonTable = (new $addonItemClassName)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $this->post("settings/block/item/save", [
             'block_id' => $block->id,
@@ -784,6 +782,6 @@ class Actions extends TestCase{
 
         $this->assertNull($item->{$addon->name});
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 }

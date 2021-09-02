@@ -105,7 +105,7 @@ class ViewPathTest extends TestCase {
     public function get_view_for_block_in_non_primary_layout(){
         $layout = Layout::where('name', 'Just')->where('class', '<>', 'primary')->first();
 
-        $block = factory(Block::class)->create()->specify();
+        $block = Block::factory()->create()->specify();
 
         $blockViewFile = resource_path('views/'.$layout->name.'/blocks/'.$block->type.'_'.$layout->class.'.blade.php');
         touch($blockViewFile);
@@ -121,7 +121,7 @@ class ViewPathTest extends TestCase {
     public function get_view_for_block_with_non_primary_class(){
         $layout = Layout::where('name', 'Just')->where('class', 'primary')->first();
 
-        $block = factory(Block::class)->create(['layoutClass'=>'custom'])->specify();
+        $block = Block::factory()->create(['layoutClass'=>'custom'])->specify();
 
         $blockViewFile = resource_path('views/'.$layout->name.'/blocks/'.$block->type.'_custom.blade.php');
         touch($blockViewFile);
@@ -137,7 +137,7 @@ class ViewPathTest extends TestCase {
     public function get_view_for_block_from_primary_if_specific_file_not_exists(){
         $layout = Layout::where('name', 'Just')->where('class', '<>', 'primary')->first();
 
-        $block = factory(Block::class)->create()->specify();
+        $block = Block::factory()->create()->specify();
 
         $this->assertEquals('Just.blocks.'.$block->type, viewPath($layout, $block));
 
@@ -157,7 +157,7 @@ class ViewPathTest extends TestCase {
             "type" => "float"
         ]);
 
-        $block = factory(Block::class)->create()->specify();
+        $block = Block::factory()->create()->specify();
 
         $this->assertEquals('Just.blocks.text', viewPath($layout, $block));
 
@@ -174,7 +174,7 @@ class ViewPathTest extends TestCase {
             'block' => 'custom',
             'table' => ''
         ]);
-        $block = factory(Block::class)->create(['type'=>'custom']);
+        $block = Block::factory()->create(['type'=>'custom']);
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Resource "Just.blocks.'.$block->type.'" does not exists.');

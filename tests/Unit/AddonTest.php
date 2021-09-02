@@ -44,13 +44,12 @@ class AddonTest extends TestCase
     public function access_item_addon_by_name() {
         $this->actingAsAdmin();
 
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('phrase')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'phrase', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $this->post("settings/block/item/save", [
             'block_id' => $block->id,
@@ -63,80 +62,70 @@ class AddonTest extends TestCase
 
         $this->assertEquals($addon->id, $item->addon($name)->add_on_id);
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     /** @test */
     public function access_block_addon_by_name(){
         $this->actingAsAdmin();
 
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('phrase')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'phrase', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $this->assertEquals($addon->id, $block->addon($name)->id);
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     /** @test */
     function get_all_string_addons(){
         $this->actingAsAdmin();
 
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->count(2))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'phrase', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'phrase', 'name'=>$name = $this->faker->word]);
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $this->assertCount(2, $block->phrases);
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     /** @test */
     function get_all_image_addons(){
         $this->actingAsAdmin();
 
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('image')->count(2))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'image', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'image', 'name'=>$name = $this->faker->word]);
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $this->assertCount(2, $block->images);
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 
     /** @test */
     function get_all_paragraph_addons(){
         $this->actingAsAdmin();
 
-        $block = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('paragraph')->count(2))
+            ->create();
+        $addon = $block->addons->first();
 
-        $addon = factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'paragraph', 'name'=>$name = $this->faker->word]);
-        $addonItem = $addon->addonItemClassName();
-        $addonTable = (new $addonItem)->getTable();
-
-        factory(AddOn::class)->create(['block_id'=>$block->id, 'type'=>'paragraph', 'name'=>$name = $this->faker->word]);
-
-        $this->createPivotTable($block->item()->getTable(), $addonTable);
+        $this->createPivotTable($block, $addon);
 
         $this->assertCount(2, $block->paragraphs);
 
-        $this->removePivotTable($block->item()->getTable(), $addonTable);
+        $this->removePivotTable($block, $addon);
     }
 }

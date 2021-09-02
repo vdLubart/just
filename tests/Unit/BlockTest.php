@@ -26,7 +26,7 @@ class BlockTest extends TestCase
 
     /** @test */
     function get_block_by_unique_name(){
-        $block = factory(Block::class)->create(['name'=>$name = $this->faker->word]);
+        $block = Block::factory()->create(['name'=>$name = $this->faker->word]);
 
         $foundedBlock = Block::findByName($name);
 
@@ -41,7 +41,7 @@ class BlockTest extends TestCase
 
     /** @test */
     function get_all_block_models(){
-        $block = factory(Block::class)->create(['name'=>$name = $this->faker->word]);
+        $block = Block::factory()->create(['name'=>$name = $this->faker->word]);
 
         $textItem = new Text();
         $textItem->block_id = $block->id;

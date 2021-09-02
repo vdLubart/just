@@ -1,6 +1,6 @@
 <?php
 
-namespace Just\Database\Seeds;
+namespace Just\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Just\Models;

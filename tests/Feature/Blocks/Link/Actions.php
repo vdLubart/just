@@ -46,7 +46,7 @@ class Actions extends LocationBlock {
     }
 
     public function access_edit_item_form($assertion){
-        $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $textBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
         $block = $this->setupBlock();
 
         $textItem = new Text();
@@ -75,7 +75,7 @@ class Actions extends LocationBlock {
     }
 
     public function create_new_item_in_block($assertion){
-        $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $textBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
         $route = \Just\Models\System\Route::create([
             'route' => 'mirror-'.$this->faker->word,
             'type' => 'page'
@@ -140,8 +140,8 @@ class Actions extends LocationBlock {
     }
 
     public function edit_existing_item_in_the_block($assertion){
-        $textBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
-        $contactBlock = factory(Block::class)->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":100}')])->specify();
+        $textBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1])->specify();
+        $contactBlock = Block::factory()->create(['panelLocation'=>'content', 'page_id'=>1, 'type'=>'contact', 'parameters'=>json_decode('{"channels":["envelope","phone","at"],"additionalFields":null,"settingsScale":100}')])->specify();
         $route = \Just\Models\System\Route::create([
             'route' => $path = 'mirror-'.$this->faker->word,
             'type' => 'page'

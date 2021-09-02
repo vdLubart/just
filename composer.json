@@ -12,21 +12,18 @@
     "minimum-stability": "dev",
     "require": {
         "doctrine/dbal": "^2.5",
-        "laravel/framework": "^7.0",
+        "laravel/framework": "^8.0",
         "laravelcollective/html": "^6.0",
         "guzzlehttp/guzzle": "^6.3",
-        "laravolt/avatar": "^3.0",
+        "laravolt/avatar": "^4.1",
         "lubart/form": "^1.3",
         "laravel/helpers": "^1.0",
         "spatie/laravel-translatable": "^4.2",
         "laravel-lang/lang": "~5.0",
-        "laravel/ui": "^2.0",
+        "laravel/ui": "^3.0",
         "ext-json": "*"
     },
     "autoload": {
-        "classmap": [
-            "src/database/factories"
-        ],
         "psr-4": {
             "Just\\": "src/",
             "Just\\Tests\\": "tests/"
