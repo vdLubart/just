@@ -5,6 +5,12 @@ namespace Just\Tests\Feature\Blocks\Menu;
 class GuestAccessTest extends Actions
 {
 
+    /** @test */
+    function guest_cannot_access_item_list(){
+        $this->inContent()->access_item_list(false);
+        $this->inHeader()->access_item_list(false);
+    }
+
     /** @test*/
     function guest_cannot_access_item_create_form(){
         $this->inContent()->access_item_form(false);

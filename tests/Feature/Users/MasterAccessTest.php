@@ -15,6 +15,11 @@ class MasterAccessTest extends Actions
     }
 
     /** @test */
+    function master_can_access_actions_page(){
+        $this->access_actions_page(true);
+    }
+
+    /** @test */
     function master_can_see_user_list(){
         $this->see_user_list(true);
     }
@@ -52,5 +57,15 @@ class MasterAccessTest extends Actions
     /** @test */
     function master_cannot_delete_yourself(){
         $this->delete_yourself(false);
+    }
+
+    /** @test */
+    function master_can_activate_user(){
+        $this->activate_user(true);
+    }
+
+    /** @test */
+    function master_can_deactivate_user(){
+        $this->deactivate_user(true);
     }
 }

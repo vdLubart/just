@@ -4,6 +4,7 @@ namespace Just\Database\Factories;
 
 use Just\Models\Page;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Just\Models\System\Route;
 
 class PageFactory extends Factory
 {
@@ -21,11 +22,24 @@ class PageFactory extends Factory
      */
     public function definition()
     {
+        $route = Route::factory()->create();
         return [
             'title' => $this->faker->name,
             'description' => $this->faker->sentence,
-            'route' => '',
-            'layout_id' => 1
+            'keywords' => '',
+            'author' => $this->faker->name,
+            'copyright' => '',
+            'route' => $route->route,
+            'layout_id' => 1,
+            'isActive' => 1
         ];
+    }
+
+    public function deactivate() {
+        return $this->state(function (array $attributes){
+            return [
+                'isActive' => 0
+            ];
+        });
     }
 }

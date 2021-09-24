@@ -14,6 +14,10 @@
 //Auth::routes();
 
 use Illuminate\Support\Facades\Route;
+use Just\Controllers\AdminController;
+use Just\Controllers\Settings\BlockController;
+use Just\Controllers\Settings\LayoutController;
+use Just\Controllers\Settings\PageController;
 
 Route::get('login', '\Just\Controllers\Auth\LoginController@showLoginForm')->name('login')->middleware('web');
 Route::post('login', '\Just\Controllers\Auth\LoginController@login')->middleware('web');
@@ -58,7 +62,10 @@ if (Schema::hasTable('routes')){
 
 Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLocale::class])->group(function(){
 
-    Route::get("", "\Just\Controllers\Settings\LayoutController@settingsHome");
+    Route::get("", [LayoutController::class, 'settingsHome']);
+    Route::get('noaccess', [AdminController::class, 'noAccessView']);
+
+    //tbd Route::post('upload-image', [AdminController::class, 'uploadImage']);
 
     Route::prefix('layout')->middleware(['master'])->group(function(){
         Route::get('', "\Just\Controllers\Settings\LayoutController@actions");
@@ -73,19 +80,21 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
 
     Route::prefix('page')->group(function(){
         Route::get('', "\Just\Controllers\Settings\PageController@actions");
-        Route::get("{pageId}", "\Just\Controllers\Settings\PageController@settingsForm")->where(['pageId'=>'\d+']);
-        Route::get("list", "\Just\Controllers\Settings\PageController@pageList");
+        Route::get("{pageId}", [PageController::class, "pageActions"])->where(['pageId'=>'\d+']);
+        Route::get("{pageId}/settings", [PageController::class, 'settingsForm'])->where(['pageId'=>'\d+']);
+        Route::get("list", [PageController::class, "pageList"]);
 
         Route::post("setup", "\Just\Controllers\Settings\PageController@setup");
         Route::post("delete", "\Just\Controllers\Settings\PageController@delete");
         Route::post('activate', '\Just\Controllers\Settings\PageController@activate');
         Route::post('deactivate', '\Just\Controllers\Settings\PageController@deactivate');
 
+        Route::get('{pageId}/panels', [PageController::class, 'panelList'])->where(['pageId' => '\d+']);
         Route::prefix('{pageId}/panel/{panelLocation}')->where(['pageId'=>'\d+', 'panelLocation'=>'[a-zA-Z]+'])->group(function(){
             Route::get('', "\Just\Controllers\Settings\BlockController@panelActions");
             Route::prefix('block')->group(function(){
                 Route::get('create', "\Just\Controllers\Settings\BlockController@createForm")->where(['blockId'=>'\d+']);
-                Route::get('list', "\Just\Controllers\Settings\BlockController@blockList");
+                Route::get('list', [BlockController::class, "blockList"]);
             });
         });
     });
@@ -165,8 +174,6 @@ Route::prefix('settings')->middleware(['web', 'auth', \Just\Middleware\CatchLoca
             Route::post('delete', '\Just\Controllers\Settings\BlockController@itemDelete');
         });
     });
-
-    Route::post('upload-image', "\Just\Controllers\AdminController@uploadImage");
 });
 
 Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){

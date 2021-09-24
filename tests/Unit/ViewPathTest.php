@@ -153,8 +153,7 @@ class ViewPathTest extends TestCase {
         $layout = Layout::create([
             "name" => $newTheme->name,
             "class" => $class = "primary",
-            "width" => $this->faker->numberBetween(980, 1920),
-            "type" => "float"
+            "width" => $this->faker->numberBetween(980, 1920)
         ]);
 
         $block = Block::factory()->create()->specify();

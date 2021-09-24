@@ -14,6 +14,8 @@ return [
         'layout' => 'Layout'
     ],
     'list' => 'Page List',
+    'actions' => 'Page ":page"',
+    'panels' => 'Panels',
     'editForm' => [
         'title' => 'Edit Page ":page"'
     ],

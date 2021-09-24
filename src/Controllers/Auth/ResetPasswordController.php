@@ -36,9 +36,11 @@ class ResetPasswordController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
+
         $this->middleware('guest');
     }
-    
+
     /**
      * Display the password reset view for the given token.
      *

@@ -2,6 +2,7 @@
 
 namespace Just\Tests\Feature\Pages;
 
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Just\Models\Page;
@@ -26,6 +27,18 @@ class Actions extends TestCase{
         }
 
         parent::tearDown();
+    }
+
+    public function access_actions_page($assertion) {
+        $response = $this->get('settings/page');
+
+        if($assertion) {
+            $response->assertSuccessful();
+            $this->assertEquals(2, count(json_decode(json_decode($response->content())->content, true)));
+        }
+        else{
+            $response->assertRedirect();
+        }
     }
 
     public function setup_current_page($assertion){
@@ -80,7 +93,19 @@ class Actions extends TestCase{
     public function create_new_page($assertion){
         $response = $this->get('/settings/page/0');
         if($assertion){
-            $response->assertStatus(200);
+            $response->assertRedirect('settings/page/0/settings');
+
+            $this->followRedirects($response)->assertSuccessful();
+        }
+        else{
+            $response->assertStatus(302);
+        }
+
+        $response = $this->get('/settings/page/123456798');
+        if($assertion){
+            $response->assertRedirect('settings');
+
+            $this->followRedirects($response)->assertSuccessful();
         }
         else{
             $response->assertStatus(302);
@@ -287,6 +312,59 @@ class Actions extends TestCase{
         else{
             $this->assertNotNull($deletedPage);
             $this->assertNotNull($route);
+        }
+    }
+
+    public function access_page_panel_list($assertion) {
+        $response = $this->get('settings/page/1/panels');
+
+        $this->get('settings/page/0/panels')
+            ->assertRedirect(Auth::check() ? 'settings' : 'login');
+
+        if($assertion){
+            $response->assertSuccessful();
+            $this->assertEquals(3, count(json_decode(json_decode($response->content())->content, true)));
+        }
+        else{
+            $response->assertRedirect('login');
+        }
+    }
+
+    public function activate_page($assertion) {
+        $page = Page::factory()->deactivate()->create();
+
+        $response = $this->post("settings/page/activate", [
+            "id" => $page->id,
+        ]);
+
+        $page = Page::find($page->id);
+
+        if($assertion){
+            $response->assertSuccessful();
+            $this->assertEquals(1, $page->isActive);
+        }
+        else{
+            $response->assertRedirect('login');
+            $this->assertEquals(0, $page->isActive);
+        }
+    }
+
+    public function deactivate_page($assertion) {
+        $page = Page::factory()->create();
+
+        $response = $this->post("settings/page/deactivate", [
+            "id" => $page->id,
+        ]);
+
+        $page = Page::find($page->id);
+
+        if($assertion){
+            $response->assertSuccessful();
+            $this->assertEquals(0, $page->isActive);
+        }
+        else{
+            $response->assertRedirect('login');
+            $this->assertEquals(1, $page->isActive);
         }
     }
 }

@@ -20,6 +20,31 @@ class AdminAccessTest extends Actions
     }
 
     /** @test */
+    function admin_cannot_access_actions_settings_page(){
+        $this->access_actions_settings_page(false);
+    }
+
+    /** @test */
+    function admin_cannot_activate_addon(){
+        $this->activate_addon(false);
+    }
+
+    /** @test */
+    function admin_cannot_deactivate_addon(){
+        $this->deactivate_addon(false);
+    }
+
+    /** @test */
+    function admin_cannot_move_addon_up(){
+        $this->move_addon_up(false);
+    }
+
+    /** @test */
+    function admin_cannot_move_addon_down(){
+        $this->move_addon_down(false);
+    }
+
+    /** @test */
     function admin_cannot_add_string_addon_to_the_block(){
         $this->add_phrase_addon_to_the_block(false);
     }
@@ -37,6 +62,11 @@ class AdminAccessTest extends Actions
     /** @test */
     function admin_cannot_add_categories_addon_to_the_block(){
         $this->add_category_addon_to_the_block(false);
+    }
+
+    /** @test */
+    function admin_cannot_add_tag_addon_to_the_block(){
+        $this->add_tag_addon_to_the_block(false);
     }
 
     /** @test */
@@ -60,6 +90,11 @@ class AdminAccessTest extends Actions
     }
 
     /** @test */
+    function admin_cannot_edit_existing_tag_addon(){
+        $this->edit_existing_tag_addon(false);
+    }
+
+    /** @test */
     function admin_cannot_delete_existing_string_addon(){
         $this->delete_existing_phrase_addon(false);
     }
@@ -77,6 +112,11 @@ class AdminAccessTest extends Actions
     /** @test */
     function admin_cannot_delete_existing_categories_addon(){
         $this->delete_existing_category_addon(false);
+    }
+
+    /** @test */
+    function admin_cannot_delete_existing_tag_addon(){
+        $this->delete_existing_tag_addon(false);
     }
 
     /** @test */
@@ -100,6 +140,11 @@ class AdminAccessTest extends Actions
     }
 
     /** @test */
+    function admin_can_create_item_with_tag_addon_in_the_block(){
+        $this->create_new_item_with_tag_addon(true);
+    }
+
+    /** @test */
     function admin_can_edit_item_with_string_addon_in_the_block(){
         $this->edit_item_with_phrase_addon(true);
     }
@@ -117,5 +162,10 @@ class AdminAccessTest extends Actions
     /** @test */
     function admin_can_edit_item_with_categories_addon_in_the_block(){
         $this->edit_item_with_category_addon(true);
+    }
+
+    /** @test */
+    function admin_can_edit_item_with_tag_addon_in_the_block(){
+        $this->edit_item_with_tag_addon(true);
     }
 }

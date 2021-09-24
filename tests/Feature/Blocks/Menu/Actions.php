@@ -29,6 +29,37 @@ class Actions extends LocationBlock {
         parent::tearDown();
     }
 
+    public function access_item_list($assertion) {
+        $block = $this->setupBlock();
+
+        $items = function() use ($block){
+            $items = [];
+            for($i=1; $i<=3; $i++){
+                $menuItem = new Menu();
+                $menuItem->block_id = $block->id;
+                $menuItem->item = $this->faker->word;
+                $menuItem->parent = null;
+                $menuItem->route = '';
+
+                $menuItem->save();
+            }
+
+            return $items;
+        };
+
+        $items();
+
+        $response = $this->get('settings/block/'.$block->id);
+
+        if($assertion) {
+            $response->assertSuccessful();
+            $this->assertEquals(3, count(json_decode(json_decode($response->content())->content, true)));
+        }
+        else{
+            $response->assertRedirect('login');
+        }
+    }
+
     public function access_item_form($assertion){
         $block = $this->setupBlock();
 

@@ -219,6 +219,17 @@ class Actions extends LocationBlock {
             $this->assertNotEquals(878, $image->height());
 
             $this->post("settings/block/item/crop", [
+                'block_id' => 0,
+                'id' => $item->id,
+                'img' => $item->image,
+                'x' => 0,
+                'y' => 0,
+                'w' => 1170,
+                'h' => 878,
+            ])
+                ->assertRedirect('settings');
+
+            $this->post("settings/block/item/crop", [
                 'block_id' => $block->id,
                 'id' => $item->id,
                 'img' => $item->image,
@@ -341,9 +352,10 @@ class Actions extends LocationBlock {
 
             $this->post('settings/block/customize', [
                 "id" => $block->id,
+                "cropPhoto" => "true",
                 "cropDimensions" => "4:3",
-                "ignoreCaption" => "on",
-                "customSizes" => "on",
+                "ignoreCaption" => "true",
+                "customSizes" => "true",
                 "photoSizes" => ["8","3"]
             ])
                 ->assertSuccessful();
@@ -399,8 +411,8 @@ class Actions extends LocationBlock {
             $this->post('settings/block/customize', [
                 "id" => $block->id,
                 "cropDimensions" => "4:3",
-                "ignoreDescription" => "on",
-                "customSizes" => "on",
+                "ignoreDescription" => "true",
+                "customSizes" => "true",
                 "photoSizes" => ["8","3"]
             ]);
 

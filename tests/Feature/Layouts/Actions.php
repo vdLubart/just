@@ -50,6 +50,17 @@ class Actions extends TestCase{
         parent::tearDown();
     }
 
+    public function access_actions_page($assertion) {
+        $response = $this->get('settings/layout');
+
+        if($assertion) {
+            $response->assertSuccessful();
+            $this->assertEquals(3, count(json_decode(json_decode($response->content())->content, true)));
+        }
+        else{
+            $response->assertRedirect();
+        }
+    }
 
     public function cannot_change_default_layout(){
         $this->get('/settings/layout/1');
@@ -247,6 +258,49 @@ class Actions extends TestCase{
             $this->assertNotNull($layout);
             $this->assertNotNull($panel);
         }
+    }
+
+    public function cannot_delete_layout_if_it_is_in_use() {
+        $newTheme = Theme::create([
+            'name' => $this->faker->word
+        ]);
+
+        $layout = Layout::create([
+            "name" => $newTheme->name,
+            "class" => $class = "primary",
+            "width" => $this->faker->numberBetween(980, 1920),
+        ]);
+
+        Panel::create([
+            "location" => "content",
+            "layout_id" => $layout->id,
+            "type" => "dynamic"
+        ]);
+
+        $route = Route::create([
+            'route' => $this->faker->word,
+            'type' => 'page',
+            'block_id' => null,
+            'action' => null
+        ]);
+
+        $page = Page::create([
+            'title' => $this->faker->word,
+            'description' => $this->faker->paragraph,
+            'keywords' => $this->faker->word,
+            'author' => $this->faker->name,
+            'copyright' => "",
+            'route' => $route->route,
+            'layout_id' => $layout->id,
+            'isActive' => 1
+        ]);
+
+        $this->post('settings/layout/delete', [
+            'layout_id' => $layout->id
+        ])
+            ->assertSuccessful()
+            ->assertJsonFragment(['error'=>"Layout cannot be deleted because page \"".$page->title."\" is using it"]);
+
     }
 
     public function get_layout_from_the_panel() {

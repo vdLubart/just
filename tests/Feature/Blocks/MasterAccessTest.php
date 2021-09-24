@@ -20,6 +20,11 @@ class MasterAccessTest extends Actions
     }
 
     /** @test */
+    function master_can_access_block_list(){
+        $this->access_block_list(true);
+    }
+
+    /** @test */
     function master_can_change_blocks_order(){
         $this->change_blocks_order(true);
     }
@@ -37,6 +42,11 @@ class MasterAccessTest extends Actions
     /** @test */
     function master_can_delete_block(){
         $this->delete_block(true);
+    }
+
+    /** @test */
+    function master_can_access_item_list(){
+        $this->access_item_list(true);
     }
 
     /** @test */
@@ -71,7 +81,7 @@ class MasterAccessTest extends Actions
 
     /** @test */
     function master_can_access_parent_block_from_the_related_one(){
-        $this->access_parent_block_from_the_related_one(true);
+        $this->access_parent_block_from_the_related_one();
     }
 
     /** @test */
@@ -112,5 +122,10 @@ class MasterAccessTest extends Actions
     /** @test */
     function master_receive_null_on_empty_string_addon_value(){
         $this->get_nullable_value_on_empty_addon_string();
+    }
+
+    /** @test */
+    function master_cannot_create_item_if_block_is_not_detected(){
+        $this->cannot_create_item_if_block_is_not_detected();
     }
 }

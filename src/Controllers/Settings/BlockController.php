@@ -6,20 +6,24 @@
 namespace Just\Controllers\Settings;
 
 use Exception;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
 use Just\Controllers\SettingsController;
 use Just\Models\Block;
 use Just\Models\Blocks\Events;
+use Just\Models\Page;
 use Just\Requests\Block\Admin\InitializeBlockRequest;
 use Just\Requests\SaveBlockRequest;
 use Just\Requests\Block\Admin\InitializeItemRequest;
 use Just\Tools\Useful;
 use Just\Validators\ValidatorExtended;
+use ReflectionException;
 use Throwable;
 
 class BlockController extends SettingsController {
@@ -29,10 +33,15 @@ class BlockController extends SettingsController {
      *
      * @param $pageId
      * @param $panelLocation
-     * @return JsonResponse
-     * @throws Throwable
+     * @return Application|JsonResponse|RedirectResponse|Redirector
      */
     public function panelActions($pageId, $panelLocation) {
+        $page = Page::find($pageId);
+
+        if(empty($page))    {
+            return redirect('settings');
+        }
+
         $items = [
             'page/' . $pageId . '/panel/' . $panelLocation . '/block/create' => [
                 'label' => $this->itemTranslation('create'),
@@ -44,7 +53,8 @@ class BlockController extends SettingsController {
             ]
         ];
         $caption = [
-            '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation])
+            '/settings/page/' . $pageId => __('page.actions', ['page' => $page->title]),
+            '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
         ];
 
         return $this->response($caption, $items, 'list');
@@ -52,7 +62,7 @@ class BlockController extends SettingsController {
 
     public function content($blockId) {
         if(empty($block = $this->findBlock($blockId))){
-            return redirect()->back();
+            return redirect('settings');
         }
 
         $pageId = $block->page_id;
@@ -64,6 +74,7 @@ class BlockController extends SettingsController {
 
         if(empty($caption)){
             $caption = [
+                '/settings/page/' . $pageId => __('page.actions', ['page'=>$block->page()->title]),
                 '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
                 '/settings/block/' . $blockId => $this->itemTranslation('editForm.title', ['title'=>$block->itemCaption()])
             ];
@@ -86,9 +97,10 @@ class BlockController extends SettingsController {
      * Specify block
      *
      * @param Request $request
-     * @return Block
+     * @return Block|null
+     * @throws Exception
      */
-    private function specifyBlock(Request $request): Block {
+    private function specifyBlock(Request $request): ?Block {
         $block = Block::find($request->block_id);
 
         if (!empty($block)) {
@@ -122,13 +134,14 @@ class BlockController extends SettingsController {
         $block = Block::find($blockId);
 
         if(empty($block)){
-            return redirect()->back();
+            return redirect('settings')->withErrors('The requested block does not exist anymore', 'errorsFromBlock'.$blockId);
         }
 
         $pageId = $block->page_id;
         $panelLocation = $block->panelLocation;
 
         $caption = [
+            '/settings/page/' . $pageId => __('page.actions', ['page'=>$block->page()->title]),
             '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
             '/settings/page/block/'.$blockId => $this->itemTranslation('editForm.title', ['title'=> $block->itemCaption()])
         ];
@@ -213,7 +226,7 @@ class BlockController extends SettingsController {
         $this->decodeRequest($request);
 
         if(empty($block = $this->findBlock($request->block_id))){
-            return redirect()->back();
+            return redirect('settings');
         }
         $block->specify($request->id);
 
@@ -279,13 +292,13 @@ class BlockController extends SettingsController {
      *
      * @param Request $request
      * @return JsonResponse|RedirectResponse
+     * @throws ReflectionException
      */
     public function cropItem(Request $request) {
         if(empty($block = $this->specifyBlock($request))){
-            return redirect()->back();
+            return redirect('settings');
         }
-
-        if(!empty($block)){
+        else{
             $block->handleCrop($request);
         }
 
@@ -369,13 +382,20 @@ class BlockController extends SettingsController {
     /**
      * @param int $pageId
      * @param string $panelLocation
-     * @return JsonResponse
+     * @return Application|JsonResponse|RedirectResponse|Redirector
      * @throws Throwable
      */
-    public function blockList(int $pageId, string $panelLocation): JsonResponse {
+    public function blockList(int $pageId, string $panelLocation) {
+        $page = Page::find($pageId);
+
+        if(empty($page)){
+            return redirect('settings');
+        }
+
         $caption = [
+            '/settings/page/' . $pageId => __('page.actions', ['page'=>$page->title]),
             '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
-            '/settings/' . $this->itemKebabName() . '/list' => $this->itemTranslation('list')
+            '/settings/page/' . $pageId . '/panel/' . $panelLocation . '/' . $this->itemKebabName() . '/list' => $this->itemTranslation('list')
         ];
 
         return $this->listView($caption, ['panelLocation' => $panelLocation]);
@@ -401,7 +421,7 @@ class BlockController extends SettingsController {
 
     public function itemSettingsForm($blockId, $itemId) {
         if(empty($block = $this->findBlock($blockId))){
-            return redirect()->back();
+            return redirect('settings');
         }
 
         $pageId = $block->page_id;
@@ -411,6 +431,7 @@ class BlockController extends SettingsController {
 
         if(empty($caption)){
             $caption = [
+                '/settings/page/' . $pageId => __('page.actions', ['page'=>$block->page()->title]),
                 '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
                 '/settings/block/' . $blockId => $this->itemTranslation('editForm.title', ['title'=>$block->itemCaption()])
             ];
@@ -450,18 +471,20 @@ class BlockController extends SettingsController {
     /**
      * @param $blockId
      * @return JsonResponse|RedirectResponse
+     * @throws Exception
      */
     public function customizationForm($blockId) {
         $block = Block::find($blockId);
 
         if(empty($block)){
-            return redirect()->back();
+            return redirect('settings');
         }
 
         $pageId = $block->page_id;
         $panelLocation = $block->panelLocation;
 
         $caption = [
+            '/settings/page/' . $pageId => __('page.actions', ['page'=>$block->page()->title]),
             '/settings/page/' . $pageId . '/panel/' . $panelLocation => __('panel.title', ['panel'=>$panelLocation]),
             '/settings/page/block/'.$blockId => $this->itemTranslation('editForm.title', ['title'=> $block->itemCaption()])
         ];

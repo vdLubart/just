@@ -2,9 +2,12 @@
 
 namespace Just\Models\Blocks\AddOns;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Just\Contracts\Requests\ValidateRequest;
+use Just\Database\Factories\AddOnOptionFactory;
 use Just\Tools\Useful;
 use Lubart\Form\Form;
 use Lubart\Form\FormElement;
@@ -19,10 +22,11 @@ use Spatie\Translatable\HasTranslations;
 class AddOnOption extends Model
 {
     use HasTranslations;
+    use HasFactory;
 
     protected $table = 'addonOptions';
 
-    protected $fillable = ['add_on_id', 'option', 'isActive'];
+    protected $fillable = ['add_on_id', 'option', 'isActive', 'orderNo'];
 
     public array $translatable = ['option'];
 
@@ -79,6 +83,10 @@ class AddOnOption extends Model
      */
     public function addOn(): BelongsTo {
         return $this->belongsTo(AddOn::class);
+    }
+
+    protected static function newFactory(): Factory {
+        return AddOnOptionFactory::new();
     }
 
 }

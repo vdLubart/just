@@ -50,6 +50,11 @@ class MasterAccessTest extends Actions
     }
 
     /** @test */
+    function admin_cannot_leave_feedback_if_block_does_not_exist_any_more(){
+        $this->inContent()->redirect_back_if_feedback_form_does_not_exist_any_more();
+    }
+
+    /** @test */
     function master_receives_an_error_on_sending_incomplete_feedback_on_the_website(){
         $this->inContent()->receive_an_error_on_sending_incompleate_feedback_on_the_website();
         $this->inHeader()->receive_an_error_on_sending_incompleate_feedback_on_the_website();

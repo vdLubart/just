@@ -14,6 +14,12 @@ class MasterAccessTest extends Actions
         $this->actingAsMaster();
     }
 
+    /** @test */
+    function master_can_access_item_list(){
+        $this->inContent()->access_item_list(true);
+        $this->inHeader()->access_item_list(true);
+    }
+
     /** @test*/
     function master_can_access_item_create_form(){
         $this->inContent()->access_item_form(true);

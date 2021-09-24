@@ -13,8 +13,7 @@ class InitializeLayoutRequest extends FormRequest implements ValidateRequest
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize(): bool {
         return User::authAsMaster();
     }
 
@@ -23,8 +22,7 @@ class InitializeLayoutRequest extends FormRequest implements ValidateRequest
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules(): array {
         return [
             'layout_id'=>"integer|min:1|exists:layouts,id"
         ];

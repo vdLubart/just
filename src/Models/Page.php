@@ -3,8 +3,11 @@
 namespace Just\Models;
 
 use Exception;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
+use Just\Database\Factories\PageFactory;
 use Just\Models\System\Route as JustRoute;
 use Just\Requests\SavePageRequest;
 use Lubart\Form\Form;
@@ -18,6 +21,7 @@ use Lubart\Form\FormGroup;
 class Page extends Model
 {
     use HasTranslations;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -185,5 +189,9 @@ class Page extends Model
      */
     public function addBlockScript(string $scriptUrl): void {
         $this->blockScripts[$scriptUrl] = $scriptUrl;
+    }
+
+    protected static function newFactory(): Factory {
+        return PageFactory::new();
     }
 }

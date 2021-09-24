@@ -2,6 +2,7 @@
 
 namespace Just\Tests\Feature\Blocks\Text;
 
+use Illuminate\Support\Facades\Auth;
 use Just\Models\Blocks\Text;
 use Just\Tests\Feature\Blocks\LocationBlock;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -24,14 +25,30 @@ class Actions extends LocationBlock {
     public function access_item_form($assertion){
         $block = $this->setupBlock();
 
+        $this->get("settings/block/0/item/0")
+            ->assertRedirect(Auth::check()? 'settings' : 'login');
+
         $response = $this->get("settings/block/".$block->id."/item/0");
 
         if($assertion){
             $response->assertSuccessful();
+            $this->assertCount(4, (array)json_decode($response->content())->caption);
 
             $form = $block->item()->itemForm();
             $this->assertEquals(4, $form->count());
             $this->assertEquals(['id', 'block_id', 'text', 'submit'], array_keys($form->elements()));
+
+            $text = new Text();
+            $text->block_id = $block->id;
+            $text->text = $this->faker->text;
+            $text->save();
+
+            $item = Text::all()->last();
+
+            $response = $this->get("settings/block/".$block->id."/item/".$item->id);
+            $response->assertSuccessful();
+
+            $this->assertCount(5, (array)json_decode($response->content())->caption);
         }
         else{
             $response->assertRedirect('login');
@@ -171,6 +188,9 @@ class Actions extends LocationBlock {
 
     public function customize_block($assertion){
         $block = $this->setupBlock();
+
+        $this->get('settings/block/0/customization')
+            ->assertRedirect(Auth::check()? 'settings' : 'login');
 
         $response = $this->get('settings/block/'.$block->id.'/customization');
 

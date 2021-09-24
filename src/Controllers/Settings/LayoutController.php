@@ -82,9 +82,9 @@ class LayoutController extends SettingsController {
         $layout = Layout::find($request->layout_id);
         $response = new \stdClass();
 
-        $pages = Page::where('layout_id', $request->layout_id)->first();
+        $pages = Page::where('layout_id', $layout->id)->first();
         if(!empty($pages)){
-            $response->error = __('layout.messages.error.usedOnPage', ['page' => $pages->first()->title]);
+            $response->error = __('layout.messages.error.usedOnPage', ['page' => $pages->title]);
             return response()->json($response);
         }
 

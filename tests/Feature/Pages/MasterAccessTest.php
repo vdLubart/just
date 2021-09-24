@@ -15,6 +15,11 @@ class MasterAccessTest extends Actions
     }
 
     /** @test */
+    function master_can_access_actions_page(){
+        $this->access_actions_page(true);
+    }
+
+    /** @test */
     function master_can_create_new_page(){
         $this->create_new_page(true);
     }
@@ -42,5 +47,20 @@ class MasterAccessTest extends Actions
     /** @test */
     function master_can_delete_specific_page(){
         $this->delete_specific_page(true);
+    }
+
+    /** @test */
+    function master_can_access_page_panel_list(){
+        $this->access_page_panel_list(true);
+    }
+
+    /** @test */
+    function master_can_activate_page(){
+        $this->activate_page(true);
+    }
+
+    /** @test */
+    function master_can_deactivate_page(){
+        $this->deactivate_page(true);
     }
 }

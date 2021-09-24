@@ -5,6 +5,11 @@ namespace Just\Tests\Feature\Users;
 class GuestAccessTest extends Actions
 {
     /** @test */
+    function guest_cannot_access_actions_page(){
+        $this->access_actions_page(false);
+    }
+
+    /** @test */
     function guest_cannot_see_user_list(){
         $this->see_user_list(false);
     }
@@ -32,5 +37,15 @@ class GuestAccessTest extends Actions
     /** @test */
     function guest_cannot_delete_user(){
         $this->delete_user(false);
+    }
+
+    /** @test */
+    function guest_cannot_activate_user(){
+        $this->activate_user(false);
+    }
+
+    /** @test */
+    function guest_cannot_deactivate_user(){
+        $this->deactivate_user(false);
     }
 }

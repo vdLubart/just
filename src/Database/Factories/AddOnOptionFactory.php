@@ -2,17 +2,17 @@
 
 namespace Just\Database\Factories;
 
-use Just\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Just\Models\Blocks\AddOns\AddOnOption;
 
-class UserFactory extends Factory
+class AddOnOptionFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = User::class;
+    protected $model = AddOnOption::class;
 
     /**
      * Define the model's default state.
@@ -21,14 +21,11 @@ class UserFactory extends Factory
      */
     public function definition()
     {
-        static $password;
-
         return [
-            'name' => $this->faker->name,
-            'role' => 'admin',
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => $password ?: $password = bcrypt('secret'),
-            'remember_token' => str_random(10),
+            'add_on_id' => 1,
+            'option' => $this->faker->word,
+            'isActive' => 1,
+            'orderNo' => 1
         ];
     }
 

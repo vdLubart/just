@@ -22,7 +22,7 @@ class RouteFactory extends Factory
     public function definition()
     {
         return [
-            'route' => $this->faker->name,
+            'route' => $this->faker->word . '/' . $this->faker->word,
             'type' => 'page'
         ];
     }

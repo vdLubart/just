@@ -54,6 +54,9 @@ class Actions extends TestCase{
             $response->assertRedirect();
         }
 
+        $this->get('settings/page/0/panel/content')
+            ->assertRedirect($assertion ? 'settings' : 'login');
+
         $response = $this->get('settings/page/1/panel/content/block/create');
         if($assertion){
             $response->assertSuccessful();
@@ -99,6 +102,24 @@ class Actions extends TestCase{
                 ->assertDontSee('div class="block text col-md-12  >', false)
                 ->assertDontSee($title)
                 ->assertDontSee($description);
+        }
+    }
+
+    public function access_block_list($assertion) {
+        Block::factory()->count(3)->create();
+
+        $this->get('settings/page/0/panel/content/block/list')
+            ->assertRedirect(Auth::check() ? 'settings' : 'login');
+
+        $response = $this->get('settings/page/1/panel/content/block/list');
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $this->assertEquals(3, count(json_decode(json_decode($response->content())->content, true)));
+        }
+        else{
+            $response->assertRedirect('login');
         }
     }
 
@@ -238,6 +259,36 @@ class Actions extends TestCase{
         }
         else{
             $response->assertSee($text);
+        }
+    }
+
+    public function access_item_list($assertion) {
+        $block = Block::factory()->create();
+
+        $items = function() use ($block){
+            $items = [];
+            for($i=1; $i<=3; $i++){
+                $textblock = new Text();
+                $textblock->block_id = $block->id;
+                $textblock->text = $this->faker->paragraph;
+                $textblock->orderNo = $i;
+
+                $textblock->save();
+            }
+
+            return $items;
+        };
+
+        $items();
+
+        $response = $this->get('settings/block/'.$block->id);
+
+        if($assertion) {
+            $response->assertSuccessful();
+            $this->assertEquals(3, count(json_decode(json_decode($response->content())->content, true)));
+        }
+        else{
+            $response->assertRedirect('login');
         }
     }
 
@@ -568,6 +619,14 @@ class Actions extends TestCase{
     public function update_block_settings($assertion){
         $block = Block::factory()->create();
 
+        $response = $this->get('settings/block/'. $block->id . '/settings');
+        if($assertion){
+            $response->assertSuccessful();
+        }
+        else{
+            $response->assertRedirect('login');
+        }
+
         $this->post('settings/block/setup', [
             'block_id' => $block->id,
             'name' => '',
@@ -599,6 +658,19 @@ class Actions extends TestCase{
         }
 
         $this->assertNull($block->name);
+    }
+
+    public function cannot_access_block_settings_form_if_block_does_not_exists(){
+        $block = Block::factory()->create();
+
+        $this->get('settings/block/' . $block->id)
+            ->assertSuccessful();
+
+        // assume, in this moment another user deletes the block
+        $block->delete();
+
+        $this->get('settings/block/'. $block->id . '/settings')
+            ->assertRedirect('settings');
     }
 
     public function update_block_unique_name($assertion){
@@ -783,5 +855,14 @@ class Actions extends TestCase{
         $this->assertNull($item->{$addon->name});
 
         $this->removePivotTable($block, $addon);
+    }
+
+    public function cannot_create_item_if_block_is_not_detected() {
+        $this->post("settings/block/item/save", [
+            'block_id' => 0,
+            'id' => null,
+            'text' => $this->faker->paragraph
+        ])
+            ->assertRedirect(Auth::check() ? 'settings' : 'login');
     }
 }

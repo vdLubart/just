@@ -20,6 +20,11 @@ class AdminAccessTest extends Actions
     }
 
     /** @test */
+    function admin_can_access_block_list(){
+        $this->access_block_list(true);
+    }
+
+    /** @test */
     function admin_can_change_blocks_order(){
         $this->change_blocks_order(true);
     }
@@ -37,6 +42,11 @@ class AdminAccessTest extends Actions
     /** @test */
     function admin_can_delete_block(){
         $this->delete_block(true);
+    }
+
+    /** @test */
+    function admin_can_access_item_list(){
+        $this->access_item_list(true);
     }
 
     /** @test */
@@ -71,17 +81,22 @@ class AdminAccessTest extends Actions
 
     /** @test */
     function admin_can_access_data_from_related_block(){
-        $this->access_data_from_related_block(true);
+        $this->access_data_from_related_block();
     }
 
     /** @test */
     function admin_can_access_parent_block_from_the_related_one(){
-        $this->access_parent_block_from_the_related_one(true);
+        $this->access_parent_block_from_the_related_one();
     }
 
     /** @test */
     function admin_can_update_block_settings(){
         $this->update_block_settings(true);
+    }
+
+    /** @test */
+    function admin_cannot_access_block_settings_form_if_block_does_not_exists(){
+        $this->cannot_access_block_settings_form_if_block_does_not_exists();
     }
 
     /** @test */
@@ -117,5 +132,10 @@ class AdminAccessTest extends Actions
     /** @test */
     function admin_receive_null_on_empty_string_addon_value(){
         $this->get_nullable_value_on_empty_addon_string();
+    }
+
+    /** @test */
+    function admin_cannot_create_item_if_block_is_not_detected(){
+        $this->cannot_create_item_if_block_is_not_detected();
     }
 }

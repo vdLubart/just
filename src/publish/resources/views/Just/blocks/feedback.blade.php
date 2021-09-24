@@ -1,3 +1,5 @@
+<h3>{{ $block->title }}</h3>
+
 <div id="feedback_{{ $block->id }}" class="row">
     @if(\Session::has('successMessageFrom' . ucfirst($block->type . $block->id)) and \Session::get('successMessageFrom' . ucfirst($block->type . $block->id)) != '')
     <div class="alert alert-success">

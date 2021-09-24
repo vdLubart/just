@@ -15,6 +15,11 @@ class AdminAccessTest extends Actions
     }
 
     /** @test */
+    function admin_cannot_access_actions_page(){
+        $this->access_actions_page(false);
+    }
+
+    /** @test */
     function admin_cannot_see_user_list(){
         $this->see_user_list(false);
     }
@@ -52,5 +57,15 @@ class AdminAccessTest extends Actions
     /** @test */
     function admin_cannot_delete_yourself(){
         $this->delete_yourself(false);
+    }
+
+    /** @test */
+    function admin_cannot_activate_user(){
+        $this->activate_user(false);
+    }
+
+    /** @test */
+    function admin_cannot_deactivate_user(){
+        $this->deactivate_user(false);
     }
 }

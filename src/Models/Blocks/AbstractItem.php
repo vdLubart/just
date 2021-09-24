@@ -431,15 +431,6 @@ abstract class AbstractItem extends Model implements BlockItem
     }
 
     /**
-     * Return current layout
-     *
-     * @return Layout
-     */
-    public function layout(): Layout {
-        return $this->block->layout();
-    }
-
-    /**
      * Include new addon elements related to the addon
      * @throws Exception
      */
@@ -460,18 +451,6 @@ abstract class AbstractItem extends Model implements BlockItem
         foreach ($this->block->addons as $addon) {
             $addon->handleForm($request, $item);
         }
-    }
-
-    /**
-     * @param int $addonId
-     * @return Collection
-     * @throws Exception
-     */
-    public function addonValues(int $addonId): Collection {
-        $addonClass = AddOn::find($addonId)->addonItemClassName();
-        $addon = new $addonClass;
-
-        return $this->belongsToMany($addonClass, $this->getTable().'_'.$addon->getTable(), 'modelItem_id', 'addonItem_id')->where('add_on_id', $addonId)->get();
     }
 
     /**

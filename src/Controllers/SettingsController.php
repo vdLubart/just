@@ -177,7 +177,7 @@ abstract class SettingsController extends Controller
      */
     abstract protected function buildItemList(Collection $items): string;
 
-    protected function noAccessView() {
+    public function noAccessView() {
         return view(viewPath(Theme::active()->layout, 'noAccess'));
     }
 
@@ -198,7 +198,7 @@ abstract class SettingsController extends Controller
         ];
 
         if(Auth::user()->role == "master"){
-            $items['addon'] = [
+            $items['add-on'] = [
                 'label' => __('navbar.addOns.top'),
                 'icon' => 'puzzle-piece'
             ];

@@ -2,15 +2,17 @@
 
 namespace Just\Tests\Unit;
 
+use Just\Models\Blocks\AbstractItem;
 use Just\Models\Blocks\Gallery;
 use Just\Models\Blocks\Text;
+use Just\Tests\Feature\Helper;
 use Tests\TestCase;
 use Just\Models\Block;
 use Illuminate\Foundation\Testing\WithFaker;
 
 class BlockTest extends TestCase
 {
-
+    use Helper;
     use WithFaker;
 
     /** @test */
@@ -64,5 +66,32 @@ class BlockTest extends TestCase
 
         $this->assertEquals('/storage/photos/imageCode.png', $gallery->imageSource(null, 'imageCode'));
         $this->assertEquals('/storage/photos/imageCode.png', $gallery->imageSource(6, 'imageCode'));
+    }
+
+    /** @test */
+    function cannot_access_block_item_list_if_block_does_not_exist() {
+        $this->actingAsAdmin();
+
+        $block = Block::factory()->create();
+
+        $block->delete();
+
+        $this->get('settings')->assertSuccessful();
+
+        $this->get('settings/block/'.$block->id)
+            ->assertRedirect('settings');
+    }
+
+    /** @test */
+    function image_path_for_the_text_item_returns_null(){
+        $block = Block::factory()->create();
+
+        $textItem = new Text();
+        $textItem->block_id = $block->id;
+        $textItem->text = $this->faker->paragraph;
+
+        $textItem->save();
+
+        $this->assertNull($textItem->imagePath());
     }
 }

@@ -25,6 +25,18 @@ class Actions extends TestCase{
         parent::tearDown();
     }
 
+    public function access_actions_page($assertion) {
+        $response = $this->get('settings/user');
+
+        if($assertion) {
+            $response->assertSuccessful();
+            $this->assertEquals(2, count(json_decode(json_decode($response->content())->content, true)));
+        }
+        else{
+            $response->assertRedirect();
+        }
+    }
+
     public function see_user_list($assertion){
         $response = $this->get('settings/user/list');
 
@@ -228,6 +240,44 @@ class Actions extends TestCase{
         }
         else{
             $this->assertNotNull($deletedUser);
+        }
+    }
+
+    public function activate_user($assertion) {
+        $user = User::factory()->deactivate()->create();
+
+        $response = $this->post("settings/user/activate", [
+            "id" => $user->id,
+        ]);
+
+        $user = User::find($user->id);
+
+        if($assertion){
+            $response->assertSuccessful();
+            $this->assertEquals(1, $user->isActive);
+        }
+        else{
+            $response->assertRedirect(Auth::check() ? 'settings/noaccess' : 'login');
+            $this->assertEquals(0, $user->isActive);
+        }
+    }
+
+    public function deactivate_user($assertion) {
+        $user = User::factory()->create();
+
+        $response = $this->post("settings/user/deactivate", [
+            "id" => $user->id,
+        ]);
+
+        $user = User::find($user->id);
+
+        if($assertion){
+            $response->assertSuccessful();
+            $this->assertEquals(0, $user->isActive);
+        }
+        else{
+            $response->assertRedirect(Auth::check() ? 'settings/noaccess' : 'login');
+            $this->assertEquals(1, $user->isActive);
         }
     }
 }

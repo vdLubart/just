@@ -176,6 +176,37 @@ class Actions extends LocationBlock {
         }
     }
 
+    public function redirect_back_if_feedback_form_does_not_exist_any_more() {
+        $block = $this->setupBlock(['title'=>'{"en":"Feedback"}', 'parameters'=>json_decode('{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}')]);
+
+        $this->app['router']->post('feedback/add', "\Just\Controllers\JustController@post")->middleware('web');
+
+        $this->get("")
+            ->assertSuccessful()
+            ->assertSee('Feedback');
+
+        $block->delete();
+
+        $note = Notification::fake();
+
+        $response = $this->post("feedback/add", [
+            'block_id' => $block->id,
+            'username' => $name = $this->faker->name,
+            'email' => $email = $this->faker->email,
+            'message' => $message = $this->faker->paragraph,
+            'g-recaptcha-response' => true
+        ])
+            ->assertRedirect('');
+
+        $this->followRedirects($response)->assertDontSee('Feedback');
+
+        $note->assertNothingSent();
+
+        $item = Feedback::all()->last();
+
+        $this->assertNull($item);
+    }
+
     public function receive_an_error_on_sending_incompleate_feedback_on_the_website(){
         $block = $this->setupBlock(['parameters'=>json_decode('{"defaultActivation":"1","successText":"Thank you for your feedback","notify":"1"}')]);
 

@@ -2,7 +2,10 @@
 
 namespace Just\Models\System;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Just\Database\Factories\RouteFactory;
 use Just\Models\Page;
 
 /**
@@ -10,6 +13,8 @@ use Just\Models\Page;
  */
 class Route extends Model
 {
+    use HasFactory;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -27,5 +32,9 @@ class Route extends Model
 
     public function page() {
         return $this->belongsTo(Page::class, 'route', 'route');
+    }
+
+    protected static function newFactory(): Factory {
+        return RouteFactory::new();
     }
 }

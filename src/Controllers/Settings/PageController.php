@@ -3,13 +3,18 @@
 namespace Just\Controllers\Settings;
 
 use Exception;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Response;
 use Just\Controllers\SettingsController;
 use Just\Requests\InitializePageRequest;
 use Just\Requests\SavePageRequest;
 use Just\Models\Page;
 use Just\Models\System\Route as JustRoute;
+use stdClass;
 use Throwable;
 
 class PageController extends SettingsController
@@ -22,7 +27,16 @@ class PageController extends SettingsController
      * @throws Throwable
      */
     public function settingsForm(int $pageId): JsonResponse {
-        return $this->settingsFormView($pageId);
+        $page = Page::findOrNew($pageId);
+
+        if(empty($caption)){
+            $caption = [
+                '/settings/' . $this->itemKebabName() => $this->itemTranslation('title'),
+                '/settings/' . $this->itemKebabName() . '/' . $pageId . '/settings' => $pageId == 0 ? $this->itemTranslation('createForm.title') : $this->itemTranslation('editForm.title', ['page' => $page->title])
+            ];
+        }
+
+        return $this->response($caption, $page, 'form');
     }
 
     /**
@@ -33,6 +47,41 @@ class PageController extends SettingsController
      */
     public function pageList(): JsonResponse {
         return $this->listView();
+    }
+
+    public function panelList(int $pageId) {
+        $page = Page::find($pageId);
+
+        if(empty($page)){
+            return redirect('settings');
+        }
+
+        $panels = $page->layout->panels();
+
+        $response = new stdClass();
+
+        $response->caption = [
+                '/settings' =>  __('settings.title'),
+                '/settings/' . $this->itemKebabName() => $this->itemTranslation('title'),
+                '/settings/' . $this->itemKebabName() . '/' . $pageId => $this->itemTranslation('actions', ['page' => $page->title]),
+                '/settings/' . $this->itemKebabName() . '/' . $pageId . '/panels' => $this->itemTranslation('panels')
+            ];
+        $response->contentType = 'items';
+
+        $response->parameters = [];
+
+        $contentList = [];
+
+        foreach($panels as $panel){
+            $contentList[$this->itemName() . '/'. $page->id . '/panel/' . $panel->location] = [
+                'caption' => $panel->location,
+                'isActive' => true
+            ];
+        }
+
+        $response->content = json_encode($contentList);
+
+        return Response::json((array) $response);
     }
 
     /**
@@ -84,7 +133,7 @@ class PageController extends SettingsController
             $route->delete();
         }
 
-        $response = new \stdClass();
+        $response = new stdClass();
         $response->message = __('page.messages.success.deleted');
         $response->redirect = '/settings/page/list';
 
@@ -92,7 +141,7 @@ class PageController extends SettingsController
     }
 
     /**
-     * Return list with available actions for the layout
+     * Return list with available actions for the pages
      *
      * @return JsonResponse
      */
@@ -109,6 +158,41 @@ class PageController extends SettingsController
         ];
         $caption = [
             '/settings/' . $this->itemName() => $this->itemTranslation('title')
+        ];
+
+        return $this->response($caption, $items, 'list');
+    }
+
+    /**
+     * Return list with available actions for the specific page
+     *
+     * @param int $pageId
+     * @return Application|JsonResponse|RedirectResponse|Redirector
+     */
+    public function pageActions(int $pageId) {
+        $page = Page::find($pageId);
+
+        if(empty($page)){
+            if($pageId === 0){
+                return redirect('settings/page/0/settings');
+            }
+            return redirect('settings');
+        }
+
+        $items = [
+            $this->itemName() . '/' . $pageId . '/settings' => [
+                'label' => __('settings.title'),
+                'icon' => 'cog'
+            ],
+            $this->itemName() . '/' . $pageId . '/panels' => [
+                'label' => __('page.panels'),
+                'icon' => 'columns'
+            ],
+        ];
+
+        $caption = [
+            '/settings/' . $this->itemName() => $this->itemTranslation('title'),
+            '/settings/' . $this->itemName() . '/' . $pageId => $this->itemTranslation('actions', ['page' => $page->title])
         ];
 
         return $this->response($caption, $items, 'list');
@@ -137,7 +221,7 @@ class PageController extends SettingsController
             $page->save();
         }
 
-        $response = new \stdClass();
+        $response = new stdClass();
         $response->message = $this->itemTranslation('messages.success.' . ($visibility ? 'activated' : 'deactivated'));
         $response->redirect = '/settings/page/list';
 

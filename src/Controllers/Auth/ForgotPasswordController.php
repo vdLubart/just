@@ -3,7 +3,10 @@
 namespace Just\Controllers\Auth;
 
 use Just\Controllers\Controller;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory;
 use Just\Models\Theme;
 
 class ForgotPasswordController extends Controller
@@ -28,17 +31,18 @@ class ForgotPasswordController extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
+
         $this->middleware('guest');
     }
-    
+
     /**
      * Display the form to request a password reset link.
      *
      * @override
-     * @return \Illuminate\Http\Response
+     * @return Application|Factory|View
      */
-    public function showLinkRequestForm()
-    {
+    public function showLinkRequestForm() {
         return view(Theme::active()->name.'.system.auth.passwords.email');
     }
 }

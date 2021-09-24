@@ -3,7 +3,10 @@
 namespace Just\Models;
 
 use Exception;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
+use Just\Database\Factories\UserFactory;
 use Just\Notifications\NewRegistration;
 use Just\Notifications\PasswordReset;
 use Just\Notifications\NewFeedback;
@@ -19,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 class User extends AppUser
 {
     use Notifiable;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -124,7 +128,7 @@ class User extends AppUser
      *
      * @return bool
      */
-    public function isAdmin(){
+    public function isAdmin(): bool {
         return in_array($this->role, ['admin', 'master']);
     }
 
@@ -133,15 +137,15 @@ class User extends AppUser
      *
      * @return bool
      */
-    public function isMaster() {
+    public function isMaster(): bool {
         return $this->role === 'master';
     }
 
-    public static function authAsAdmin() {
+    public static function authAsAdmin(): bool {
         return Auth::check() and User::find(Auth::id())->isAdmin();
     }
 
-    public static function authAsMaster(){
+    public static function authAsMaster(): bool {
         return Auth::check() and User::find(Auth::id())->isMaster();
     }
 
@@ -150,7 +154,11 @@ class User extends AppUser
      *
      * @return string
      */
-    public function itemCaption() {
+    public function itemCaption(): string {
         return ($this->name === '' ? __('block.untitled') : $this->name);
+    }
+
+    protected static function newFactory(): Factory {
+        return UserFactory::new();
     }
 }

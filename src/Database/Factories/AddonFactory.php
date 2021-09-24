@@ -57,4 +57,12 @@ class AddonFactory extends Factory
             ];
         });
     }
+
+    public function deactivate() {
+        return $this->state(function (array $attributes){
+            return [
+                'isActive' => 0
+            ];
+        });
+    }
 }

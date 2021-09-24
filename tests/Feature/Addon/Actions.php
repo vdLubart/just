@@ -53,6 +53,161 @@ class Actions extends TestCase{
         }
     }
 
+    public function access_actions_settings_page($assertion) {
+        $response = $this->get('settings/add-on');
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $this->assertEquals(2, count(json_decode(json_decode($response->content())->content, true)));
+        }
+        else{
+            if(Auth::check()){
+                $response->assertRedirect('settings/noaccess');
+            }
+            else{
+                $response->assertRedirect('login');
+            }
+        }
+    }
+
+    public function activate_addon($assertion) {
+        $addon = AddOn::factory()
+                    ->deactivate()
+                    ->for(Block::factory())
+                    ->create();
+
+        $response = $this->post('settings/add-on/activate',
+            [
+                'id' => $addon->id
+            ]
+        );
+
+        $addon = AddOn::find($addon->id);
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $this->assertEquals(1, $addon->isActive);
+        }
+        else{
+            if(Auth::check()){
+                $response->assertRedirect('settings/noaccess');
+            }
+            else{
+                $response->assertRedirect('login');
+            }
+
+            $this->assertEquals(0, $addon->isActive);
+        }
+    }
+
+    public function deactivate_addon($assertion) {
+        $addon = AddOn::factory()
+            ->for(Block::factory())
+            ->create();
+
+        $response = $this->post('settings/add-on/deactivate',
+            [
+                'id' => $addon->id
+            ]
+        );
+
+        $addon = AddOn::find($addon->id);
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $this->assertEquals(0, $addon->isActive);
+        }
+        else{
+            if(Auth::check()){
+                $response->assertRedirect('settings/noaccess');
+            }
+            else{
+                $response->assertRedirect('login');
+            }
+
+            $this->assertEquals(1, $addon->isActive);
+        }
+    }
+
+    public function move_addon_up($assertion) {
+        $addons = AddOn::factory()
+            ->for(Block::factory())
+            ->count(2)
+            ->create();
+
+        $addon1 = $addons->first();
+        $addon2 = $addons->last();
+        $addon2->update(['orderNo' => 2]);
+
+        $response = $this->post('settings/add-on/moveup',
+            [
+                'id' => $addon2->id
+            ]
+        );
+
+        $addon1 = AddOn::find($addon1->id);
+        $addon2 = AddOn::find($addon2->id);
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $this->assertEquals(1, $addon2->orderNo);
+            $this->assertEquals(2, $addon1->orderNo);
+        }
+        else{
+            if(Auth::check()){
+                $response->assertRedirect('settings/noaccess');
+            }
+            else{
+                $response->assertRedirect('login');
+            }
+
+            $this->assertEquals(1, $addon1->orderNo);
+            $this->assertEquals(2, $addon2->orderNo);
+        }
+    }
+
+    public function move_addon_down($assertion) {
+        $addons = AddOn::factory()
+            ->for(Block::factory())
+            ->count(2)
+            ->create();
+
+        $addon1 = $addons->first();
+        $addon2 = $addons->last();
+        $addon2->update(['orderNo' => 2]);
+
+        $response = $this->post('settings/add-on/movedown',
+            [
+                'id' => $addon1->id
+            ]
+        );
+
+        $addon1 = AddOn::find($addon1->id);
+        $addon2 = AddOn::find($addon2->id);
+
+        if($assertion){
+            $response->assertSuccessful();
+
+            $this->assertEquals(2, $addon1->orderNo);
+            $this->assertEquals(1, $addon2->orderNo);
+        }
+        else{
+            if(Auth::check()){
+                $response->assertRedirect('settings/noaccess');
+            }
+            else{
+                $response->assertRedirect('login');
+            }
+
+            $this->assertEquals(1, $addon1->orderNo);
+            $this->assertEquals(2, $addon2->orderNo);
+        }
+    }
+
     public function add_phrase_addon_to_the_block($assertion){
         $block = Block::factory()->create();
 
@@ -314,6 +469,129 @@ class Actions extends TestCase{
         }
     }
 
+    public function add_tag_addon_to_the_block($assertion){
+        $block = Block::factory()->create();
+
+        $this->post('settings/add-on/setup', [
+            'addon_id' => null,
+            'name' => $name = $this->faker->word,
+            'type' => 'tag',
+            'block_id' => $block->id,
+            'isRequired' => false,
+            'title' => $title = $this->faker->word,
+            'description' => $description = $this->faker->paragraph
+        ]);
+
+        $addon = AddOn::all()->last();
+
+        if($assertion){
+            $this->assertNotNull($addon);
+            $this->assertEquals('tag', $addon->type);
+            $this->assertEquals($name, $addon->name);
+            $this->assertEquals($title, $addon->title);
+            $this->assertEquals($description, $addon->description);
+        }
+        else{
+            $this->assertNull($addon);
+        }
+
+        $form = $block->item()->itemForm();
+        if($assertion){
+            $this->assertEquals(5, $form->count());
+            $this->assertEquals(['id', 'block_id', 'text', $name."_".$addon->id, 'submit'], array_keys($form->getElements()));
+        }
+        elseif(auth()->check()){
+            $this->assertEquals(4, $form->count());
+            $this->assertEquals(['id', 'block_id', 'text', 'submit'], array_keys($form->getElements()));
+        }
+        else{
+            $this->assertEquals(0, $form->count());
+        }
+
+        if($assertion or Auth::check()){
+            $revertPivot = false;
+            if(is_null($addon)){
+                $addon = AddOn::create([
+                    'block_id' => $block->id,
+                    'type' => 'tag',
+                    'name' => $name = $this->faker->word,
+                    'title' => $title = $this->faker->word
+                ]);
+                $this->createPivotTable($block, $addon);
+
+                $revertPivot = true;
+            }
+
+            $this->get('settings/add-on-option/tag/option/0')
+                ->assertSuccessful();
+
+            $this->post('settings/add-on-option/tag/option/setup', [
+                'id' => null,
+                'add_on_id' => $addon->id,
+                'option' => '{"en":"'.($catTitle = $this->faker->word).'"}'
+            ])
+                ->assertSuccessful();
+
+            $this->assertEquals($catTitle, $addon->options->first()->option);
+
+            $block = Block::find($block->id);
+            $form = $block->item()->itemForm();
+            $lastOption = AddOnOption::all()->last();
+
+            $this->assertEquals([$lastOption->id=>$catTitle], $form->element($name."_".$addon->id)->options());
+
+            // Update category value
+            $this->post('settings/add-on-option/tag/option/setup', [
+                'id' => $lastOption->id,
+                'add_on_id' => $addon->id,
+                'option' => '{"en":"'.($catTitle = $this->faker->word).'"}'
+            ])
+                ->assertSuccessful();
+
+            $addon = AddOn::find($addon->id);
+            $this->assertEquals($catTitle, $addon->options->first()->option);
+
+            $block = Block::find($block->id);
+            $form = $block->item()->itemForm();
+            $lastOption = AddOnOption::all()->last();
+
+            $this->assertEquals([$lastOption->id=>$catTitle], $form->element($name."_".$addon->id)->options());
+
+            if($revertPivot){
+                $this->removePivotTable($block, $addon);
+            }
+            else{
+                Artisan::call('migrate:rollback');
+                exec('rm -rf database/migrations/*');
+            }
+        }
+        else{
+            $this->get('settings/add-on-option/tag/option/0')
+                ->assertRedirect();
+
+            $this->get('settings/add-on-option/tag/list')
+                ->assertRedirect();
+
+            $addon = AddOn::create([
+                'block_id' => $block->id,
+                'type' => 'tag',
+                'name' => $name = $this->faker->word,
+                'title' => $title = $this->faker->word
+            ]);
+
+            $this->post('admin/settings/tag/setup', [
+                'category_id' => null,
+                'addon_id' => $addon->id,
+                'name' => $catTitle = $this->faker->word,
+                'value' => $catValue = $this->faker->word
+            ]);
+
+            $category = Category::all()->last();
+
+            $this->assertNull($category);
+        }
+    }
+
     public function edit_existing_phrase_addon($assertion){
         $block = Block::factory()
             ->has(AddOn::factory()->type('phrase'))
@@ -530,6 +808,60 @@ class Actions extends TestCase{
         $this->removePivotTable($block, $addon);
     }
 
+    public function edit_existing_tag_addon($assertion){
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('tag'))
+            ->create();
+        $addon = $block->addons->first();
+
+        $this->createPivotTable($block, $addon);
+
+        if($assertion){
+            $this->get('settings/add-on/list')
+                ->assertSuccessful();
+
+            $this->get('settings/add-on/'.$addon->id)
+                ->assertSuccessful();
+        }
+        else{
+            if(Auth::check()){
+                $this->get('settings/add-on/'.$addon->id)
+                    ->assertRedirect('settings/noaccess');
+            }
+            else{
+                $this->get('settings/add-on/'.$addon->id)
+                    ->assertRedirect('login');
+            }
+        }
+
+        $response = $this->post('settings/add-on/setup', [
+            'addon_id' => $addon->id,
+            'name' => $newName = $this->faker->word,
+            'type' => 'tags',
+            'block_id' => $block->id,
+            'isRequired' => false,
+            'title' => $newTitle = $this->faker->title,
+            'description' => $description = $this->faker->paragraph
+        ]);
+
+        $addon = AddOn::all()->last();
+
+        if($assertion){
+            $response->assertSuccessful();
+            $this->assertEquals($newName, $addon->name);
+            $this->assertEquals($newTitle, $addon->title);
+            $this->assertEquals($description, $addon->description);
+        }
+        else{
+            $response->assertRedirect();
+            $this->assertNotEquals($newName, $addon->name);
+            $this->assertNotEquals($newTitle, $addon->title);
+            $this->assertNotEquals($description, $addon->description);
+        }
+
+        $this->removePivotTable($block, $addon);
+    }
+
     public function delete_existing_phrase_addon($assertion){
         $block = Block::factory()
             ->has(AddOn::factory()->type('phrase'))
@@ -649,6 +981,40 @@ class Actions extends TestCase{
         $response = $this->post('settings/add-on/delete', [
                 'id' => $addon->id
             ]);
+
+        $addon = AddOn::all()->last();
+        $option = AddOnOption::find($option->id);
+
+        if($assertion){
+            $response->assertSuccessful();
+            $this->assertNull($addon);
+            $this->assertNull($option);
+        }
+        else{
+            $response->assertRedirect();
+            $this->assertNotNull($addon);
+            $this->assertNotNull($option);
+        }
+
+        $this->removePivotTable($block, $block->addons->first());
+    }
+
+    public function delete_existing_tag_addon($assertion){
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('tag'))
+            ->create();
+        $addon = $block->addons->first();
+
+        $this->createPivotTable($block, $addon);
+
+        $option = AddOnOption::create([
+            'add_on_id' => $addon->id,
+            'option' => '{"en":"'.$this->faker->word.'"}'
+        ]);
+
+        $response = $this->post('settings/add-on/delete', [
+            'id' => $addon->id
+        ]);
 
         $addon = AddOn::all()->last();
         $option = AddOnOption::find($option->id);
@@ -801,6 +1167,47 @@ class Actions extends TestCase{
             $this->assertEquals($block->id, $item->block_id);
             $this->assertEquals($text, $item->text);
             $this->assertEquals($secondOption->id, $item->{$name});
+        }
+        else{
+            $this->assertNull($item);
+        }
+
+        $this->removePivotTable($block, $addon);
+    }
+
+    public function create_new_item_with_tag_addon($assertion){
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('tag')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
+
+        $this->createPivotTable($block, $addon);
+
+        $firstOption = AddOnOption::create([
+            'add_on_id' => $addon->id,
+            'option' => '{"en":"'.$this->faker->word.'"}'
+        ]);
+
+        $secondOption = AddOnOption::create([
+            'add_on_id' => $addon->id,
+            'option' => '{"en":"'.($optionTitle2 = $this->faker->word).'"}'
+        ]);
+
+        $this->post("settings/block/item/save", [
+            'block_id' => $block->id,
+            'id' => null,
+            $name.'_'.$addon->id => json_encode([$secondOption->id]),
+            'text' => $text = $this->faker->paragraph
+        ]);
+
+        $item = Block::find($block->id)->firstItem();
+
+        if($assertion){
+            $this->assertNotNull($item);
+
+            $this->assertEquals($block->id, $item->block_id);
+            $this->assertEquals($text, $item->text);
+            $this->assertEquals(json_encode([$secondOption->id]), $item->{$name});
         }
         else{
             $this->assertNull($item);
@@ -1031,6 +1438,68 @@ class Actions extends TestCase{
             $response->assertRedirect();
             $this->assertNotEquals($text, $item->text);
             $this->assertNotEquals($secondOption->id, $item->{$name});
+        }
+
+        $this->removePivotTable($block, $addon);
+    }
+
+    public function edit_item_with_tag_addon($assertion){
+        $block = Block::factory()
+            ->has(AddOn::factory()->type('tag')->name($name = $this->faker->word))
+            ->create();
+        $addon = $block->addons->first();
+
+        $this->createPivotTable($block, $addon);
+
+        if(!$assertion){
+            $user = User::where('role', 'admin')->first();
+            $this->actingAs($user);
+        }
+
+        $firstOption = AddOnOption::create([
+            'add_on_id' => $addon->id,
+            'option' => '{"en":"'.$this->faker->word.'"}'
+        ]);
+
+        $secondOption = AddOnOption::create([
+            'add_on_id' => $addon->id,
+            'option' => '{"en":"'.($optionTitle2 = $this->faker->word).'"}'
+        ]);
+
+        $this->post("settings/block/item/save", [
+            'block_id' => $block->id,
+            'id' => null,
+            $name.'_'.$addon->id => json_encode([$firstOption->id]),
+            'text' => '{"en":"'.($this->faker->paragraph).'"}',
+        ]);
+
+        if(!$assertion){
+            Auth::logout();
+        }
+
+        $element = Text::all()->last();
+
+        $response = $this->post("settings/block/item/save", [
+            'block_id' => $block->id,
+            'id' => $element->id,
+            $name.'_'.$addon->id => json_encode([$secondOption->id]),
+            'text' => '{"en":"'.($text = $this->faker->paragraph).'"}',
+        ]);
+
+        $item = Block::find($block->id)->firstItem();
+
+        if($assertion){
+            $response->assertSuccessful();
+            $this->assertNotNull($element);
+
+            $this->assertEquals($block->id, $item->block_id);
+            $this->assertEquals($text, $item->text);
+            $this->assertEquals(json_encode([$secondOption->id]), $item->{$name});
+        }
+        else{
+            $response->assertRedirect();
+            $this->assertNotEquals($text, $item->text);
+            $this->assertNotEquals(json_encode([$secondOption->id]), $item->{$name});
         }
 
         $this->removePivotTable($block, $addon);

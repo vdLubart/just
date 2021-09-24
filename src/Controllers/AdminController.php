@@ -2,15 +2,12 @@
 
 namespace Just\Controllers;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Just\Models\Block;
-use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\DB;
-use Just\Requests\UploadImageRequest;
 
 class AdminController extends Controller
 {
@@ -20,38 +17,12 @@ class AdminController extends Controller
         Config::set('isAdmin', true);
     }
 
-    public function uploadImage(UploadImageRequest $request): JsonResponse {
-        $image = Image::make($request->file('image'));
-        $pieces = explode(".", $request->image->getClientOriginalName());
-        array_pop($pieces);
-        $basename = implode('.', $pieces);
-        if(file_exists(public_path('images/library/'.$basename.'.png'))){
-            $basename = $basename."_".$image->basename;
-        }
-        $url = '/images/library/'.$basename.".png";
-
-        if($image->getWidth() > 1000){
-            $image->resize(1000, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-        }
-
-        if($image->getHeight() > 700){
-            $image->resize(null, 700, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-        }
-
-        $image->encode('png')->save(public_path($url));
-
-        return response()->json(["url"=>$url]);
-    }
-
     /**
      * [POST] Create block related to the model
      *
      * @param Request $request
      * @return RedirectResponse
+     * @throws \Exception
      */
     public function createRelation(Request $request): RedirectResponse {
         if(Auth::user()->role != "master"){

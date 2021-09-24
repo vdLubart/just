@@ -549,7 +549,7 @@ class Block extends Model
      *
      * @return Layout
      */
-    public function layout() {
+    public function layout(): Layout {
         $url = trim(str_replace(request()->root()."/admin", '', request()->server('HTTP_REFERER')), '/');
         $route = app('router')->getRoutes()->match(app('request')->create($url));
 
