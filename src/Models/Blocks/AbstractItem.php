@@ -500,62 +500,6 @@ abstract class AbstractItem extends Model implements BlockItem
     }
 
     /**
-     * @throws Exception
-     */
-    public function relationsForm($relBlock): Form {
-        $form = new Form('/admin/settings/relations/create');
-
-        // TODO: Check this method
-        $form->setType('relations');
-
-        $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->block->id]));
-        $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->id]));
-        $form->add(FormElement::select(['name'=>'relatedBlockName', 'label'=>'Related Block Type', 'value'=>(!is_null($relBlock) ? $relBlock->type : ""), 'options'=>$this->block->allBlocksSelect()]));
-        $form->add(FormElement::text(['name'=>'title', 'label'=>'Title', 'value'=> (!is_null($relBlock) ? $relBlock->title : "")]));
-        $form->add(FormElement::textarea(['name'=>'description', 'label'=>'Description', 'value'=>(!is_null($relBlock) ? $relBlock->description : "")]));
-        $form->applyJS("applyCKEditor('#".$this->block->type."_relationsForm #description')");
-        $form->add(FormElement::submit(['value'=>'Save']));
-
-        return $form;
-    }
-
-    public function relatedBlocks() {
-        if(Schema::hasTable($this->getTable().'_blocks')){
-            return $this->belongsToMany(Block::class, $this->getTable().'_blocks', 'modelItem_id', 'block_id');
-        }
-        else{
-            // return null
-            return $this->belongsTo(Block::class);
-        }
-    }
-
-    /**
-     * Return specific related block
-     *
-     * @param string $type type of related block
-     * @param string|null $name name of related block
-     * @param int|null $id id of related block
-     * @return Block|null
-     */
-    public function relatedBlock(string $type, ?string $name = null, ?int $id = null): ?Block {
-        $relBlock = $this->belongsToMany(Block::class, $this->getTable().'_blocks', 'modelItem_id', 'block_id')
-                ->where('type', $type);
-        if(!is_null($name)){
-            $relBlock->where('name', $name);
-        }
-        if(!is_null($id)){
-            $relBlock->where('blocks.id', $id);
-        }
-        $relBlock = $relBlock->first();
-
-        if(empty($relBlock)){
-            return null;
-        }
-
-        return $relBlock->specify();
-    }
-
-    /**
      * Return first item from content
      *
      * @return mixed

@@ -70,26 +70,6 @@ class AdminAccessTest extends Actions
     }
 
     /** @test */
-    function admin_can_add_related_block(){
-        $this->add_related_block_to_the_item(false);
-    }
-
-    /** @test */
-    function admin_can_add_item_to_related_block(){
-        $this->add_item_to_related_block(true);
-    }
-
-    /** @test */
-    function admin_can_access_data_from_related_block(){
-        $this->access_data_from_related_block();
-    }
-
-    /** @test */
-    function admin_can_access_parent_block_from_the_related_one(){
-        $this->access_parent_block_from_the_related_one();
-    }
-
-    /** @test */
     function admin_can_update_block_settings(){
         $this->update_block_settings(true);
     }

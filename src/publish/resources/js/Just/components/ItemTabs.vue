@@ -28,14 +28,6 @@
                     edit: {
                         icon: 'pencil-alt',
                         url: '/settings/block/' + this.blockId + '/item/' + this.itemId
-                    },
-                    createRelation: {
-                        icon: 'plus',
-                        url: '/settings/block/' + this.blockId + '/item/' + this.itemId + '/related/0'
-                    },
-                    relations: {
-                        icon: 'link',
-                        url: '/settings/block/' + this.blockId + '/item/' + this.itemId + '/related/list'
                     }
                 },
                 active: this.tab,

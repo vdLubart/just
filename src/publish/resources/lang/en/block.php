@@ -62,11 +62,6 @@ return [
     'createItem' => 'Create New Item',
     'editItem' => 'Edit Item',
     'registrations' => 'Registrations',
-    'relatedBlock' => [
-        'title' => 'Related Blocks',
-        'edit' => 'Edit Related Block',
-        'create' => 'Create Related Block'
-    ],
     'untitled' => 'Untitled',
     'type' => [
         'articles' => [

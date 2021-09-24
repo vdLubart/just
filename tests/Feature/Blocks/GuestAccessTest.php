@@ -60,21 +60,6 @@ class GuestAccessTest extends Actions
     }
 
     /** @test */
-    function guest_cannot_add_related_block(){
-        $this->add_related_block_to_the_item(false);
-    }
-
-    /** @test */
-    function guest_cannot_add_item_to_related_block(){
-        $this->add_item_to_related_block(false);
-    }
-
-    /** @test */
-    function guest_can_access_parent_block_from_the_related_one(){
-        $this->access_parent_block_from_the_related_one(true);
-    }
-
-    /** @test */
     function guest_cannot_update_block_settings(){
         $this->update_block_settings(false);
     }

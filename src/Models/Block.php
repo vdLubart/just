@@ -69,13 +69,6 @@ class Block extends Model
      */
     protected ?AbstractItem $item = null;
 
-    /**
-     * Access parent block from the related block
-     *
-     * @var ?Block $parentBlock
-     */
-    protected ?Block $parentBlock = null;
-
     protected $currentCategory = null;
 
     /**
@@ -141,12 +134,6 @@ class Block extends Model
             $form->add(FormElement::hidden(['name'=>'block_id', 'value'=>$this->id]));
             $form->add(FormElement::hidden(['name'=>'id', 'value'=>$this->item->id]));
         }
-
-        return $form;
-    }
-
-    public function relationsForm($relBlock) {
-        $form = $this->item->relationsForm($relBlock);
 
         return $form;
     }
@@ -226,45 +213,6 @@ class Block extends Model
      */
     public function firstItem(){
         return $this->content()->first();
-    }
-
-    /**
-     * Return parent block
-     * @param boolean $highestLevel is parent of top level should be returned
-     * @return  Block return parent block or itself if block does not have parent.
-     */
-    public function parentBlock($highestLevel = false){
-        if(!is_null($this->parent)){
-            $parentBlock = Block::find($this->parent);
-
-            if(!$highestLevel){
-                return $parentBlock;
-            }
-            else{
-                return $parentBlock->parentBlock(true);
-            }
-        }
-        else{
-            return $this;
-        }
-    }
-
-    /**
-     * Return item to which current block is connected
-     *
-     * @return mixed
-     * @throws Exception
-     */
-    public function parentItem(){
-        $parentBlock = $this->parentBlock()->specify()->item();
-
-        $itemId = DB::table($parentBlock->getTable()."_blocks")->where("block_id", $this->id)->get(["modelItem_id"]);
-
-        if(!$itemId->isEmpty()){
-            return $parentBlock::find($itemId->first()->modelItem_id);
-        }
-
-        return null;
     }
 
     /**
@@ -629,12 +577,8 @@ class Block extends Model
     public function page() {
         $page = $this->belongsTo(Page::class)->first();
 
-        // event block located in the related block
-        if(is_null($page) and is_null($this->panelLocation)){
-            $page = $this->parentBlock()->page();
-        }
         // event block located in header or footer
-        elseif(!is_null($this->panelLocation)){
+        if(!is_null($this->panelLocation)){
             $page = Page::first();
         }
 
@@ -644,9 +588,9 @@ class Block extends Model
     /**
      * Create migration for relationship between model and block
      *
-     * @param type $modelTable
+     * @param string $modelTable
      */
-    public static function createPivotTable($modelTable) {
+    public static function createPivotTable(string $modelTable) {
         if(!Schema::hasTable($modelTable."_blocks")){
             Artisan::call("make:relatedBlockMigration", ["name" => "create_".$modelTable."_blocks_table"]);
 

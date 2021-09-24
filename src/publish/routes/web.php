@@ -182,8 +182,6 @@ Route::prefix('admin')->middleware(['web', 'auth'])->group(function(){
         //TODO: check functionality
         //Route::get("normalize/{blockId}", "\Just\Controllers\AdminController@normalizeContent")->where(['blockId'=>'\d+']);
 
-        Route::post("relations/create", "\Just\Controllers\AdminController@createRelation");
-
         Route::get("password", "\Just\Controllers\AdminController@changePasswordForm");
         Route::post("password/update", "\Just\Controllers\AdminController@changePassword");
         //TODO: create functionality
